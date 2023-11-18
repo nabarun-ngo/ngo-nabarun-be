@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" class="h-100">
+<head th:replace="fragments/head :: head"></head>
+<body>
+	<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <div class="spinner-grow text-primary" role="status"></div>
+	</div>
+    <div th:replace="fragments/components/navbar :: navbar"></div>
+ 	<div layout:fragment="content"></div>
+ 	<div th:replace="fragments/components/footer :: footer"></div>
+    <div th:replace="fragments/scripts :: scripts"></div>
+</body>
+</html>

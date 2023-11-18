@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/default}">
+
+<div layout:fragment="content" th:remove="tag">
+	<div th:replace="fragments/components/header :: header"></div>
+	<div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
+		<div class="container text-center">
+			<div class="row justify-content-center">
+				<div class="col-lg-6">
+					<i class="bi bi-exclamation-triangle display-1 text-primary"></i>
+					<h1 class="display-1" th:if="code !=null" th:text="${code}"></h1>
+					<h1 class="mb-4" th:if="message !=null" th:text="${message}"></h1>
+					<p class="mb-4" th:if="description !=null" th:text="${description}"></p>
+					<a class="btn btn-outline-primary py-2 px-3" href="/"> Go Back
+						To Home
+						<div
+							class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+							<i class="fa fa-arrow-right"></i>
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</html>
