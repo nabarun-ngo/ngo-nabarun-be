@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.DonationStatus;
+import ngo.nabarun.app.common.enums.PaymentMethod;
+import ngo.nabarun.app.common.enums.UPIOption;
 
 @Data
 public class DonationDetailUpdate {
@@ -23,8 +25,8 @@ public class DonationDetailUpdate {
 	private String paymentConfirmedById;
 	
 	@JsonProperty("paymentMethod")
-	private String paymentMethod;
-	
+	private PaymentMethod paymentMethod;
+		
 	@JsonProperty("paidToAccount")
 	private String accountId;
 	
@@ -36,4 +38,10 @@ public class DonationDetailUpdate {
 	
 	@JsonProperty("donorMobile")
 	private String donorMobile;
+	
+	@JsonProperty("paidUPIName")
+	private UPIOption paidUPIName;
+	
+	@JsonProperty("comment")
+	private String comment;
 }

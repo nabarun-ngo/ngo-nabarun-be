@@ -1,7 +1,9 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +14,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AuthRefType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
+import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
+import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
+import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
+import ngo.nabarun.app.infra.service.IDomainRefConfigInfraService;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 import ngo.nabarun.app.infra.service.IMeetingInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
@@ -35,6 +43,9 @@ public class CommonBLImpl implements ICommonBL {
 	
 	@Autowired
 	private ITicketInfraService ticketInfraService;
+	
+	@Autowired
+	private IDomainRefConfigInfraService domainInfraService;
 	
 	@Autowired
 	private CacheManager cacheManager;
@@ -91,5 +102,26 @@ public class CommonBLImpl implements ICommonBL {
 			names.stream().forEach(name->cacheManager.getCache(name).clear());
 		}
 	}
-
+	
+	@Override
+	public Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception {
+		Map<String,List<KeyValue>> obj=new HashMap<>();
+		if(names == null || names.contains(RefDataType.DONATION)) {
+			DonationConfigTemplate donationConfig=domainInfraService.getDonationConfig();
+			obj.put("donationStatuses", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getDonationStatuses()));
+			obj.put("donationTypes", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getDonationTypes()) );
+			obj.put("paymentMethods", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getPaymentMethods()) );
+			obj.put("upiOptions", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getUPIOptions()) );
+		}
+		
+		if(names == null || names.contains(RefDataType.USER)) {
+			UserConfigTemplate userConfig=domainInfraService.getUserConfig();
+			obj.put("userTitles", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getUserTitles()));
+			obj.put("userGenders", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getUserGenders()));
+			obj.put("availableRoles", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getAvailableUserRoles()));
+			obj.put("availableRoleGroups", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getAvailableRoleGroups()));
+		}
+		
+		return obj;
+	}
 }

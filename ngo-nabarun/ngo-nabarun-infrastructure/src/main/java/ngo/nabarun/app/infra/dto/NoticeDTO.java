@@ -9,7 +9,6 @@ public class NoticeDTO {
 	
 	private String id;
 	private String title;
-	private String noticeNumber;
 	private String description;
 	private String createdBy;
 	private String creatorRole;

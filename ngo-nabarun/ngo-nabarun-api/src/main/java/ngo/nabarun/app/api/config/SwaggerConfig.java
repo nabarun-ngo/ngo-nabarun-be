@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "NABARUN API", version = "2.0"))
 @SecuritySchemes({
-	@SecurityScheme(name = "nabarun_auth2", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER),
-	@SecurityScheme(name = "nabarun_auth", scheme = "apikey", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER,paramName = "X-API-KEY"),
+	@SecurityScheme(name = "nabarun_auth", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER),
+	@SecurityScheme(name = "nabarun_auth2", scheme = "apikey", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER,paramName = "X-API-KEY"),
 	})
 public class SwaggerConfig {
 	

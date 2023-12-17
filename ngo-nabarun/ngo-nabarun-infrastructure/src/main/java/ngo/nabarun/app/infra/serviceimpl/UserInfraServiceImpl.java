@@ -260,17 +260,17 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		if (userDTO.getFirstName() != null) {
 			updatedProfile.setFirstName(userDTO.getFirstName());
 			updateAuthUser.setFirstName(userDTO.getFirstName());
-			updateAuthUser.setFullName(userDTO.getFirstName() + " " + profile.getLastName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName() : userDTO.getName());
 		} else if (userDTO.getLastName() != null) {
 			updatedProfile.setLastName(userDTO.getLastName());
 			updateAuthUser.setLastName(userDTO.getLastName());
-			updateAuthUser.setFullName(profile.getFirstName() + " " + userDTO.getLastName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName() : userDTO.getName());
 		} else if (userDTO.getFirstName() != null && userDTO.getLastName() != null) {
 			updatedProfile.setFirstName(userDTO.getFirstName());
 			updateAuthUser.setFirstName(userDTO.getFirstName());
 			updatedProfile.setLastName(userDTO.getLastName());
 			updateAuthUser.setLastName(userDTO.getLastName());
-			updateAuthUser.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName() : userDTO.getName());
 		}
 		updatedProfile.setMiddleName(userDTO.getMiddleName());
 		updatedProfile.setAbout(userDTO.getAbout());

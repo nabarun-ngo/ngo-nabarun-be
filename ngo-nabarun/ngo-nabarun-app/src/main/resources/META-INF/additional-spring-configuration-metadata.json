@@ -28,5 +28,15 @@
     "name": "context.initializer.classes",
     "type": "java.lang.String",
     "description": "A description for 'context.initializer.classes'"
+  },
+  {
+    "name": "app.secretKey",
+    "type": "java.lang.String",
+    "description": "A description for 'app.secretKey'"
+  },
+  {
+    "name": "app.config.datasource",
+    "type": "java.lang.String",
+    "description": "A description for 'app.config.datasource'"
   }
 ]}

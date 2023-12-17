@@ -1,6 +1,5 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,15 +13,13 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Page;
-import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
+import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
-import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.INoticeInfraService;
-import ngo.nabarun.app.infra.service.ISequenceInfraService;
 
 @Service
 public class NoticeBLImpl implements INoticeBL {
@@ -34,7 +31,7 @@ public class NoticeBLImpl implements INoticeBL {
 	private IDocumentInfraService documentInfraService;
 	
 	@Autowired
-	private ISequenceInfraService sequenceInfraService;
+	private  BusinessIdGenerator idGenerator;
 	
 	@Override
 	public Page<NoticeDetail> getAllNotice(Integer page, Integer size, NoticeDetailFilter filter) {
@@ -42,7 +39,7 @@ public class NoticeBLImpl implements INoticeBL {
 		if(filter != null) {
 			noticeDTOFilter= new NoticeDTO();
 			noticeDTOFilter.setTitle(filter.getTitle());
-			noticeDTOFilter.setNoticeNumber(filter.getNoticeNumber());
+			//noticeDTOFilter.setNoticeNumber(filter.getNoticeNumber());
 		}
 		List<NoticeDetail> content =noticeIndraService.getNoticeList(page, size, noticeDTOFilter).stream()
 				.filter(f->!f.isDraft())
@@ -64,18 +61,32 @@ public class NoticeBLImpl implements INoticeBL {
 
 	@Override
 	public NoticeDetail createNotice(NoticeDetailCreate noticeDetail) throws Exception {
-		NoticeDTO noticeDto=BusinessObjectToDTOConverter.toNoticeDTO(noticeDetail);
-		noticeDto.setNoticeNumber(generateNoticeNumber());
-		noticeDto.setCreatedBy(SecurityUtils.getAuthUserId());
-		noticeDto=noticeIndraService.createNotice(noticeDto);
-		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDto);
+		NoticeDTO noticeDTO = new NoticeDTO();
+		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
+		noticeDTO.setDescription(noticeDetail.getDescription());
+		noticeDTO.setDraft(noticeDetail.getDraft());
+		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
+		noticeDTO.setTitle(noticeDetail.getTitle());
+		//noticeDTO.setType(noticeEntity.getVisibility());		
+		noticeDTO.setId(idGenerator.generateNoticeId());
+		noticeDTO.setCreatedBy(SecurityUtils.getAuthUserId());
+		noticeDTO=noticeIndraService.createNotice(noticeDTO);
+		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDTO);
 	}
 
 	@Override
-	public NoticeDetail updateNotice(String id, NoticeDetailUpdate updatedNoticeDetail) throws Exception {
-		NoticeDTO noticeDto=BusinessObjectToDTOConverter.toNoticeDTO(updatedNoticeDetail);
-		noticeDto=noticeIndraService.updateNotice(id,noticeDto);
-		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDto);
+	public NoticeDetail updateNotice(String id, NoticeDetailUpdate noticeDetail) throws Exception {
+		NoticeDTO noticeDTO= new NoticeDTO();
+		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
+		noticeDTO.setDescription(noticeDetail.getDescription());
+		if(noticeDetail.getPublish() != null && noticeDetail.getPublish() == Boolean.TRUE) {
+			noticeDTO.setDraft(noticeDetail.getPublish());
+		}
+		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
+		noticeDTO.setTitle(noticeDetail.getTitle());
+		//noticeDTO.setType(noticeEntity.getVisibility());		
+		noticeDTO=noticeIndraService.updateNotice(id,noticeDTO);
+		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDTO);
 	}
 
 	@Override
@@ -107,21 +118,4 @@ public class NoticeBLImpl implements INoticeBL {
 		noticeIndraService.deleteNotice(id);
 	}
 	
-	private String generateNoticeNumber() {
-		String seqName="NOTICE_SEQUENCE";
-		String pattern="NBRN/%s/%s/%s";
-		String year = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "yyyy");
-		String month = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "MMM").toUpperCase();
-		Date lastResetDate=sequenceInfraService.getLastResetDate(seqName);
-		if(CommonUtils.isCurrentMonth(lastResetDate)) {
-			int seq=sequenceInfraService.incrementSequence(seqName);
-			return String.format(pattern, year, month,seq);
-		}else {
-			int seq=sequenceInfraService.resetSequence(seqName);
-			return String.format(pattern, year, month,seq);
-		}
-	}
-
-
-
 }

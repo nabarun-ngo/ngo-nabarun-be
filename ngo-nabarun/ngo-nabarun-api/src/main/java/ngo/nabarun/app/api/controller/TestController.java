@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IUserBL;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
+import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AddressType;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
@@ -49,7 +51,7 @@ public class TestController {
 	private UserProfileRepository upRepo;
 
 	@PostMapping("/api/test/createuser")
-	public UserDTO getUserEmail(@RequestParam String firstname, @RequestParam String lastname,
+	public UserDetail getUserEmail(@RequestParam String firstname, @RequestParam String lastname,
 			@RequestParam String email, @RequestParam String phone, @RequestParam String hometown) throws Exception {
 		UserDTO userDTO = new UserDTO();
 		userDTO.setFirstName(firstname);
@@ -72,7 +74,7 @@ public class TestController {
 		add.setAddressType(AddressType.PERMANENT);
 		add.setHometown(hometown);
 		userDTO.setAddresses(List.of(add));
-		return userInfraService.createUser(userDTO);
+		return DTOToBusinessObjectConverter.toUserDetail(userInfraService.createUser(userDTO));
 	}
 
 	@GetMapping("/getconfig")
@@ -95,7 +97,8 @@ public class TestController {
 //		List<UserProfileEntity> result = upRepo.findAll(example);
 //		System.err.println(result);
 		UserConfigTemplate userConfig=domainRefConfig.getUserConfig();
-
+		System.out.println(userConfig);
+		System.out.println(domainRefConfig.getDonationConfig());
 		return new SuccessResponse<Object>().payload(userConfig).get(HttpStatus.OK);
 	}
 }

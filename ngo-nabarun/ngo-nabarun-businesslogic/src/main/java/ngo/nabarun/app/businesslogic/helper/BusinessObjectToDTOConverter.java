@@ -120,7 +120,8 @@ public class BusinessObjectToDTOConverter {
 		}).collect(Collectors.toList());
 	}
 
-	public static EventDTO toEventDTO(EventDetail eventDetail) {
+	@Deprecated
+	public static EventDTO toEventDTO1(EventDetail eventDetail) {
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setBudget(eventDetail.getEventBudget());
 		eventDTO.setCoverPic(eventDetail.getCoverPicture());
@@ -135,6 +136,7 @@ public class BusinessObjectToDTOConverter {
 		return eventDTO;
 	}
 
+	@Deprecated
 	public static EventDTO toEventDTO(EventDetailUpdate updatedEventDetail) {
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setBudget(updatedEventDetail.getEventBudget());
@@ -149,6 +151,7 @@ public class BusinessObjectToDTOConverter {
 		return eventDTO;
 	}
 
+	@Deprecated
 	public static EventDTO toEventDTO(EventDetailCreate eventDetail) {
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setBudget(eventDetail.getEventBudget());
@@ -161,6 +164,7 @@ public class BusinessObjectToDTOConverter {
 		return eventDTO;
 	}
 	
+	@Deprecated
 	public static NoticeDTO toNoticeDTO(NoticeDetailCreate noticeDetail) {
 		NoticeDTO noticeDTO = new NoticeDTO();
 		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
@@ -172,6 +176,7 @@ public class BusinessObjectToDTOConverter {
 		return noticeDTO;
 	}
 	
+	@Deprecated
 	public static NoticeDTO toNoticeDTO(NoticeDetailUpdate noticeDetail) {
 		NoticeDTO noticeDTO= new NoticeDTO();
 		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());

@@ -14,10 +14,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
+import ngo.nabarun.app.common.enums.RefDataType;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
@@ -74,6 +77,11 @@ public class CommonController {
 	@PostMapping(value="/authorization/createAuthorizationUrl")
 	public ResponseEntity<SuccessResponse<String>> generateAuthorizationUrl(@RequestBody AuthorizationDetail authDetail) throws Exception {
 		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
+	}
+	
+	@PostMapping(value="/getReferenceData")
+	public ResponseEntity<SuccessResponse<Map<String,List<KeyValue>>>> getReferenceData(@RequestBody(required = false) List<RefDataType> names) throws Exception {
+		return new SuccessResponse<Map<String,List<KeyValue>>>().payload(commonBL.getReferenceData(names)).get(HttpStatus.OK);
 	}
 	
 }

@@ -17,17 +17,22 @@ import ngo.nabarun.app.businesslogic.businessobjects.Page;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
+import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IEventInfraService;
+import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Service
 public class SocialEventBLImpl implements ISocialEventBL {
 	
 	@Autowired
 	private IEventInfraService eventInfraService;
+	
+	@Autowired
+	private IUserInfraService userInfraService;
 	
 	@Autowired
 	private IDocumentInfraService documentInfraService;
@@ -60,30 +65,56 @@ public class SocialEventBLImpl implements ISocialEventBL {
 
 	@Override
 	public EventDetail createSocialEvent(EventDetailCreate eventDetail) throws Exception {
-		EventDTO event = null;
-		event=BusinessObjectToDTOConverter.toEventDTO(eventDetail);
-		event.setCreatorId(SecurityUtils.getAuthUserId());
-		event=eventInfraService.createEvent(event);
+		EventDTO eventDTO = new EventDTO();
+		eventDTO.setBudget(eventDetail.getEventBudget());
+		eventDTO.setDescription(eventDetail.getEventDescription());
+		eventDTO.setDraft(eventDetail.isDraft());
+		eventDTO.setEventDate(eventDetail.getEventDate());
+		eventDTO.setLocation(eventDetail.getEventLocation());
+		eventDTO.setTitle(eventDetail.getTitle());
+		eventDTO.setType(EventType.INTERNAL);
+		
+		//userInfraService.getUserByUserId(SecurityUtils.getAuthUserId(), false);
+		/*
+		 * Add profile id instead of user id
+		 */
+		eventDTO.setCreatorId(SecurityUtils.getAuthUserId());
+		eventDTO=eventInfraService.createEvent(eventDTO);
 		if (eventDetail.getBase64Image() != null) {
-			List<DocumentDTO> profilePics = documentInfraService.getDocumentList(event.getId(),
+			List<DocumentDTO> profilePics = documentInfraService.getDocumentList(eventDTO.getId(),
 					DocumentIndexType.EVENT_COVER);
 			for (DocumentDTO doc : profilePics) {
 				documentInfraService.hardDeleteDocument(doc.getDocId());
 			}
 			byte[] content = Base64.decodeBase64(eventDetail.getBase64Image());
-			DocumentDTO doc = documentInfraService.uploadDocument("pp.png", "image/png", event.getId(),
+			DocumentDTO doc = documentInfraService.uploadDocument("demo.png", "image/png", eventDTO.getId(),
 					DocumentIndexType.EVENT_COVER, content);
 			EventDTO updatedEvent= new EventDTO();
 			updatedEvent.setCoverPic(doc.getDocumentURL());
-			event=eventInfraService.updateEvent(event.getId(), updatedEvent);
+			eventDTO=eventInfraService.updateEvent(eventDTO.getId(), updatedEvent);
 		}
-		return DTOToBusinessObjectConverter.toEventDetail(event);
+		return DTOToBusinessObjectConverter.toEventDetail(eventDTO);
 	}
 
 	@Override
 	public EventDetail updateSocialEvent(String id, EventDetailUpdate updatedEventDetail) throws Exception {
 		EventDTO event =eventInfraService.getEvent(id);
-		EventDTO updatedDTO=BusinessObjectToDTOConverter.toEventDTO(updatedEventDetail);
+		/*
+		 * Setting attributes
+		 */
+		EventDTO updatedDTO = new EventDTO();
+		updatedDTO.setBudget(updatedEventDetail.getEventBudget());
+		updatedDTO.setDescription(updatedEventDetail.getEventDescription());
+		if(updatedEventDetail.getPublish() != null) {
+			updatedDTO.setDraft(!updatedEventDetail.getPublish());
+		}
+		updatedDTO.setEventDate(updatedEventDetail.getEventDate());
+		updatedDTO.setLocation(updatedEventDetail.getEventLocation());
+		updatedDTO.setTitle(updatedEventDetail.getTitle());
+		updatedDTO.setType(updatedEventDetail.getEventType());
+		/*
+		 * Uploading cover picture
+		 */
 		if (updatedEventDetail.getBase64Image() != null) {
 			List<DocumentDTO> profilePics = documentInfraService.getDocumentList(event.getId(),
 					DocumentIndexType.EVENT_COVER);

@@ -35,6 +35,7 @@ import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
+import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
 import ngo.nabarun.app.infra.misc.EmailTemplate;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
@@ -77,20 +78,23 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	/**
 	 * Constants
+	 * THIS SHOULD BE SAME AS REMOTE CONFIG
 	 */
 	private static final String EMAIL_TEMPLATES_CONFIG = "EMAIL_TEMPLATES";
 	private static final String USER_CONFIG = "USER_CONFIG";
+	private static final String DONATION_CONFIG = "DONATION_CONFIG";
+	private static final String MESSAGE_AND_FIELD_CONFIG = "MESSAGE_AND_FIELD_CONFIG";
 
 	@Override
 	public int getLastSequence(String seqName) {
-		DBSequenceEntity seqUpdate = dbSeqRepository.findByName(seqName.toUpperCase())
+		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		return seqUpdate.getSeq();
 	}
 
 	@Override
 	public int resetSequence(String seqName) {
-		DBSequenceEntity seqUpdate = dbSeqRepository.findByName(seqName.toUpperCase())
+		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		seqUpdate.setSeq(1);
 		seqUpdate.setLastSeqUpdateOn(CommonUtils.getSystemDate());
@@ -101,15 +105,16 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public Date getLastResetDate(String seqName) {
-		DBSequenceEntity seqUpdate = dbSeqRepository.findByName(seqName.toUpperCase())
-				.orElse(createEntity(seqName.toUpperCase()));
-		return seqUpdate.getLastSeqResetOn();
+		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
+				.orElse(null);
+		return seqUpdate == null ? null : seqUpdate.getLastSeqResetOn();
 	}
 
 	private DBSequenceEntity createEntity(String seqName) {
 		DBSequenceEntity seqUpdate = new DBSequenceEntity();
 		seqUpdate.setSeq(1);
-		seqUpdate.setName(seqName.toUpperCase());
+		seqUpdate.setName(seqName);
+		seqUpdate.setId(seqName.toUpperCase());		
 		seqUpdate.setLastSeqUpdateOn(CommonUtils.getSystemDate());
 		seqUpdate.setLastSeqResetOn(CommonUtils.getSystemDate());
 		seqUpdate = dbSeqRepository.save(seqUpdate);
@@ -118,7 +123,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public int incrementSequence(String seqName) {
-		DBSequenceEntity seqUpdate = dbSeqRepository.findByName(seqName.toUpperCase())
+		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		seqUpdate.setSeq(seqUpdate.getSeq() + 1);
 		seqUpdate.setLastSeqUpdateOn(CommonUtils.getSystemDate());
@@ -128,7 +133,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public int decrementSequence(String seqName) {
-		DBSequenceEntity seqUpdate = dbSeqRepository.findByName(seqName.toUpperCase())
+		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		seqUpdate.setSeq(seqUpdate.getSeq() - 1);
 		seqUpdate.setLastSeqUpdateOn(CommonUtils.getSystemDate());
@@ -157,7 +162,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 				CommonUtils.addSecondsToDate(CommonUtils.getSystemDate(), ticket.getExpireTicketAfterSec()));
 		ticketInfo.setIncorrectOTPCount(0);
 		ticketInfo.setMobileNumber(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPrimaryPhoneNumber());
-		ticketInfo.setName(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getFirstName());
+		ticketInfo.setName(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName());
 		ticketInfo.setOneTimePassword(CommonUtils.generateRandomNumber(ticket.getOtpDigits()));
 		ticketInfo.setRefId(ticket.getRefId());
 		if (ticket.getTicketScope() != null) {
@@ -357,6 +362,20 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			return m;
 		}).toList();
 		return userConfig;
+	}
+	
+	@Override
+	public DonationConfigTemplate getDonationConfig() throws Exception {
+		RemoteConfig config = remoteConfigService.getRemoteConfig(DONATION_CONFIG);
+		DonationConfigTemplate donationConfig=CommonUtils.jsonToPojo(config.getValue().toString(), DonationConfigTemplate.class);
+		return donationConfig;
+	}
+
+	@Override
+	public String getBusinessErrorMessage(String errorCode) throws Exception {
+		RemoteConfig config = remoteConfigService.getRemoteConfig(MESSAGE_AND_FIELD_CONFIG);
+
+		return null;
 	}
 
 }

@@ -14,7 +14,9 @@ public class UserDTO {
 	private String firstName;
 	private String middleName;
 	private String lastName;
-	
+	//this attribute will not be stored
+	private String name;
+
 	//more details
 	private String imageUrl;
 	private Date dateOfBirth;

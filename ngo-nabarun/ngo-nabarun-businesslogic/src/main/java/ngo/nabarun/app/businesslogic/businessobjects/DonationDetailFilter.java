@@ -3,6 +3,7 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 import lombok.Data;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
+import ngo.nabarun.app.common.enums.PaymentMethod;
 
 import java.util.Date;
 
@@ -14,11 +15,11 @@ public class DonationDetailFilter {
 	@JsonProperty("isGuest")
 	private Boolean isGuest;
 	
-	@JsonProperty("startDate")
-	private Date startDate;
+	@JsonProperty("fromDate")
+	private Date fromDate;
 	
-	@JsonProperty("endDate")
-	private Date endDate;
+	@JsonProperty("toDate")
+	private Date toDate;
 	
 	@JsonProperty("donationType")
 	private DonationType donationType;
@@ -27,8 +28,6 @@ public class DonationDetailFilter {
 	private DonationStatus donationStatus;
 	
 	@JsonProperty("paymentMethod")
-	private String paymentMethod;
+	private PaymentMethod paymentMethod;
 	
-	@JsonProperty("accountId")
-	private String accountId;
 }

@@ -21,6 +21,7 @@
 		<module>ngo-nabarun-externalintegration</module>
 		<module>ngo-nabarun-infrastructure</module>
 		<module>ngo-nabarun-security</module>
+		<module>ngo-nabarun-config</module>
 	</modules>
 	<properties>
 		<java.version>11</java.version>

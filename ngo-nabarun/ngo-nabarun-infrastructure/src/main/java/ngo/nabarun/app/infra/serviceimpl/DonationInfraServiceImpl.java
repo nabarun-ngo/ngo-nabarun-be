@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +22,23 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 
 	@Autowired
 	private DonationRepository donationRepo;
-
+  
 	@Override
-	public List<DonationDTO> getUserDonations(String id) {
-		List<DonationEntity> donations = donationRepo.findByProfileId(id);
+	public List<DonationDTO> getUserDonations(String id,Integer page, Integer size) {
+		List<DonationEntity> donations = null;
+		if (page != null && size != null) {
+			Page<DonationEntity> donation2s = donationRepo.findByProfile(id,PageRequest.of(page, size));
+		} else {
+			donations = donationRepo.findByProfileId(id);
+		}
 		return donations.stream().map(m -> InfraDTOHelper.convertToDonationDTO(m)).collect(Collectors.toList());
 	}
 
 	@Override
 	public DonationDTO createDonation(DonationDTO donationDTO) {
 		DonationEntity donation = new DonationEntity();
-
+		donation.setStartDate(donationDTO.getStartDate());
+		donation.setId(donationDTO.getId());
 		donation.setAmount(donationDTO.getAmount());
 		donation.setContributionStatus(donationDTO.getStatus().name());
 		donation.setContributionType(donationDTO.getType().name());
@@ -40,17 +47,14 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 		donation.setEventId(donationDTO.getForEventId());
 		donation.setIsGuest(donationDTO.getGuest());
 		donation.setRaisedOn(CommonUtils.getSystemDate());
-		if (donationDTO.getGuest() == Boolean.TRUE) {
-			donation.setGuestContactNumber(donationDTO.getDonor().getPrimaryPhoneNumber());
-			donation.setGuestEmailAddress(donationDTO.getDonor().getEmail());
-			donation.setGuestFullNameOrOrgName(donationDTO.getDonor().getFirstName());
-		} else {
+		if (donationDTO.getGuest() != Boolean.TRUE) {
 			donation.setProfile(donationDTO.getDonor().getProfileId());
-			donation.setGuestEmailAddress(donationDTO.getDonor().getEmail());
-			donation.setGuestFullNameOrOrgName(
-					donationDTO.getDonor().getFirstName() + " " + donationDTO.getDonor().getLastName());
-		}
-		donation.setStartDate(donationDTO.getStartDate());
+		} 
+		
+		donation.setDonorContactNumber(donationDTO.getDonor().getPrimaryPhoneNumber());
+		donation.setDonorEmailAddress(donationDTO.getDonor().getEmail());
+		donation.setDonorName(donationDTO.getDonor().getName());		
+		
 		donation = donationRepo.save(donation);
 		// create log at firebase
 		return InfraDTOHelper.convertToDonationDTO(donation);
@@ -69,7 +73,7 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 			example.setEndDate(filter.getEndDate());
 			example.setContributionType(filter.getType() == null ? null : filter.getType().name());
 			example.setContributionStatus(filter.getStatus() == null ? null : filter.getStatus().name());
-			example.setPaymentMethod(filter.getPaymentMethod());
+			//example.setPaymentMethod(filter.getPaymentMethod());
 
 			donations = (page == null || size == null) ? donationRepo.findAll(Example.of(example, matcher))
 					: donationRepo.findAll(Example.of(example, matcher), PageRequest.of(page, size)).getContent();
@@ -78,7 +82,6 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 		} else {
 			donations = donationRepo.findAll();
 		}
-
 		return donations.stream().map(m -> InfraDTOHelper.convertToDonationDTO(m)).collect(Collectors.toList());
 	}
 
@@ -90,6 +93,58 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 	@Override
 	public long getDonationsCount() {
 		return donationRepo.count();
+	}
+	
+	@Override
+	public long getDonationsCount(String id) {
+		return donationRepo.countByProfile(id);
+	}
+	
+	@Override
+	public DonationDTO updateDonation(String id,DonationDTO donationDTO) {
+		DonationEntity donation=donationRepo.findById(id ).orElseThrow();
+		/**
+		 * Not allowing id, profile and raised on, delete to be updated at any condition
+		 */
+		DonationEntity updatedDonation= new DonationEntity();
+		updatedDonation.setAccountId(donationDTO.getAccountId());
+		updatedDonation.setAmount(donationDTO.getAmount());
+		updatedDonation.setContributionStatus(donationDTO.getStatus() == null ? null : donationDTO.getStatus().name());
+		updatedDonation.setContributionType(donationDTO.getType() == null ? null : donationDTO.getType().name());
+		if(donationDTO.getGuest() != null) {
+			updatedDonation.setIsGuest(donationDTO.getGuest());
+		}
+		
+		if(donationDTO.getIsPaymentNotified() != null) {
+			updatedDonation.setIsPaymentNotified(donationDTO.getIsPaymentNotified());
+		}
+		
+		/*
+		 * Name and email address update is only allowed for guest donation
+		 */
+		if (donation.getIsGuest() == Boolean.TRUE) {
+			updatedDonation.setDonorContactNumber(donationDTO.getDonor() == null ? null : donationDTO.getDonor().getPrimaryPhoneNumber());
+			updatedDonation.setDonorEmailAddress(donationDTO.getDonor() == null ? null : donationDTO.getDonor().getEmail());
+			updatedDonation.setDonorName(donationDTO.getDonor() == null ? null : donationDTO.getDonor().getName());
+		}
+		
+		updatedDonation.setEndDate(donationDTO.getEndDate());
+		updatedDonation.setEventId(donationDTO.getForEventId());
+		
+		updatedDonation.setPaidOn(donationDTO.getPaidOn());
+		
+		updatedDonation.setPaymentConfirmedBy(donationDTO.getConfirmedBy() == null ? null : donationDTO.getConfirmedBy().getProfileId());
+		updatedDonation.setPaymentConfirmedByName(donationDTO.getConfirmedBy() == null ? null : donationDTO.getConfirmedBy().getName());
+		
+		updatedDonation.setPaymentConfirmedOn(donationDTO.getConfirmedOn());
+		updatedDonation.setPaymentMethod(donationDTO.getPaymentMethod() == null ? null : donationDTO.getPaymentMethod().name());
+		updatedDonation.setPaidUPIName(donationDTO.getUpiName()== null ? null : donationDTO.getUpiName().name());
+		updatedDonation.setStartDate(donationDTO.getStartDate());
+		updatedDonation.setTransactionRefNumber(donationDTO.getTransactionRefNumber());
+		updatedDonation.setComment(donationDTO.getComment());
+		
+		CommonUtils.copyNonNullProperties(updatedDonation, donation);
+		return InfraDTOHelper.convertToDonationDTO(donationRepo.save(donation));
 	}
 
 }

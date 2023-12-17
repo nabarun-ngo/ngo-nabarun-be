@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+
 import org.passay.CharacterData;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +30,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommonUtils {
@@ -206,6 +209,14 @@ public class CommonUtils {
 		  if (is != null) { is.close(); }
 		}
 		return baos.toByteArray();
+	}
+	
+	public static Map<String,Object> toMap(Object object){
+		return objectMapper.convertValue(object, new TypeReference<Map<String,Object>>() {});
+	}
+	
+	public static <T> T convertToType(Object object,TypeReference<T> type){
+		return objectMapper.convertValue(object, type);
 	}
 	
 }

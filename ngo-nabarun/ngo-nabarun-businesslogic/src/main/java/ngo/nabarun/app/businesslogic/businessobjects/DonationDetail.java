@@ -3,6 +3,8 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 import lombok.Data;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
+import ngo.nabarun.app.common.enums.PaymentMethod;
+import ngo.nabarun.app.common.enums.UPIOption;
 
 import java.util.Date;
 import java.util.List;
@@ -30,10 +32,10 @@ public class DonationDetail {
 	@JsonProperty("raisedOn")
 	private Date raisedOn;
 	
-	@JsonProperty("donationType")
+	@JsonProperty("type")
 	private DonationType donationType;
 	
-	@JsonProperty("donationStatus")
+	@JsonProperty("status")
 	private DonationStatus donationStatus;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -41,13 +43,13 @@ public class DonationDetail {
 	private Date paidOn;
 	
 	@JsonProperty("confirmedBy")
-	private String paymentConfirmedBy;
+	private UserDetail paymentConfirmedBy;
 	
 	@JsonProperty("confirmedOn")
 	private Date paymentConfirmedOn;
 	
 	@JsonProperty("paymentMethod")
-	private String paymentMethod;
+	private PaymentMethod paymentMethod;
 	
 	@JsonProperty("paidToAccount")
 	private String accountId;
@@ -60,6 +62,15 @@ public class DonationDetail {
 	    
 	@JsonProperty("documents")
 	private List<String> attachments;
+	
+	@JsonProperty("paidUsingUPI")
+	private UPIOption paidUsingUPI;
+	
+	@JsonProperty("isPaymentNotified")
+	private boolean isPaymentNotified;
+	
+	@JsonProperty("donationRef")
+	private String donationRef;
 	
 	
 }

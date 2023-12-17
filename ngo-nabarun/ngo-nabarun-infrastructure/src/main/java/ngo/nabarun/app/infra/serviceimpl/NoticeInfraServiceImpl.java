@@ -33,7 +33,7 @@ public class NoticeInfraServiceImpl implements INoticeInfraService {
 			example.setDescription(filter.getDescription());
 			example.setDraft(filter.isDraft());
 			example.setNoticeDate(filter.getNoticeDate());
-			example.setNoticeNumber(filter.getNoticeNumber());
+			//example.setNoticeNumber(filter.getNoticeNumber());
 			example.setTitle(filter.getTitle());
 			events = (page == null || size == null) ? noticeRepository.findAll(Example.of(example, matcher))
 					: noticeRepository.findAll(Example.of(example, matcher), PageRequest.of(page, size)).getContent();
@@ -57,7 +57,6 @@ public class NoticeInfraServiceImpl implements INoticeInfraService {
 		notice.setId(noticeDTO.getId());
 		notice.setNeedMeeting(null);
 		notice.setNoticeDate(noticeDTO.getNoticeDate());
-		notice.setNoticeNumber(noticeDTO.getNoticeNumber());
 		notice.setPublishedOn(noticeDTO.isDraft() ? null : notice.getCreatedOn());
 		notice.setRedirectUrl(null);
 		notice.setTitle(noticeDTO.getTitle());
@@ -96,7 +95,7 @@ public class NoticeInfraServiceImpl implements INoticeInfraService {
 		updated_notice.setId(noticeDTO.getId());
 		updated_notice.setNeedMeeting(null);
 		updated_notice.setNoticeDate(noticeDTO.getNoticeDate());
-		updated_notice.setNoticeNumber(noticeDTO.getNoticeNumber());
+		//updated_notice.setNoticeNumber(noticeDTO.getNoticeNumber());
 		updated_notice.setPublishedOn(noticeDTO.isDraft() ? null : notice.getCreatedOn());
 		updated_notice.setRedirectUrl(null);
 		updated_notice.setTitle(noticeDTO.getTitle());

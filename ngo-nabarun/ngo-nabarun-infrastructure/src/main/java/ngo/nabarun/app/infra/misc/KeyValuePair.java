@@ -11,8 +11,8 @@ public class KeyValuePair {
 	@JsonProperty("KEY")
 	private String key;
 	
-	@JsonProperty("DISPLAY_VALUE")
-	private String displayValue;
+	@JsonProperty("VALUE")
+	private String value;
 	
 	@JsonProperty("DESCRIPTION")
 	private String description;

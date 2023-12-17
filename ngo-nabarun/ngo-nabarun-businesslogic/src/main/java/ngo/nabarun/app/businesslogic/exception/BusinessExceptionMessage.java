@@ -5,7 +5,7 @@ import java.util.Map;
 public enum BusinessExceptionMessage{
 	DONATION_ALREADY_RAISED("Donation is already raised between selected Start Date and End Date. Please select different date range."),
 	INACTIVE_DONOR("User is currently not active payer."), 
-	USER_AUTH_NEEDED("User must be authenticated to perform this."),
+	//USER_AUTH_NEEDED("User must be authenticated to perform this."),
 	INVALID_DATA("Invalid data provided at ${FIELD_NAME} field(s)."),
 	NULL_OR_EMPTY_DATA("Null or empty data provided at ${FIELD_NAME} field(s)."),
 	INVALID_STATE("INVALID OBJECT STATE")

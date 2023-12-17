@@ -16,16 +16,14 @@ import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Page;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
-import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefUtil;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.helper.GenericMockDataHelper;
 import ngo.nabarun.app.common.helper.GenericPropertyHelper;
-import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
@@ -42,14 +40,8 @@ public class UserBLImpl implements IUserBL {
 	@Autowired
 	private IUserInfraService userService;
 	
-	@Autowired
-	private GenericMockDataHelper mockHelper;
-	
 	@Autowired 
 	private GenericPropertyHelper propertyHelper;
-	
-//	@Autowired 
-//	private BusinessEmailHelper emailHelper;
 	
 	@Autowired 
 	private IDomainRefConfigInfraService domainRefConfig;
@@ -63,11 +55,12 @@ public class UserBLImpl implements IUserBL {
 		UserDTO userDTO = null;
 		List<RoleDTO> roleDTO = new ArrayList<>();
 		if (SecurityUtils.isAuthenticated()) {
-			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? mockHelper.getAuthUserId() : SecurityUtils.getAuthUserId() , true);
+			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() , true);
 			roleDTO =userService.getUserRoles(userDTO.getProfileId());  
-		} else {
-			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
-		}
+		} 
+//		else {
+//			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
+//		}
 		return DTOToBusinessObjectConverter.toUserDetail(userDTO,roleDTO);
 	}
 
@@ -75,7 +68,7 @@ public class UserBLImpl implements IUserBL {
 	public UserDetail updateAuthUserDetails(UserDetailUpdate updatedUserDetails) throws Exception {
 		UserDTO userDTO = null;
 		if (SecurityUtils.isAuthenticated()) {
-			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? mockHelper.getAuthUserId() : SecurityUtils.getAuthUserId() , false);
+			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() , false);
 			UserConfigTemplate userConfig=domainRefConfig.getUserConfig();
 			/** *******************************************
 			 *   All Business level validations start here
@@ -103,22 +96,22 @@ public class UserBLImpl implements IUserBL {
 			 * Throwing error when if 'gender' and 'title' is getting changed then call config and check if new gender is aligned with new title 
 			 */
 			
-			if(updatedUserDetails.getGender() !=null && updatedUserDetails.getTitle()!=null && !BusinessDomainRefUtil.isTitleGenderAligned(userConfig,updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
-				throw new BusinessException("Title '"+BusinessDomainRefUtil.getTitleValue(userConfig, updatedUserDetails.getTitle())+"' is not aligned with gender '"+BusinessDomainRefUtil.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
+			if(updatedUserDetails.getGender() !=null && updatedUserDetails.getTitle()!=null && !BusinessDomainRefHelper.isTitleGenderAligned(userConfig,updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
+				throw new BusinessException("Title '"+BusinessDomainRefHelper.getTitleValue(userConfig, updatedUserDetails.getTitle())+"' is not aligned with gender '"+BusinessDomainRefHelper.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
 			}else {
 				/**
 				 * Allowing to update 'gender' if it is compatible with title
 				 * Throwing error when if only gender is getting changed then call config and check if new gender is aligned with old title
 				 */
-				if(updatedUserDetails.getGender() !=null && !BusinessDomainRefUtil.isTitleGenderAligned(userConfig, userDTO.getTitle(), updatedUserDetails.getGender())) {
-					throw new BusinessException("Title '"+BusinessDomainRefUtil.getTitleValue(userConfig, userDTO.getTitle())+"' is not aligned with gender '"+BusinessDomainRefUtil.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
+				if(updatedUserDetails.getGender() !=null && !BusinessDomainRefHelper.isTitleGenderAligned(userConfig, userDTO.getTitle(), updatedUserDetails.getGender())) {
+					throw new BusinessException("Title '"+BusinessDomainRefHelper.getTitleValue(userConfig, userDTO.getTitle())+"' is not aligned with gender '"+BusinessDomainRefHelper.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
 				}
 				/**
 				 * Allowing to update 'title' if it is compatible with gender
 				 * Throwing error when if only title is getting changed then call config and check if new title is aligned with old gender
 				 */
-				if(updatedUserDetails.getTitle() !=null && !BusinessDomainRefUtil.isTitleGenderAligned(userConfig, updatedUserDetails.getTitle(), userDTO.getGender())) {
-					throw new BusinessException("Title '"+BusinessDomainRefUtil.getTitleValue(userConfig, userDTO.getTitle())+"' is not aligned with gender '"+BusinessDomainRefUtil.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
+				if(updatedUserDetails.getTitle() !=null && !BusinessDomainRefHelper.isTitleGenderAligned(userConfig, updatedUserDetails.getTitle(), userDTO.getGender())) {
+					throw new BusinessException("Title '"+BusinessDomainRefHelper.getTitleValue(userConfig, userDTO.getTitle())+"' is not aligned with gender '"+BusinessDomainRefHelper.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
 				}
 			}
 			
@@ -151,9 +144,10 @@ public class UserBLImpl implements IUserBL {
 				updatedUserDTO.setImageUrl(doc.getDocumentURL());
 			}
 			userDTO = userService.updateUser(userDTO.getProfileId(),updatedUserDTO);
-		} else {
-			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
-		}
+		} 
+//		else {
+//			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
+//		}
 		return DTOToBusinessObjectConverter.toUserDetail(userDTO);
 
 	}
@@ -214,9 +208,7 @@ public class UserBLImpl implements IUserBL {
 		if (SecurityUtils.isAuthenticated()) {
 			//String ticket =userService.initiatePasswordReset(SecurityUtils.getAuthUserId(),appClientId,0);
 			//emailHelper.sendEmailOnPasswordChangeRequest
-		} else {
-			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
-		}		
+		} 	
 	}
 
 	@Override
@@ -226,8 +218,6 @@ public class UserBLImpl implements IUserBL {
 			//String ticket =userService.initiateEmailChange(userDTO.getProfileId(),newEmail);
 			//send email from here
 			SecurityUtils.getAuthUserName();
-		} else {
-			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
 		}
 		
 	}
@@ -259,7 +249,7 @@ public class UserBLImpl implements IUserBL {
 				RoleDTO role = new RoleDTO();
 				role.setCode(RoleCode.valueOf(roleConfig.getKey()));
 				role.setId(roleConfig.getAttributes().getOrDefault("ROLE_ID", "NO_VALUE").toString());
-				role.setName(roleConfig.getDisplayValue());
+				role.setName(roleConfig.getValue());
 				rolesToBeAdded.add(role);
 			}
 		}

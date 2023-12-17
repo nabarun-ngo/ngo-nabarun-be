@@ -92,7 +92,7 @@ public class MeetingInfraServiceImpl implements IMeetingInfraService {
 				MeetingAdditionalInfoEntity attendee = new MeetingAdditionalInfoEntity();
 				attendee.setAttendeeDetail(true);
 				attendee.setAttendeeEmail(attend.getEmail());
-				attendee.setAttendeeName(attend.getFirstName() + " " + attend.getLastName());
+				attendee.setAttendeeName(attend.getName());
 				attendee.setMeeting(meeting);
 				attendee = meetingAdditionalInfoRepo.save(attendee);
 				additionalInfo.add(attendee);

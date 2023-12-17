@@ -23,12 +23,12 @@ public class InfraFieldHelper {
 	}
 
 	public static List<String> stringToStringList(String fieldString) {
-		return fieldString == null ? List.of() : List.of(fieldString.split(fieldString));
+		return fieldString == null ? List.of() : List.of(fieldString.split(","));
 	}
 
 	public static List<Integer> stringToIntegerList(String fieldString) {
 		return fieldString == null ? List.of()
-				: List.of(fieldString.split(fieldString)).stream().map(m -> Integer.parseInt(m)).toList();
+				: List.of(fieldString.split(",")).stream().map(m -> Integer.parseInt(m)).toList();
 	}
 
 }

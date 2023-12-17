@@ -1,5 +1,7 @@
 package ngo.nabarun.app.common.helper;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -43,16 +45,43 @@ public class GenericPropertyHelper {
 	@Value("${SENDGRID_DEFAULT_TEMPLATE_ID}")
 	private String defaultEmailTemplateIdSendGrid;
 	
+	/**
+	 * Enable production mode in testing env. i.e. sent email to actual email even in  test environment
+	 */
 	@Value("${ENABLE_PROD_MODE_FOR_TEST:false}")
 	private boolean prodModeEnabledForTest;
 	
+	/**
+	 * All Email will be sent to mocked email address if enabled.
+	 * @return
+	 */
 	public boolean isEmailMockingEnabledForTest() {
 		return isProdEnv() ? false : Boolean.valueOf(systemEnv.getProperty("ENABLE_EMAIL_MOCKING_FOR_TEST"));
 	}
 	
+	/**
+	 * When ENABLE_EMAIL_MOCKING_FOR_TEST=true 
+	 * then all email will be sent to this email
+	 */
+	public List<String> getMockedEmailAddress() {
+		return List.of(String.valueOf(systemEnv.getProperty("MOCKED_EMAIL_ADDRESS")).split(","));
+	}
+	
+	/**
+	 * Authenticated users details will be mocked in test env with the mocked user id. 
+	 * No values will be taken from token
+	 * @return
+	 */
 	public boolean isTokenMockingEnabledForTest() {
 		return isProdEnv() ? false : Boolean.valueOf(systemEnv.getProperty("ENABLE_TOKEN_MOCKING_FOR_TEST"));
 	}
+	
+	/**
+	 * When ENABLE_TOKEN_MOCKING_FOR_TEST=true 
+	 * then Authenticated users details will be mocked as this user id
+	 */
+	@Value("${MOCKED_TOKEN_USER_ID:''}")
+	private String mockedTokenUserId;
 	
 	@Value("${FIREBASE_FILESTORAGE_BUCKET}")
 	private String firebaseFileStorageBucket;

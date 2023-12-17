@@ -7,15 +7,19 @@ import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.common.enums.DonationStatus;
+import ngo.nabarun.app.common.enums.DonationType;
 
 @Service
 public interface IDonationBL {
 	DonationDetail raiseDonation(DonationDetailCreate request) throws Exception;
 
-	List<DonationDetail> getUserDonations(String id) throws Exception;
+	Page<DonationDetail> getUserDonations(String id,Integer index,Integer size) throws Exception;
 
-	List<DonationDetail> getLoggedInUserDonations() throws Exception;
+	Page<DonationDetail> getLoggedInUserDonations(Integer index,Integer size) throws Exception;
 
 	void autoRaiseDonation();
 
@@ -23,4 +27,7 @@ public interface IDonationBL {
 	
 	List<DocumentDetail> getDonationDocument(String donationId);
 
+	List<KeyValue> getNextDonationStatus(DonationType type,DonationStatus currentStatus) throws Exception;
+
+	DonationDetail updateDonation(String id,DonationDetailUpdate request) throws Exception;
 }

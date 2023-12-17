@@ -17,7 +17,6 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
-import ngo.nabarun.app.common.helper.GenericMockDataHelper;
 import ngo.nabarun.app.common.helper.GenericPropertyHelper;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 
@@ -28,8 +27,6 @@ public class SendGridEmailExtServiceImpl implements IEmailExtService {
 	@Autowired
 	private GenericPropertyHelper propertyHelper;
 
-	@Autowired
-	private GenericMockDataHelper mockHelper;
 
 	@Override
 	public int sendEmail(String subject, String senderName, List<Map<String, String>> recipients, String templateId,
@@ -69,7 +66,7 @@ public class SendGridEmailExtServiceImpl implements IEmailExtService {
 				}
 			}
 		} else if (propertyHelper.isEmailMockingEnabledForTest()) {
-			for (String testEmail : mockHelper.getEmailRecipient()) {
+			for (String testEmail : propertyHelper.getMockedEmailAddress()) {
 				personalization.addTo(new Email(testEmail));
 			}
 		}
