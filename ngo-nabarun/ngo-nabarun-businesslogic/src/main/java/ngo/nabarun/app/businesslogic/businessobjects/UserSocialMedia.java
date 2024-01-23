@@ -22,6 +22,6 @@ public class UserSocialMedia {
 	@JsonProperty("mediaLink")
 	private String mediaLink;
 	
-	@JsonProperty("delete")
-	private boolean delete;
+//	@JsonProperty("delete")
+//	private boolean delete;
 }

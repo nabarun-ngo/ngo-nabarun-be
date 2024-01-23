@@ -16,7 +16,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
 import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
-import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserRole;
 import ngo.nabarun.app.infra.dto.AccountDTO;
@@ -29,18 +28,18 @@ import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.SocialMediaDTO;
-import ngo.nabarun.app.infra.dto.UPIDTO;
+import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.misc.KeyValuePair;
 
 public class DTOToBusinessObjectConverter {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-	public static UserDetail toUserDetail(UserDTO userDTO) {
-		return toUserDetail(userDTO, null);
+	
+	public static UserDetail toUserDetail(UserDTO userDTO){
+		return toUserDetail(userDTO,null);
 	}
 
-	public static UserDetail toUserDetail(UserDTO userDTO, List<RoleDTO> roleDTO) {
+	public static UserDetail toUserDetail(UserDTO userDTO,List<RoleDTO> role) {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setAbout(userDTO.getAbout());
 		userDetails.setActiveContributor(userDTO.getAdditionalDetails() != null
@@ -66,32 +65,42 @@ public class DTOToBusinessObjectConverter {
 								+ ".png?ssl=1"));
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
-		userDetails.setUserIds(userDTO.getUserIds());
-		userDetails.setFullName((userDTO.getTitle() == null ? "" : userDTO.getTitle() + " ") + userDTO.getFirstName()
-				+ " " + (userDTO.getMiddleName() == null ? "" : userDTO.getMiddleName() + " ") + userDTO.getLastName());
-		if (roleDTO != null && !roleDTO.isEmpty()) {
-			userDetails.setRoles(roleDTO
+		userDetails.setUserId(userDTO.getUserId());
+		String title = userDTO.getTitle() == null ? "" : userDTO.getTitle() + " ";
+		if(userDTO.getName() != null) {
+			userDetails.setFullName(title+userDTO.getName());
+		}else {
+			String firstName = userDTO.getFirstName() == null ? "" : userDTO.getFirstName() + " ";
+			String middleName = userDTO.getMiddleName() == null ? "" : userDTO.getMiddleName() + " ";
+			String lastName = userDTO.getLastName() == null ? "" : userDTO.getLastName();
+			userDetails.setFullName(title+firstName+middleName+lastName);
+		}
+		
+		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+			userDetails.setRoles(userDTO.getRoles()
 					.stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
 							.roleGroup(m.getGroup()).description(m.getDescription()).roleId(m.getId()).build())
 					.toList());
-		} else if (userDTO.getRoleNames() != null) {
-			userDetails.setRoles(userDTO.getRoleNames().stream()
-					.map(m -> UserRole.builder().roleCode(RoleCode.valueOf(m)).build()).collect(Collectors.toList()));
 		}
+//		else if (userDTO.getRoleNames() != null) {
+//			userDetails.setRoles(userDTO.getRoleNames().stream()
+//					.map(m -> UserRole.builder().roleCode(RoleCode.valueOf(m)).build()).collect(Collectors.toList()));
+//		}
 		userDetails.setPublicProfile(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isDisplayPublic() : false);
-		userDetails.setAddresses(toUserAddress(userDTO.getAddresses()));
+		
+		userDetails.setAddresses(userDTO.getAddresses() == null? List.of() : userDTO.getAddresses().stream().map(m->toUserAddress(m)).collect(Collectors.toList()));
 		userDetails.setPhoneNumbers(toUserPhoneNumber(userDTO.getPhones()));
 		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
 		return userDetails;
 
 	}
-
+	public static DonationDetail toDonationDetail(DonationDTO donationDTO) {
+		return toDonationDetail(donationDTO,null,null);
+	}
 	public static DonationDetail toDonationDetail(DonationDTO donationDTO, String attachment, EventDetail eventDetail) {
 		DonationDetail donationDetail = new DonationDetail();
-		donationDetail.setAccountId(donationDTO.getAccountId());
 		donationDetail.setAmount(donationDTO.getAmount());
-		donationDetail.setAttachments(null);
 		donationDetail.setDonationStatus(donationDTO.getStatus());
 		donationDetail.setDonationType(donationDTO.getType());
 		donationDetail.setDonorDetails(toUserDetail(donationDTO.getDonor()));
@@ -106,26 +115,33 @@ public class DTOToBusinessObjectConverter {
 		donationDetail.setRaisedOn(donationDTO.getRaisedOn());
 		donationDetail.setStartDate(donationDTO.getStartDate());
 		
-		//donationDetail.setDonationRef(donationDTO.getDonationNumber());
-		donationDetail.setPaidUsingUPI(donationDTO.getUpiName());;
+		donationDetail.setTxnRef(donationDTO.getTransactionRefNumber());
+		donationDetail.setPaidUsingUPI(donationDTO.getUpiName());
 		donationDetail.setPaymentNotified(donationDTO.getIsPaymentNotified() == null ? false : donationDTO.getIsPaymentNotified());	
+		
+		donationDetail.setReceivedAccount(toAccountDetail(donationDTO.getPaidToAccount()));
+		donationDetail.setRemarks(donationDTO.getComment());
+		donationDetail.setCancelletionReason(donationDTO.getCancelReason());
+		donationDetail.setLaterPaymentReason(donationDTO.getPayLaterReason());	
+		donationDetail.setPaymentFailureDetail(donationDTO.getPaymentFailDetail());
+		
 		return donationDetail;
 
 	}
 
-	public static List<UserAddress> toUserAddress(List<AddressDTO> addressDTO) {
-		return addressDTO == null ? List.of() : addressDTO.stream().map(m -> {
-			UserAddress address = new UserAddress();
-			address.setAddressType(m.getAddressType());
-			address.setAddressLine(m.getAddressLine());
-			address.setHometown(m.getHometown());
-			address.setDistrict(m.getDistrict());
-			address.setState(m.getState());
-			address.setCountry(m.getCountry());
-			address.setId(m.getId());
-			address.setDelete(m.isDelete());
-			return address;
-		}).collect(Collectors.toList());
+	public static UserAddress toUserAddress(AddressDTO m) {
+		UserAddress address = new UserAddress();
+		address.setAddressType(m.getAddressType());
+		address.setAddressLine1(m.getAddressLine1());
+		address.setAddressLine2(m.getAddressLine2());
+		address.setAddressLine3(m.getAddressLine3());
+		address.setHometown(m.getHometown());
+		address.setDistrict(m.getDistrict());
+		address.setState(m.getState());
+		address.setCountry(m.getCountry());
+		address.setId(m.getId());
+		//address.setDelete(m.isDelete());
+		return address;
 
 	}
 
@@ -137,7 +153,7 @@ public class DTOToBusinessObjectConverter {
 			phone.setPhoneNumber(m.getPhoneNumber());
 			phone.setDisplayNumber(m.getPhoneCode() + " " + m.getPhoneNumber() + " (" + phone.getPhoneType() + ")");
 			phone.setId(m.getId());
-			phone.setDelete(m.isDelete());
+			//phone.setDelete(m.isDelete());
 			return phone;
 		}).collect(Collectors.toList());
 	}
@@ -150,7 +166,7 @@ public class DTOToBusinessObjectConverter {
 			sm.setMediaName(m.getSocialMediaName());
 			sm.setMediaType(m.getSocialMediaType());
 			sm.setId(m.getId());
-			sm.setDelete(m.isDelete());
+			//sm.setDelete(m.isDelete());
 			return sm;
 		}).collect(Collectors.toList());
 	}
@@ -231,15 +247,21 @@ public class DTOToBusinessObjectConverter {
 	
 	public static AccountDetail toAccountDetail(AccountDTO accountDTO) {
 		AccountDetail accountDetail = new AccountDetail();
-		accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile()));
+		if(accountDTO.getProfile() != null) {
+			accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile()));
+		}
 		accountDetail.setAccountHolderName(accountDTO.getAccountName());
 		accountDetail.setAccountStatus(accountDTO.getAccountStatus());
 		accountDetail.setAccountType(accountDTO.getAccountType());
 		accountDetail.setActivatedOn(accountDTO.getActivatedOn());
-		accountDetail.setBankDetail(toBankDetail(accountDTO.getBankDetail()));
+		if(accountDTO.getBankDetail() != null) {
+			accountDetail.setBankDetail(toBankDetail(accountDTO.getBankDetail()));
+		}
 		accountDetail.setCurrentBalance(accountDTO.getCurrentBalance());
 		accountDetail.setId(accountDTO.getId());
-		accountDetail.setUpiDetail(toUPIDetail(accountDTO.getUpiDetail()));
+		if(accountDTO.getUpiDetail() != null) {
+			accountDetail.setUpiDetail(toUPIDetail(accountDTO.getUpiDetail()));
+		}
 		return accountDetail;
 	}
 	
@@ -254,7 +276,7 @@ public class DTOToBusinessObjectConverter {
 		return bankDetail;
 	}
 	
-	public static UPIDetail toUPIDetail(UPIDTO upiDTO) {
+	public static UPIDetail toUPIDetail(UpiDTO upiDTO) {
 		UPIDetail upiDetail = new UPIDetail();
 		upiDetail.setMobileNumber(upiDTO.getMobileNumber());
 		upiDetail.setPayeeName(upiDTO.getPayeeName());

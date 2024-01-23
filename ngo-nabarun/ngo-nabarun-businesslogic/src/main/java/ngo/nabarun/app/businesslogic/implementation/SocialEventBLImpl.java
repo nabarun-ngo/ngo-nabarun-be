@@ -13,7 +13,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
@@ -38,7 +38,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 	private IDocumentInfraService documentInfraService;
 
 	@Override
-	public Page<EventDetail> getSocialEvents(Integer page, Integer size, EventDetailFilter filter) {
+	public Paginate<EventDetail> getSocialEvents(Integer page, Integer size, EventDetailFilter filter) {
 		EventDTO eventDTOFilter = null;
 		if(filter != null) {
 			eventDTOFilter= new EventDTO();
@@ -54,7 +54,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 		}else {
 			total = content.size();
 		}
-		return new Page<EventDetail>(page, size, total, content);
+		return new Paginate<EventDetail>(page, size, total, content);
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 		return documentInfraService.getDocumentList(id, DocumentIndexType.DONATION).stream().map(m -> {
 			DocumentDetail doc = new DocumentDetail();
 			doc.setDocId(m.getDocId());
-			doc.setDocumentRefId(id);
+			doc.setDocumentIndexId(id);
 			doc.setImage(m.isImage());
 			doc.setOriginalFileName(m.getOriginalFileName());
 			return doc;

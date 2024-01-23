@@ -15,14 +15,11 @@ public class DonationDetailUpdate {
 	@JsonProperty("amount")
 	private Double amount;
 	
-	@JsonProperty("donationStatus")
+	@JsonProperty("status")
 	private DonationStatus donationStatus;
 	
 	@JsonProperty("paidOn")
 	private Date paidOn;
-	
-	@JsonProperty("confirmedById")
-	private String paymentConfirmedById;
 	
 	@JsonProperty("paymentMethod")
 	private PaymentMethod paymentMethod;
@@ -39,7 +36,7 @@ public class DonationDetailUpdate {
 	@JsonProperty("donorMobile")
 	private String donorMobile;
 	
-	@JsonProperty("paidUPIName")
+	@JsonProperty("paidUsingUPI")
 	private UPIOption paidUPIName;
 	
 	@JsonProperty("comment")

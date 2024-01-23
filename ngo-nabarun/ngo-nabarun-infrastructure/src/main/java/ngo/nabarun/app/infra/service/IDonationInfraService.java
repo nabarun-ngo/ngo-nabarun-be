@@ -1,17 +1,17 @@
 package ngo.nabarun.app.infra.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.infra.dto.DonationDTO;
+import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 
 @Service
 public interface IDonationInfraService {
-	List<DonationDTO> getUserDonations(String id,Integer page,Integer size);
 
 	DonationDTO createDonation(DonationDTO donationDTO);
 
-	List<DonationDTO> getDonations(Integer page,Integer size, DonationDTO filter);
+	Page<DonationDTO> getDonations(Integer page,Integer size, DonationDTOFilter filter);
 	
 	DonationDTO getDonation(String donationId);
 

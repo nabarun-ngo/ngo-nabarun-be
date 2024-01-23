@@ -11,7 +11,7 @@ import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAccountBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailCreate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class AccountController {
 	}
 	
 	@GetMapping(value = "/getAccounts")
-	public ResponseEntity<SuccessResponse<Page<AccountDetail>>> getAccounts()
+	public ResponseEntity<SuccessResponse<Paginate<AccountDetail>>> getAccounts()
 			throws Exception {
-		return new SuccessResponse<Page<AccountDetail>>().payload(accountBL.getAccounts(null, null)).get(HttpStatus.OK);
+		return new SuccessResponse<Paginate<AccountDetail>>().payload(accountBL.getAccounts(null, null)).get(HttpStatus.OK);
 	}
 	
 	@GetMapping(value = "/getTransactions/{id}")

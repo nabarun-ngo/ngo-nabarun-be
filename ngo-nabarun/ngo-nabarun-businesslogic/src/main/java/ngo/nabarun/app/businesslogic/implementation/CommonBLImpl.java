@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AuthRefType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
+import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
@@ -50,6 +53,7 @@ public class CommonBLImpl implements ICommonBL {
 	@Autowired
 	private CacheManager cacheManager;
 	
+	
 	@Override
 	public void uploadDocuments(MultipartFile[] files, String docIndexId, DocumentIndexType docIndexType) throws Exception {
 		Assert.noNullElements(files, "Files cannot be null !");
@@ -64,6 +68,24 @@ public class CommonBLImpl implements ICommonBL {
 		for (MultipartFile file : files) {
 			docInfraService.uploadDocument(file, id, docIndexType);
 		}
+	}
+	
+	@Override
+	public void uploadDocuments(List<DocumentDetailUpload> files,String docIndexId, DocumentIndexType docIndexType) throws Exception {
+		Assert.noNullElements(files, "Files cannot be null !");
+		Assert.notEmpty(files,"Files cannot be empty !");
+		Assert.notNull(docIndexId,"docIndexId must not be null !");
+		Assert.notNull(docIndexType, "docIndexType must not be null !");
+		
+		String id=docIndexId;
+		if(docIndexType == DocumentIndexType.DONATION) {
+			id=donationInfraService.getDonation(docIndexId).getId();
+		}
+		
+		for (DocumentDetailUpload file : files) {
+			byte[] content = Base64.decodeBase64(file.getBase64Content());
+			docInfraService.uploadDocument(file.getOriginalFileName(),file.getContentType(), id, docIndexType,content);
+		}		
 	}
 
 	@Override
@@ -124,4 +146,6 @@ public class CommonBLImpl implements ICommonBL {
 		
 		return obj;
 	}
+
+	
 }

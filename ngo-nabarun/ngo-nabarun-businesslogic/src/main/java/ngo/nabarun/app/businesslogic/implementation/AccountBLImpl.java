@@ -8,7 +8,7 @@ import ngo.nabarun.app.businesslogic.IAccountBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
@@ -21,7 +21,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
-import ngo.nabarun.app.infra.dto.UPIDTO;
+import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.service.IAccountInfraService;
 import ngo.nabarun.app.infra.service.ITransactionInfraService;
@@ -43,7 +43,7 @@ public class AccountBLImpl implements IAccountBL {
 	private  BusinessIdGenerator idGenerator;
 	
 	@Override
-	public Page<AccountDetail> getAccounts(Integer page, Integer size) {
+	public Paginate<AccountDetail> getAccounts(Integer page, Integer size) {
 		return null;
 	}
 	
@@ -51,7 +51,7 @@ public class AccountBLImpl implements IAccountBL {
 
 	@Override
 	public AccountDetail createAccount(AccountDetailCreate accountDetail) throws Exception {
-		UserDTO userDTO=userInfraService.getUserByProfileId(accountDetail.getAccountHolderProfileId(), false);
+		UserDTO userDTO=userInfraService.getUser(accountDetail.getAccountHolderProfileId(), false);
 		if(userDTO.getStatus() != ProfileStatus.ACTIVE) {
 			throw new BusinessException("Account can only be created for an ACTIVE user.");
 		}
@@ -71,7 +71,7 @@ public class AccountBLImpl implements IAccountBL {
 		}
 		
 		if(accountDetail.getUpiDetail() != null ) {
-			UPIDTO upiDTO = new UPIDTO();
+			UpiDTO upiDTO = new UpiDTO();
 			upiDTO.setMobileNumber(accountDetail.getUpiDetail().getMobileNumber());		
 			upiDTO.setPayeeName(accountDetail.getUpiDetail().getPayeeName());
 			upiDTO.setUpiId(accountDetail.getUpiDetail().getUpiId());
@@ -103,7 +103,6 @@ public class AccountBLImpl implements IAccountBL {
 
 	@Override
 	public AccountDetail updateAccount(String id, AccountDetailUpdate accountDetail) throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

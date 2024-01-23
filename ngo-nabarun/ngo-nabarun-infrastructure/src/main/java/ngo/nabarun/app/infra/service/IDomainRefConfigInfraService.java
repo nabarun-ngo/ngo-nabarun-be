@@ -17,5 +17,7 @@ public interface IDomainRefConfigInfraService {
 	DonationConfigTemplate getDonationConfig() throws Exception;
 	
 	String getBusinessErrorMessage(String errorCode) throws Exception;
+	
+	//List<KeyValue> getBankAccounts();
 
 }

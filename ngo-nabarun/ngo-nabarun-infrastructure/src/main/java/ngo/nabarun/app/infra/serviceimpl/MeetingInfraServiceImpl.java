@@ -199,7 +199,6 @@ public class MeetingInfraServiceImpl implements IMeetingInfraService {
 
 	@Override
 	public Void deleteMeeting(String id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

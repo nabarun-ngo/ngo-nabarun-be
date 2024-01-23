@@ -15,6 +15,5 @@ public class PhoneDTO {
 	private PhoneType phoneType;
 	private String phoneCode;
 	private String phoneNumber;
-	private boolean primary;
 	private boolean delete;
 }

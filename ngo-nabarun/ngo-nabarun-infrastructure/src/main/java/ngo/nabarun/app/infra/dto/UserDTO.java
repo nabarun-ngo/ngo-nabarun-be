@@ -22,18 +22,29 @@ public class UserDTO {
 	private Date dateOfBirth;
 	private String gender;
 	private String about;
-	private List<String> roleNames;
+	private List<RoleDTO> roles;
 
 	private String email;
-	private String primaryPhoneNumber;
+	private String phoneNumber;
 	private List<PhoneDTO> phones;
 	private List<AddressDTO> addresses;
-	private List<EmailDTO> emails;
 	private List<SocialMediaDTO> socialMedias;
 	private String profileId;
-	private List<String> userIds;
+	private String userId;
 	private ProfileStatus status;
 	
 	private UserAdditionalDetailsDTO additionalDetails;
+	
+	@Data	
+	public static class UserDTOFilter{
+		private String firstName;
+		private String lastName;
+		private String email;
+		private String phoneNumber;
+		private String profileId;
+		private String userId;
+		private ProfileStatus status;
+
+	}
 
 }

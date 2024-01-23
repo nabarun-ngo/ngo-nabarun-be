@@ -2,7 +2,6 @@ package ngo.nabarun.app.businesslogic.helper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
@@ -42,24 +41,28 @@ public class BusinessObjectToDTOConverter {
 		userDTO.setMiddleName(userDetails.getMiddleName());
 		userDTO.setStatus(userDetails.getStatus());
 		userDTO.setTitle(userDetails.getTitle());
-		userDTO.setUserIds(userDetails.getUserIds());
-		if(userDetails.getPhoneNumbers() != null) {
-			Optional<UserPhoneNumber> number=userDetails.getPhoneNumbers().stream().filter(f->f.isPrimary()).findFirst();
-			userDTO.setPrimaryPhoneNumber(number== null || number.isEmpty()? null : number.get().getPhoneCode()+number.get().getPhoneNumber());		
-		}
-		UserAdditionalDetailsDTO addDTO= new UserAdditionalDetailsDTO();
+		userDTO.setUserId(userDetails.getUserId());
+//		if (userDetails.getPhoneNumbers() != null) {
+//			Optional<UserPhoneNumber> number = userDetails.getPhoneNumbers().stream().filter(f -> f.isPrimary())
+//					.findFirst();
+//			userDTO.setPhoneNumber(number == null || number.isEmpty() ? null
+//					: number.get().getPhoneCode() + number.get().getPhoneNumber());
+//		}
+		UserAdditionalDetailsDTO addDTO = new UserAdditionalDetailsDTO();
 		addDTO.setActiveContributor("Yes".equalsIgnoreCase(userDetails.getActiveContributor()));
 		addDTO.setDisplayPublic(userDetails.isPublicProfile());
 		userDTO.setAdditionalDetails(addDTO);
-		userDTO.setAddresses(toAddressDTO(userDetails.getAddresses()));
+		userDTO.setAddresses(userDetails.getAddresses() == null ? List.of()
+				: userDetails.getAddresses().stream().map(m -> toAddressDTO(m)).collect(Collectors.toList()));
+
 		userDTO.setPhones(toPhoneDTO(userDetails.getPhoneNumbers()));
 		userDTO.setSocialMedias(toSocialMediaDTO(userDetails.getSocialMediaLinks()));
 		return userDTO;
 
 	}
-	
+
 	public static UserDTO toUserDTO(UserDetailUpdate updatedUserDetails) {
-		UserDTO updatedUserDTO=new UserDTO();
+		UserDTO updatedUserDTO = new UserDTO();
 		updatedUserDTO.setTitle(updatedUserDetails.getTitle());
 		updatedUserDTO.setFirstName(updatedUserDetails.getFirstName());
 		updatedUserDTO.setMiddleName(updatedUserDetails.getMiddleName());
@@ -67,32 +70,29 @@ public class BusinessObjectToDTOConverter {
 		updatedUserDTO.setGender(updatedUserDetails.getGender());
 		updatedUserDTO.setDateOfBirth(updatedUserDetails.getDateOfBirth());
 		updatedUserDTO.setAbout(updatedUserDetails.getAbout());
-		
-		updatedUserDTO.setAddresses(toAddressDTO(updatedUserDetails.getAddresses()));
-		if(updatedUserDetails.getPhoneNumbers() != null) {
-			Optional<UserPhoneNumber> number=updatedUserDetails.getPhoneNumbers().stream().filter(f->f.isPrimary()).findFirst();
-			updatedUserDTO.setPrimaryPhoneNumber(number== null || number.isEmpty()? null : number.get().getPhoneCode()+number.get().getPhoneNumber());		
-		}
-		
+
+		updatedUserDTO.setAddresses(updatedUserDetails.getAddresses() == null ? List.of()
+				: updatedUserDetails.getAddresses().stream().map(m -> toAddressDTO(m)).collect(Collectors.toList()));
 		updatedUserDTO.setPhones(toPhoneDTO(updatedUserDetails.getPhoneNumbers()));
 		updatedUserDTO.setSocialMedias(toSocialMediaDTO(updatedUserDetails.getSocialMediaLinks()));
 		return updatedUserDTO;
 
 	}
 
-	public static List<AddressDTO> toAddressDTO(List<UserAddress> addresses) {
-		return addresses == null ? List.of() : addresses.stream().map(m -> {
-			AddressDTO address = new AddressDTO();
-			address.setAddressType(m.getAddressType());
-			address.setAddressLine(m.getAddressLine());
-			address.setHometown(m.getHometown());
-			address.setDistrict(m.getDistrict());
-			address.setState(m.getState());
-			address.setCountry(m.getCountry());
-			address.setId(m.getId());
-			address.setDelete(m.isDelete());
-			return address;
-		}).collect(Collectors.toList());
+	public static AddressDTO toAddressDTO(UserAddress m) {
+		AddressDTO address = new AddressDTO();
+		address.setAddressType(m.getAddressType());
+		address.setAddressLine1(m.getAddressLine1());
+		address.setAddressLine2(m.getAddressLine2());
+		address.setAddressLine3(m.getAddressLine3());
+
+		address.setHometown(m.getHometown());
+		address.setDistrict(m.getDistrict());
+		address.setState(m.getState());
+		address.setCountry(m.getCountry());
+		address.setId(m.getId());
+		// address.setDelete(m.isDelete());
+		return address;
 
 	}
 
@@ -103,7 +103,7 @@ public class BusinessObjectToDTOConverter {
 			phone.setPhoneCode(m.getPhoneCode());
 			phone.setPhoneNumber(m.getPhoneNumber());
 			phone.setId(m.getId());
-			phone.setDelete(m.isDelete());
+			//phone.setDelete(m.isDelete());
 			return phone;
 		}).collect(Collectors.toList());
 	}
@@ -115,7 +115,7 @@ public class BusinessObjectToDTOConverter {
 			sm.setSocialMediaName(m.getMediaName());
 			sm.setSocialMediaType(m.getMediaType());
 			sm.setId(m.getId());
-			sm.setDelete(m.isDelete());
+			//sm.setDelete(m.isDelete());
 			return sm;
 		}).collect(Collectors.toList());
 	}
@@ -141,7 +141,7 @@ public class BusinessObjectToDTOConverter {
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setBudget(updatedEventDetail.getEventBudget());
 		eventDTO.setDescription(updatedEventDetail.getEventDescription());
-		if(updatedEventDetail.getPublish() != null) {
+		if (updatedEventDetail.getPublish() != null) {
 			eventDTO.setDraft(!updatedEventDetail.getPublish());
 		}
 		eventDTO.setEventDate(updatedEventDetail.getEventDate());
@@ -163,7 +163,7 @@ public class BusinessObjectToDTOConverter {
 		eventDTO.setType(EventType.INTERNAL);
 		return eventDTO;
 	}
-	
+
 	@Deprecated
 	public static NoticeDTO toNoticeDTO(NoticeDetailCreate noticeDetail) {
 		NoticeDTO noticeDTO = new NoticeDTO();
@@ -172,32 +172,32 @@ public class BusinessObjectToDTOConverter {
 		noticeDTO.setDraft(noticeDetail.getDraft());
 		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
 		noticeDTO.setTitle(noticeDetail.getTitle());
-		//noticeDTO.setType(noticeEntity.getVisibility());
+		// noticeDTO.setType(noticeEntity.getVisibility());
 		return noticeDTO;
 	}
-	
+
 	@Deprecated
 	public static NoticeDTO toNoticeDTO(NoticeDetailUpdate noticeDetail) {
-		NoticeDTO noticeDTO= new NoticeDTO();
+		NoticeDTO noticeDTO = new NoticeDTO();
 		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
 		noticeDTO.setDescription(noticeDetail.getDescription());
-		if(noticeDetail.getPublish() != null && noticeDetail.getPublish() == Boolean.TRUE) {
+		if (noticeDetail.getPublish() != null && noticeDetail.getPublish() == Boolean.TRUE) {
 			noticeDTO.setDraft(noticeDetail.getPublish());
 		}
 		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
 		noticeDTO.setTitle(noticeDetail.getTitle());
-		//noticeDTO.setType(noticeEntity.getVisibility());
+		// noticeDTO.setType(noticeEntity.getVisibility());
 		return noticeDTO;
 	}
-	
+
 	public static MeetingDTO toMeetingDTO(MeetingDetailCreate meetingDetail) {
 		MeetingDTO meetingDTO = new MeetingDTO();
 		meetingDTO.setDescription(meetingDetail.getMeetingDescription());
 
 		meetingDTO.setEndTime(meetingDetail.getMeetingEndTime());
 		List<UserDTO> attendees = new ArrayList<>();
-		if(meetingDetail.getMeetingAttendees() != null) {
-			meetingDetail.getMeetingAttendees().forEach(user->{
+		if (meetingDetail.getMeetingAttendees() != null) {
+			meetingDetail.getMeetingAttendees().forEach(user -> {
 				attendees.add(toUserDTO(user));
 			});
 		}
@@ -206,23 +206,26 @@ public class BusinessObjectToDTOConverter {
 		meetingDTO.setLocation(meetingDetail.getMeetingLocation());
 		meetingDTO.setStartTime(meetingDetail.getMeetingStartTime());
 		meetingDTO.setSummary(meetingDetail.getMeetingSummary());
-		meetingDTO.setType(meetingDetail.getMeetingType());		
+		meetingDTO.setType(meetingDetail.getMeetingType());
 		meetingDTO.setRefId(meetingDetail.getMeetingRefId());
-		meetingDTO.setRefType(meetingDetail.getMeetingRefType());	
+		meetingDTO.setRefType(meetingDetail.getMeetingRefType());
 		meetingDTO.setRemarks(meetingDetail.getMeetingRemarks());
-		
-		List<DiscussionDTO> discussions  = new ArrayList<>();
-		if(meetingDetail.getMeetingDiscussions() != null) {
-			meetingDetail.getMeetingDiscussions().forEach(disc->{
-				discussions.add(new DiscussionDTO(disc.getId(),disc.getAgenda(), disc.getMinutes()));
+
+		List<DiscussionDTO> discussions = new ArrayList<>();
+		if (meetingDetail.getMeetingDiscussions() != null) {
+			meetingDetail.getMeetingDiscussions().forEach(disc -> {
+				discussions.add(new DiscussionDTO(disc.getId(), disc.getAgenda(), disc.getMinutes()));
 			});
 		}
-		
+
 		meetingDTO.setDiscussions(discussions);
 		meetingDTO.setDraft(meetingDetail.getDraft() == null ? false : meetingDetail.getDraft());
-		meetingDTO.setAuthCode(meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getAuthorizationCode());
-		meetingDTO.setAuthState(meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getAuthorizationState());
-		meetingDTO.setAuthCallbackUrl(meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getCallbackUrl());
+		meetingDTO.setAuthCode(meetingDetail.getAuthorization() == null ? null
+				: meetingDetail.getAuthorization().getAuthorizationCode());
+		meetingDTO.setAuthState(meetingDetail.getAuthorization() == null ? null
+				: meetingDetail.getAuthorization().getAuthorizationState());
+		meetingDTO.setAuthCallbackUrl(
+				meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getCallbackUrl());
 		return meetingDTO;
 	}
 

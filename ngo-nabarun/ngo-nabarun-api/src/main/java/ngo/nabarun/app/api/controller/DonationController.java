@@ -18,7 +18,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.PaymentOptions;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -39,7 +39,7 @@ public class DonationController {
 	private IDonationBL donationBL;
 
 	@GetMapping("/getDonations")
-	public ResponseEntity<SuccessResponse<Page<DonationDetail>>> getDonations(
+	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getDonations(
 			@RequestParam(required = false) Integer pageIndex,
 			@RequestParam(required = false) Integer pageSize, 
 			DonationDetailFilter filter) {
@@ -48,30 +48,40 @@ public class DonationController {
 //		if(filter != null) {
 //			filterObject = CommonUtils.jsonToPojo(filter, DonationDetailFilter.class);
 //		}
-		return new SuccessResponse<Page<DonationDetail>>().payload(donationBL.getDonations(pageIndex,pageSize,filter)).get(HttpStatus.OK);
+		return new SuccessResponse<Paginate<DonationDetail>>().payload(donationBL.getDonations(pageIndex,pageSize,filter)).get(HttpStatus.OK);
 	}
 
 	@GetMapping("/getLoggedInUserDonation")
-	public ResponseEntity<SuccessResponse<Page<DonationDetail>>> getLoggedInUserDonations(
+	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getLoggedInUserDonations(
 			@RequestParam(required = false) Integer pageIndex,
 			@RequestParam(required = false) Integer pageSize) throws Exception {
-		return new SuccessResponse<Page<DonationDetail>>().payload(donationBL.getLoggedInUserDonations(pageIndex,pageSize))
+		return new SuccessResponse<Paginate<DonationDetail>>().payload(donationBL.getLoggedInUserDonations(pageIndex,pageSize))
 				.get(HttpStatus.OK);
 	}
 
 	@GetMapping("/getUserDonation/{id}")
-	public ResponseEntity<SuccessResponse<Page<DonationDetail>>> getUserDonations(
+	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getUserDonations(
 			@PathVariable String id,
 			@RequestParam(required = false) Integer pageIndex,
 			@RequestParam(required = false) Integer pageSize) throws Exception {
-		return new SuccessResponse<Page<DonationDetail>>().payload(donationBL.getUserDonations(id,pageIndex,pageSize)).get(HttpStatus.OK);
+		return new SuccessResponse<Paginate<DonationDetail>>().payload(donationBL.getUserDonations(id,pageIndex,pageSize)).get(HttpStatus.OK);
 	}
 	
+	@GetMapping("/getDonationSummary")
+	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getDonationSummary(
+			@RequestParam(required = false) String id,
+			@RequestParam(required = false) Integer pageIndex,
+			@RequestParam(required = false) Integer pageSize) throws Exception {
+		return new SuccessResponse<Paginate<DonationDetail>>().payload(donationBL.getUserDonations(id,pageIndex,pageSize)).get(HttpStatus.OK);
+	}
+	
+	@Deprecated
 	@GetMapping("/getDonationDocuments/{id}")
 	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDonationDocuments(@PathVariable String id) throws Exception {
 		return new SuccessResponse<List<DocumentDetail>>().payload(donationBL.getDonationDocument(id)).get(HttpStatus.OK);
 	}
 	
+	@Deprecated
 	@GetMapping("/getNextStatus")
 	public ResponseEntity<SuccessResponse<List<KeyValue>>> getNextStatus(
 			@RequestParam DonationType donationType,

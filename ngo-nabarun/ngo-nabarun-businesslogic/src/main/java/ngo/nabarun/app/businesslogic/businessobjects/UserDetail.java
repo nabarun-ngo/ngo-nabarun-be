@@ -69,8 +69,8 @@ public class UserDetail {
 	@JsonProperty("publicProfile")
 	private boolean publicProfile;
 	
-	@JsonProperty("userIds")
-	private List<String> userIds;
+	@JsonProperty("userId")
+	private String userId;
 	
 	@JsonProperty("status")
 	private ProfileStatus status;

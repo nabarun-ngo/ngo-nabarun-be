@@ -13,8 +13,14 @@ public class UserAddress {
 	@JsonProperty("addressType")
 	private AddressType addressType;
 	
-	@JsonProperty("addressLine")
-	private String addressLine;
+	@JsonProperty("addressLine1")
+	private String addressLine1;
+	
+	@JsonProperty("addressLine2")
+	private String addressLine2;
+	
+	@JsonProperty("addressLine3")
+	private String addressLine3;
 	
 	@JsonProperty("hometown")
 	private String hometown;
@@ -28,6 +34,6 @@ public class UserAddress {
 	@JsonProperty("country")
 	private String country;
 	
-	@JsonProperty("delete")
-	private boolean delete;
+//	@JsonProperty("delete")
+//	private boolean delete;
 }

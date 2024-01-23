@@ -11,7 +11,6 @@ import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AddressType;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
-import ngo.nabarun.app.common.enums.DBContactType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -40,7 +39,6 @@ import ngo.nabarun.app.infra.core.entity.NoticeEntity;
 import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
-import ngo.nabarun.app.infra.core.entity.UserContactEntity;
 import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AddressDTO;
@@ -48,7 +46,6 @@ import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.DiscussionDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
-import ngo.nabarun.app.infra.dto.EmailDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
@@ -57,7 +54,7 @@ import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.SocialMediaDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
-import ngo.nabarun.app.infra.dto.UPIDTO;
+import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 
@@ -65,6 +62,10 @@ import ngo.nabarun.app.infra.dto.UserDTO;
 public class InfraDTOHelper {
 
 	public static UserDTO convertToUserDTO(UserProfileEntity profile, AuthUser user) {
+		return convertToUserDTO(profile, user, null);
+	}
+
+	public static UserDTO convertToUserDTO(UserProfileEntity profile, AuthUser user, AuthUserRole role) {
 		UserDTO userDTO = new UserDTO();
 		userDTO.setAbout(profile.getAbout());
 		userDTO.setDateOfBirth(profile.getDateOfBirth());
@@ -75,97 +76,176 @@ public class InfraDTOHelper {
 				: (user == null ? null : user.getPicture()));
 		userDTO.setLastName(profile.getLastName());
 		userDTO.setMiddleName(profile.getMiddleName());
-		userDTO.setName(profile.getFirstName()+" "+profile.getLastName());	
+		userDTO.setName(profile.getFirstName() + " " + profile.getLastName());
 		userDTO.setProfileId(profile.getId());
-		userDTO.setStatus(ProfileStatus.valueOf(profile.getProfileStatus()));
-		/**
-		 * Add User Ids
-		 */
-		userDTO.setUserIds(List.of(profile.getUserId()));
+		userDTO.setStatus(profile.getStatus() == null ? null : ProfileStatus.valueOf(profile.getStatus()));
+
+		userDTO.setUserId(profile.getUserId());
 		userDTO.setTitle(profile.getTitle());
 
+		/**
+		 * additional details
+		 */
 		UserAdditionalDetailsDTO uaDTO = new UserAdditionalDetailsDTO();
 		uaDTO.setActiveContributor(profile.getActiveContributor());
 		uaDTO.setBlocked(user == null ? false : user.isBlocked());
 		uaDTO.setCreatedBy(null);
 		uaDTO.setCreatedOn(user != null ? user.getCreatedAt() : profile.getCreatedOn());
-		uaDTO.setDisplayPublic(profile.getDisplayPublic());
+		uaDTO.setDisplayPublic(profile.getPublicProfile());
 		uaDTO.setEmailVerified(user != null ? user.isEmailVerified() : false);
 		uaDTO.setLastLogin(user != null ? user.getLastLogin() : null);
 		uaDTO.setLastPasswordChange(user != null ? user.getLastPasswordReset() : null);
 		uaDTO.setLoginsCount(user == null ? 0 : user.getLoginsCount());
 		uaDTO.setUpdatedOn(user != null ? user.getUpdatedAt() : null);
 		userDTO.setAdditionalDetails(uaDTO);
-		userDTO.setRoleNames(InfraFieldHelper.stringToStringList(profile.getRoleString()));
+		/**
+		 * roles
+		 */
+		// userDTO.setRoleNames(InfraFieldHelper.stringToStringList(profile.getRoleNames()));
+		if (role != null) {
+			userDTO.setRoles(null);
+		}
 
+		/**
+		 * address
+		 */
 		List<AddressDTO> addresses = new ArrayList<>();
-		List<EmailDTO> emails = new ArrayList<>();
-		List<PhoneDTO> phones = new ArrayList<>();
-		List<SocialMediaDTO> socialmedias = new ArrayList<>();
-		if (profile.getContacts() != null) {
-			for (UserContactEntity contact : profile.getContacts()) {
-				if (contact.getContactType() == DBContactType.ADDRESS) {
-					addresses.add(new AddressDTO(contact.getId(), AddressType.valueOf(contact.getAddressType()),
-							contact.getAddressLine(), contact.getAddressHometown(), contact.getAddressState(),
-							contact.getAddressDistrict(), contact.getAddressCountry(), false));
-				} else if (contact.getContactType() == DBContactType.EMAIL) {
-					emails.add(new EmailDTO(contact.getId(), contact.getEmailType(), contact.getEmailValue()));
-				} else if (contact.getContactType() == DBContactType.PHONE) {
-					phones.add(new PhoneDTO(contact.getId(), PhoneType.valueOf(contact.getPhoneType()),
-							contact.getPhoneCode(), contact.getPhoneNumber(), false,false));
-				} else if (contact.getContactType() == DBContactType.SOCIALMEDIA) {
-					socialmedias.add(
-							new SocialMediaDTO(contact.getId(), SocialMediaType.valueOf(contact.getSocialMediaType()),
-									contact.getSocialMediaName(), contact.getSocialMediaURL(), false));
-				}
-			}
+		if (profile.getAddressLine1() != null || profile.getAddressLine2() != null || profile.getAddressLine3() != null
+				|| profile.getHometown() != null || profile.getDistrict() != null || profile.getState() != null
+				|| profile.getCountry() != null) {
+			AddressDTO present = new AddressDTO();
+			present.setAddressType(AddressType.PRESENT);
+			present.setAddressLine1(profile.getAddressLine1());
+			present.setAddressLine2(profile.getAddressLine2());
+			present.setAddressLine3(profile.getAddressLine3());
+			present.setHometown(profile.getHometown());
+			present.setDistrict(profile.getDistrict());
+			present.setState(profile.getState());
+			present.setCountry(profile.getCountry());
+			addresses.add(present);
 		}
 		userDTO.setAddresses(addresses);
-		userDTO.setEmails(emails);
-		userDTO.setSocialMedias(socialmedias);
+
+		/**
+		 * phone number
+		 */
+		List<PhoneDTO> phones = new ArrayList<>();
+		if (profile.getPhoneNumber() != null) {
+			PhoneDTO primary_phone = new PhoneDTO();
+			primary_phone.setPhoneType(PhoneType.PRIMARY);
+			List<String> fieldValue = InfraFieldHelper.stringToStringList(profile.getPhoneNumber(), "-");
+			if (fieldValue.size() == 2) {
+				primary_phone.setPhoneCode(fieldValue.get(0));
+				primary_phone.setPhoneNumber(fieldValue.get(1));
+				userDTO.setPhoneNumber(fieldValue.get(0)+fieldValue.get(1));
+			} else if (fieldValue.size() == 1){
+				primary_phone.setPhoneNumber(fieldValue.get(0));
+				userDTO.setPhoneNumber(fieldValue.get(0));
+			}
+			phones.add(primary_phone);
+		}
+
+		if (profile.getAltPhoneNumber() != null) {
+			PhoneDTO alt_phone = new PhoneDTO();
+			alt_phone.setPhoneType(PhoneType.ALTERNATIVE);
+			List<String> fieldValue = InfraFieldHelper.stringToStringList(profile.getAltPhoneNumber(), "-");
+			if (fieldValue.size() == 2) {
+				alt_phone.setPhoneCode(fieldValue.get(0));
+				alt_phone.setPhoneNumber(fieldValue.get(1));
+			} else if (fieldValue.size() == 1){
+				alt_phone.setPhoneNumber(fieldValue.get(0));
+			}
+			phones.add(alt_phone);
+		}
 		userDTO.setPhones(phones);
+
+		/**
+		 * social media
+		 */
+		List<SocialMediaDTO> socialmedias = new ArrayList<>();
+
+		if (profile.getFacebookLink() != null) {
+			SocialMediaDTO socialMedia = new SocialMediaDTO();
+			socialMedia.setSocialMediaType(SocialMediaType.FACEBOOK);
+			socialMedia.setSocialMediaURL(profile.getFacebookLink());
+			socialmedias.add(socialMedia);
+		}
+
+		if (profile.getInstagramLink() != null) {
+			SocialMediaDTO socialMedia = new SocialMediaDTO();
+			socialMedia.setSocialMediaType(SocialMediaType.INSTAGRAM);
+			socialMedia.setSocialMediaURL(profile.getInstagramLink());
+			socialmedias.add(socialMedia);
+		}
+
+		if (profile.getTwitterLink() != null) {
+			SocialMediaDTO socialMedia = new SocialMediaDTO();
+			socialMedia.setSocialMediaType(SocialMediaType.TWITTER);
+			socialMedia.setSocialMediaURL(profile.getTwitterLink());
+			socialmedias.add(socialMedia);
+		}
+
+		if (profile.getLinkedInLink() != null) {
+			SocialMediaDTO socialMedia = new SocialMediaDTO();
+			socialMedia.setSocialMediaType(SocialMediaType.LINKEDIN);
+			socialMedia.setSocialMediaURL(profile.getLinkedInLink());
+			socialmedias.add(socialMedia);
+		}
+
+		if (profile.getWhatsappLink() != null) {
+			SocialMediaDTO socialMedia = new SocialMediaDTO();
+			socialMedia.setSocialMediaType(SocialMediaType.WHATSAPP);
+			socialMedia.setSocialMediaURL(profile.getWhatsappLink());
+			socialmedias.add(socialMedia);
+		}
+		userDTO.setSocialMedias(socialmedias);
 
 		return userDTO;
 	}
 
 	public static DonationDTO convertToDonationDTO(DonationEntity donation) {
 		DonationDTO donationDTO = new DonationDTO();
-		donationDTO.setAccountId(donation.getAccountId());
 		donationDTO.setAmount(donation.getAmount());
-		UserDTO confirmedByDTO= new UserDTO();
-		confirmedByDTO.setName(donation.getPaymentConfirmedByName());	
-		confirmedByDTO.setProfileId(donation.getPaymentConfirmedBy());		
+		UserDTO confirmedByDTO = new UserDTO();
+		confirmedByDTO.setName(donation.getPaymentConfirmedByName());
+		confirmedByDTO.setProfileId(donation.getPaymentConfirmedBy());
 		donationDTO.setConfirmedBy(confirmedByDTO);
 		donationDTO.setConfirmedOn(donation.getPaymentConfirmedOn());
 		UserDTO userDTO = new UserDTO();
-		if (donation.getIsGuest()) {
-			userDTO.setName(donation.getDonorName());
-			userDTO.setEmail(donation.getDonorEmailAddress());
-			userDTO.setPrimaryPhoneNumber(donation.getDonorContactNumber());
-			PhoneDTO phoneDTO = new PhoneDTO();
-			phoneDTO.setPhoneNumber(donation.getDonorContactNumber());
-			userDTO.setPhones(List.of(phoneDTO));
-			donationDTO.setDonor(userDTO);
-		} else {
+		if (!donation.getIsGuest()) {
 			userDTO.setProfileId(donation.getProfile());
-			donationDTO.setDonor(userDTO);
 		}
+		userDTO.setName(donation.getDonorName());
+		userDTO.setEmail(donation.getDonorEmailAddress());
+		userDTO.setPhoneNumber(donation.getDonorContactNumber());
+		donationDTO.setDonor(userDTO);
+
 		donationDTO.setEndDate(donation.getEndDate());
 		donationDTO.setGuest(donation.getIsGuest());
 		donationDTO.setId(donation.getId());
 		donationDTO.setPaidOn(donation.getPaidOn());
-		donationDTO.setPaymentMethod(donation.getPaymentMethod() == null ? null : PaymentMethod.valueOf(donation.getPaymentMethod()));
+		donationDTO.setPaymentMethod(
+				donation.getPaymentMethod() == null ? null : PaymentMethod.valueOf(donation.getPaymentMethod()));
 		donationDTO.setRaisedOn(donation.getRaisedOn());
 		donationDTO.setStartDate(donation.getStartDate());
 		donationDTO.setStatus(DonationStatus.valueOf(donation.getContributionStatus()));
 		donationDTO.setTransactionRefNumber(donation.getTransactionRefNumber());
 		donationDTO.setType(DonationType.valueOf(donation.getContributionType()));
 		donationDTO.setForEventId(donation.getEventId());
-		donationDTO.setComment(donation.getComment());;
-		
+		donationDTO.setComment(donation.getComment());
+		;
+
 		donationDTO.setUpiName(donation.getPaidUPIName() == null ? null : UPIOption.valueOf(donation.getPaidUPIName()));
-		donationDTO.setIsPaymentNotified(donation.getIsPaymentNotified());	
-		//donationDTO.setDonationNumber(donation.getDonationNumber());
+		donationDTO.setIsPaymentNotified(donation.getIsPaymentNotified());
+		AccountDTO accountDTO = new AccountDTO();
+		accountDTO.setId(donation.getAccountId());
+		accountDTO.setAccountName(donation.getAccountName());
+		donationDTO.setPaidToAccount(accountDTO);
+
+		donationDTO.setCancelReason(donation.getCancelReason());
+		donationDTO.setPayLaterReason(donation.getPayLaterReason());
+		donationDTO.setPaymentFailDetail(donation.getPaymentFailDetail());
+
 		return donationDTO;
 	}
 
@@ -183,7 +263,7 @@ public class InfraDTOHelper {
 
 	public static RoleDTO convertToRoleDTO(AuthUserRole userRole) {
 		RoleDTO roleDTO = new RoleDTO();
-		//roleDTO.setCode(userRole.getRoleName());
+		// roleDTO.setCode();
 		roleDTO.setDescription(userRole.getRoleDescription());
 		roleDTO.setDisplayName(userRole.getRoleName());
 		roleDTO.setId(userRole.getRoleId());
@@ -214,7 +294,7 @@ public class InfraDTOHelper {
 		noticeDTO.setDraft(noticeEntity.isDraft());
 		noticeDTO.setId(noticeEntity.getId());
 		noticeDTO.setNoticeDate(noticeEntity.getNoticeDate());
-		//noticeDTO.setNoticeNumber(noticeEntity.getNoticeNumber());
+		// noticeDTO.setNoticeNumber(noticeEntity.getNoticeNumber());
 		noticeDTO.setPublishDate(
 				noticeEntity.getPublishedOn() == null ? noticeEntity.getCreatedOn() : noticeEntity.getPublishedOn());
 		// noticeDTO.setRecentNotice(noticeDTO.getPublishDate().compareTo(CommonUtils.getSystemDate()));
@@ -293,77 +373,83 @@ public class InfraDTOHelper {
 		UserDTO userInfo = new UserDTO();
 		userInfo.setName(tokenEntity.getName());
 		userInfo.setEmail(tokenEntity.getEmail());
-		userInfo.setPrimaryPhoneNumber(tokenEntity.getMobileNumber());
+		userInfo.setPhoneNumber(tokenEntity.getMobileNumber());
 		ticketDTO.setUserInfo(userInfo);
 		ticketDTO.setTicketStatus(TicketStatus.valueOf(tokenEntity.getStatus()));
 		return ticketDTO;
 	}
 
-	public static TransactionDTO convertToTransactionDTO(TransactionEntity txnEntity,AccountEntity fromAccount,AccountEntity toAccount) {
+	public static TransactionDTO convertToTransactionDTO(TransactionEntity txnEntity, AccountEntity fromAccount,
+			AccountEntity toAccount) {
 		TransactionDTO transactionDTO = new TransactionDTO();
 		transactionDTO.setComment(txnEntity.getComment());
 		transactionDTO.setFromAccBalAfterTxn(txnEntity.getFromAccBalAfterTxn());
 		transactionDTO.setTxnDescription(txnEntity.getTransactionDescription());
-		
-		if(fromAccount != null) {
+
+		if (fromAccount != null) {
 			transactionDTO.setFromAccount(convertToAccountDTO(fromAccount, null));
-		}else {
-			AccountDTO fromAcc= new AccountDTO();
+		} else {
+			AccountDTO fromAcc = new AccountDTO();
 			fromAcc.setId(txnEntity.getFromAccount());
 			transactionDTO.setFromAccount(fromAcc);
 		}
-		
+
 		transactionDTO.setId(txnEntity.getId());
 		transactionDTO.setToAccBalAfterTxn(txnEntity.getToAccBalAfterTxn());
-		if(toAccount != null) {
+		if (toAccount != null) {
 			transactionDTO.setToAccount(convertToAccountDTO(toAccount, null));
-		}else {
-			AccountDTO toAcc= new AccountDTO();
+		} else {
+			AccountDTO toAcc = new AccountDTO();
 			toAcc.setId(txnEntity.getToAccount());
 			transactionDTO.setToAccount(toAcc);
 		}
-	
+
 		transactionDTO.setTxnAmount(txnEntity.getTransactionAmt());
 		transactionDTO.setTxnDate(txnEntity.getTransactionDate());
 		transactionDTO.setTxnRefId(txnEntity.getTransactionRefId());
-		transactionDTO.setTxnRefType(txnEntity.getTransactionRefType() == null ? null : TransactionRefType.valueOf(txnEntity.getTransactionRefType()));
-		transactionDTO.setTxnStatus(txnEntity.getStatus() == null ? null : TransactionStatus.valueOf(txnEntity.getStatus()));
-		transactionDTO.setTxnType(txnEntity.getTransactionType() == null ? null : TransactionType.valueOf(txnEntity.getTransactionType()));
+		transactionDTO.setTxnRefType(txnEntity.getTransactionRefType() == null ? null
+				: TransactionRefType.valueOf(txnEntity.getTransactionRefType()));
+		transactionDTO
+				.setTxnStatus(txnEntity.getStatus() == null ? null : TransactionStatus.valueOf(txnEntity.getStatus()));
+		transactionDTO.setTxnType(txnEntity.getTransactionType() == null ? null
+				: TransactionType.valueOf(txnEntity.getTransactionType()));
 		return transactionDTO;
 	}
 
-	public static AccountDTO convertToAccountDTO(AccountEntity accountInfo,UserProfileEntity userEntity) {
+	public static AccountDTO convertToAccountDTO(AccountEntity accountInfo, UserProfileEntity userEntity) {
 		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setAccountName(accountInfo.getAccountName());	
-		accountDTO.setAccountStatus(accountInfo.getAccountStatus() == null ? null : AccountStatus.valueOf(accountInfo.getAccountStatus()));
-		accountDTO.setAccountType(accountInfo.getAccountType() == null ? null : AccountType.valueOf(accountInfo.getAccountType()));
+		accountDTO.setAccountName(accountInfo.getAccountName());
+		accountDTO.setAccountStatus(
+				accountInfo.getAccountStatus() == null ? null : AccountStatus.valueOf(accountInfo.getAccountStatus()));
+		accountDTO.setAccountType(
+				accountInfo.getAccountType() == null ? null : AccountType.valueOf(accountInfo.getAccountType()));
 		accountDTO.setActivatedOn(accountInfo.getActivatedOn());
 		accountDTO.setCurrentBalance(accountInfo.getCurrentBalance());
 		accountDTO.setId(accountInfo.getId());
 		accountDTO.setOpeningBalance(accountInfo.getOpeningBalance());
-		if(userEntity != null) {
-			accountDTO.setProfile(convertToUserDTO(userEntity, null));
-		}else {
-			UserDTO userDTO= new UserDTO();
+		if (userEntity != null) {
+			accountDTO.setProfile(convertToUserDTO(userEntity, null, null));
+		} else {
+			UserDTO userDTO = new UserDTO();
 			userDTO.setProfileId(accountInfo.getProfile());
 			accountDTO.setProfile(userDTO);
 		}
-		
-		BankDTO bankDTO= new BankDTO();
-		bankDTO.setAccountHolderName(accountInfo.getBankAccountHolderName());	
+
+		BankDTO bankDTO = new BankDTO();
+		bankDTO.setAccountHolderName(accountInfo.getBankAccountHolderName());
 		bankDTO.setAccountNumber(accountInfo.getBankAccountNumber());
 		bankDTO.setAccountType(accountInfo.getBankAccountType());
 		bankDTO.setBankName(accountInfo.getBankName());
 		bankDTO.setBranchName(accountInfo.getBankBranchName());
 		bankDTO.setIFSCNumber(accountInfo.getBankIFSCNumber());
 		accountDTO.setBankDetail(bankDTO);
-		
-		UPIDTO upiDTO = new UPIDTO();
+
+		UpiDTO upiDTO = new UpiDTO();
 		upiDTO.setMobileNumber(accountInfo.getUpiMobileNumber());
 		upiDTO.setPayeeName(accountInfo.getUpiPayeeName());
 		upiDTO.setUpiId(accountInfo.getUpiId());
-		accountDTO.setUpiDetail(upiDTO);		
-		
+		accountDTO.setUpiDetail(upiDTO);
+
 		return accountDTO;
 	}
 

@@ -1,4 +1,4 @@
-package ngo.nabarun.app.ext.serviceimpl.google;
+package ngo.nabarun.app.ext.serviceimpl;
 
 import org.springframework.stereotype.Service;
 

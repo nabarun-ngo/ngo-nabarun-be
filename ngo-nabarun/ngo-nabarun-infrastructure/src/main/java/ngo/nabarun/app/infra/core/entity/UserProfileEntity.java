@@ -1,17 +1,10 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
-import java.util.List;
-
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,55 +25,47 @@ public class UserProfileEntity{
 	
 	@Id
 	private String id;
-	
 	private String title;
-	
 	private String firstName;
-	
 	private String middleName;
-	
 	private String lastName;
-	
 	private String avatarUrl;
-	
 	@DateTimeFormat(pattern="dd/MM/yyyy")
 	private Date dateOfBirth;
-	
 	private String gender;
-	
-	private String roleString;
-	
+	private String about;
+
+	private String roleNames;
+	private String roleCodes;
 	@Indexed(unique = true)
 	private String email;
-	
-	private String about;
-	
-	@DocumentReference(lookup = "{ 'user' : ?#{#self._id} }")
-	@JsonManagedReference
-	private List<UserContactEntity> contacts;
+	private String phoneNumber;
+	private String altPhoneNumber;
 
-	
-	@CreatedDate
+
 	private Date createdOn;
-	
-	@CreatedBy
 	private String createdBy;
 	
 	private String userId;
-
 	private Boolean activeContributor;
+	private Boolean publicProfile;
+	private String status;
 	
-	private Boolean displayPublic;
-	private String profileStatus;
+	private String addressLine1;
+	private String addressLine2;
+	private String addressLine3;
+	private String hometown;
+	private String district;
+	private String state;
+	private String country;
 	
-	
+	private String facebookLink;
+	private String instagramLink;
+	private String twitterLink;
+	private String linkedInLink;
+	private String whatsappLink;
 
 	private boolean deleted;
-    
-    
-	private String phoneNumberString;
-      
-
-    
-
+	
+ 
 }

@@ -9,7 +9,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 
@@ -17,13 +17,13 @@ import ngo.nabarun.app.common.enums.DonationType;
 public interface IDonationBL {
 	DonationDetail raiseDonation(DonationDetailCreate request) throws Exception;
 
-	Page<DonationDetail> getUserDonations(String id,Integer index,Integer size) throws Exception;
+	Paginate<DonationDetail> getUserDonations(String id,Integer index,Integer size) throws Exception;
 
-	Page<DonationDetail> getLoggedInUserDonations(Integer index,Integer size) throws Exception;
+	Paginate<DonationDetail> getLoggedInUserDonations(Integer index,Integer size) throws Exception;
 
 	void autoRaiseDonation();
 
-	Page<DonationDetail> getDonations(Integer index,Integer size, DonationDetailFilter filter);
+	Paginate<DonationDetail> getDonations(Integer index,Integer size, DonationDetailFilter filter);
 	
 	List<DocumentDetail> getDonationDocument(String donationId);
 

@@ -12,7 +12,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
@@ -34,7 +34,7 @@ public class NoticeBLImpl implements INoticeBL {
 	private  BusinessIdGenerator idGenerator;
 	
 	@Override
-	public Page<NoticeDetail> getAllNotice(Integer page, Integer size, NoticeDetailFilter filter) {
+	public Paginate<NoticeDetail> getAllNotice(Integer page, Integer size, NoticeDetailFilter filter) {
 		NoticeDTO noticeDTOFilter = null;
 		if(filter != null) {
 			noticeDTOFilter= new NoticeDTO();
@@ -50,7 +50,7 @@ public class NoticeBLImpl implements INoticeBL {
 		}else {
 			total = content.size();
 		}
-		return new Page<NoticeDetail>(page, size, total, content);
+		return new Paginate<NoticeDetail>(page, size, total, content);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class NoticeBLImpl implements INoticeBL {
 		return documentInfraService.getDocumentList(id, DocumentIndexType.NOTICE).stream().map(m -> {
 			DocumentDetail doc = new DocumentDetail();
 			doc.setDocId(m.getDocId());
-			doc.setDocumentRefId(id);
+			doc.setDocumentIndexId(id);
 			doc.setImage(m.isImage());
 			doc.setOriginalFileName(m.getOriginalFileName());
 			return doc;

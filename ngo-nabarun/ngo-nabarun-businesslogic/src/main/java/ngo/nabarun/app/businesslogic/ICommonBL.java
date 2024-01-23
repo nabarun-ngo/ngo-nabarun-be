@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
@@ -26,6 +27,8 @@ public interface ICommonBL {
 	void clearSystemCache(List<String> names);
 
 	Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception;
+
+	void uploadDocuments(List<DocumentDetailUpload> files,String docIndexId, DocumentIndexType docIndexType) throws Exception;
 
 
 }

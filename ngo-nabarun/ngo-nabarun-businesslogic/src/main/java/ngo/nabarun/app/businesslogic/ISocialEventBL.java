@@ -9,12 +9,12 @@ import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 
 @Service
 public interface ISocialEventBL {
 
-	Page<EventDetail> getSocialEvents(Integer page, Integer size, EventDetailFilter filter);
+	Paginate<EventDetail> getSocialEvents(Integer page, Integer size, EventDetailFilter filter);
 	EventDetail getSocialEvent(String id);
 	EventDetail createSocialEvent(EventDetailCreate eventDetail) throws Exception;
 	EventDetail updateSocialEvent(String id,EventDetailUpdate updatedEventDetail) throws Exception;

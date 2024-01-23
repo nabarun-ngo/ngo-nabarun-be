@@ -7,7 +7,6 @@ import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.UPIOption;
 
 import java.util.Date;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -52,25 +51,32 @@ public class DonationDetail {
 	private PaymentMethod paymentMethod;
 	
 	@JsonProperty("paidToAccount")
-	private String accountId;
+	private AccountDetail receivedAccount;
 	
 	@JsonProperty("donorDetails")
 	private UserDetail donorDetails;
 	
 	@JsonProperty("forEvent")
 	private EventDetail event;
-	    
-	@JsonProperty("documents")
-	private List<String> attachments;
-	
+
 	@JsonProperty("paidUsingUPI")
 	private UPIOption paidUsingUPI;
 	
 	@JsonProperty("isPaymentNotified")
 	private boolean isPaymentNotified;
 	
-	@JsonProperty("donationRef")
-	private String donationRef;
+	@JsonProperty("transactionRef")
+	private String txnRef;
 	
+	@JsonProperty("remarks")
+	private String remarks;
 	
+	@JsonProperty("cancelletionReason")
+	private String cancelletionReason;
+	
+	@JsonProperty("laterPaymentReason")
+	private String laterPaymentReason;
+	
+	@JsonProperty("paymentFailureDetail")
+	private String paymentFailureDetail;
 }

@@ -1,4 +1,4 @@
-package ngo.nabarun.app.ext.serviceimpl.sendgrid;
+package ngo.nabarun.app.ext.serviceimpl;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +47,7 @@ public class SendGridEmailExtServiceImpl implements IEmailExtService {
 		}
 
 		Personalization personalization = new Personalization();
+		
 		/**
 		 * If Environment is equals to any of the production profile name or prod mode
 		 * in test is enabled for any profile or environment

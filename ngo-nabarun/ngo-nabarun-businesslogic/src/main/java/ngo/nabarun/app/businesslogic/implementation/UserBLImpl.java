@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -13,7 +14,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserDetailUpdate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
 import ngo.nabarun.app.businesslogic.IUserBL;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
@@ -28,6 +29,7 @@ import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
+import ngo.nabarun.app.infra.dto.UserDTO.UserDTOFilter;
 import ngo.nabarun.app.infra.misc.KeyValuePair;
 import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
@@ -160,7 +162,7 @@ public class UserBLImpl implements IUserBL {
 			userDTO = userService.getUserByEmail(id, includeAuthDetails);
 			break;
 		case ID:
-			userDTO = userService.getUserByProfileId(id, includeAuthDetails);
+			userDTO = userService.getUser(id, includeAuthDetails);
 			break;
 		case AUTH_USER_ID:
 			userDTO = userService.getUserByUserId(id, includeAuthDetails);
@@ -176,31 +178,27 @@ public class UserBLImpl implements IUserBL {
 	}
 
 	@Override
-	public Page<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter userDetailFilter) {
-		UserDTO userDTOFilter = null;
+	public Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter userDetailFilter) {
+		UserDTOFilter userDTOFilter = null;
 		if(userDetailFilter != null) {
-			userDTOFilter= new UserDTO();
+			userDTOFilter= new UserDTOFilter();
 			userDTOFilter.setFirstName(userDetailFilter.getFirstName());
 			userDTOFilter.setLastName(userDetailFilter.getLastName());
 			userDTOFilter.setEmail(userDetailFilter.getEmail());
-			userDTOFilter.setPrimaryPhoneNumber(userDetailFilter.getPhoneNumber());
-			userDTOFilter.setUserIds(List.of(userDetailFilter.getUserId()));
+			userDTOFilter.setPhoneNumber(userDetailFilter.getPhoneNumber());
+			userDTOFilter.setUserId(userDetailFilter.getUserId());
 		}
-		List<UserDetail> content =userService.getUsers(page, size, userDTOFilter).stream()
-				.map(m -> DTOToBusinessObjectConverter.toUserDetail(m)).sorted(new Comparator<UserDetail>() {
-					@Override
-					public int compare(UserDetail o1, UserDetail o2) {
-						return o1.getFirstName().compareTo(o2.getFirstName());
-					}
-				}).toList();
-		
-		long total;
-		if(page != null && size != null){
-			total=userService.getUsersCount();
-		}else {
-			total = content.size();
-		}
-		return new Page<UserDetail>(page, size, total, content);
+		Page<UserDetail> content =userService.getUsers(page, size, userDTOFilter)
+				
+				.map(m -> DTOToBusinessObjectConverter.toUserDetail(m));
+//				.sorted(new Comparator<UserDetail>() {
+//					@Override
+//					public int compare(UserDetail o1, UserDetail o2) {
+//						return o1.getFirstName().compareTo(o2.getFirstName());
+//					}
+//				}).toList();
+
+		return new Paginate<UserDetail>(content);
 	}
 
 	@Override

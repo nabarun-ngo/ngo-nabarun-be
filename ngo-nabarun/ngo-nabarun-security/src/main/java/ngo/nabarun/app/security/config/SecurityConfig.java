@@ -1,33 +1,31 @@
 package ngo.nabarun.app.security.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.security.apikey.ApiKeyAuthFilter;
+import ngo.nabarun.app.security.apikey.ApiKeyAuthManager;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import java.util.Arrays;
+//import net.skobow.auth.apikey.autoconfigure.EnableApiKeyAuthentication;
 
 import org.springframework.security.oauth2.jwt.*;
 
 @EnableWebSecurity
+//@EnableApiKeyAuthentication
 @Configuration
 public class SecurityConfig {
 
@@ -53,7 +51,11 @@ public class SecurityConfig {
 	@Bean
 	@Order(1) // Order 1 for API requests
 	SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-		return http.csrf(csrf -> csrf.disable()).cors(withDefaults()).authorizeHttpRequests(request->{
+		ApiKeyAuthFilter filter = new ApiKeyAuthFilter("X-API-KEY");
+		filter.setAuthenticationManager(new ApiKeyAuthManager());
+		return http.antMatcher("/api/**").csrf(csrf -> csrf.disable()).cors(withDefaults()).sessionManagement(session -> {
+			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		}).addFilter(filter).authorizeHttpRequests(request -> {
 			request.antMatchers("/api/**").authenticated();
 		}).oauth2ResourceServer(server -> server.jwt()).build();
 	}
@@ -61,7 +63,9 @@ public class SecurityConfig {
 	@Bean
 	@Order(2) // Order 2 for non-API requests
 	SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
-		return http.antMatcher("/**").authorizeHttpRequests().anyRequest().permitAll().and().build();
+		return http.antMatcher("/**").sessionManagement(session -> {
+			session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+		}).authorizeHttpRequests().anyRequest().permitAll().and().build();
 	}
 
 	@Autowired

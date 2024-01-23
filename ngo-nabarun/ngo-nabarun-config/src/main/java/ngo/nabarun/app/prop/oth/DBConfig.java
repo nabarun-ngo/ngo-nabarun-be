@@ -2,8 +2,7 @@ package ngo.nabarun.app.prop.oth;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.ToString;
  * MongoDB
  * DAO for storing db_config info in DB
  */
-@Document("db_config")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +25,6 @@ public class DBConfig {
 	private String description;
 	private String config_type;
 	private boolean active;
-	@CreatedDate
+	
 	private Date createdOn;
 }

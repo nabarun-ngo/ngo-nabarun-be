@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.JoiningInterviewDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 
 
@@ -19,7 +19,7 @@ public class PublicController {
 	@GetMapping
 	public String homePage(Model model) {
 		System.out.println("hello");
-		Page<UserDetail> users=userBl.getAllUser(null, null, null);
+		Paginate<UserDetail> users=userBl.getAllUser(null, null, null);
 		model.addAttribute("profiles", users.getContent());
 		model.addAttribute("interview", new JoiningInterviewDetail());
 		model.addAttribute("loginURL", "");

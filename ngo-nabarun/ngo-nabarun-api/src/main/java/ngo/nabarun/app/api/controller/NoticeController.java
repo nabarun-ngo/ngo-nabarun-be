@@ -18,7 +18,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.util.CommonUtils;
 
 import java.util.List;
@@ -39,14 +39,14 @@ public class NoticeController {
 
 
 	@GetMapping("/getNotices")
-	public ResponseEntity<SuccessResponse<Page<NoticeDetail>>> getAllNotice(
+	public ResponseEntity<SuccessResponse<Paginate<NoticeDetail>>> getAllNotice(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			@RequestParam(required = false) String filter) throws Exception {
 		NoticeDetailFilter noticeFilter = null;
 		if (filter != null) {
 			noticeFilter = CommonUtils.jsonToPojo(filter, NoticeDetailFilter.class);
 		}
-		return new SuccessResponse<Page<NoticeDetail>>()
+		return new SuccessResponse<Paginate<NoticeDetail>>()
 				.payload(noticeBL.getAllNotice(pageIndex, pageSize, noticeFilter)).get(HttpStatus.OK);
 	}
 	

@@ -44,7 +44,7 @@ public class UserDetailUpdate {
 	private List<UserPhoneNumber> phoneNumbers;
 	
 	@JsonProperty("addresses")
-	private List<UserAddress> addresses;
+	private  List<UserAddress> addresses;
 	
 	@JsonProperty("socialMediaLinks")
 	private List<UserSocialMedia> socialMediaLinks;

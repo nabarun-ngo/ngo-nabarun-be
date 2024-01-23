@@ -11,10 +11,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
+import ngo.nabarun.app.businesslogic.exception.BusinessException;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ErrorResponse {
+
+	private static final String DEFAULT_ERROR_MESSAGE = "Something went wrong.";
 
 	@JsonProperty("info")
 	private final String info = "Error";
@@ -38,7 +41,7 @@ public class ErrorResponse {
 	private String[] stackTrace;
 
 	public ErrorResponse(Exception e) {
-		messages.add(e.getMessage());
+		messages.add(e instanceof BusinessException ? e.getMessage() : DEFAULT_ERROR_MESSAGE);
 		details.add("Message : " + e.getMessage());
 		if (e.getCause() != null) {
 			details.add("Cause : " + e.getCause().getMessage());

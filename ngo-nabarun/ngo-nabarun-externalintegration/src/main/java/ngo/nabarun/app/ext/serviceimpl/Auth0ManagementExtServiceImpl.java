@@ -1,4 +1,4 @@
-package ngo.nabarun.app.ext.serviceimpl.auth0;
+package ngo.nabarun.app.ext.serviceimpl;
 
 import java.util.Date;
 import java.util.List;

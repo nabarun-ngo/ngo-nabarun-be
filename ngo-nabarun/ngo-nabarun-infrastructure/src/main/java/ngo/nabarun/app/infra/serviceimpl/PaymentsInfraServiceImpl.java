@@ -15,7 +15,7 @@ import ngo.nabarun.app.infra.core.repo.TransactionRepository;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
-import ngo.nabarun.app.infra.dto.UPIDTO;
+import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.service.IAccountInfraService;
 import ngo.nabarun.app.infra.service.ITransactionInfraService;
@@ -122,7 +122,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService,IAccou
 		
 		
 		if(accountDTO.getUpiDetail() != null) {
-			UPIDTO upiDetail=accountDTO.getUpiDetail();
+			UpiDTO upiDetail=accountDTO.getUpiDetail();
 			entity.setUpiId(upiDetail.getUpiId());
 			entity.setUpiMobileNumber(upiDetail.getMobileNumber());
 			entity.setUpiPayeeName(upiDetail.getPayeeName());

@@ -1,8 +1,18 @@
 package ngo.nabarun.app.prop;
 
-public class PropertySource {
+import java.util.Map;
 
-	public static DBPropertySource connectMongo(String connURI) throws Exception {
-		return new MongoDBPropertySource(connURI);
+public abstract class PropertySource {
+
+
+	public abstract Map<String, Object> loadProperties() throws Exception;
+	public Map<String, Object> loadProperties(String secretKey) {
+		return null;
 	}
+	void addOrUpdateProperty(String key, Object value, String description, boolean encrypted, String secretKey)
+			throws Exception {
+	}
+	void close() {
+	}
+
 }

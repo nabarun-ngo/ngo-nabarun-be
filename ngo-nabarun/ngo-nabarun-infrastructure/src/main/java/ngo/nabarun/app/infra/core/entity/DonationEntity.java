@@ -58,7 +58,8 @@ public class DonationEntity {
 	private Boolean isGuest;
 	
 	private String accountId;
-	
+	private String accountName;
+
 	private String profile;
     
    	private String eventId;
@@ -68,6 +69,10 @@ public class DonationEntity {
 	private String donationNumber;
 	private String paymentConfirmedByName;
 
+
+	private String cancelReason;
+	private String payLaterReason;
+	private String paymentFailDetail;
 
 
 }

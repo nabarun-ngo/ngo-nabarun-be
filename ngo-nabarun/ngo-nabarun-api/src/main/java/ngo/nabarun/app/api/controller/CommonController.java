@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
@@ -31,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE,value = "/api/common")
 @SecurityRequirement(name = "nabarun_auth")
+@SecurityRequirement(name = "nabarun_auth_apikey")
 public class CommonController {
 	
 	@Autowired
@@ -41,6 +43,16 @@ public class CommonController {
 			@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType,
 			@RequestParam MultipartFile[] files
+			) throws Exception {
+		commonBL.uploadDocuments(files,docIndexId,docIndexType);
+		return new SuccessResponse<Void>().get(HttpStatus.OK);
+	}
+	
+	@PostMapping(value="/document/uploadBase64Documents")
+	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(
+			@RequestParam String docIndexId,
+			@RequestParam DocumentIndexType docIndexType,
+			@RequestBody List<DocumentDetailUpload> files
 			) throws Exception {
 		commonBL.uploadDocuments(files,docIndexId,docIndexType);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
@@ -79,8 +91,8 @@ public class CommonController {
 		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
 	}
 	
-	@PostMapping(value="/getReferenceData")
-	public ResponseEntity<SuccessResponse<Map<String,List<KeyValue>>>> getReferenceData(@RequestBody(required = false) List<RefDataType> names) throws Exception {
+	@GetMapping(value="/getReferenceData")
+	public ResponseEntity<SuccessResponse<Map<String,List<KeyValue>>>> getReferenceData(@RequestParam(required = false) List<RefDataType> names) throws Exception {
 		return new SuccessResponse<Map<String,List<KeyValue>>>().payload(commonBL.getReferenceData(names)).get(HttpStatus.OK);
 	}
 	

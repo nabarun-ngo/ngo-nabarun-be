@@ -2,12 +2,14 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class Page<T> {
+public class Paginate<T> {
 	@JsonProperty("pageIndex")
 	private Integer pageIndex;
 	
@@ -32,7 +34,7 @@ public class Page<T> {
 	@JsonProperty("prevPageIndex")
 	private int prevPageIndex;
 	
-	public Page(Integer pageIndex,Integer pageSize,long totalSize,List<T> content){
+	public Paginate(Integer pageIndex,Integer pageSize,long totalSize,List<T> content){
 		this.pageIndex=pageIndex == null ? 0 : pageIndex;
 		this.pageSize= pageSize;
 		this.currentSize=content == null ? 0 : content.size();
@@ -43,6 +45,16 @@ public class Page<T> {
 		this.totalPages= pageSize == null || pageSize == 0 ? 1 : (totalSize%pageSize == 0 ? (int)(totalSize/pageSize) : (int)(totalSize/pageSize)+1);
 	}
 	
+	public Paginate(Page<T> page){
+		this.pageIndex=page.getNumber();
+		this.pageSize= page.getSize();
+		this.currentSize=page.getNumberOfElements();
+		this.content=page.getContent();
+		this.totalSize=page.getTotalElements();
+		this.nextPageIndex= page.getNumber()+1;
+		this.prevPageIndex= page.getNumber() == 0 ? 0 : page.getNumber()-1;
+		this.totalPages= page.getTotalPages();
+	}
 	
 	
 

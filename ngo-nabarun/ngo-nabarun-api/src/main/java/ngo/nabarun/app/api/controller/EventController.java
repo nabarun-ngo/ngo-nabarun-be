@@ -18,7 +18,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.util.CommonUtils;
 
 import java.util.List;
@@ -37,14 +37,14 @@ public class EventController {
 	private ISocialEventBL socialEventBL;
 
 	@GetMapping("/getEvents")
-	public ResponseEntity<SuccessResponse<Page<EventDetail>>> getSocialEvents(
+	public ResponseEntity<SuccessResponse<Paginate<EventDetail>>> getSocialEvents(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			@RequestParam(required = false) String filter) throws Exception {
 		EventDetailFilter eventFilter = null;
 		if (filter != null) {
 			eventFilter = CommonUtils.jsonToPojo(filter, EventDetailFilter.class);
 		}
-		return new SuccessResponse<Page<EventDetail>>()
+		return new SuccessResponse<Paginate<EventDetail>>()
 				.payload(socialEventBL.getSocialEvents(pageIndex, pageSize, eventFilter)).get(HttpStatus.OK);
 	}
 	

@@ -3,34 +3,33 @@ package ngo.nabarun.app.infra.serviceimpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import ngo.nabarun.app.common.enums.DBContactType;
+import com.querydsl.core.BooleanBuilder;
+
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.service.IAuthManagementExtService;
-import ngo.nabarun.app.infra.core.entity.UserContactEntity;
+import ngo.nabarun.app.infra.core.entity.QUserProfileEntity;
 import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
-import ngo.nabarun.app.infra.core.repo.UserContactRepository;
 import ngo.nabarun.app.infra.core.repo.UserProfileRepository;
 import ngo.nabarun.app.infra.dto.AddressDTO;
-import ngo.nabarun.app.infra.dto.EmailDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.SocialMediaDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
+import ngo.nabarun.app.infra.dto.UserDTO.UserDTOFilter;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
+import ngo.nabarun.app.infra.misc.WhereClause;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Service
@@ -42,8 +41,69 @@ public class UserInfraServiceImpl implements IUserInfraService {
 	@Autowired
 	private UserProfileRepository profileRepository;
 
-	@Autowired
-	private UserContactRepository userContactRepository;
+//	@Autowired
+//	private CustomFieldRepository customFieldRepository;
+
+	@Override
+	public Page<UserDTO> getUsers(Integer page, Integer size, UserDTOFilter filter) {
+		Page<UserProfileEntity> profiles = null;
+		if (filter != null) {
+			QUserProfileEntity qUser = QUserProfileEntity.userProfileEntity;
+			BooleanBuilder query = WhereClause.builder()
+					.optionalAnd(filter.getEmail() != null, () -> qUser.email.eq(filter.getEmail()))
+					.optionalAnd(filter.getFirstName() != null, () -> qUser.firstName.eq(filter.getFirstName()))
+					.optionalAnd(filter.getLastName() != null, () -> qUser.lastName.eq(filter.getLastName()))
+					.optionalAnd(filter.getPhoneNumber() != null,
+							() -> qUser.phoneNumber.contains(filter.getPhoneNumber())
+									.or(qUser.altPhoneNumber.contains(filter.getPhoneNumber())))
+					.optionalAnd(filter.getProfileId() != null, () -> qUser.id.eq(filter.getProfileId()))
+					.optionalAnd(filter.getStatus() != null, () -> qUser.status.eq(filter.getStatus().name()))
+					.optionalAnd(filter.getUserId() != null, () -> qUser.userId.eq(filter.getUserId())).build();
+
+			if (page == null || size == null) {
+				List<UserProfileEntity> result = new ArrayList<>();
+				profileRepository.findAll(query).iterator().forEachRemaining(result::add);
+				profiles = new PageImpl<>(result);
+			} else {
+				profiles = profileRepository.findAll(query, PageRequest.of(page, size));
+			}
+		} else if (page != null && size != null) {
+			profiles = profileRepository.findAll(PageRequest.of(page, size));
+		} else {
+			profiles = new PageImpl<>(profileRepository.findAll());
+		}
+		return profiles.map(m -> InfraDTOHelper.convertToUserDTO(m, null));
+	}
+
+	@Override
+	public UserDTO getUser(String id, boolean includeFullDetails) throws Exception {
+		UserProfileEntity profile = profileRepository.findById(id).orElseThrow();
+		AuthUser auth0User = null;
+		if (includeFullDetails) {
+			auth0User = authManagementService.getUser(profile.getUserId());
+		}
+		return InfraDTOHelper.convertToUserDTO(profile, auth0User);
+	}
+
+	@Override
+	public UserDTO getUserByUserId(String userId, boolean includeFullDetails) throws Exception {
+		UserProfileEntity profile = profileRepository.findByUserId(userId).orElseThrow();
+		AuthUser auth0User = null;
+		if (includeFullDetails) {
+			auth0User = authManagementService.getUser(profile.getUserId());
+		}
+		return InfraDTOHelper.convertToUserDTO(profile, auth0User);
+	}
+
+	@Override
+	public UserDTO getUserByEmail(String email, boolean includeFullDetails) throws Exception {
+		UserProfileEntity profile = profileRepository.findByEmail(email).orElseThrow();
+		AuthUser auth0User = null;
+		if (includeFullDetails) {
+			auth0User = authManagementService.getUser(profile.getUserId());
+		}
+		return InfraDTOHelper.convertToUserDTO(profile, auth0User);
+	}
 
 	/**
 	 * Creating user in auth0 system auth0 system will throw an error if user exists
@@ -64,6 +124,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 * with email this will be hard blocker as for re joiners auth0 profile must be
 		 * deleted during their termination
 		 */
+
 		AuthUser newAuth0User = new AuthUser();
 		newAuth0User.setFirstName(userDTO.getFirstName());
 		newAuth0User.setLastName(userDTO.getLastName());
@@ -81,171 +142,88 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 */
 		Optional<UserProfileEntity> userProfile = profileRepository.findByEmail(userDTO.getEmail());
 		UserProfileEntity profile = userProfile.isPresent() ? userProfile.get() : new UserProfileEntity();
-		profile.setActiveContributor(userDTO.getAdditionalDetails().isActiveContributor());
+		profile.setTitle(userDTO.getTitle());
+		profile.setFirstName(newAuth0User.getFirstName());
+		profile.setMiddleName(userDTO.getMiddleName());
+		profile.setLastName(newAuth0User.getLastName());
 		profile.setAvatarUrl(newAuth0User.getPicture());
+		profile.setDateOfBirth(userDTO.getDateOfBirth());
+		profile.setGender(userDTO.getGender());
+		profile.setEmail(newAuth0User.getEmail());
+		profile.setAbout(userDTO.getAbout());
+		profile.setCreatedBy(null);//
+		profile.setActiveContributor(
+				userDTO.getAdditionalDetails() == null ? null : userDTO.getAdditionalDetails().isActiveContributor());
 		profile.setCreatedOn(newAuth0User.getCreatedAt());
 		profile.setDeleted(false);
-		profile.setDisplayPublic(userDTO.getAdditionalDetails().isDisplayPublic());
-		profile.setTitle(userDTO.getTitle());
-		profile.setEmail(newAuth0User.getEmail());
-		profile.setFirstName(newAuth0User.getFirstName());
-		profile.setLastName(newAuth0User.getLastName());
-		profile.setMiddleName(userDTO.getMiddleName());
-		profile.setProfileStatus(userDTO.getStatus().name());
-		profile.setGender(userDTO.getGender());
+		profile.setPublicProfile(userDTO.getAdditionalDetails().isDisplayPublic());
+		profile.setStatus(userDTO.getStatus().name());
 		profile.setUserId(newAuth0User.getUserId());
-		profile.setPhoneNumberString(userDTO.getPrimaryPhoneNumber());
-		profile = profileRepository.save(profile);
 
-		List<UserContactEntity> contact_list = new ArrayList<>();
+		if (userDTO.getAddresses() != null) {
+			for (AddressDTO addressDTO : userDTO.getAddresses()) {
+				switch (addressDTO.getAddressType()) {
+				case PRESENT:
+					profile.setAddressLine1(addressDTO.getAddressLine1());
+					profile.setAddressLine2(addressDTO.getAddressLine2());
+					profile.setAddressLine3(addressDTO.getAddressLine3());
+					profile.setHometown(addressDTO.getHometown());
+					profile.setDistrict(addressDTO.getDistrict());
+					profile.setState(addressDTO.getState());
+					profile.setCountry(addressDTO.getCountry());
+					break;
+				case PERMANENT:
 
-		/**
-		 * Saving phone numbers
-		 */
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
 		if (userDTO.getPhones() != null) {
 			for (PhoneDTO userMobile : userDTO.getPhones()) {
-				UserContactEntity contact_mobile = new UserContactEntity();
-				contact_mobile.setContactType(DBContactType.PHONE);
-				contact_mobile.setPhoneCode(userMobile.getPhoneCode());
-				contact_mobile.setPhoneNumber(userMobile.getPhoneNumber());
-				contact_mobile.setPhoneType(userMobile.getPhoneType().name());
-				contact_mobile.setUser(profile);
-				contact_mobile = userContactRepository.save(contact_mobile);
-				contact_list.add(contact_mobile);
+				switch (userMobile.getPhoneType()) {
+				case PRIMARY:
+					profile.setPhoneNumber(InfraFieldHelper
+							.stringListToString(List.of(userMobile.getPhoneCode(), userMobile.getPhoneNumber()), "-"));
+					break;
+				case ALTERNATIVE:
+					profile.setAltPhoneNumber(InfraFieldHelper
+							.stringListToString(List.of(userMobile.getPhoneCode(), userMobile.getPhoneNumber()), "-"));
+					break;
+				default:
+					break;
+				}
 			}
 		}
 
-		/**
-		 * Saving address
-		 */
-		if (userDTO.getAddresses() != null) {
-			for (AddressDTO userAddress : userDTO.getAddresses()) {
-				UserContactEntity contact_address = new UserContactEntity();
-				contact_address.setContactType(DBContactType.ADDRESS);
-				contact_address.setAddressType(userAddress.getAddressType().name());
-				contact_address.setAddressLine(userAddress.getAddressLine());
-				contact_address.setAddressHometown(userAddress.getHometown());
-				contact_address.setAddressDistrict(userAddress.getDistrict());
-				contact_address.setAddressState(userAddress.getState());
-				contact_address.setAddressCountry(userAddress.getCountry());
-				contact_address.setUser(profile);
-				contact_address = userContactRepository.save(contact_address);
-				contact_list.add(contact_address);
-			}
-		}
-
-		/**
-		 * Saving additional email
-		 */
-		if (userDTO.getEmails() != null) {
-			for (EmailDTO userEmail : userDTO.getEmails()) {
-				UserContactEntity contact_email = new UserContactEntity();
-				contact_email.setContactType(DBContactType.EMAIL);
-				contact_email.setEmailType(userEmail.getEmailType());
-				contact_email.setEmailValue(userEmail.getEmail());
-				contact_email.setUser(profile);
-				contact_email = userContactRepository.save(contact_email);
-				contact_list.add(contact_email);
-			}
-		}
-
-		/**
-		 * Saving social media
-		 */
 		if (userDTO.getSocialMedias() != null) {
 			for (SocialMediaDTO userSocial : userDTO.getSocialMedias()) {
-				UserContactEntity contact_social_media = new UserContactEntity();
-				contact_social_media.setContactType(DBContactType.SOCIALMEDIA);
-				contact_social_media.setSocialMediaType(userSocial.getSocialMediaType().name());
-				contact_social_media.setSocialMediaName(userSocial.getSocialMediaName());
-				contact_social_media.setSocialMediaURL(userSocial.getSocialMediaURL());
-				contact_social_media.setUser(profile);
-				contact_social_media = userContactRepository.save(contact_social_media);
-				contact_list.add(contact_social_media);
+				switch (userSocial.getSocialMediaType()) {
+				case FACEBOOK:
+					profile.setFacebookLink(userSocial.getSocialMediaURL());
+					break;
+				case INSTAGRAM:
+					profile.setInstagramLink(userSocial.getSocialMediaURL());
+					break;
+				case TWITTER:
+					profile.setTwitterLink(userSocial.getSocialMediaURL());
+					break;
+				case WHATSAPP:
+					profile.setWhatsappLink(userSocial.getSocialMediaURL());
+					break;
+				case LINKEDIN:
+					profile.setLinkedInLink(userSocial.getSocialMediaURL());
+					break;
+				default:
+					break;
+				}
 			}
 		}
 
-		profile.setContacts(contact_list);
-		/**
-		 * Now converting newly saved details to UserDTO
-		 */
+		profile = profileRepository.save(profile);
 		return InfraDTOHelper.convertToUserDTO(profile, newAuth0User);
-	}
-
-	@Override
-	public void deleteUser(String profileId) throws Exception {
-		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		authManagementService.deleteUser(profile.getUserId());
-		profile.setProfileStatus(ProfileStatus.DELETED.name());
-		profile.setDeleted(true);
-		profile.setActiveContributor(false);
-		profileRepository.save(profile);
-	}
-
-	@Override
-	public List<UserDTO> getUsers(Integer page, Integer size, UserDTO filter) {
-		List<UserProfileEntity> profiles = null;
-		if (filter != null) {
-			ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase()
-					.withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-			UserProfileEntity userFilter = new UserProfileEntity();
-			userFilter.setFirstName(filter.getFirstName());
-			userFilter.setLastName(filter.getLastName());
-			userFilter.setEmail(filter.getEmail());
-			// userFilter.setUserId(filter.getUserId());
-			userFilter.setPhoneNumberString(filter.getPrimaryPhoneNumber());
-			if (page == null || size == null) {
-				profiles = profileRepository.findAll(Example.of(userFilter, matcher));
-			} else {
-				profiles = profileRepository.findAll(Example.of(userFilter, matcher), PageRequest.of(page, size))
-						.getContent();
-			}
-		} else if (page != null && size != null) {
-			profiles = profileRepository.findAll(PageRequest.of(page, size)).getContent();
-		} else {
-			profiles = profileRepository.findAll();
-		}
-		return profiles.stream().map(m -> InfraDTOHelper.convertToUserDTO(m, null)).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<UserDTO> getUsers() {
-		return getUsers(null, null, null);
-	}
-
-	@Override
-	public UserDTO getUserByProfileId(String profileId, boolean includeFullDetails) throws Exception {
-		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		AuthUser auth0User = null;
-		if (includeFullDetails) {
-			auth0User = authManagementService.getUser(profile.getUserId());
-		}
-		return InfraDTOHelper.convertToUserDTO(profile, auth0User);
-	}
-
-	@Override
-	public UserDTO getUserByUserId(String userId, boolean includeFullDetails) throws Exception {
-		UserProfileEntity profile = profileRepository.findByUserIdContaining(userId).orElseThrow();
-		AuthUser auth0User = null;
-		if (includeFullDetails) {
-			auth0User = authManagementService.getUser(profile.getUserId());
-		}
-		return InfraDTOHelper.convertToUserDTO(profile, auth0User);
-	}
-
-	@Override
-	public UserDTO getUserByEmail(String email, boolean includeFullDetails) throws Exception {
-		UserProfileEntity profile = profileRepository.findByEmail(email).orElseThrow();
-		AuthUser auth0User = null;
-		if (includeFullDetails) {
-			auth0User = authManagementService.getUser(profile.getUserId());
-		}
-		return InfraDTOHelper.convertToUserDTO(profile, auth0User);
-	}
-
-	@Override
-	public String initiatePasswordReset(String userId, String appClientId, int expireInSec) throws Exception {
-		return authManagementService.createPasswordResetTicket(userId, appClientId, expireInSec);
 	}
 
 	@Override
@@ -260,17 +238,20 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		if (userDTO.getFirstName() != null) {
 			updatedProfile.setFirstName(userDTO.getFirstName());
 			updateAuthUser.setFirstName(userDTO.getFirstName());
-			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName() : userDTO.getName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
+					: userDTO.getName());
 		} else if (userDTO.getLastName() != null) {
 			updatedProfile.setLastName(userDTO.getLastName());
 			updateAuthUser.setLastName(userDTO.getLastName());
-			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName() : userDTO.getName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
+					: userDTO.getName());
 		} else if (userDTO.getFirstName() != null && userDTO.getLastName() != null) {
 			updatedProfile.setFirstName(userDTO.getFirstName());
 			updateAuthUser.setFirstName(userDTO.getFirstName());
 			updatedProfile.setLastName(userDTO.getLastName());
 			updateAuthUser.setLastName(userDTO.getLastName());
-			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName() : userDTO.getName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
+					: userDTO.getName());
 		}
 		updatedProfile.setMiddleName(userDTO.getMiddleName());
 		updatedProfile.setAbout(userDTO.getAbout());
@@ -280,16 +261,81 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			updatedProfile.setEmail(userDTO.getEmail());
 			updateAuthUser.setEmail(userDTO.getEmail());
 		}
-		
-		
+
 		updatedProfile.setActiveContributor(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isActiveContributor() : null);
-		updatedProfile.setDisplayPublic(
+		updatedProfile.setPublicProfile(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isDisplayPublic() : null);
-		updatedProfile.setProfileStatus(userDTO.getStatus() == null ? null : userDTO.getStatus().name());
-		updatedProfile.setUserId(userDTO.getUserIds() == null ? null : InfraFieldHelper.stringListToString(userDTO.getUserIds()));
-
+		updatedProfile.setStatus(userDTO.getStatus() == null ? null : userDTO.getStatus().name());
+		updatedProfile.setUserId(userDTO.getUserId() == null ? null : userDTO.getUserId());
 		updatedProfile.setAvatarUrl(userDTO.getImageUrl());
+
+		if (userDTO.getAddresses() != null) {
+			for (AddressDTO addressDTO : userDTO.getAddresses()) {
+				switch (addressDTO.getAddressType()) {
+				case PRESENT:
+					updatedProfile.setAddressLine1(addressDTO.getAddressLine1());
+					updatedProfile.setAddressLine2(addressDTO.getAddressLine2());
+					updatedProfile.setAddressLine3(addressDTO.getAddressLine3());
+					updatedProfile.setHometown(addressDTO.getHometown());
+					updatedProfile.setDistrict(addressDTO.getDistrict());
+					updatedProfile.setState(addressDTO.getState());
+					updatedProfile.setCountry(addressDTO.getCountry());
+					break;
+				case PERMANENT:
+
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		if (userDTO.getPhones() != null) {
+			for (PhoneDTO userMobile : userDTO.getPhones()) {
+				switch (userMobile.getPhoneType()) {
+				case PRIMARY:
+					updatedProfile.setPhoneNumber(InfraFieldHelper
+							.stringListToString(List.of(userMobile.getPhoneCode(), userMobile.getPhoneNumber()), "-"));
+					break;
+				case ALTERNATIVE:
+					updatedProfile.setAltPhoneNumber(InfraFieldHelper
+							.stringListToString(List.of(userMobile.getPhoneCode(), userMobile.getPhoneNumber()), "-"));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		if (userDTO.getSocialMedias() != null) {
+			for (SocialMediaDTO userSocial : userDTO.getSocialMedias()) {
+				switch (userSocial.getSocialMediaType()) {
+				case FACEBOOK:
+					updatedProfile.setFacebookLink(userSocial.getSocialMediaURL());
+					break;
+				case INSTAGRAM:
+					updatedProfile.setInstagramLink(userSocial.getSocialMediaURL());
+					break;
+				case TWITTER:
+					updatedProfile.setTwitterLink(userSocial.getSocialMediaURL());
+					break;
+				case WHATSAPP:
+					updatedProfile.setWhatsappLink(userSocial.getSocialMediaURL());
+					break;
+				case LINKEDIN:
+					updatedProfile.setLinkedInLink(userSocial.getSocialMediaURL());
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		/**
+		 * Updating roles
+		 */
+
 		CommonUtils.copyNonNullProperties(updatedProfile, profile);
 
 		/**
@@ -300,163 +346,70 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			updateAuthUser = authManagementService.updateUser(profile.getUserId(), updateAuthUser);
 		}
 
-		profile.setContacts(null);
 		profile = profileRepository.save(profile);
 
-		List<UserContactEntity> contact_list = new ArrayList<UserContactEntity>();
-		/**
-		 * Updating phone numbers
-		 */
-		if (userDTO.getPhones() != null) {
-			for (PhoneDTO userMobile : userDTO.getPhones()) {
-				if (userMobile.isDelete()) {
-					userContactRepository.deleteById(userMobile.getId());
-				} else if (userMobile.getId() == null) {
-					UserContactEntity contact_mobile = new UserContactEntity();
-					contact_mobile.setContactType(DBContactType.PHONE);
-					contact_mobile.setPhoneCode(userMobile.getPhoneCode());
-					contact_mobile.setPhoneNumber(userMobile.getPhoneNumber());
-					contact_mobile.setPhoneType(userMobile.getPhoneType().name());
-					contact_mobile.setUser(profile);
-					contact_mobile = userContactRepository.save(contact_mobile);
-					contact_list.add(contact_mobile);
-				} else {
-					UserContactEntity contact_mobile = userContactRepository.findById(userMobile.getId()).orElseThrow();
-					UserContactEntity contact_mobile_updated = new UserContactEntity();
-					contact_mobile_updated.setPhoneCode(userMobile.getPhoneCode());
-					contact_mobile_updated.setPhoneNumber(userMobile.getPhoneNumber());
-					contact_mobile_updated
-							.setPhoneType(userMobile.getPhoneType() == null ? null : userMobile.getPhoneType().name());
-					CommonUtils.copyNonNullProperties(contact_mobile_updated, contact_mobile);
-					contact_mobile = userContactRepository.save(contact_mobile);
-					contact_list.add(contact_mobile);
-				}
-			}
-		}
-
-		/**
-		 * Saving address
-		 */
-		if (userDTO.getAddresses() != null) {
-			for (AddressDTO userAddress : userDTO.getAddresses()) {
-				if (userAddress.isDelete()) {
-					userContactRepository.deleteById(userAddress.getId());
-				} else if (userAddress.getId() == null) {
-					UserContactEntity contact_address = new UserContactEntity();
-					contact_address.setContactType(DBContactType.ADDRESS);
-					contact_address.setAddressType(userAddress.getAddressType().name());
-					contact_address.setAddressLine(userAddress.getAddressLine());
-					contact_address.setAddressHometown(userAddress.getHometown());
-					contact_address.setAddressDistrict(userAddress.getDistrict());
-					contact_address.setAddressState(userAddress.getState());
-					contact_address.setAddressCountry(userAddress.getCountry());
-					contact_address.setUser(profile);
-					contact_address = userContactRepository.save(contact_address);
-					contact_list.add(contact_address);
-				} else {
-					UserContactEntity contact_address = userContactRepository.findById(userAddress.getId())
-							.orElseThrow();
-					UserContactEntity contact_address_updated = new UserContactEntity();
-					contact_address_updated.setAddressType(
-							userAddress.getAddressType() == null ? null : userAddress.getAddressType().name());
-					contact_address_updated.setAddressLine(userAddress.getAddressLine());
-					contact_address_updated.setAddressHometown(userAddress.getHometown());
-					contact_address_updated.setAddressDistrict(userAddress.getDistrict());
-					contact_address_updated.setAddressState(userAddress.getState());
-					contact_address_updated.setAddressCountry(userAddress.getCountry());
-					CommonUtils.copyNonNullProperties(contact_address_updated, contact_address);
-					contact_address = userContactRepository.save(contact_address);
-					contact_list.add(contact_address);
-				}
-			}
-		}
-
-		/**
-		 * Saving social media
-		 */
-		if (userDTO.getSocialMedias() != null) {
-			for (SocialMediaDTO userSocial : userDTO.getSocialMedias()) {
-				if (userSocial.isDelete()) {
-					userContactRepository.deleteById(userSocial.getId());
-				} else if (userSocial.getId() == null) {
-					UserContactEntity contact_social_media = new UserContactEntity();
-					contact_social_media.setContactType(DBContactType.SOCIALMEDIA);
-					contact_social_media.setSocialMediaType(userSocial.getSocialMediaType().name());
-					contact_social_media.setSocialMediaName(userSocial.getSocialMediaName());
-					contact_social_media.setSocialMediaURL(userSocial.getSocialMediaURL());
-					contact_social_media.setUser(profile);
-					contact_social_media = userContactRepository.save(contact_social_media);
-					contact_list.add(contact_social_media);
-				} else {
-					UserContactEntity contact_social_media = userContactRepository.findById(userSocial.getId())
-							.orElseThrow();
-					UserContactEntity contact_social_media_updated = new UserContactEntity();
-					contact_social_media_updated.setSocialMediaType(userSocial.getSocialMediaType().name());
-					contact_social_media_updated.setSocialMediaName(userSocial.getSocialMediaName());
-					contact_social_media_updated.setSocialMediaURL(userSocial.getSocialMediaURL());
-					CommonUtils.copyNonNullProperties(contact_social_media_updated, contact_social_media);
-					contact_social_media = userContactRepository.save(contact_social_media);
-					contact_list.add(contact_social_media);
-				}
-			}
-		}
-
-		profile.setContacts(contact_list);
 		return InfraDTOHelper.convertToUserDTO(profile, updateAuthUser);
+	}
+
+	@Override
+	public void deleteUser(String profileId) throws Exception {
+		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
+		authManagementService.deleteUser(profile.getUserId());
+		profile.setStatus(ProfileStatus.DELETED.name());
+		profile.setDeleted(true);
+		profile.setActiveContributor(false);
+		profileRepository.save(profile);
+	}
+
+	@Override
+	public String initiatePasswordReset(String userId, String appClientId, int expireInSec) throws Exception {
+		return authManagementService.createPasswordResetTicket(userId, appClientId, expireInSec);
 	}
 
 	@Override
 	public List<RoleDTO> getUserRoles(String profileId) throws Exception {
 		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		List<String> authUserIds=InfraFieldHelper.stringToStringList(profile.getUserId());
-		List<AuthUserRole> authUserRoles= new ArrayList<>();
-		for(String authUserId:authUserIds) {
-			authUserRoles.addAll(authManagementService.getRoles(authUserId));
-		}
-		authUserRoles=authUserRoles.stream().filter(CommonUtils.distinctByKey(AuthUserRole::getRoleId)).toList();
+		List<AuthUserRole> authUserRoles = authManagementService.getRoles(profile.getUserId());
 		return authUserRoles.stream().map(m -> InfraDTOHelper.convertToRoleDTO(m)).toList();
-	}
-
-	@Override
-	public long getUsersCount() {
-		return profileRepository.count();
 	}
 
 	@Override
 	public void deleteRolesFromUser(String profileId, List<RoleDTO> roles) throws Exception {
 		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		List<String> authUserIds=InfraFieldHelper.stringToStringList(profile.getUserId());
-		for(String authUserId:authUserIds) {
-			authManagementService.removeRolesFromUser(authUserId, roles.stream().map(m->m.getId()).toList());
-		}
-		List<String> roleNames=InfraFieldHelper.stringToStringList(profile.getRoleString());
-		for(RoleDTO role : roles) {
-			roleNames.remove(role.getDisplayName());
-		}
-		profile.setRoleString(InfraFieldHelper.stringListToString(roleNames));
+//		for (String authUserId : authUserIds) {
+//			authManagementService.removeRolesFromUser(authUserId, roles.stream().map(m -> m.getId()).toList());
+//		}
+//		List<String> roleNames = InfraFieldHelper.stringToStringList(profile.getRoleString());
+//		for (RoleDTO role : roles) {
+//			roleNames.remove(role.getDisplayName());
+//		}
+//		profile.setRoleString(InfraFieldHelper.stringListToString(roleNames));
 		profileRepository.save(profile);
 	}
 
 	@Override
 	public void addRolesToUser(String profileId, List<RoleDTO> roles) throws Exception {
 		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		List<String> authUserIds=InfraFieldHelper.stringToStringList(profile.getUserId());
-		for(String authUserId:authUserIds) {
-			authManagementService.assignRolesToUser(authUserId, roles.stream().map(m->m.getId()).toList());
+		List<String> authUserIds = InfraFieldHelper.stringToStringList(profile.getUserId());
+		for (String authUserId : authUserIds) {
+			authManagementService.assignRolesToUser(authUserId, roles.stream().map(m -> m.getId()).toList());
 		}
-		List<String> roleNames=InfraFieldHelper.stringToStringList(profile.getRoleString());
-		for(RoleDTO role : roles) {
-			roleNames.add(role.getDisplayName());
-		}
-		profile.setRoleString(InfraFieldHelper.stringListToString(roleNames));
+//		List<String> roleNames = InfraFieldHelper.stringToStringList(profile.getRoleString());
+//		for (RoleDTO role : roles) {
+//			roleNames.add(role.getDisplayName());
+//		}
+		// profile.setRoleString(InfraFieldHelper.stringListToString(roleNames));
 		profileRepository.save(profile);
 	}
 
 	@Override
 	public void assignUsersToRole(String roleId, List<UserDTO> users) throws Exception {
-		// TODO Auto-generated method stub
-		
+
 	}
 
+	@Override
+	public long getUsersCount() {
+		return 0;
+	}
 
 }

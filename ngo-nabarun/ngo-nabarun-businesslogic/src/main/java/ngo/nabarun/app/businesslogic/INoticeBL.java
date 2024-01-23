@@ -9,12 +9,12 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 
 @Service
 public interface INoticeBL {
 
-	Page<NoticeDetail> getAllNotice(Integer page,Integer size,NoticeDetailFilter filter);
+	Paginate<NoticeDetail> getAllNotice(Integer page,Integer size,NoticeDetailFilter filter);
 	NoticeDetail getNoticeDetail(String id);
 	NoticeDetail createNotice(NoticeDetailCreate noticeDetail) throws Exception;
 	NoticeDetail updateNotice(String id,NoticeDetailUpdate updatedNoticeDetail) throws Exception;

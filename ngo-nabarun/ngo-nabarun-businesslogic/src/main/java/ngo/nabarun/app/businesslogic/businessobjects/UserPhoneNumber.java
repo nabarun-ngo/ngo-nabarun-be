@@ -23,9 +23,9 @@ public class UserPhoneNumber {
 	@JsonProperty("displayNumber")
 	private String displayNumber;
 	
-	@JsonProperty("primary")
-	private boolean primary;
-	
-	@JsonProperty("delete")
-	private boolean delete;
+//	@JsonProperty("primary")
+//	private boolean primary;
+//	
+//	@JsonProperty("delete")
+//	private boolean delete;
 }

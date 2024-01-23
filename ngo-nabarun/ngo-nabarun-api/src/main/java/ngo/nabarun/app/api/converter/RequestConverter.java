@@ -20,7 +20,7 @@ public class RequestConverter {
 		uObj.setDateOfBirth(request.getDateOfBirth());
 		uObj.setPicture(request.getBase64Image());
 		uObj.setAbout(request.getAbout());
-		uObj.setAddresses(request.getAddresses());
+		//uObj.setAddresses(request.getAddresses());
 		uObj.setSocialMediaLinks(request.getSocialMediaLinks());
 		uObj.setPhoneNumbers(request.getPhoneNumbers());;
 		return uObj;
@@ -42,7 +42,7 @@ public class RequestConverter {
 		userDetail.setEmail(request.getDonorEmail());
 		
 		UserPhoneNumber phoneNumber=new UserPhoneNumber();
-		phoneNumber.setPhoneType(PhoneType.MOBILE);
+		//phoneNumber.setPhoneType(PhoneType.MOBILE);
 		phoneNumber.setPhoneNumber(request.getDonorMobile());
 		
 		userDetail.setPhoneNumbers(List.of(phoneNumber));

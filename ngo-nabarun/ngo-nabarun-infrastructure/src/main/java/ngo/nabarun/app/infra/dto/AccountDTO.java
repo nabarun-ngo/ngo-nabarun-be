@@ -20,6 +20,6 @@ public class AccountDTO {
 	private AccountType accountType;
 
 	private BankDTO bankDetail;
-	private UPIDTO upiDetail;
+	private UpiDTO upiDetail;
 
 }

@@ -36,7 +36,7 @@ public class GenericPropertyHelper {
 		return systemEnv.getProperty("CORS_ALLOWED_METHODS") == null ? null : systemEnv.getProperty("CORS_ALLOWED_METHODS").split(",");
 	}
 	
-	@Value("${APP_MAIl_SENDER_ADDRESS}")
+	@Value("${APP_MAIl_SENDER_ADDRESS:''}")
 	private String defaultEmailSender;
 	
 	@Value("${APP_NAME:'Nabarun'}")
@@ -120,4 +120,16 @@ public class GenericPropertyHelper {
 	
 	@Value("${GOOGLE_CLIENT_SECRET:'NO_VALUE'}")
 	private String googleClientSecret;
+
+	public String getDopplerServiceKey() {
+		return systemEnv.getProperty("DOPPLER_SERVICE_TOKEN");
+	}
+
+	public String getDopplerProject() {
+		return systemEnv.getProperty("DOPPLER_PROJECT_NAME");
+	}
+
+	public String getDopplerConfigName() {
+		return systemEnv.getProperty("ENVIRONMENT").toLowerCase() ;
+	}
 }

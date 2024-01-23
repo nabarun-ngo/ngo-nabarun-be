@@ -24,13 +24,14 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 
-public class MongoDBPropertySource implements DBPropertySource {
+public class MongoDBPropertySource extends PropertySource {
 
-	private static final String COLLECTION_DB_CONFIG = "db_config";
 	private MongoClient client;
 	private ConnectionString connectionString;
+	private String dbName;
 
-	public MongoDBPropertySource(String connURI) throws Exception {
+	public MongoDBPropertySource(String connURI, String dbName) throws Exception {
+		this.dbName=dbName;
 		connectionString = new ConnectionString(connURI);
 		MongoClientSettings clientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
 				.build();
@@ -50,7 +51,7 @@ public class MongoDBPropertySource implements DBPropertySource {
 		}
 		
 		MongoCollection<Document> collection = client.getDatabase(connectionString.getDatabase())
-				.getCollection(COLLECTION_DB_CONFIG);
+				.getCollection(dbName);
 		Bson filter = Filters.eq("property_key", key.toUpperCase());
 		UpdateOptions options = new UpdateOptions().upsert(true);
 		List<Bson> update= new ArrayList<>();
@@ -79,7 +80,7 @@ public class MongoDBPropertySource implements DBPropertySource {
 	public Map<String, Object> loadProperties(String secretKey) {
 		Map<String, Object> propertySource = new HashMap<>();
 		FindIterable<Document> documents = client.getDatabase(connectionString.getDatabase())
-				.getCollection(COLLECTION_DB_CONFIG).find();
+				.getCollection(dbName).find();
 		for (Document dbConfig : documents) {
 			if (dbConfig.getBoolean("active", true)) {
 				try {

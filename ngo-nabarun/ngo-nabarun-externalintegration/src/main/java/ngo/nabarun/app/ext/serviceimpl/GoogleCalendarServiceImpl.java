@@ -1,4 +1,4 @@
-package ngo.nabarun.app.ext.serviceimpl.google;
+package ngo.nabarun.app.ext.serviceimpl;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

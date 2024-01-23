@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.EmailOrPasswordUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.Page;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.util.CommonUtils;
@@ -47,7 +47,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUsers")
-	public ResponseEntity<SuccessResponse<Page<UserDetail>>> getUsers(
+	public ResponseEntity<SuccessResponse<Paginate<UserDetail>>> getUsers(
 			@RequestParam(required = false) Integer pageIndex,
 			@RequestParam(required = false) Integer pageSize,
 			@RequestParam(required = false) String search
@@ -56,8 +56,8 @@ public class UserController {
 		if(search != null) {
 			userDetailFilter= CommonUtils.jsonToPojo(search, UserDetailFilter.class);
 		}
-		Page<UserDetail> userList=userBL.getAllUser(pageIndex,pageSize,userDetailFilter);
-		return new SuccessResponse<Page<UserDetail>>().payload(userList).get(HttpStatus.OK);
+		Paginate<UserDetail> userList=userBL.getAllUser(pageIndex,pageSize,userDetailFilter);
+		return new SuccessResponse<Paginate<UserDetail>>().payload(userList).get(HttpStatus.OK);
 	}
 	
 	
@@ -84,7 +84,6 @@ public class UserController {
 		userBL.assignRolesToUser(id, roleCodes);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
-	
 
 	@PostMapping("/initiatePasswordChange")
 	public ResponseEntity<SuccessResponse<Void>> initiatePasswordChange(@RequestBody EmailOrPasswordUpdate request) throws Exception {

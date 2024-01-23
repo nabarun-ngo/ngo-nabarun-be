@@ -1,4 +1,4 @@
-package ngo.nabarun.app.ext.serviceimpl.firebase;
+package ngo.nabarun.app.ext.serviceimpl;
 
 import java.io.IOException;
 import java.net.URL;

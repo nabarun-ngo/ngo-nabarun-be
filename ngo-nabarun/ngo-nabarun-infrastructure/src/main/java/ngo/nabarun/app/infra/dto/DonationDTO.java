@@ -1,6 +1,8 @@
 package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -11,7 +13,6 @@ import ngo.nabarun.app.common.enums.UPIOption;
 public class DonationDTO {
 	
 	private String id;
-	//private String donationNumber;
 	private Boolean guest;
 	private Double amount;
 	private Date startDate;
@@ -24,10 +25,27 @@ public class DonationDTO {
 	private Date confirmedOn;
 	private PaymentMethod paymentMethod;
 	private UPIOption upiName;
-	private String accountId;
+	private AccountDTO paidToAccount;
 	private String transactionRefNumber;
 	private UserDTO donor;
 	private String forEventId;
 	private Boolean isPaymentNotified;
 	private String comment;
+	private String cancelReason;
+	private String payLaterReason;
+	private String paymentFailDetail;
+	
+	
+	@Data
+	public static class DonationDTOFilter{
+		private String donationId;
+		private List<DonationStatus> donationStatus;
+		private List<DonationType> donationType;
+		private Boolean isGuestDonation;
+		private String donorId;
+		private String donorName;
+		private Date fromDate;
+		private Date toDate;
+		private String paidAccountId;
+	}
 }

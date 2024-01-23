@@ -6,6 +6,6 @@ import lombok.Data;
 public class DocumentDetail {
 	private String docId;
 	private String originalFileName;
-	private String documentRefId;
+	private String documentIndexId;
 	private boolean isImage;
 }

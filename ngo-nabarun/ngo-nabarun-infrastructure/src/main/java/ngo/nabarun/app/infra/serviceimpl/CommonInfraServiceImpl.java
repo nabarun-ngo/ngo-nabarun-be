@@ -161,7 +161,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		ticketInfo.setExpireOn(
 				CommonUtils.addSecondsToDate(CommonUtils.getSystemDate(), ticket.getExpireTicketAfterSec()));
 		ticketInfo.setIncorrectOTPCount(0);
-		ticketInfo.setMobileNumber(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPrimaryPhoneNumber());
+		ticketInfo.setMobileNumber(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPhoneNumber());
 		ticketInfo.setName(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName());
 		ticketInfo.setOneTimePassword(CommonUtils.generateRandomNumber(ticket.getOtpDigits()));
 		ticketInfo.setRefId(ticket.getRefId());
