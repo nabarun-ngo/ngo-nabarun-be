@@ -128,6 +128,7 @@ public class DTOToBusinessObjectConverter {
 		donationDetail.setPaymentFailureDetail(donationDTO.getPaymentFailDetail());
 		return donationDetail;
 	}
+	
 
 	public static UserAddress toUserAddress(AddressDTO m) {
 		UserAddress address = new UserAddress();
