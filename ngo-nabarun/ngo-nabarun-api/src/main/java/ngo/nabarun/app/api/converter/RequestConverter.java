@@ -5,10 +5,10 @@ import java.util.List;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
-import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailUpdate;
 
+@Deprecated
 public class RequestConverter {
 	public static UserDetail convertToUserDetails(UserDetailUpdate request) {
 		UserDetail uObj=new UserDetail();

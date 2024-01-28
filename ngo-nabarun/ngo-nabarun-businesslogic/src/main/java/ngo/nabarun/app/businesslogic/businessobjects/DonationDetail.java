@@ -79,4 +79,5 @@ public class DonationDetail {
 	
 	@JsonProperty("paymentFailureDetail")
 	private String paymentFailureDetail;
+
 }

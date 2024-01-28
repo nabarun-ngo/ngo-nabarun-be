@@ -51,6 +51,9 @@ public class UserDetail {
 	@JsonProperty("email")
 	private String email;
 	
+	@JsonProperty("primaryNumber")
+	private String primaryNumber;
+	
 	@JsonProperty("phones")
 	private List<UserPhoneNumber> phoneNumbers;
 	

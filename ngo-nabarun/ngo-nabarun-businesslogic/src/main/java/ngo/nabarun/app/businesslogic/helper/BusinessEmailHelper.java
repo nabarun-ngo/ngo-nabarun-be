@@ -22,7 +22,7 @@ import ngo.nabarun.app.infra.misc.EmailTemplate.EmailBodyTemplate.DetailsTemplat
 import ngo.nabarun.app.infra.misc.EmailTemplate.EmailBodyTemplate.FooterTemplate;
 import ngo.nabarun.app.infra.misc.EmailTemplate.EmailBodyTemplate.HeaderTemplate;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
-import ngo.nabarun.app.infra.service.IDomainRefConfigInfraService;
+import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.misc.EmailTemplate.EmailBodyTemplate.DetailsTemplate.FieldTemplate;
 
 @Service
@@ -32,7 +32,7 @@ public class BusinessEmailHelper {
 	private ICorrespondenceInfraService correspondenceInfraService;
 
 	@Autowired
-	private IDomainRefConfigInfraService domainRefConfigInfraService;
+	private IGlobalDataInfraService domainRefConfigInfraService;
 
 	public void sendEmailOnDonationUpdate(DonationDTO donation) {
 

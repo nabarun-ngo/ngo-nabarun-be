@@ -1,22 +1,34 @@
 package ngo.nabarun.app.infra.serviceimpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import com.querydsl.core.BooleanBuilder;
 
 import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.core.entity.AccountEntity;
+import ngo.nabarun.app.infra.core.entity.DonationEntity;
+import ngo.nabarun.app.infra.core.entity.QAccountEntity;
+import ngo.nabarun.app.infra.core.entity.QDonationEntity;
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
 import ngo.nabarun.app.infra.core.repo.AccountRepository;
 import ngo.nabarun.app.infra.core.repo.TransactionRepository;
 import ngo.nabarun.app.infra.dto.AccountDTO;
+import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
+import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
+import ngo.nabarun.app.infra.misc.WhereClause;
 import ngo.nabarun.app.infra.service.IAccountInfraService;
 import ngo.nabarun.app.infra.service.ITransactionInfraService;
 
@@ -93,9 +105,36 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService,IAccou
 	}
 
 	@Override
-	public List<AccountDTO> getAccounts() {
-		List<AccountEntity> accounts=accRepo.findAll(); 
-		return accounts.stream().map(m->InfraDTOHelper.convertToAccountDTO(m,null)).toList();
+	public Page<AccountDTO> getAccounts(Integer page, Integer size, AccountDTOFilter filter) {
+		Page<AccountEntity> accountPage = null;
+		if (filter != null) {
+
+			/*
+			 * Query building and filter logic
+			 */
+			QAccountEntity qAccount = QAccountEntity.accountEntity;
+			BooleanBuilder query = WhereClause.builder()
+					.optionalAnd(filter.getAccountId() != null, () -> qAccount.id.eq(filter.getAccountId()))
+					.optionalAnd(filter.getProfileId() != null, () -> qAccount.profile.eq(filter.getProfileId()))
+					.optionalAnd(filter.getAccountStatus() != null,
+							() -> qAccount.accountStatus.in(filter.getAccountStatus().stream().map(m -> m.name()).toList()))
+					.optionalAnd(filter.getAccountType() != null,
+							() -> qAccount.accountType
+									.in(filter.getAccountType().stream().map(m -> m.name()).toList()))
+					.build();
+			if (page == null || size == null) {
+				List<AccountEntity> result = new ArrayList<>();
+				accRepo.findAll(query).iterator().forEachRemaining(result::add);
+				accountPage = new PageImpl<>(result);
+			} else {
+				accountPage = accRepo.findAll(query, PageRequest.of(page, size));
+			}
+		} else if (page != null && size != null) {
+			accountPage = accRepo.findAll(PageRequest.of(page, size));
+		} else {
+			accountPage = new PageImpl<>(accRepo.findAll());
+		}
+		return accountPage.map(m->InfraDTOHelper.convertToAccountDTO(m,null));
 	}
 
 	@Override

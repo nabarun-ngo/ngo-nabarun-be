@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
+@Deprecated
 public class DonationConfigTemplate {
 
 	@JsonProperty("REGULAR_DONATION_AMOUNT")

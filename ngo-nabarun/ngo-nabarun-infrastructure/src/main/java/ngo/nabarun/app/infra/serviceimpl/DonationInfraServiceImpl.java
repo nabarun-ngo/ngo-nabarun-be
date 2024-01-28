@@ -139,6 +139,7 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 
 		if (donationDTO.getIsPaymentNotified() != null) {
 			updatedDonation.setIsPaymentNotified(donationDTO.getIsPaymentNotified());
+			updatedDonation.setNotifiedOn(donationDTO.getPaymentNotificationDate());
 		}
 
 		/*

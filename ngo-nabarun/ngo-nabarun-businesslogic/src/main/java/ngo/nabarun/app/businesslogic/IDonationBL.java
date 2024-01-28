@@ -8,10 +8,8 @@ import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.common.enums.DonationStatus;
-import ngo.nabarun.app.common.enums.DonationType;
 
 @Service
 public interface IDonationBL {
@@ -27,7 +25,9 @@ public interface IDonationBL {
 	
 	List<DocumentDetail> getDonationDocument(String donationId);
 
-	List<KeyValue> getNextDonationStatus(DonationType type,DonationStatus currentStatus) throws Exception;
-
 	DonationDetail updateDonation(String id,DonationDetailUpdate request) throws Exception;
+
+	DonationSummary getDonationSummary(String id, List<String> fields) throws Exception;
+
+	DonationDetail updatePaymentInfo(String id, DonationDetail request) throws Exception;
 }

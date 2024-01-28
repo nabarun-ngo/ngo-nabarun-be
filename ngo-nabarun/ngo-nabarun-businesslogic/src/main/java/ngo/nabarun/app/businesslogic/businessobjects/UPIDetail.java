@@ -14,4 +14,7 @@ public class UPIDetail {
 	
 	@JsonProperty("mobileNumber")
 	private String mobileNumber;
+	
+	@JsonProperty("qrData")
+	private String qrData;
 }

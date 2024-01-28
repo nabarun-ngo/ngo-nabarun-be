@@ -66,6 +66,8 @@ public class DonationEntity {
    	
 	private String paidUPIName;
 	private Boolean isPaymentNotified;
+	private Date notifiedOn;
+
 	private String donationNumber;
 	private String paymentConfirmedByName;
 
@@ -73,6 +75,8 @@ public class DonationEntity {
 	private String cancelReason;
 	private String payLaterReason;
 	private String paymentFailDetail;
+	
+
 
 
 }

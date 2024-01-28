@@ -1,7 +1,7 @@
 package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
-
+import java.util.List;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.AccountStatus;
@@ -21,5 +21,15 @@ public class AccountDTO {
 
 	private BankDTO bankDetail;
 	private UpiDTO upiDetail;
+	
+	@Data
+	public static class AccountDTOFilter{
+		private List<AccountType> accountType;
+		private List<AccountStatus> accountStatus;
+		private String accountId;
+		private String profileId;
+
+
+	}
 
 }

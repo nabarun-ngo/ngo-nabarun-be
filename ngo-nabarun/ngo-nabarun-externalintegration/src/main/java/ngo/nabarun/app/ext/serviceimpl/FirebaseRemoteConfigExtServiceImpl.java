@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -25,10 +24,8 @@ import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 @Service
 public class FirebaseRemoteConfigExtServiceImpl implements IRemoteConfigExtService {
 
-	@Cacheable("remote_configs")
 	@Override
 	public List<RemoteConfig> getRemoteConfigs() throws ThirdPartyException {
-		System.out.println("remote configggggg");
 		List<RemoteConfig> firebaseConfig = new ArrayList<>();
 		try {
 			Gson gson = new Gson();
@@ -57,8 +54,6 @@ public class FirebaseRemoteConfigExtServiceImpl implements IRemoteConfigExtServi
 					String jsonValue = gson.toJson(parameter.getValue().getDefaultValue());
 					@SuppressWarnings("unchecked")
 					Map<String, String> mapValue = gson.fromJson(jsonValue, Map.class);
-//					String jsonValue = CommonUtils.convertToType(parameter.getValue().getDefaultValue(), new TypeReference<String>() {});
-//					Map<String, String> mapValue=CommonUtils.convertToType(jsonValue, new TypeReference<Map<String,String>>() {});
 					rc.setValue(mapValue.get("value"));
 					firebaseConfig.add(rc);
 				}
@@ -71,7 +66,6 @@ public class FirebaseRemoteConfigExtServiceImpl implements IRemoteConfigExtServi
 
 	}
 	
-	@Cacheable("remote_config-#configKey")
 	@Override
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f->f.getName().equalsIgnoreCase(configKey)).findFirst().get();

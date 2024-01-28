@@ -8,4 +8,5 @@ public class DocumentDetail {
 	private String originalFileName;
 	private String documentIndexId;
 	private boolean isImage;
+	private boolean isGeneratedDoc;
 }

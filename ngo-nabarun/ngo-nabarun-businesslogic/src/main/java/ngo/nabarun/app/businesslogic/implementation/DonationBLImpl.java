@@ -1,15 +1,14 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.IDonationBL;
@@ -18,14 +17,17 @@ import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessEmailHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
+import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -37,14 +39,13 @@ import ngo.nabarun.app.common.helper.GenericPropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
+import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
-import ngo.nabarun.app.infra.misc.KeyValuePair;
 import ngo.nabarun.app.infra.service.IAccountInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IDomainRefConfigInfraService;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 import ngo.nabarun.app.infra.service.ITransactionInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
@@ -70,12 +71,12 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Autowired
 	private BusinessEmailHelper emailHelperService;
+	
+	@Autowired
+	private BusinessDomainRefHelper domainRefHelperService;
 
 	@Autowired
 	private GenericPropertyHelper propertyHelper;
-
-	@Autowired
-	private IDomainRefConfigInfraService domainInfraService;
 
 	@Autowired
 	private BusinessIdGenerator idGenerator;
@@ -232,34 +233,8 @@ public class DonationBLImpl implements IDonationBL {
 			return doc;
 		}).toList();
 	}
-
-	@Override
-	public List<KeyValue> getNextDonationStatus(DonationType type, DonationStatus currentStatus) throws Exception {
-		List<KeyValuePair> kvPairs = domainInfraService.getDonationConfig().getDonationStatuses();
-		for (KeyValuePair kvPair : kvPairs) {
-			Map<String, Object> attributes = kvPair.getAttributes();
-			if (kvPair.getKey().equalsIgnoreCase(currentStatus.name()) && attributes.get("APPLICABLE_FOR") != null) {
-				List<String> applicableList = CommonUtils.convertToType(attributes.get("APPLICABLE_FOR"),
-						new TypeReference<List<String>>() {
-						});
-				if (applicableList.contains(type.name()) && attributes.get("NEXT_STATUS") != null) {
-					Map<String, List<String>> nextStatusList = CommonUtils.convertToType(attributes.get("NEXT_STATUS"),
-							new TypeReference<Map<String, List<String>>>() {
-							});
-					List<String> allowedNextStatus = nextStatusList.get(type.name());
-					return DTOToBusinessObjectConverter.toKeyValueList(
-							kvPairs.stream().filter(f -> allowedNextStatus.contains(f.getKey())).toList());
-				}
-				break;
-			}
-		}
-		return List.of();
-	}
 	
-	private boolean isResolved(DonationStatus status) {
-		return status == DonationStatus.PAID || status == DonationStatus.CANCELLED;
-		
-	}
+	
 
 	@Override
 	public DonationDetail updateDonation(String id, DonationDetailUpdate request) throws Exception {
@@ -273,7 +248,7 @@ public class DonationBLImpl implements IDonationBL {
 		/**
 		 * Do not allow to update amount if resolved
 		 */
-		if(isResolved(donation.getStatus())) {
+		if(domainRefHelperService.isResolvedDonation(donation.getStatus())) {
 			throw new BusinessException("No updates are allowed on settled donations.");
 		}
 		DonationDTO updatedDetail = new DonationDTO();
@@ -362,6 +337,61 @@ public class DonationBLImpl implements IDonationBL {
 		}
 		donation = donationInfraService.updateDonation(id, updatedDetail);
 		return DTOToBusinessObjectConverter.toDonationDetail(donation, null, null);
+	}
+	
+	@Override
+	public DonationDetail updatePaymentInfo(String id, DonationDetail request) throws Exception {
+		DonationDTO donation = donationInfraService.getDonation(id);
+		/**
+		 * Do not allow to update amount if resolved
+		 */
+		if(domainRefHelperService.isResolvedDonation(donation.getStatus())) {
+			throw new BusinessException("No updates are allowed on settled donations.");
+		}
+		DonationDTO updatedDetail = new DonationDTO();
+		if(request.isPaymentNotified()) {
+			updatedDetail.setPaymentNotificationDate(CommonUtils.getSystemDate());
+			updatedDetail.setIsPaymentNotified(request.isPaymentNotified());
+		}
+		donation = donationInfraService.updateDonation(id, updatedDetail);
+		return DTOToBusinessObjectConverter.toDonationDetail(donation, null, null);
+	}
+
+	@Override
+	public DonationSummary getDonationSummary(String id, List<String> fields) throws Exception {
+		List<DonationStatus> outStatus=domainRefHelperService.getOutstandingDonationStatus();
+		DonationDTOFilter filterDTO = new DonationDTOFilter();
+		filterDTO.setDonorId(id);	
+		filterDTO.setDonationStatus(outStatus);
+		List<DonationDTO> outDons=donationInfraService.getDonations(null, null, filterDTO).getContent();
+		DonationSummary dsmry = new DonationSummary();
+		
+		dsmry.setOutstandingAmount(outDons.stream().mapToDouble(DonationDTO::getAmount).sum());
+		dsmry.setHasOutstanding(dsmry.getOutstandingAmount() > 0);
+		
+		if(fields.contains("INCLUDE_OUTSTANDING_MONTHS")) {
+			List<String> months= new ArrayList<>();
+			for(DonationDTO outDon:outDons) {
+				if(outDon.getType() != DonationType.ONETIME) {
+					months.addAll(CommonUtils.getMonthsBetween(outDon.getStartDate(), outDon.getEndDate()));	
+				}
+			}			
+			dsmry.setOutstandingMonths(months);
+		}
+		
+		if(fields.contains("INCLUDE_PAYABLE_ACCOUNT")) {
+			AccountDTOFilter filter= new AccountDTOFilter();
+			filter.setAccountStatus(List.of(AccountStatus.ACTIVE));
+			filter.setAccountType(List.of(AccountType.DONATION));
+			dsmry.setPayableAccounts(accountInfraService.getAccounts(null,null,filter).getContent().stream().map(m->{
+				PayableAccDetail pad = new PayableAccDetail();
+				pad.setPayableBankDetails(DTOToBusinessObjectConverter.toBankDetail(m.getBankDetail()));
+				pad.setPayableUPIDetail(DTOToBusinessObjectConverter.toUPIDetail(m.getUpiDetail()));
+				return pad;
+			}).collect(Collectors.toList()));
+		}
+		
+		return dsmry;
 	}
 
 }

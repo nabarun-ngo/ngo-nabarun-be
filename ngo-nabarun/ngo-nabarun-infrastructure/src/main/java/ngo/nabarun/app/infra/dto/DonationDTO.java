@@ -34,7 +34,8 @@ public class DonationDTO {
 	private String cancelReason;
 	private String payLaterReason;
 	private String paymentFailDetail;
-	
+	private Date paymentNotificationDate;
+
 	
 	@Data
 	public static class DonationDTOFilter{

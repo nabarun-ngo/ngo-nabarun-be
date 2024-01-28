@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
+@Deprecated
 public class PaymentOptions {
 	@JsonProperty("donationId")
 	private String donationId;

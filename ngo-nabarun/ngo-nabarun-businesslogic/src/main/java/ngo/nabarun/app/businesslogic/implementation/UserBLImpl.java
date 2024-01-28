@@ -33,7 +33,7 @@ import ngo.nabarun.app.infra.dto.UserDTO.UserDTOFilter;
 import ngo.nabarun.app.infra.misc.KeyValuePair;
 import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IDomainRefConfigInfraService;
+import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Service
@@ -45,8 +45,10 @@ public class UserBLImpl implements IUserBL {
 	@Autowired 
 	private GenericPropertyHelper propertyHelper;
 	
-	@Autowired 
-	private IDomainRefConfigInfraService domainRefConfig;
+//	@Autowired 
+//	private IGlobalDataInfraService domainRefConfig;
+	@Autowired
+	private BusinessDomainRefHelper domainRefHelperService;
 	
 	@Autowired
 	private IDocumentInfraService documentInfraService;
@@ -71,7 +73,6 @@ public class UserBLImpl implements IUserBL {
 		UserDTO userDTO = null;
 		if (SecurityUtils.isAuthenticated()) {
 			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() , false);
-			UserConfigTemplate userConfig=domainRefConfig.getUserConfig();
 			/** *******************************************
 			 *   All Business level validations start here
 			 *  *******************************************
@@ -98,26 +99,27 @@ public class UserBLImpl implements IUserBL {
 			 * Throwing error when if 'gender' and 'title' is getting changed then call config and check if new gender is aligned with new title 
 			 */
 			
-			if(updatedUserDetails.getGender() !=null && updatedUserDetails.getTitle()!=null && !BusinessDomainRefHelper.isTitleGenderAligned(userConfig,updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
-				throw new BusinessException("Title '"+BusinessDomainRefHelper.getTitleValue(userConfig, updatedUserDetails.getTitle())+"' is not aligned with gender '"+BusinessDomainRefHelper.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
+			if(updatedUserDetails.getGender() !=null && updatedUserDetails.getTitle()!=null && !domainRefHelperService.isTitleGenderAligned(updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
+				throw new BusinessException("Title '"+domainRefHelperService.getTitleValue(updatedUserDetails.getTitle())+"' is not aligned with gender '"+domainRefHelperService.getGenderValue(updatedUserDetails.getGender())+"'.");
 			}else {
 				/**
 				 * Allowing to update 'gender' if it is compatible with title
 				 * Throwing error when if only gender is getting changed then call config and check if new gender is aligned with old title
 				 */
-				if(updatedUserDetails.getGender() !=null && !BusinessDomainRefHelper.isTitleGenderAligned(userConfig, userDTO.getTitle(), updatedUserDetails.getGender())) {
-					throw new BusinessException("Title '"+BusinessDomainRefHelper.getTitleValue(userConfig, userDTO.getTitle())+"' is not aligned with gender '"+BusinessDomainRefHelper.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
+				if(updatedUserDetails.getGender() !=null && !domainRefHelperService.isTitleGenderAligned(userDTO.getTitle(), updatedUserDetails.getGender())) {
+					throw new BusinessException("Title '"+domainRefHelperService.getTitleValue(userDTO.getTitle())+"' is not aligned with gender '"+domainRefHelperService.getGenderValue(updatedUserDetails.getGender())+"'.");
 				}
 				/**
 				 * Allowing to update 'title' if it is compatible with gender
 				 * Throwing error when if only title is getting changed then call config and check if new title is aligned with old gender
 				 */
-				if(updatedUserDetails.getTitle() !=null && !BusinessDomainRefHelper.isTitleGenderAligned(userConfig, updatedUserDetails.getTitle(), userDTO.getGender())) {
-					throw new BusinessException("Title '"+BusinessDomainRefHelper.getTitleValue(userConfig, userDTO.getTitle())+"' is not aligned with gender '"+BusinessDomainRefHelper.getGenderValue(userConfig, updatedUserDetails.getGender())+"'.");
+				if(updatedUserDetails.getTitle() !=null && !domainRefHelperService.isTitleGenderAligned(updatedUserDetails.getTitle(), userDTO.getGender())) {
+					throw new BusinessException("Title '"+domainRefHelperService.getTitleValue(userDTO.getTitle())+"' is not aligned with gender '"+domainRefHelperService.getGenderValue(updatedUserDetails.getGender())+"'.");
 				}
 			}
 			
-			/** *******************************************
+			/** 
+			 *  *******************************************
 			 *   All Business level validations end here
 			 *  *******************************************
 			 */
@@ -147,9 +149,6 @@ public class UserBLImpl implements IUserBL {
 			}
 			userDTO = userService.updateUser(userDTO.getProfileId(),updatedUserDTO);
 		} 
-//		else {
-//			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
-//		}
 		return DTOToBusinessObjectConverter.toUserDetail(userDTO);
 
 	}
@@ -223,7 +222,6 @@ public class UserBLImpl implements IUserBL {
 	@Override
 	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
 		List<RoleDTO> roles=userService.getUserRoles(id);
-		UserConfigTemplate userConfig =domainRefConfig.getUserConfig();
 		/**
 		 * Validations
 		 */
@@ -241,17 +239,17 @@ public class UserBLImpl implements IUserBL {
 		 */
 		userService.deleteRolesFromUser(id, roles);
 		
-		List<RoleDTO> rolesToBeAdded =new ArrayList<>();
-		for(KeyValuePair roleConfig:userConfig.getAvailableUserRoles()) {
-			if(roleCodes.stream().anyMatch(m-> m.name().equalsIgnoreCase(roleConfig.getKey())) ) {
-				RoleDTO role = new RoleDTO();
-				role.setCode(RoleCode.valueOf(roleConfig.getKey()));
-				role.setId(roleConfig.getAttributes().getOrDefault("ROLE_ID", "NO_VALUE").toString());
-				role.setName(roleConfig.getValue());
-				rolesToBeAdded.add(role);
-			}
-		}
-		userService.addRolesToUser(id, rolesToBeAdded);
+//		List<RoleDTO> rolesToBeAdded =new ArrayList<>();
+//		for(KeyValuePair roleConfig:userConfig.getAvailableUserRoles()) {
+//			if(roleCodes.stream().anyMatch(m-> m.name().equalsIgnoreCase(roleConfig.getKey())) ) {
+//				RoleDTO role = new RoleDTO();
+//				role.setCode(RoleCode.valueOf(roleConfig.getKey()));
+//				role.setId(roleConfig.getAttributes().getOrDefault("ROLE_ID", "NO_VALUE").toString());
+//				role.setName(roleConfig.getValue());
+//				rolesToBeAdded.add(role);
+//			}
+//		}
+//		userService.addRolesToUser(id, rolesToBeAdded);
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
 import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
+import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserRole;
 import ngo.nabarun.app.infra.dto.AccountDTO;
@@ -92,6 +93,7 @@ public class DTOToBusinessObjectConverter {
 		userDetails.setAddresses(userDTO.getAddresses() == null? List.of() : userDTO.getAddresses().stream().map(m->toUserAddress(m)).collect(Collectors.toList()));
 		userDetails.setPhoneNumbers(toUserPhoneNumber(userDTO.getPhones()));
 		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
+		userDetails.setPrimaryNumber(userDTO.getPhoneNumber());
 		return userDetails;
 
 	}
@@ -124,9 +126,7 @@ public class DTOToBusinessObjectConverter {
 		donationDetail.setCancelletionReason(donationDTO.getCancelReason());
 		donationDetail.setLaterPaymentReason(donationDTO.getPayLaterReason());	
 		donationDetail.setPaymentFailureDetail(donationDTO.getPaymentFailDetail());
-		
 		return donationDetail;
-
 	}
 
 	public static UserAddress toUserAddress(AddressDTO m) {
@@ -281,6 +281,7 @@ public class DTOToBusinessObjectConverter {
 		upiDetail.setMobileNumber(upiDTO.getMobileNumber());
 		upiDetail.setPayeeName(upiDTO.getPayeeName());
 		upiDetail.setUpiId(upiDTO.getUpiId());
+		upiDetail.setQrData(CommonUtils.getUPIURI(upiDTO.getUpiId(),upiDTO.getPayeeName(),null,null,null,null));
 		return upiDetail;
 	}
 

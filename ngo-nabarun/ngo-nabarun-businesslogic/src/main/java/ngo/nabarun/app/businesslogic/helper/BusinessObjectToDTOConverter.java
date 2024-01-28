@@ -26,6 +26,7 @@ import ngo.nabarun.app.infra.dto.SocialMediaDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 
+@Deprecated
 public class BusinessObjectToDTOConverter {
 
 	public static UserDTO toUserDTO(UserDetail userDetails) {

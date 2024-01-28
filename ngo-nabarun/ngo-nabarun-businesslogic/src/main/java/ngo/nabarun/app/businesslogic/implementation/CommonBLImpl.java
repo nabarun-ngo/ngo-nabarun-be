@@ -27,7 +27,7 @@ import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
 import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IDomainRefConfigInfraService;
+import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 import ngo.nabarun.app.infra.service.IMeetingInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
@@ -48,7 +48,7 @@ public class CommonBLImpl implements ICommonBL {
 	private ITicketInfraService ticketInfraService;
 	
 	@Autowired
-	private IDomainRefConfigInfraService domainInfraService;
+	private IGlobalDataInfraService domainInfraService;
 	
 	@Autowired
 	private CacheManager cacheManager;

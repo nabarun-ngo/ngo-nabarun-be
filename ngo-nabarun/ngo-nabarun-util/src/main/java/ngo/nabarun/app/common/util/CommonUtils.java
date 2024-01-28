@@ -28,9 +28,11 @@ import org.passay.PasswordGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommonUtils {
@@ -216,7 +218,32 @@ public class CommonUtils {
 	}
 	
 	public static <T> T convertToType(Object object,TypeReference<T> type){
+		ObjectMapper objectMapper = new ObjectMapper();
+		//String jsonString = "{\"symbol\":\"ABCD\}";
+		objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		//Trade trade = objectMapper.readValue(jsonString, new TypeReference<Symbol>() {});
 		return objectMapper.convertValue(object, type);
+	}
+	
+	public static String getUPIURI(String upiId,String payeeName, Double amount, String note, String txnId, String refId) {
+		UriComponentsBuilder url= UriComponentsBuilder.fromUriString("upi://pay").queryParam("pa", upiId);
+			if(payeeName != null) {
+				url=url.queryParam("pn", payeeName);
+			}
+			if(amount != null) {
+				url=url.queryParam("am", amount);
+			}
+			if(note != null) {
+				url=url.queryParam("tn", note);
+			}
+			if(txnId != null) {
+				url=url.queryParam("tid", txnId);
+			}
+			if(refId != null) {
+				url=url.queryParam("tr", refId);
+			}
+			url=url.queryParam("cu", "INR");
+		return url.build().encode().toUriString();
 	}
 	
 }

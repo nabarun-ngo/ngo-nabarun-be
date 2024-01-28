@@ -237,6 +237,7 @@ public class InfraDTOHelper {
 
 		donationDTO.setUpiName(donation.getPaidUPIName() == null ? null : UPIOption.valueOf(donation.getPaidUPIName()));
 		donationDTO.setIsPaymentNotified(donation.getIsPaymentNotified());
+		donationDTO.setPaymentNotificationDate(donation.getNotifiedOn());	
 		AccountDTO accountDTO = new AccountDTO();
 		accountDTO.setId(donation.getAccountId());
 		accountDTO.setAccountName(donation.getAccountName());

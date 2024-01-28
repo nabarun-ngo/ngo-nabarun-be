@@ -14,10 +14,25 @@ public class DonationSummary {
 	@JsonProperty("totalOutstandingAmount")
 	private Double totalOutstandingAmount;
 	
-	@JsonProperty("memberOutstandingAmount")
-	private Double memberOutstandingAmount;
+	@JsonProperty("hasOutstanding")
+	private boolean hasOutstanding;
 	
-	@JsonProperty("memberOutstandingAmount")
-	private List<String> memberOutstandingMonths;
+	@JsonProperty("outstandingAmount")
+	private Double outstandingAmount;
+	
+	@JsonProperty("outstandingMonths")
+	private List<String> outstandingMonths;
+	
+	@JsonProperty("payableAccounts")
+	private List<PayableAccDetail> payableAccounts;
+	
+	@Data
+	public static class PayableAccDetail{
+		@JsonProperty("bankDetail")
+		public BankDetail payableBankDetails;
+		
+		@JsonProperty("upiDetail")
+		public UPIDetail payableUPIDetail;
+	}
 		
 }
