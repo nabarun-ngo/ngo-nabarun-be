@@ -12,11 +12,10 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.IDonationBL;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
@@ -42,6 +41,7 @@ import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
+import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.service.IAccountInfraService;
@@ -62,6 +62,7 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Autowired
 	private IDocumentInfraService documentInfraService;
+	
 
 	@Autowired
 	private ITransactionInfraService transactionInfraService;
@@ -71,7 +72,7 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Autowired
 	private BusinessEmailHelper emailHelperService;
-	
+
 	@Autowired
 	private BusinessDomainRefHelper domainRefHelperService;
 
@@ -82,47 +83,69 @@ public class DonationBLImpl implements IDonationBL {
 	private BusinessIdGenerator idGenerator;
 
 	@Override
-	public DonationDetail raiseDonation(DonationDetailCreate donationDetail) throws Exception {
-		DonationDTO donationDTO;
+	public DonationDetail raiseDonation(DonationDetail donationDetail) throws Exception {
+		DonationDTO donationDTO = new DonationDTO();
+		/**
+		 * Custom field
+		 */
+		if(donationDetail.getAdditionalFields() != null) {
+			List<FieldDTO> fieldDTO= new ArrayList<>();
+			for(AdditionalField addfield:donationDetail.getAdditionalFields()) {
+				fieldDTO.add(domainRefHelperService.checkAndConvertField(addfield));
+			}
+			donationDTO.setAdditionalFields(fieldDTO);
+		}
+		
 		if (donationDetail.getIsGuest() == Boolean.TRUE) {
-			donationDTO = new DonationDTO();
 			donationDTO.setId(idGenerator.generateDonationId());
 			donationDTO.setAmount(donationDetail.getAmount());
 			donationDTO.setType(DonationType.ONETIME);
 			donationDTO.setGuest(true);
 			donationDTO.setStatus(DonationStatus.RAISED);
 			UserDTO donor = new UserDTO();
-			donor.setName(donationDetail.getDonorName());
-			donor.setEmail(donationDetail.getDonorEmail());
-			donor.setPhoneNumber(donationDetail.getDonorMobile());
+			donor.setName(donationDetail.getDonorDetails().getFullName());
+			donor.setEmail(
+					donationDetail.getDonorDetails() == null ? null : donationDetail.getDonorDetails().getEmail());
+			donor.setPhoneNumber(donationDetail.getDonorDetails() == null ? null
+					: donationDetail.getDonorDetails().getPrimaryNumber());
 			donationDTO.setDonor(donor);
-			donationDTO.setForEventId(donationDetail.getEventId());
+			donationDTO.setForEventId(donationDetail.getEvent() == null ? null : donationDetail.getEvent().getId());
 			donationDTO = donationInfraService.createDonation(donationDTO);
+			
+			
 		} else {
-			UserDTO donor = userInfraService.getUser(donationDetail.getDonorId(), false);
-			if (!donor.getAdditionalDetails().isActiveContributor()) {
-				throw new BusinessException("");
+			if (donationDetail.getDonationType() == DonationType.REGULAR
+					&& donationDetail.getStartDate().after(donationDetail.getEndDate())) {
+				throw new BusinessException("StartDate cannot be after end date");
 			}
-			if (donationDetail.getDonationType() == DonationType.REGULAR && checkIfDonationRaised(
-					donationDetail.getDonorId(), donationDetail.getStartDate(), donationDetail.getEndDate())) {
+			if (donationDetail.getDonationType() == DonationType.REGULAR
+					&& checkIfDonationRaised(donationDetail.getDonorDetails().getId(), donationDetail.getStartDate(),
+							donationDetail.getEndDate())) {
 				throw new BusinessException(BusinessExceptionMessage.DONATION_ALREADY_RAISED.getMessage());
 			}
-			donationDTO = new DonationDTO();
+			UserDTO donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), false);
+			if (!donor.getAdditionalDetails().isActiveContributor()) {
+				throw new BusinessException("Donor is not active");
+			}
+
 			donationDTO.setId(idGenerator.generateDonationId());
 			donationDTO.setAmount(donationDetail.getAmount());
 			donationDTO.setDonor(donor);
 			donationDTO.setForEventId(
-					(donationDetail.getEventId() != null && donationDetail.getDonationType() == DonationType.ONETIME)
-							? donationDetail.getEventId()
+					donationDetail.getEvent() != null && donationDetail.getDonationType() == DonationType.ONETIME ? donationDetail.getEvent().getId()
 							: null);
+
 			donationDTO.setGuest(false);
-			donationDTO.setStartDate(donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getStartDate() : null);
-			donationDTO.setEndDate(donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getEndDate() : null);
+			donationDTO.setStartDate(
+					donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getStartDate() : null);
+			donationDTO.setEndDate(
+					donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getEndDate() : null);
 			donationDTO.setStatus(DonationStatus.RAISED);
 			donationDTO.setType(donationDetail.getDonationType());
 			donationDTO = donationInfraService.createDonation(donationDTO);
 			donationDTO.setDonor(donor);
 		}
+		
 		emailHelperService.sendEmailOnDonationCreate(donationDTO);
 		return DTOToBusinessObjectConverter.toDonationDetail(donationDTO, null, null);
 	}
@@ -137,7 +160,7 @@ public class DonationBLImpl implements IDonationBL {
 		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		Date endDate = cal.getTime();
 
-		List<UserDTO> users = userInfraService.getUsers(null,null,null).getContent();
+		List<UserDTO> users = userInfraService.getUsers(null, null, null).getContent();
 		for (UserDTO user : users) {
 
 			if (user.getAdditionalDetails().isActiveContributor()
@@ -167,7 +190,7 @@ public class DonationBLImpl implements IDonationBL {
 		List<DonationDTO> donations = donationInfraService.getDonations(null, null, filterDTO).getContent();
 		return donations.stream().filter(c -> c.getStatus() != DonationStatus.CANCELLED)
 				.anyMatch(contribution -> (startDate.compareTo(contribution.getEndDate()) < 0
-								|| startDate.compareTo(contribution.getEndDate()) == 0)
+						|| startDate.compareTo(contribution.getEndDate()) == 0)
 						&& (endDate.compareTo(contribution.getStartDate()) > 0
 								|| endDate.compareTo(contribution.getStartDate()) == 0));
 
@@ -233,11 +256,9 @@ public class DonationBLImpl implements IDonationBL {
 			return doc;
 		}).toList();
 	}
-	
-	
 
 	@Override
-	public DonationDetail updateDonation(String id, DonationDetailUpdate request) throws Exception {
+	public DonationDetail updateDonation(String id, DonationDetail request) throws Exception {
 		/*
 		 * Donation amount cannot be changed while updating status as paid
 		 */
@@ -248,7 +269,7 @@ public class DonationBLImpl implements IDonationBL {
 		/**
 		 * Do not allow to update amount if resolved
 		 */
-		if(domainRefHelperService.isResolvedDonation(donation.getStatus())) {
+		if (domainRefHelperService.isResolvedDonation(donation.getStatus())) {
 			throw new BusinessException("No updates are allowed on settled donations.");
 		}
 		DonationDTO updatedDetail = new DonationDTO();
@@ -257,16 +278,18 @@ public class DonationBLImpl implements IDonationBL {
 
 		if (donation.getGuest() == Boolean.TRUE) {
 			UserDTO donor = new UserDTO();
-			donor.setName(request.getDonorName());
-			donor.setEmail(request.getDonorEmail());
-			donor.setPhoneNumber(request.getDonorMobile());
+			donor.setName(request.getDonorDetails() == null ? null : request.getDonorDetails().getFullName());
+			donor.setEmail(request.getDonorDetails() == null ? null : request.getDonorDetails().getEmail());
+			donor.setPhoneNumber(
+					request.getDonorDetails() == null ? null : request.getDonorDetails().getPrimaryNumber());
 			updatedDetail.setDonor(donor);
 		}
 
 		if (request.getDonationStatus() == DonationStatus.PAID) {
 			updatedDetail.setPaidOn(request.getPaidOn());
 			updatedDetail.setPaymentMethod(request.getPaymentMethod());
-			updatedDetail.setUpiName(request.getPaymentMethod() == PaymentMethod.UPI ? request.getPaidUPIName() : null);
+			updatedDetail
+					.setUpiName(request.getPaymentMethod() == PaymentMethod.UPI ? request.getPaidUsingUPI() : null);
 
 			UserDTO auth_user = userInfraService.getUserByUserId(
 					propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
@@ -294,7 +317,7 @@ public class DonationBLImpl implements IDonationBL {
 				/**
 				 * check validity of account id
 				 */
-				AccountDTO accDTO = accountInfraService.getAccountDetails(request.getAccountId());
+				AccountDTO accDTO = accountInfraService.getAccountDetails(request.getReceivedAccount().getId());
 				if (accDTO.getAccountStatus() == AccountStatus.INACTIVE) {
 					throw new BusinessException("Donation cannot be paid to an Inactive account.");
 				}
@@ -312,7 +335,7 @@ public class DonationBLImpl implements IDonationBL {
 				newTxn = transactionInfraService.createTransaction(newTxn);
 				updatedDetail.setTransactionRefNumber(newTxn.getId());
 				updatedDetail.setPaidToAccount(accDTO);
-				updatedDetail.setComment(request.getComment());
+				updatedDetail.setComment(request.getRemarks());
 			}
 		} else if (request.getDonationStatus() == DonationStatus.PAYMENT_FAILED) {
 			TransactionDTO newTxn = new TransactionDTO();
@@ -323,33 +346,32 @@ public class DonationBLImpl implements IDonationBL {
 			newTxn.setTxnRefType(TransactionRefType.DONATION);
 			newTxn.setTxnStatus(TransactionStatus.FAILURE);
 			newTxn.setTxnType(TransactionType.IN);
-			newTxn.setComment(request.getComment());
+			newTxn.setComment(request.getPaymentFailureDetail());
 			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-
 			newTxn = transactionInfraService.createTransaction(newTxn);
 			updatedDetail.setTransactionRefNumber(newTxn.getId());
-			updatedDetail.setPaymentFailDetail(request.getComment());
+			updatedDetail.setPaymentFailDetail(request.getPaymentFailureDetail());
 
 		} else if (request.getDonationStatus() == DonationStatus.PAY_LATER) {
-			updatedDetail.setPayLaterReason(request.getComment());
+			updatedDetail.setPayLaterReason(request.getLaterPaymentReason());
 		} else if (request.getDonationStatus() == DonationStatus.CANCELLED) {
-			updatedDetail.setCancelReason(request.getComment());
+			updatedDetail.setCancelReason(request.getCancelletionReason());
 		}
 		donation = donationInfraService.updateDonation(id, updatedDetail);
 		return DTOToBusinessObjectConverter.toDonationDetail(donation, null, null);
 	}
-	
+
 	@Override
 	public DonationDetail updatePaymentInfo(String id, DonationDetail request) throws Exception {
 		DonationDTO donation = donationInfraService.getDonation(id);
 		/**
 		 * Do not allow to update amount if resolved
 		 */
-		if(domainRefHelperService.isResolvedDonation(donation.getStatus())) {
+		if (domainRefHelperService.isResolvedDonation(donation.getStatus())) {
 			throw new BusinessException("No updates are allowed on settled donations.");
 		}
 		DonationDTO updatedDetail = new DonationDTO();
-		if(request.isPaymentNotified()) {
+		if (request.isPaymentNotified()) {
 			updatedDetail.setPaymentNotificationDate(CommonUtils.getSystemDate());
 			updatedDetail.setIsPaymentNotified(request.isPaymentNotified());
 		}
@@ -359,38 +381,39 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Override
 	public DonationSummary getDonationSummary(String id, List<String> fields) throws Exception {
-		List<DonationStatus> outStatus=domainRefHelperService.getOutstandingDonationStatus();
+		List<DonationStatus> outStatus = domainRefHelperService.getOutstandingDonationStatus();
 		DonationDTOFilter filterDTO = new DonationDTOFilter();
-		filterDTO.setDonorId(id);	
+		filterDTO.setDonorId(id);
 		filterDTO.setDonationStatus(outStatus);
-		List<DonationDTO> outDons=donationInfraService.getDonations(null, null, filterDTO).getContent();
+		List<DonationDTO> outDons = donationInfraService.getDonations(null, null, filterDTO).getContent();
 		DonationSummary dsmry = new DonationSummary();
-		
+
 		dsmry.setOutstandingAmount(outDons.stream().mapToDouble(DonationDTO::getAmount).sum());
 		dsmry.setHasOutstanding(dsmry.getOutstandingAmount() > 0);
-		
-		if(fields.contains("INCLUDE_OUTSTANDING_MONTHS")) {
-			List<String> months= new ArrayList<>();
-			for(DonationDTO outDon:outDons) {
-				if(outDon.getType() != DonationType.ONETIME) {
-					months.addAll(CommonUtils.getMonthsBetween(outDon.getStartDate(), outDon.getEndDate()));	
+
+		if (fields.contains("INCLUDE_OUTSTANDING_MONTHS")) {
+			List<String> months = new ArrayList<>();
+			for (DonationDTO outDon : outDons) {
+				if (outDon.getType() != DonationType.ONETIME) {
+					months.addAll(CommonUtils.getMonthsBetween(outDon.getStartDate(), outDon.getEndDate()));
 				}
-			}			
+			}
 			dsmry.setOutstandingMonths(months);
 		}
-		
-		if(fields.contains("INCLUDE_PAYABLE_ACCOUNT")) {
-			AccountDTOFilter filter= new AccountDTOFilter();
+
+		if (fields.contains("INCLUDE_PAYABLE_ACCOUNT")) {
+			AccountDTOFilter filter = new AccountDTOFilter();
 			filter.setAccountStatus(List.of(AccountStatus.ACTIVE));
 			filter.setAccountType(List.of(AccountType.DONATION));
-			dsmry.setPayableAccounts(accountInfraService.getAccounts(null,null,filter).getContent().stream().map(m->{
-				PayableAccDetail pad = new PayableAccDetail();
-				pad.setPayableBankDetails(DTOToBusinessObjectConverter.toBankDetail(m.getBankDetail()));
-				pad.setPayableUPIDetail(DTOToBusinessObjectConverter.toUPIDetail(m.getUpiDetail()));
-				return pad;
-			}).collect(Collectors.toList()));
+			dsmry.setPayableAccounts(
+					accountInfraService.getAccounts(null, null, filter).getContent().stream().map(m -> {
+						PayableAccDetail pad = new PayableAccDetail();
+						pad.setPayableBankDetails(DTOToBusinessObjectConverter.toBankDetail(m.getBankDetail()));
+						pad.setPayableUPIDetail(DTOToBusinessObjectConverter.toUPIDetail(m.getUpiDetail()));
+						return pad;
+					}).collect(Collectors.toList()));
 		}
-		
+
 		return dsmry;
 	}
 

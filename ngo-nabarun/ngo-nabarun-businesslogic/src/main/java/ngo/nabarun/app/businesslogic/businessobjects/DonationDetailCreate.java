@@ -8,6 +8,7 @@ import lombok.Data;
 import ngo.nabarun.app.common.enums.DonationType;
 
 @Data
+@Deprecated
 public class DonationDetailCreate {
 	
 	@JsonProperty("isGuest")

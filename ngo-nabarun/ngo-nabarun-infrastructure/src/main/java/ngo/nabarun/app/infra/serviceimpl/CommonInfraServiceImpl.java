@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -17,36 +16,31 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.exception.NotFoundException;
 import ngo.nabarun.app.common.helper.GenericPropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
-import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.objects.RemoteConfig;
-import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 import ngo.nabarun.app.ext.service.IFileStorageExtService;
 import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
+import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
+import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
-import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
 import ngo.nabarun.app.infra.misc.EmailTemplate;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
-import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
@@ -54,7 +48,6 @@ import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.ISequenceInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
-import ngo.nabarun.app.infra.misc.ConfigTemplate;
 
 @Service
 public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInfraService, IDocumentInfraService,
@@ -73,6 +66,9 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	private DocumentRefRepository documentRefRepository;
 
 	@Autowired
+	private CustomFieldRepository fieldRepository;
+
+	@Autowired
 	private IEmailExtService emailExtService;
 
 	@Autowired
@@ -81,16 +77,10 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	@Autowired
 	private IRemoteConfigExtService remoteConfigService;
 
-	@Autowired
-	private IAuthManagementExtService authManagementService;
-
 	/**
 	 * Constants THIS SHOULD BE SAME AS REMOTE CONFIG
 	 */
 	private static final String EMAIL_TEMPLATES_CONFIG = "EMAIL_TEMPLATES";
-	private static final String USER_CONFIG = "USER_CONFIG";
-	private static final String DONATION_CONFIG = "DONATION_CONFIG";
-	private static final String MESSAGE_AND_FIELD_CONFIG = "MESSAGE_AND_FIELD_CONFIG";
 
 	private static final String DOMAIN_GLOBAL_CONFIG = "DOMAIN_GLOBAL_CONFIG";
 
@@ -213,6 +203,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	private DocumentRefEntity addDocumentReference(String originalFileName, String remotefileName, String docIndexId,
 			String docIndexType, String fileDownloadableUrl, String contentType) {
 		DocumentRefEntity docRef = new DocumentRefEntity();
+		docRef.setId(UUID.randomUUID().toString());
 		docRef.setRemoteFileName(remotefileName);
 		docRef.setCreatedOn(CommonUtils.getSystemDate());
 		docRef.setDeleted(false);
@@ -348,56 +339,30 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	public UserConfigTemplate getUserConfig() throws Exception {
-
-		RemoteConfig config = remoteConfigService.getRemoteConfig(USER_CONFIG);
-		List<AuthUserRole> auth0Roles = authManagementService.getAllAvailableRoles();
-		UserConfigTemplate userConfig = CommonUtils.jsonToPojo(config.getValue().toString(), UserConfigTemplate.class);
-		userConfig.getAvailableUserRoles().stream().map(m -> {
-			/**
-			 * fetching the role from auth0 matching the 'roleName' attribute local config
-			 * 'key' = 'roleName'
-			 */
-			Optional<AuthUserRole> roleOpt = auth0Roles.stream()
-					.filter(f -> f.getRoleName().equalsIgnoreCase(m.getKey())).findFirst();
-			if (roleOpt.isPresent()) {
-				AuthUserRole role = roleOpt.get();
-				Map<String, Object> attr = new HashMap<>(m.getAttributes());
-				attr.put("ROLE_ID", role.getRoleId());
-				attr.put("ROLE_NAME", role.getRoleName());
-				attr.put("ROLE_DESCRIPTION", role.getRoleDescription());
-				m.setAttributes(attr);
-			}
-			return m;
-		}).toList();
-		return userConfig;
-	}
-
-	@Override
-	public DonationConfigTemplate getDonationConfig() throws Exception {
-		RemoteConfig config = remoteConfigService.getRemoteConfig(DONATION_CONFIG);
-		DonationConfigTemplate donationConfig = CommonUtils.jsonToPojo(config.getValue().toString(),
-				DonationConfigTemplate.class);
-		return donationConfig;
-	}
-//
-//	@Override
-//	public String getBusinessErrorMessage(String errorCode) throws Exception {
-//		RemoteConfig config = remoteConfigService.getRemoteConfig(MESSAGE_AND_FIELD_CONFIG);
-//
-//		return null;
-//	}
-
-	@Override
 	@Cacheable("DOMAIN_GLOBAL_CONFIG")
-	public Map<String,  List<KeyValuePair>> getDomainRefConfigs() throws Exception {
+	public Map<String, List<KeyValuePair>> getDomainRefConfigs() throws Exception {
 		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_GLOBAL_CONFIG);
-		ConfigTemplate[] configList = CommonUtils.jsonToPojo(config.getValue().toString(),ConfigTemplate[].class);
-		Map<String,  List<KeyValuePair>> configMap = new HashMap<>();
-		for(ConfigTemplate domConfig:configList) {
+		ConfigTemplate[] configList = CommonUtils.jsonToPojo(config.getValue().toString(), ConfigTemplate[].class);
+		Map<String, List<KeyValuePair>> configMap = new HashMap<>();
+		for (ConfigTemplate domConfig : configList) {
 			configMap.put(domConfig.getConfigName(), domConfig.getConfigValues());
 		}
 		return configMap;
+	}
+
+	 
+	public FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
+		CustomFieldEntity entity = fieldDTO.getFieldId() == null ? new CustomFieldEntity()
+				: fieldRepository.findById(fieldDTO.getFieldId()).orElseThrow();
+		entity.setFieldDescription(fieldDTO.getFieldDescription() != null ?fieldDTO.getFieldDescription(): entity.getFieldDescription());
+		entity.setFieldKey(fieldDTO.getFieldKey() != null ?fieldDTO.getFieldKey(): entity.getFieldKey());
+		entity.setFieldName(fieldDTO.getFieldName() != null ?fieldDTO.getFieldName(): entity.getFieldName());
+		entity.setFieldType(fieldDTO.getFieldType() != null ?fieldDTO.getFieldType(): entity.getFieldType());
+		entity.setFieldValue(fieldDTO.getFieldValue() != null ?fieldDTO.getFieldValue(): entity.getFieldValue());
+		if(fieldDTO.getFieldId()== null) {
+			entity.setSource(fieldDTO.getFieldSource());
+		}
+		return InfraDTOHelper.convertToFieldDTO(entity);
 	}
 
 }

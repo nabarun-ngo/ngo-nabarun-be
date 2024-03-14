@@ -13,6 +13,7 @@ import lombok.Setter;
 
 
 @Data
+@Deprecated
 public class EmailTemplate{
 	
 	@JsonProperty("templateName")

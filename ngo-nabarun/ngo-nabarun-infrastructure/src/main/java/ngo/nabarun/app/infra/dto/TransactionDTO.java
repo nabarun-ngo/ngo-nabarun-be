@@ -1,6 +1,7 @@
 package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.TransactionRefType;
@@ -25,5 +26,16 @@ public class TransactionDTO {
     private Date txnDate;
     private String comment;
 
+    @Data
+    public static class TransactionDTOFilter{
+    	private String id;
+    	private List<TransactionStatus> txnStatus;
+    	private List<TransactionType> txnType;
 
+    	private String txnRefId;
+    	private TransactionRefType txnRefType;
+    	private String accountId;
+        private Date fromDate;
+        private Date toDate;
+    }
 }

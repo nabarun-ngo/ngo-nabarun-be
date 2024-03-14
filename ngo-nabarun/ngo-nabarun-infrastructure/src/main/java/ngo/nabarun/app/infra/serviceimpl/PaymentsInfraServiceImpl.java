@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.querydsl.core.BooleanBuilder;
@@ -18,6 +19,7 @@ import ngo.nabarun.app.infra.core.entity.AccountEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
 import ngo.nabarun.app.infra.core.entity.QAccountEntity;
 import ngo.nabarun.app.infra.core.entity.QDonationEntity;
+import ngo.nabarun.app.infra.core.entity.QTransactionEntity;
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
 import ngo.nabarun.app.infra.core.repo.AccountRepository;
 import ngo.nabarun.app.infra.core.repo.TransactionRepository;
@@ -25,8 +27,8 @@ import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
+import ngo.nabarun.app.infra.dto.TransactionDTO.TransactionDTOFilter;
 import ngo.nabarun.app.infra.dto.UpiDTO;
-import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.WhereClause;
 import ngo.nabarun.app.infra.service.IAccountInfraService;
@@ -171,12 +173,59 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService,IAccou
 	}
 
 	@Override
-	public List<TransactionDTO> getTransactionsForAccount(String id) {
-		List<TransactionEntity> a=txnRepo.findByFromAccountOrToAccount(id, id);		
-		System.err.println(a);
-		return a.stream().map(m->InfraDTOHelper.convertToTransactionDTO(m,null, null)).toList();
+	@Deprecated
+	public Page<TransactionDTO> getTransactionsForAccount(String id, Integer page, Integer size) {
+		Sort sort=Sort.by(Sort.Direction.DESC, "creationDate");
+		Page<TransactionEntity> transactions=null;
+		if (page != null && size != null) {
+			transactions=txnRepo.findByFromAccountOrToAccount(id, id,PageRequest.of(page, size,sort));		
+		} else {
+			transactions = new PageImpl<>(txnRepo.findByFromAccountOrToAccount(id, id,sort));
+		}
+		return transactions.map(m->InfraDTOHelper.convertToTransactionDTO(m,null, null));
 	}
 
 	
+	@Override
+	public Page<TransactionDTO> getTransactions(Integer page, Integer size,TransactionDTOFilter filter) {
+		Sort sort=Sort.by(Sort.Direction.DESC, "creationDate");
+		Page<TransactionEntity> transactions=null;
+		if (filter != null) {
 
+			/*
+			 * Query building and filter logic
+			 */
+			QTransactionEntity qTxn = QTransactionEntity.transactionEntity;
+			BooleanBuilder query = WhereClause.builder()
+					.optionalAnd(filter.getId() != null, () -> qTxn.id.eq(filter.getId()))
+					.optionalAnd(filter.getTxnStatus() != null,
+							() -> qTxn.status
+									.in(filter.getTxnStatus().stream().map(m -> m.name()).toList()))
+					.optionalAnd(filter.getTxnType() != null,
+							() -> qTxn.transactionType
+									.in(filter.getTxnType().stream().map(m -> m.name()).toList()))
+					.optionalAnd(filter.getTxnRefId() != null,
+							() -> qTxn.transactionRefId.eq(filter.getTxnRefId()))
+					.optionalAnd(filter.getTxnRefType() != null,
+					() -> qTxn.transactionRefType.eq(filter.getTxnRefType().name()))
+					.optionalAnd(filter.getAccountId() != null,
+							() -> qTxn.fromAccount.eq(filter.getAccountId()).or(qTxn.toAccount.eq(filter.getAccountId())))
+					
+					.optionalAnd(filter.getFromDate() != null && filter.getToDate() != null,
+							() -> qTxn.creationDate.between(filter.getFromDate(), filter.getToDate()))
+					.build();
+			if (page == null || size == null) {
+				List<TransactionEntity> result = new ArrayList<>();
+				txnRepo.findAll(query,sort).iterator().forEachRemaining(result::add);
+				transactions = new PageImpl<>(result);
+			} else {
+				transactions = txnRepo.findAll(query, PageRequest.of(page, size,sort));
+			}
+		} else if (page != null && size != null) {
+			transactions=txnRepo.findAll(PageRequest.of(page, size,sort));		
+		} else {
+			transactions = new PageImpl<>(txnRepo.findAll(sort));
+		}
+		return transactions.map(m->InfraDTOHelper.convertToTransactionDTO(m,null, null));
+	}
 }

@@ -2,19 +2,20 @@ package ngo.nabarun.app.infra.core.repo;
 
 
 import java.util.List;
-import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
 
 
 @Repository
-public interface TransactionRepository extends MongoRepository<TransactionEntity,String>{
+public interface TransactionRepository extends MongoRepository<TransactionEntity,String>,QuerydslPredicateExecutor<TransactionEntity>{
 
 	List<TransactionEntity> findByTransactionRefIdAndTransactionRefType(String txnRefNumber, String txnRefType);
-	List<TransactionEntity> findByFromAccountOrToAccount(String fromAccount, String toAccount);
-//{ $or: [ { toAccount: "NACC202312134269A4"}, { fromAccount: "NACC202312134269A4" } ] }
+	List<TransactionEntity> findByFromAccountOrToAccount(String fromAccount, String toAccount, Sort sort);
+	Page<TransactionEntity> findByFromAccountOrToAccount(String fromAccount, String toAccount,Pageable page);
 }

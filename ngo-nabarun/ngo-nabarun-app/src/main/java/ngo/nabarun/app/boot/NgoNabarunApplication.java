@@ -20,7 +20,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 		})
 @EntityScan(basePackages = {"ngo.nabarun.app"})
 @EnableMongoRepositories(basePackages = {"ngo.nabarun.app"})
-//@EnableScheduling
+//@EnableScheduling/custom form//notification
 @EnableCaching
 public class NgoNabarunApplication {
 	

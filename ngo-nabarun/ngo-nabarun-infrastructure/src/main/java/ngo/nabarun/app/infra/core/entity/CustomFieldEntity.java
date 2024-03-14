@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import ngo.nabarun.app.common.enums.FieldSource;
 
 /**
  * MongoDB
@@ -22,12 +21,11 @@ public class CustomFieldEntity{
 	
 	@Id
 	private String id;
-	private String fieldRegisterKey;
+	private String fieldKey;
 	private String fieldName;
 	private String fieldType;
 	private String fieldValue;
 	private String fieldDescription;
-	private FieldSource fieldSource;
-	private String fieldSourceId;
+	private String source;
 	
 }

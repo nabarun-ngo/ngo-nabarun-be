@@ -2,6 +2,7 @@ package ngo.nabarun.app.infra.misc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -32,6 +33,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.infra.core.entity.AccountEntity;
+import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
 import ngo.nabarun.app.infra.core.entity.MeetingEntity;
@@ -47,6 +49,7 @@ import ngo.nabarun.app.infra.dto.DiscussionDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
+import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -137,8 +140,8 @@ public class InfraDTOHelper {
 			if (fieldValue.size() == 2) {
 				primary_phone.setPhoneCode(fieldValue.get(0));
 				primary_phone.setPhoneNumber(fieldValue.get(1));
-				userDTO.setPhoneNumber(fieldValue.get(0)+fieldValue.get(1));
-			} else if (fieldValue.size() == 1){
+				userDTO.setPhoneNumber(fieldValue.get(0) + fieldValue.get(1));
+			} else if (fieldValue.size() == 1) {
 				primary_phone.setPhoneNumber(fieldValue.get(0));
 				userDTO.setPhoneNumber(fieldValue.get(0));
 			}
@@ -152,7 +155,7 @@ public class InfraDTOHelper {
 			if (fieldValue.size() == 2) {
 				alt_phone.setPhoneCode(fieldValue.get(0));
 				alt_phone.setPhoneNumber(fieldValue.get(1));
-			} else if (fieldValue.size() == 1){
+			} else if (fieldValue.size() == 1) {
 				alt_phone.setPhoneNumber(fieldValue.get(0));
 			}
 			phones.add(alt_phone);
@@ -228,9 +231,9 @@ public class InfraDTOHelper {
 				donation.getPaymentMethod() == null ? null : PaymentMethod.valueOf(donation.getPaymentMethod()));
 		donationDTO.setRaisedOn(donation.getRaisedOn());
 		donationDTO.setStartDate(donation.getStartDate());
-		donationDTO.setStatus(DonationStatus.valueOf(donation.getContributionStatus()));
+		donationDTO.setStatus(DonationStatus.valueOf(donation.getStatus()));
 		donationDTO.setTransactionRefNumber(donation.getTransactionRefNumber());
-		donationDTO.setType(DonationType.valueOf(donation.getContributionType()));
+		donationDTO.setType(DonationType.valueOf(donation.getType()));
 		donationDTO.setForEventId(donation.getEventId());
 		donationDTO.setComment(donation.getComment());
 		;
@@ -246,8 +249,26 @@ public class InfraDTOHelper {
 		donationDTO.setCancelReason(donation.getCancelReason());
 		donationDTO.setPayLaterReason(donation.getPayLaterReason());
 		donationDTO.setPaymentFailDetail(donation.getPaymentFailDetail());
-
+		
+		if(donation.getCustomFields() != null) {
+			List<FieldDTO> list=donation.getCustomFields().stream().map(m->{
+				return convertToFieldDTO(m);
+			}).collect(Collectors.toList());
+			donationDTO.setAdditionalFields(list);
+		}
 		return donationDTO;
+	}
+
+	public static FieldDTO convertToFieldDTO(CustomFieldEntity field) {
+		FieldDTO fieldDTO = new FieldDTO();
+		fieldDTO.setFieldDescription(field.getFieldDescription());
+		fieldDTO.setFieldKey(field.getFieldKey());
+		fieldDTO.setFieldName(field.getFieldName());
+		fieldDTO.setFieldType(field.getFieldType());
+		fieldDTO.setFieldValue(field.getFieldValue());
+		fieldDTO.setFieldId(field.getId());
+		fieldDTO.setFieldSource(field.getSource());
+		return fieldDTO;
 	}
 
 	public static DocumentDTO convertToDocumentDTO(DocumentRefEntity docRef) {

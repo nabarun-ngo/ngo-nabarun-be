@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE,value = "/api/user")
 @SecurityRequirement(name = "nabarun_auth")
+@SecurityRequirement(name = "nabarun_auth_apikey")
 public class UserController {
 	
 	@Autowired

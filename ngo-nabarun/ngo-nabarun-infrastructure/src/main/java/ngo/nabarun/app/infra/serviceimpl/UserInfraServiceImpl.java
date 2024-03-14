@@ -87,6 +87,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 	@Override
 	public UserDTO getUserByUserId(String userId, boolean includeFullDetails) throws Exception {
+		System.out.println(userId);
 		UserProfileEntity profile = profileRepository.findByUserId(userId).orElseThrow();
 		AuthUser auth0User = null;
 		if (includeFullDetails) {

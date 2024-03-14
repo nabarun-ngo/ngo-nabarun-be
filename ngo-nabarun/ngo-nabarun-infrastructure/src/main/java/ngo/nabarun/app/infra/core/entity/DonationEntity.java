@@ -1,8 +1,12 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
 import lombok.Data;
 import lombok.ToString;
 
@@ -29,9 +33,9 @@ public class DonationEntity {
 	
 	private Date raisedOn;
 	
-	private String contributionType;
+	private String type;
 	
-	private String contributionStatus;
+	private String status;
 	
 	private Date paidOn;
 	
@@ -68,13 +72,16 @@ public class DonationEntity {
 	private Boolean isPaymentNotified;
 	private Date notifiedOn;
 
-	private String donationNumber;
+	//private String donationNumber;
 	private String paymentConfirmedByName;
 
 
 	private String cancelReason;
 	private String payLaterReason;
 	private String paymentFailDetail;
+	
+    @DocumentReference(lookup="{'source':?#{#self._id} }")
+    private List<CustomFieldEntity> customFields;
 	
 
 

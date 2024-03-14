@@ -9,7 +9,7 @@ import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.UPIOption;
 
-@Data
+@Data@Deprecated
 public class DonationDetailUpdate {
 	
 	@JsonProperty("amount")

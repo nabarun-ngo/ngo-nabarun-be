@@ -1,14 +1,15 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ngo.nabarun.app.businesslogic.IAccountBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailCreate;
+import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
+import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
@@ -19,6 +20,8 @@ import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
+import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
+import ngo.nabarun.app.infra.dto.TransactionDTO.TransactionDTOFilter;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
@@ -29,50 +32,66 @@ import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Service
 public class AccountBLImpl implements IAccountBL {
-	
+
 	@Autowired
 	private IAccountInfraService accountInfraService;
-	
+
 	@Autowired
 	private IUserInfraService userInfraService;
-	
+
 	@Autowired
 	private ITransactionInfraService transactionInfraService;
-	
-	@Autowired
-	private  BusinessIdGenerator idGenerator;
-	
-	@Override
-	public Paginate<AccountDetail> getAccounts(Integer page, Integer size) {
-		return null;
-	}
-	
 
+	@Autowired
+	private BusinessIdGenerator idGenerator;
+
+	@Override
+	public Paginate<AccountDetail> getAccounts(Integer page, Integer size, AccountDetailFilter filter) {
+		AccountDTOFilter filterDTO = null;
+		if (filter != null) {
+			filterDTO = new AccountDTOFilter();
+			filterDTO.setAccountStatus(filter.getStatus());
+			filterDTO.setAccountType(filter.getType());
+		}
+
+		Page<AccountDetail> pageDetail = accountInfraService.getAccounts(page, size, filterDTO).map(m -> {
+			AccountDetail acc = DTOToBusinessObjectConverter.toAccountDetail(m);
+			if (!filter.isIncludePaymentDetail()) {
+				acc.setUpiDetail(null);
+				acc.setBankDetail(null);
+			}
+			if (!filter.isIncludeBalance()) {
+				acc.setCurrentBalance(0.0);
+			}
+			return acc;
+		});
+		return new Paginate<AccountDetail>(pageDetail);
+	}
 
 	@Override
 	public AccountDetail createAccount(AccountDetailCreate accountDetail) throws Exception {
-		UserDTO userDTO=userInfraService.getUser(accountDetail.getAccountHolderProfileId(), false);
-		if(userDTO.getStatus() != ProfileStatus.ACTIVE) {
+		UserDTO userDTO = userInfraService.getUser(accountDetail.getAccountHolderProfileId(), false);
+		if (userDTO.getStatus() != ProfileStatus.ACTIVE) {
 			throw new BusinessException("Account can only be created for an ACTIVE user.");
 		}
-		AccountDTO accountDTO= new AccountDTO();
+		AccountDTO accountDTO = new AccountDTO();
 		accountDTO.setId(idGenerator.generateAccountId());
-		accountDTO.setProfile(userDTO);	
+		accountDTO.setProfile(userDTO);
 		accountDTO.setAccountName(userDTO.getName());
-		if(accountDetail.getBankDetail() != null) {
+		if (accountDetail.getBankDetail() != null) {
 			BankDTO bankDTO = new BankDTO();
 			bankDTO.setAccountHolderName(accountDetail.getBankDetail().getBankAccountHolderName());
-			bankDTO.setAccountNumber(accountDetail.getBankDetail().getBankAccountNumber());		
+			bankDTO.setAccountNumber(accountDetail.getBankDetail().getBankAccountNumber());
 			bankDTO.setAccountType(accountDetail.getBankDetail().getBankAccountType());
 			bankDTO.setBankName(accountDetail.getBankDetail().getBankName());
 			bankDTO.setBranchName(accountDetail.getBankDetail().getBankBranch());
 			bankDTO.setIFSCNumber(accountDetail.getBankDetail().getIFSCNumber());
 			accountDTO.setBankDetail(bankDTO);
 		}
-		
-		if(accountDetail.getUpiDetail() != null ) {
+
+		if (accountDetail.getUpiDetail() != null) {
 			UpiDTO upiDTO = new UpiDTO();
-			upiDTO.setMobileNumber(accountDetail.getUpiDetail().getMobileNumber());		
+			upiDTO.setMobileNumber(accountDetail.getUpiDetail().getMobileNumber());
 			upiDTO.setPayeeName(accountDetail.getUpiDetail().getPayeeName());
 			upiDTO.setUpiId(accountDetail.getUpiDetail().getUpiId());
 			accountDTO.setUpiDetail(upiDTO);
@@ -81,11 +100,11 @@ public class AccountBLImpl implements IAccountBL {
 		accountDTO.setAccountStatus(AccountStatus.ACTIVE);
 		accountDTO.setActivatedOn(CommonUtils.getSystemDate());
 		accountDTO.setOpeningBalance(accountDetail.getOpeningBalance());
-		accountDTO=accountInfraService.createAccount(accountDTO);
+		accountDTO = accountInfraService.createAccount(accountDTO);
 		/*
 		 * Create transaction and update current value if opening balance is > 0
 		 */
-		if(accountDetail.getOpeningBalance() > 0) {
+		if (accountDetail.getOpeningBalance() > 0) {
 			TransactionDTO newTxn = new TransactionDTO();
 			newTxn.setId(idGenerator.generateTransactionId());
 			newTxn.setToAccount(accountDTO);
@@ -95,8 +114,8 @@ public class AccountBLImpl implements IAccountBL {
 			newTxn.setTxnRefType(TransactionRefType.NONE);
 			newTxn.setTxnStatus(TransactionStatus.SUCCESS);
 			newTxn.setTxnType(TransactionType.IN);
-			newTxn.setTxnDescription("Initial opening balance for account "+accountDTO.getId());	
-			newTxn=transactionInfraService.createTransaction(newTxn);
+			newTxn.setTxnDescription("Initial opening balance for account " + accountDTO.getId());
+			newTxn = transactionInfraService.createTransaction(newTxn);
 		}
 		return DTOToBusinessObjectConverter.toAccountDetail(accountDTO);
 	}
@@ -106,14 +125,15 @@ public class AccountBLImpl implements IAccountBL {
 		return null;
 	}
 
-
-
 	@Override
-	public void getTransactions(String id) {
-		List<TransactionDTO> trnsactions=transactionInfraService.getTransactionsForAccount(id);
+	public Paginate<TransactionDetail> getTransactions(String id, int index, int size) {
+		TransactionDTOFilter filter = new TransactionDTOFilter();
+		filter.setAccountId(id);
+		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filter);
+				//transactionInfraService.getTransactionsForAccount(id, index, size);
+		return new Paginate<TransactionDetail>(
+				transactions.map(m -> DTOToBusinessObjectConverter.toTransactionDetail(m, false)));
+
 	}
 
-	
-	
-	
 }

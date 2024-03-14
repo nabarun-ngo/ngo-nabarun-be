@@ -14,9 +14,7 @@ import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IDonationBL;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import java.util.ArrayList;
@@ -87,7 +85,7 @@ public class DonationController {
 	}
 
 	@PostMapping("/raiseDonation")
-	public ResponseEntity<SuccessResponse<DonationDetail>> raiseDonation(@RequestBody DonationDetailCreate request)
+	public ResponseEntity<SuccessResponse<DonationDetail>> raiseDonation(@RequestBody DonationDetail request)
 			throws Exception {
 		return new SuccessResponse<DonationDetail>().payload(donationBL.raiseDonation(request)).get(HttpStatus.OK);
 	}
@@ -102,7 +100,7 @@ public class DonationController {
 
 	@PatchMapping("/updateDonation/{id}")
 	public ResponseEntity<SuccessResponse<DonationDetail>> updateDonation(@PathVariable String id,
-			@RequestBody DonationDetailUpdate request) throws Exception {
+			@RequestBody DonationDetail request) throws Exception {
 		return new SuccessResponse<DonationDetail>().payload(donationBL.updateDonation(id, request)).get(HttpStatus.OK);
 	}
 

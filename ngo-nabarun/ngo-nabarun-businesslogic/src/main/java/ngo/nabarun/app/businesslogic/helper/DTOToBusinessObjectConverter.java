@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import ngo.nabarun.app.businesslogic.businessobjects.UserAddress;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.BankDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
@@ -13,9 +14,11 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDiscussion;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
 import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
+import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserRole;
@@ -24,23 +27,25 @@ import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
+import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.SocialMediaDTO;
+import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
-import ngo.nabarun.app.infra.misc.KeyValuePair;
+import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 
 public class DTOToBusinessObjectConverter {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	
-	public static UserDetail toUserDetail(UserDTO userDTO){
-		return toUserDetail(userDTO,null);
+
+	public static UserDetail toUserDetail(UserDTO userDTO) {
+		return toUserDetail(userDTO, null);
 	}
 
-	public static UserDetail toUserDetail(UserDTO userDTO,List<RoleDTO> role) {
+	public static UserDetail toUserDetail(UserDTO userDTO, List<RoleDTO> role) {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setAbout(userDTO.getAbout());
 		userDetails.setActiveContributor(userDTO.getAdditionalDetails() != null
@@ -68,18 +73,18 @@ public class DTOToBusinessObjectConverter {
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
 		String title = userDTO.getTitle() == null ? "" : userDTO.getTitle() + " ";
-		if(userDTO.getName() != null) {
-			userDetails.setFullName(title+userDTO.getName());
-		}else {
+		if (userDTO.getName() != null) {
+			userDetails.setFullName(title + userDTO.getName());
+		} else {
 			String firstName = userDTO.getFirstName() == null ? "" : userDTO.getFirstName() + " ";
 			String middleName = userDTO.getMiddleName() == null ? "" : userDTO.getMiddleName() + " ";
 			String lastName = userDTO.getLastName() == null ? "" : userDTO.getLastName();
-			userDetails.setFullName(title+firstName+middleName+lastName);
+			userDetails.setFullName(title + firstName + middleName + lastName);
 		}
-		
+
 		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
-			userDetails.setRoles(userDTO.getRoles()
-					.stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
+			userDetails.setRoles(userDTO
+					.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
 							.roleGroup(m.getGroup()).description(m.getDescription()).roleId(m.getId()).build())
 					.toList());
 		}
@@ -89,17 +94,20 @@ public class DTOToBusinessObjectConverter {
 //		}
 		userDetails.setPublicProfile(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isDisplayPublic() : false);
-		
-		userDetails.setAddresses(userDTO.getAddresses() == null? List.of() : userDTO.getAddresses().stream().map(m->toUserAddress(m)).collect(Collectors.toList()));
+
+		userDetails.setAddresses(userDTO.getAddresses() == null ? List.of()
+				: userDTO.getAddresses().stream().map(m -> toUserAddress(m)).collect(Collectors.toList()));
 		userDetails.setPhoneNumbers(toUserPhoneNumber(userDTO.getPhones()));
 		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
 		userDetails.setPrimaryNumber(userDTO.getPhoneNumber());
 		return userDetails;
 
 	}
+
 	public static DonationDetail toDonationDetail(DonationDTO donationDTO) {
-		return toDonationDetail(donationDTO,null,null);
+		return toDonationDetail(donationDTO, null, null);
 	}
+
 	public static DonationDetail toDonationDetail(DonationDTO donationDTO, String attachment, EventDetail eventDetail) {
 		DonationDetail donationDetail = new DonationDetail();
 		donationDetail.setAmount(donationDTO.getAmount());
@@ -116,19 +124,33 @@ public class DTOToBusinessObjectConverter {
 		donationDetail.setPaymentMethod(donationDTO.getPaymentMethod());
 		donationDetail.setRaisedOn(donationDTO.getRaisedOn());
 		donationDetail.setStartDate(donationDTO.getStartDate());
-		
+
 		donationDetail.setTxnRef(donationDTO.getTransactionRefNumber());
 		donationDetail.setPaidUsingUPI(donationDTO.getUpiName());
-		donationDetail.setPaymentNotified(donationDTO.getIsPaymentNotified() == null ? false : donationDTO.getIsPaymentNotified());	
-		
+		donationDetail.setPaymentNotified(
+				donationDTO.getIsPaymentNotified() == null ? false : donationDTO.getIsPaymentNotified());
+
 		donationDetail.setReceivedAccount(toAccountDetail(donationDTO.getPaidToAccount()));
 		donationDetail.setRemarks(donationDTO.getComment());
 		donationDetail.setCancelletionReason(donationDTO.getCancelReason());
-		donationDetail.setLaterPaymentReason(donationDTO.getPayLaterReason());	
+		donationDetail.setLaterPaymentReason(donationDTO.getPayLaterReason());
 		donationDetail.setPaymentFailureDetail(donationDTO.getPaymentFailDetail());
+
+		donationDetail.setAdditionalFields(donationDTO.getAdditionalFields() == null ? List.of()
+				: donationDTO.getAdditionalFields().stream().map(DTOToBusinessObjectConverter::toAdditionalField)
+						.collect(Collectors.toList()));
 		return donationDetail;
 	}
-	
+
+	public static AdditionalField toAdditionalField(FieldDTO fieldDTO) {
+		AdditionalField additionalField = new AdditionalField();
+		additionalField.setId(fieldDTO.getFieldId());
+		additionalField.setKey(fieldDTO.getFieldKey());
+		additionalField.setName(fieldDTO.getFieldName());
+		additionalField.setType(fieldDTO.getFieldType());
+		additionalField.setValue(fieldDTO.getFieldValue());
+		return additionalField;
+	}
 
 	public static UserAddress toUserAddress(AddressDTO m) {
 		UserAddress address = new UserAddress();
@@ -141,7 +163,7 @@ public class DTOToBusinessObjectConverter {
 		address.setState(m.getState());
 		address.setCountry(m.getCountry());
 		address.setId(m.getId());
-		//address.setDelete(m.isDelete());
+		// address.setDelete(m.isDelete());
 		return address;
 
 	}
@@ -154,7 +176,7 @@ public class DTOToBusinessObjectConverter {
 			phone.setPhoneNumber(m.getPhoneNumber());
 			phone.setDisplayNumber(m.getPhoneCode() + " " + m.getPhoneNumber() + " (" + phone.getPhoneType() + ")");
 			phone.setId(m.getId());
-			//phone.setDelete(m.isDelete());
+			// phone.setDelete(m.isDelete());
 			return phone;
 		}).collect(Collectors.toList());
 	}
@@ -167,7 +189,7 @@ public class DTOToBusinessObjectConverter {
 			sm.setMediaName(m.getSocialMediaName());
 			sm.setMediaType(m.getSocialMediaType());
 			sm.setId(m.getId());
-			//sm.setDelete(m.isDelete());
+			// sm.setDelete(m.isDelete());
 			return sm;
 		}).collect(Collectors.toList());
 	}
@@ -198,7 +220,7 @@ public class DTOToBusinessObjectConverter {
 		noticeDetail.setId(noticeDTO.getId());
 		// noticeDetail.setMeeting(noticeDTO.getMeeting());
 		noticeDetail.setNoticeDate(noticeDTO.getNoticeDate());
-		//noticeDetail.setNoticeNumber(noticeDTO.getNoticeNumber());
+		// noticeDetail.setNoticeNumber(noticeDTO.getNoticeNumber());
 		noticeDetail.setPublishDate(noticeDTO.getPublishDate());
 		noticeDetail.setTitle(noticeDTO.getTitle());
 		return noticeDetail;
@@ -245,27 +267,27 @@ public class DTOToBusinessObjectConverter {
 			return kv;
 		}).toList();
 	}
-	
+
 	public static AccountDetail toAccountDetail(AccountDTO accountDTO) {
 		AccountDetail accountDetail = new AccountDetail();
-		if(accountDTO.getProfile() != null) {
+		if (accountDTO.getProfile() != null) {
 			accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile()));
 		}
 		accountDetail.setAccountHolderName(accountDTO.getAccountName());
 		accountDetail.setAccountStatus(accountDTO.getAccountStatus());
 		accountDetail.setAccountType(accountDTO.getAccountType());
 		accountDetail.setActivatedOn(accountDTO.getActivatedOn());
-		if(accountDTO.getBankDetail() != null) {
+		if (accountDTO.getBankDetail() != null) {
 			accountDetail.setBankDetail(toBankDetail(accountDTO.getBankDetail()));
 		}
 		accountDetail.setCurrentBalance(accountDTO.getCurrentBalance());
 		accountDetail.setId(accountDTO.getId());
-		if(accountDTO.getUpiDetail() != null) {
+		if (accountDTO.getUpiDetail() != null) {
 			accountDetail.setUpiDetail(toUPIDetail(accountDTO.getUpiDetail()));
 		}
 		return accountDetail;
 	}
-	
+
 	public static BankDetail toBankDetail(BankDTO bankDTO) {
 		BankDetail bankDetail = new BankDetail();
 		bankDetail.setBankAccountHolderName(bankDTO.getAccountHolderName());
@@ -276,14 +298,47 @@ public class DTOToBusinessObjectConverter {
 		bankDetail.setIFSCNumber(bankDTO.getIFSCNumber());
 		return bankDetail;
 	}
-	
+
 	public static UPIDetail toUPIDetail(UpiDTO upiDTO) {
 		UPIDetail upiDetail = new UPIDetail();
 		upiDetail.setMobileNumber(upiDTO.getMobileNumber());
 		upiDetail.setPayeeName(upiDTO.getPayeeName());
 		upiDetail.setUpiId(upiDTO.getUpiId());
-		upiDetail.setQrData(CommonUtils.getUPIURI(upiDTO.getUpiId(),upiDTO.getPayeeName(),null,null,null,null));
+		upiDetail.setQrData(CommonUtils.getUPIURI(upiDTO.getUpiId(), upiDTO.getPayeeName(), null, null, null, null));
 		return upiDetail;
 	}
 
+	public static TransactionDetail toTransactionDetail(TransactionDTO transactionDTO, boolean includeFull) {
+		TransactionDetail txnDetail = new TransactionDetail();
+
+		txnDetail.setTxnAmount(transactionDTO.getTxnAmount());
+		txnDetail.setTxnDate(transactionDTO.getTxnDate());
+		txnDetail.setTxnDescription(transactionDTO.getTxnDescription());
+		txnDetail.setTxnParticulars(null);
+		txnDetail.setTxnId(transactionDTO.getId());
+
+		txnDetail.setTxnStatus(transactionDTO.getTxnStatus());
+		txnDetail.setTxnType(transactionDTO.getTxnType());
+
+		if (transactionDTO.getTxnType() == TransactionType.IN) {
+			txnDetail.setAccBalance(transactionDTO.getToAccBalAfterTxn());
+		} else if (transactionDTO.getTxnType() == TransactionType.OUT) {
+			txnDetail.setAccBalance(transactionDTO.getFromAccBalAfterTxn());
+		} else {
+			Double balance = transactionDTO.getId().equals(transactionDTO.getToAccount().getId())
+					? transactionDTO.getToAccBalAfterTxn()
+					: transactionDTO.getFromAccBalAfterTxn();
+			txnDetail.setAccBalance(balance);
+		}
+
+		if (includeFull) {
+			txnDetail.setComment(transactionDTO.getComment());
+			txnDetail.setTransferFrom(toAccountDetail(transactionDTO.getFromAccount()));
+			txnDetail.setTransferTo(toAccountDetail(transactionDTO.getFromAccount()));
+			txnDetail.setTxnRefId(transactionDTO.getTxnRefId());
+			txnDetail.setTxnRefType(transactionDTO.getTxnRefType());
+		}
+
+		return txnDetail;
+	}
 }

@@ -26,17 +26,19 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.bind.annotation.RestController;
 
 import ngo.nabarun.app.api.response.ErrorResponse;
+import ngo.nabarun.app.businesslogic.exception.BusinessException;
 
 @ControllerAdvice(annotations = RestController.class)
 @Order(1)
 public class HandleRestException {
 
 	@ExceptionHandler(value = { Exception.class })
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	//@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<ErrorResponse> handleServerExceptions(Exception ex) {
 		ex.printStackTrace();
-//		if (!(ex instanceof BusinessException)) {
-//		}
+		if (ex instanceof BusinessException) {
+			return new ErrorResponse(ex).get(HttpStatus.BAD_REQUEST);
+		}
 		return new ErrorResponse(ex).get(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 

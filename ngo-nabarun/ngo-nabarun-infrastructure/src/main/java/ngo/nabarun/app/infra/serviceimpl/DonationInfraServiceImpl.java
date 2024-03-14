@@ -2,18 +2,26 @@ package ngo.nabarun.app.infra.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.querydsl.core.BooleanBuilder;
+
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
 import ngo.nabarun.app.infra.core.entity.QDonationEntity;
+import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DonationRepository;
 import ngo.nabarun.app.infra.dto.DonationDTO;
+import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.WhereClause;
@@ -25,9 +33,13 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 	@Autowired
 	private DonationRepository donationRepo;
 
+	@Autowired
+	private CustomFieldRepository fieldRepository;
+
 	@Override
 	public Page<DonationDTO> getDonations(Integer page, Integer size, DonationDTOFilter filter) {
 		Page<DonationEntity> donationPage = null;
+		Sort sort = Sort.by(Sort.Direction.DESC, "raisedOn");
 		if (filter != null) {
 
 			/*
@@ -38,11 +50,9 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 					.optionalAnd(filter.getDonationId() != null, () -> qDonation.id.eq(filter.getDonationId()))
 					.optionalAnd(filter.getDonorId() != null, () -> qDonation.profile.eq(filter.getDonorId()))
 					.optionalAnd(filter.getDonationStatus() != null,
-							() -> qDonation.contributionStatus
-									.in(filter.getDonationStatus().stream().map(m -> m.name()).toList()))
+							() -> qDonation.status.in(filter.getDonationStatus().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getDonationType() != null,
-							() -> qDonation.contributionType
-									.in(filter.getDonationType().stream().map(m -> m.name()).toList()))
+							() -> qDonation.type.in(filter.getDonationType().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getIsGuestDonation() != null,
 							() -> qDonation.isGuest.eq(filter.getIsGuestDonation()))
 					.optionalAnd(filter.getPaidAccountId() != null,
@@ -61,18 +71,18 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 			 * Predicate combined = new BooleanBuilder(withDate).or(withoutDate); query =
 			 * query.and(combined); }
 			 */
-			
+
 			if (page == null || size == null) {
 				List<DonationEntity> result = new ArrayList<>();
-				donationRepo.findAll(query).iterator().forEachRemaining(result::add);
+				donationRepo.findAll(query, sort).iterator().forEachRemaining(result::add);
 				donationPage = new PageImpl<>(result);
 			} else {
-				donationPage = donationRepo.findAll(query, PageRequest.of(page, size));
+				donationPage = donationRepo.findAll(query, PageRequest.of(page, size, sort));
 			}
 		} else if (page != null && size != null) {
-			donationPage = donationRepo.findAll(PageRequest.of(page, size));
+			donationPage = donationRepo.findAll(PageRequest.of(page, size, sort));
 		} else {
-			donationPage = new PageImpl<>(donationRepo.findAll());
+			donationPage = new PageImpl<>(donationRepo.findAll(sort));
 		}
 		return donationPage.map(InfraDTOHelper::convertToDonationDTO);
 	}
@@ -83,8 +93,8 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 		donation.setStartDate(donationDTO.getStartDate());
 		donation.setId(donationDTO.getId());
 		donation.setAmount(donationDTO.getAmount());
-		donation.setContributionStatus(donationDTO.getStatus().name());
-		donation.setContributionType(donationDTO.getType().name());
+		donation.setStatus(donationDTO.getStatus().name());
+		donation.setType(donationDTO.getType().name());
 		donation.setDeleted(false);
 		donation.setEndDate(donationDTO.getEndDate());
 		donation.setEventId(donationDTO.getForEventId());
@@ -99,8 +109,34 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 		donation.setDonorName(donationDTO.getDonor().getName());
 
 		donation = donationRepo.save(donation);
+		if (donationDTO.getAdditionalFields() != null) {
+			for (FieldDTO addfield : donationDTO.getAdditionalFields()) {
+				addfield.setFieldSource(donation.getId());
+				addOrUpdateCustomField(addfield);
+			}
+		}
+
 		// create log at firebase
 		return InfraDTOHelper.convertToDonationDTO(donation);
+	}
+
+	private FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
+		CustomFieldEntity existingField = fieldRepository.findBySourceAndFieldKey(fieldDTO.getFieldSource(), fieldDTO.getFieldKey()).orElseGet(()->new CustomFieldEntity());
+
+		CustomFieldEntity field = new CustomFieldEntity();
+		field.setFieldDescription(fieldDTO.getFieldDescription());
+		field.setFieldKey(fieldDTO.getFieldKey());
+		field.setFieldName(fieldDTO.getFieldName());
+		field.setFieldType(fieldDTO.getFieldType());
+		field.setFieldValue(fieldDTO.getFieldValue());
+		field.setSource(fieldDTO.getFieldSource());
+		if (existingField.getId() == null) {
+			field.setId(UUID.randomUUID().toString());
+		}
+
+		CommonUtils.copyNonNullProperties(field, existingField);
+		field=fieldRepository.save(existingField);
+		return InfraDTOHelper.convertToFieldDTO(field);
 	}
 
 	@Override
@@ -131,8 +167,8 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 				donationDTO.getPaidToAccount() == null ? null : donationDTO.getPaidToAccount().getAccountName());
 
 		updatedDonation.setAmount(donationDTO.getAmount());
-		updatedDonation.setContributionStatus(donationDTO.getStatus() == null ? null : donationDTO.getStatus().name());
-		updatedDonation.setContributionType(donationDTO.getType() == null ? null : donationDTO.getType().name());
+		updatedDonation.setStatus(donationDTO.getStatus() == null ? null : donationDTO.getStatus().name());
+		updatedDonation.setType(donationDTO.getType() == null ? null : donationDTO.getType().name());
 		if (donationDTO.getGuest() != null) {
 			updatedDonation.setIsGuest(donationDTO.getGuest());
 		}
@@ -176,7 +212,14 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 		updatedDonation.setPaymentFailDetail(donationDTO.getPaymentFailDetail());
 
 		CommonUtils.copyNonNullProperties(updatedDonation, donation);
-		return InfraDTOHelper.convertToDonationDTO(donationRepo.save(donation));
+		donation =donationRepo.save(donation);
+		if (donationDTO.getAdditionalFields() != null) {
+			for (FieldDTO addfield : donationDTO.getAdditionalFields()) {
+				addfield.setFieldSource(donation.getId());
+				addOrUpdateCustomField(addfield);
+			}
+		}
+		return InfraDTOHelper.convertToDonationDTO(donation);
 	}
 
 }

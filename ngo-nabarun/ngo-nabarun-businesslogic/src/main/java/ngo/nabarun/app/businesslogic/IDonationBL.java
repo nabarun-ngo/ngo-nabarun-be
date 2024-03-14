@@ -5,15 +5,13 @@ import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 
 @Service
 public interface IDonationBL {
-	DonationDetail raiseDonation(DonationDetailCreate request) throws Exception;
+	DonationDetail raiseDonation(DonationDetail request) throws Exception;
 
 	Paginate<DonationDetail> getUserDonations(String id,Integer index,Integer size) throws Exception;
 
@@ -25,7 +23,7 @@ public interface IDonationBL {
 	
 	List<DocumentDetail> getDonationDocument(String donationId);
 
-	DonationDetail updateDonation(String id,DonationDetailUpdate request) throws Exception;
+	DonationDetail updateDonation(String id,DonationDetail request) throws Exception;
 
 	DonationSummary getDonationSummary(String id, List<String> fields) throws Exception;
 

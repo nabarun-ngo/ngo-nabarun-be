@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Request{
+public class WorkflowEntity{
 	
 	
 	@Id
@@ -27,6 +27,8 @@ public class Request{
 	
 	private String refNumber;
 	
+	private boolean hidden;
+
 	private String type;
 	
 	private String status;

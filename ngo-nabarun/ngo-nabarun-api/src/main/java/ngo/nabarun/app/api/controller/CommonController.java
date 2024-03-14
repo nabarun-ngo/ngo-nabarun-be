@@ -17,9 +17,12 @@ import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
+import ngo.nabarun.app.common.enums.DonationStatus;
+import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,70 +33,74 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE,value = "/api/common")
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/api/common")
 @SecurityRequirement(name = "nabarun_auth")
 @SecurityRequirement(name = "nabarun_auth_apikey")
 public class CommonController {
-	
+
 	@Autowired
 	private ICommonBL commonBL;
 
-	@PostMapping(value="/document/uploadDocuments",consumes="multipart/form-data")
-	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(
-			@RequestParam String docIndexId,
-			@RequestParam DocumentIndexType docIndexType,
-			@RequestParam MultipartFile[] files
-			) throws Exception {
-		commonBL.uploadDocuments(files,docIndexId,docIndexType);
+	@PostMapping(value = "/document/uploadDocuments", consumes = "multipart/form-data")
+	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
+			@RequestParam DocumentIndexType docIndexType, @RequestParam MultipartFile[] files) throws Exception {
+		commonBL.uploadDocuments(files, docIndexId, docIndexType);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
-	
-	@PostMapping(value="/document/uploadBase64Documents")
-	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(
-			@RequestParam String docIndexId,
-			@RequestParam DocumentIndexType docIndexType,
-			@RequestBody List<DocumentDetailUpload> files
-			) throws Exception {
-		commonBL.uploadDocuments(files,docIndexId,docIndexType);
+
+	@PostMapping(value = "/document/uploadBase64Documents")
+	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
+			@RequestParam DocumentIndexType docIndexType, @RequestBody List<DocumentDetailUpload> files)
+			throws Exception {
+		commonBL.uploadDocuments(files, docIndexId, docIndexType);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
-	
-	@GetMapping(value="/document/downloadDocument/{id}",produces = MediaType.ALL_VALUE)
-	public ResponseEntity<Object> downloadDocument(
-			@PathVariable String id,
-			@RequestParam(required = false) boolean asURL
-			) throws Exception {
-		URL url=commonBL.getDocumentUrl(id);
-		if(asURL) {
+
+	@GetMapping(value = "/document/downloadDocument/{id}", produces = MediaType.ALL_VALUE)
+	public ResponseEntity<Object> downloadDocument(@PathVariable String id,
+			@RequestParam(required = false) boolean asURL) throws Exception {
+		URL url = commonBL.getDocumentUrl(id);
+		if (asURL) {
 			return new ResponseEntity<Object>(new SuccessResponse<URL>().payload(url), HttpStatus.OK);
-		}else {
+		} else {
 			return new ResponseEntity<Object>(new UrlResource(url), HttpStatus.OK);
 		}
 	}
-	
-	@DeleteMapping(value="/document/deleteDocument/{id}")
-	public ResponseEntity<SuccessResponse<Void>> deleteDocument(
-			@PathVariable String id
-			) throws Exception {
+
+	@DeleteMapping(value = "/document/deleteDocument/{id}")
+	public ResponseEntity<SuccessResponse<Void>> deleteDocument(@PathVariable String id) throws Exception {
 		commonBL.deleteDocument(id);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 
 	}
-	
-	@PostMapping(value="/general/clearCache")
+
+	@PostMapping(value = "/general/clearCache")
 	public ResponseEntity<SuccessResponse<Void>> clearCache(@RequestBody List<String> names) throws Exception {
 		commonBL.clearSystemCache(names);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
-	
-	@PostMapping(value="/authorization/createAuthorizationUrl")
-	public ResponseEntity<SuccessResponse<String>> generateAuthorizationUrl(@RequestBody AuthorizationDetail authDetail) throws Exception {
+
+	@PostMapping(value = "/authorization/createAuthorizationUrl")
+	public ResponseEntity<SuccessResponse<String>> generateAuthorizationUrl(@RequestBody AuthorizationDetail authDetail)
+			throws Exception {
 		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
 	}
-	
-	@GetMapping(value="/getReferenceData")
-	public ResponseEntity<SuccessResponse<Map<String,List<KeyValue>>>> getReferenceData(@RequestParam(required = false) List<RefDataType> names) throws Exception {
-		return new SuccessResponse<Map<String,List<KeyValue>>>().payload(commonBL.getReferenceData(names)).get(HttpStatus.OK);
+
+	@GetMapping(value = "/getReferenceData")
+	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
+			@RequestParam(required = false) List<RefDataType> names,
+			@RequestParam(required = false) DonationType donationType,
+			@RequestParam(required = false) DonationStatus currentDonationStatus) throws Exception {
+		Map<String, String> options= new HashMap<>();
+		if(donationType != null) {
+			options.put("donationType", donationType.name());
+		}
+		if(currentDonationStatus != null) {
+			options.put("currentDonationStatus", currentDonationStatus.name());
+		}
+		return new SuccessResponse<Map<String, List<KeyValue>>>()
+				.payload(commonBL.getReferenceData(names,options))
+				.get(HttpStatus.OK); 
 	}
-	
+
 }

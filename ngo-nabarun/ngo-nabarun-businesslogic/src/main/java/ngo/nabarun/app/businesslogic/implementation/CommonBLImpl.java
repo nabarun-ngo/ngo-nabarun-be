@@ -17,11 +17,13 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AuthRefType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
+import ngo.nabarun.app.common.enums.DonationStatus;
+import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
-import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
@@ -48,7 +50,7 @@ public class CommonBLImpl implements ICommonBL {
 	private ITicketInfraService ticketInfraService;
 	
 	@Autowired
-	private IGlobalDataInfraService domainInfraService;
+	private BusinessDomainRefHelper domainRefHelper;
 	
 	@Autowired
 	private CacheManager cacheManager;
@@ -126,22 +128,20 @@ public class CommonBLImpl implements ICommonBL {
 	}
 	
 	@Override
-	public Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception {
+	public Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names,Map<String,String> attr) throws Exception {
 		Map<String,List<KeyValue>> obj=new HashMap<>();
 		if(names == null || names.contains(RefDataType.DONATION)) {
-			DonationConfigTemplate donationConfig=domainInfraService.getDonationConfig();
-			obj.put("donationStatuses", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getDonationStatuses()));
-			obj.put("donationTypes", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getDonationTypes()) );
-			obj.put("paymentMethods", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getPaymentMethods()) );
-			obj.put("upiOptions", DTOToBusinessObjectConverter.toKeyValueList(donationConfig.getUPIOptions()) );
+			DonationType type=null;
+			DonationStatus currStatus=null;
+			if(attr != null && attr.containsKey("donationType") && attr.containsKey("currentDonationStatus")) {
+				type=DonationType.valueOf(attr.get("donationType"));
+				currStatus=DonationStatus.valueOf(attr.get("currentDonationStatus"));
+			}
+			obj.putAll(domainRefHelper.getDonationRefData(type, currStatus));
 		}
 		
 		if(names == null || names.contains(RefDataType.USER)) {
-			UserConfigTemplate userConfig=domainInfraService.getUserConfig();
-			obj.put("userTitles", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getUserTitles()));
-			obj.put("userGenders", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getUserGenders()));
-			obj.put("availableRoles", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getAvailableUserRoles()));
-			obj.put("availableRoleGroups", DTOToBusinessObjectConverter.toKeyValueList(userConfig.getAvailableRoleGroups()));
+			obj.putAll(domainRefHelper.getUserRefData());
 		}
 		
 		return obj;

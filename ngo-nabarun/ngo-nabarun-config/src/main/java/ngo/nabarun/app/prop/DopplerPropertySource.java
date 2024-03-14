@@ -42,7 +42,8 @@ public class DopplerPropertySource extends PropertySource{
                     HttpEntity entity = response.getEntity();
                     return entity != null ? EntityUtils.toString(entity) : null;
                 } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
+                    HttpEntity entity = response.getEntity();
+                    throw new ClientProtocolException("Unexpected response status: " + status+" -> "+ EntityUtils.toString(entity));
                 }
             };
             
