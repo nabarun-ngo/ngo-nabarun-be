@@ -7,22 +7,22 @@
                 <p>Nabarun is a fully charitable non profit organization working seamlessly on social development.
                 </p>
                 <div class="d-flex pt-2">
-                    <a class="btn btn-square me-1" href="<%= basicInfo.socialMedia.twitter%>"><i class="fab fa-twitter"></i></a>
-                    <a class="btn btn-square me-1" href="<%= basicInfo.socialMedia.facebook%>"><i class="fab fa-facebook-f"></i></a>
-                    <a class="btn btn-square me-1" href="<%= basicInfo.socialMedia.youtube%>"><i class="fab fa-youtube"></i></a>
-                    <a class="btn btn-square me-0" href="<%= basicInfo.socialMedia.instagram%>"><i class="fab fa-instagram"></i></a>
+                    <a class="btn btn-square me-1" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}" th:href="${TWITTER_LINK}"><i class="fab fa-twitter"></i></a>
+                    <a class="btn btn-square me-1" target="_blank" th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}"><i class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-square me-1" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}" th:href="${YOUTUBE_LINK}"><i class="fab fa-youtube"></i></a>
+                    <a class="btn btn-square me-0" target="_blank" th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <h5 class="text-light mb-4">Contacts</h5>
-                <p><i class="fa fa-map-marker-alt me-3"></i>
-                    Barrackpore, West Bengal, India
+                <p th:text="${LOCATION}"><i class="fa fa-map-marker-alt me-3"></i>
+                    
                 </p>
-                <p><i class="fa fa-phone-alt me-3"></i>
-                    +91 9007611531
+                <p th:text="${CONTACT_NO}"><i class="fa fa-phone-alt me-3"></i>
+                    
                 </p>
-                <p><i class="fa fa-envelope me-3"></i>
-                    nabarunbangla18@gmail.com
+                <p th:text="${EMAIL_ADDRESS}"><i class="fa fa-envelope me-3"></i>
+                    
                 </p>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -50,7 +50,7 @@
                     &copy; <a href="#">NABARUN</a>, All Right Reserved.
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                    <!--/*** This template is free as long as you keep the footer authors credit link/attribution link/backlink. If you'd like to use the template without the footer authorï¿½s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
                     Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                 </div>
             </div>

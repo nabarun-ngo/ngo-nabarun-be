@@ -25,6 +25,7 @@ public class TicketInfoEntity {
 	private String type;
 	private String scope;
 
+	private String forUserId;
 	private String name;
 	private String email;
 	private String mobileNumber;
@@ -37,6 +38,10 @@ public class TicketInfoEntity {
 	private int incorrectOTPCount;
 	private String token;
 	private String baseTicketUrl;
+	
+	private String acceptCode;
+	private String declineCode;
+
 
 	private String status;
 

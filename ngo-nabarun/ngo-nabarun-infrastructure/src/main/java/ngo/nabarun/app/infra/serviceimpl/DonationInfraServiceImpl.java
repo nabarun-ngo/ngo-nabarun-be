@@ -2,9 +2,6 @@ package ngo.nabarun.app.infra.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,10 +12,8 @@ import org.springframework.stereotype.Service;
 import com.querydsl.core.BooleanBuilder;
 
 import ngo.nabarun.app.common.util.CommonUtils;
-import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
 import ngo.nabarun.app.infra.core.entity.QDonationEntity;
-import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DonationRepository;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
@@ -28,13 +23,12 @@ import ngo.nabarun.app.infra.misc.WhereClause;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 
 @Service
-public class DonationInfraServiceImpl implements IDonationInfraService {
+public class DonationInfraServiceImpl extends BaseServiceImpl implements IDonationInfraService {
 
 	@Autowired
 	private DonationRepository donationRepo;
 
-	@Autowired
-	private CustomFieldRepository fieldRepository;
+	
 
 	@Override
 	public Page<DonationDTO> getDonations(Integer page, Integer size, DonationDTOFilter filter) {
@@ -62,15 +56,6 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 					.optionalAnd(filter.getFromDate() != null && filter.getToDate() != null,
 							() -> qDonation.raisedOn.between(filter.getFromDate(), filter.getToDate()))
 					.build();
-			/*
-			 * if (filter.getFromDate() != null && filter.getToDate() != null) { Predicate
-			 * withDate = new BooleanBuilder(qDonation.startDate.isNotNull())
-			 * .and(qDonation.startDate.between(filter.getFromDate(), filter.getToDate()));
-			 * Predicate withoutDate = new BooleanBuilder(qDonation.startDate.isNull())
-			 * .and(qDonation.raisedOn.between(filter.getFromDate(), filter.getToDate()));
-			 * Predicate combined = new BooleanBuilder(withDate).or(withoutDate); query =
-			 * query.and(combined); }
-			 */
 
 			if (page == null || size == null) {
 				List<DonationEntity> result = new ArrayList<>();
@@ -120,24 +105,7 @@ public class DonationInfraServiceImpl implements IDonationInfraService {
 		return InfraDTOHelper.convertToDonationDTO(donation);
 	}
 
-	private FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
-		CustomFieldEntity existingField = fieldRepository.findBySourceAndFieldKey(fieldDTO.getFieldSource(), fieldDTO.getFieldKey()).orElseGet(()->new CustomFieldEntity());
-
-		CustomFieldEntity field = new CustomFieldEntity();
-		field.setFieldDescription(fieldDTO.getFieldDescription());
-		field.setFieldKey(fieldDTO.getFieldKey());
-		field.setFieldName(fieldDTO.getFieldName());
-		field.setFieldType(fieldDTO.getFieldType());
-		field.setFieldValue(fieldDTO.getFieldValue());
-		field.setSource(fieldDTO.getFieldSource());
-		if (existingField.getId() == null) {
-			field.setId(UUID.randomUUID().toString());
-		}
-
-		CommonUtils.copyNonNullProperties(field, existingField);
-		field=fieldRepository.save(existingField);
-		return InfraDTOHelper.convertToFieldDTO(field);
-	}
+	
 
 	@Override
 	public DonationDTO getDonation(String donationId) {

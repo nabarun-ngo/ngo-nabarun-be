@@ -8,11 +8,11 @@
             <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s" th:each="profile: ${profiles}">
                 <div class="team-item position-relative rounded overflow-hidden">
                     <div class="overflow-hidden">
-                        <img class="img-fluid" height="100%" width="100%" th:src="${profile.getPicture()}" alt="">
+                        <img class="img-fluid team-member" height="100%" width="100%" th:src="${profile.getPicture()}" alt="">
                     </div>
                     <div class="team-text bg-light text-center p-4">
                         <h5 th:text="${profile.getFullName()}"></h5>
-                        <p class="text-primary" th:text="${profile.getRoles()}"></p>
+                        <p class="text-primary" th:text="${profile.getRoleString()}"></p>
                         <div class="team-social text-center">
                             <a class="btn btn-square" href=""><i class="fab fa-facebook-f"></i></a>
                             <a class="btn btn-square" href=""><i class="fab fa-twitter"></i></a>

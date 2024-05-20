@@ -26,11 +26,11 @@ public interface ICommonBL {
 	
 	void clearSystemCache(List<String> names);
 
-	//Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception;
-
 	void uploadDocuments(List<DocumentDetailUpload> files,String docIndexId, DocumentIndexType docIndexType) throws Exception;
 
 	Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names, Map<String, String> attr) throws Exception;
 
+	Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception;
 
+	//SignUpDetail contactUs(SignUpDetail interview);
 }

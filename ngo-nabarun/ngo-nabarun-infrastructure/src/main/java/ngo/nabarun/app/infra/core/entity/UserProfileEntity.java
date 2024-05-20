@@ -6,10 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * MongoDB
@@ -17,10 +14,7 @@ import lombok.Setter;
  */
 
 @Document("user_profiles")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class UserProfileEntity{
 	
 	@Id
@@ -36,7 +30,6 @@ public class UserProfileEntity{
 	private String about;
 
 	private String roleNames;
-	private String roleCodes;
 	@Indexed(unique = true)
 	private String email;
 	private String phoneNumber;

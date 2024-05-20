@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,17 @@ import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
-import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
-import ngo.nabarun.app.businesslogic.helper.BusinessEmailHelper;
-import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
+import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
+import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
+import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
+import ngo.nabarun.app.common.enums.EmailRecipientType;
+import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
@@ -39,6 +42,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
+import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.dto.FieldDTO;
@@ -62,7 +66,6 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Autowired
 	private IDocumentInfraService documentInfraService;
-	
 
 	@Autowired
 	private ITransactionInfraService transactionInfraService;
@@ -71,16 +74,10 @@ public class DonationBLImpl implements IDonationBL {
 	private IAccountInfraService accountInfraService;
 
 	@Autowired
-	private BusinessEmailHelper emailHelperService;
-
-	@Autowired
-	private BusinessDomainRefHelper domainRefHelperService;
-
-	@Autowired
 	private GenericPropertyHelper propertyHelper;
 
 	@Autowired
-	private BusinessIdGenerator idGenerator;
+	private BusinessHelper businessHelper;
 
 	@Override
 	public DonationDetail raiseDonation(DonationDetail donationDetail) throws Exception {
@@ -88,21 +85,21 @@ public class DonationBLImpl implements IDonationBL {
 		/**
 		 * Custom field
 		 */
-		if(donationDetail.getAdditionalFields() != null) {
-			List<FieldDTO> fieldDTO= new ArrayList<>();
-			for(AdditionalField addfield:donationDetail.getAdditionalFields()) {
-				fieldDTO.add(domainRefHelperService.checkAndConvertField(addfield));
+		if (donationDetail.getAdditionalFields() != null) {
+			List<FieldDTO> fieldDTO = new ArrayList<>();
+			for (AdditionalField addfield : donationDetail.getAdditionalFields()) {
+				fieldDTO.add(businessHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.DONATION,addfield));
 			}
 			donationDTO.setAdditionalFields(fieldDTO);
 		}
-		
+		UserDTO donor = new UserDTO();
+
 		if (donationDetail.getIsGuest() == Boolean.TRUE) {
-			donationDTO.setId(idGenerator.generateDonationId());
+			donationDTO.setId(businessHelper.generateDonationId());
 			donationDTO.setAmount(donationDetail.getAmount());
 			donationDTO.setType(DonationType.ONETIME);
 			donationDTO.setGuest(true);
 			donationDTO.setStatus(DonationStatus.RAISED);
-			UserDTO donor = new UserDTO();
 			donor.setName(donationDetail.getDonorDetails().getFullName());
 			donor.setEmail(
 					donationDetail.getDonorDetails() == null ? null : donationDetail.getDonorDetails().getEmail());
@@ -111,8 +108,7 @@ public class DonationBLImpl implements IDonationBL {
 			donationDTO.setDonor(donor);
 			donationDTO.setForEventId(donationDetail.getEvent() == null ? null : donationDetail.getEvent().getId());
 			donationDTO = donationInfraService.createDonation(donationDTO);
-			
-			
+
 		} else {
 			if (donationDetail.getDonationType() == DonationType.REGULAR
 					&& donationDetail.getStartDate().after(donationDetail.getEndDate())) {
@@ -123,16 +119,17 @@ public class DonationBLImpl implements IDonationBL {
 							donationDetail.getEndDate())) {
 				throw new BusinessException(BusinessExceptionMessage.DONATION_ALREADY_RAISED.getMessage());
 			}
-			UserDTO donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), false);
+			donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), IdType.ID, false);
 			if (!donor.getAdditionalDetails().isActiveContributor()) {
 				throw new BusinessException("Donor is not active");
 			}
 
-			donationDTO.setId(idGenerator.generateDonationId());
+			donationDTO.setId(businessHelper.generateDonationId());
 			donationDTO.setAmount(donationDetail.getAmount());
 			donationDTO.setDonor(donor);
 			donationDTO.setForEventId(
-					donationDetail.getEvent() != null && donationDetail.getDonationType() == DonationType.ONETIME ? donationDetail.getEvent().getId()
+					donationDetail.getEvent() != null && donationDetail.getDonationType() == DonationType.ONETIME
+							? donationDetail.getEvent().getId()
 							: null);
 
 			donationDTO.setGuest(false);
@@ -145,8 +142,11 @@ public class DonationBLImpl implements IDonationBL {
 			donationDTO = donationInfraService.createDonation(donationDTO);
 			donationDTO.setDonor(donor);
 		}
-		
-		emailHelperService.sendEmailOnDonationCreate(donationDTO);
+		CorrespondentDTO recipient = CorrespondentDTO.builder().name(donor.getName())
+				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
+				.build();
+		businessHelper.sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),
+				Map.of("user", donor, "donation", donationDTO));
 		return DTOToBusinessObjectConverter.toDonationDetail(donationDTO, null, null);
 	}
 
@@ -167,7 +167,7 @@ public class DonationBLImpl implements IDonationBL {
 					&& !CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
 					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
 				DonationDTO donationDTO = new DonationDTO();
-				donationDTO.setId(idGenerator.generateDonationId());
+				donationDTO.setId(businessHelper.generateDonationId());
 				donationDTO.setAmount(amount);
 				donationDTO.setDonor(user);
 				donationDTO.setEndDate(endDate);
@@ -198,7 +198,7 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Override
 	public Paginate<DonationDetail> getUserDonations(String id, Integer index, Integer size) throws Exception {
-		UserDTO userDTO = userInfraService.getUser(id, false);
+		UserDTO userDTO = userInfraService.getUser(id, IdType.ID, false);
 		DonationDTOFilter filterDTO = new DonationDTOFilter();
 		filterDTO.setDonorId(userDTO.getProfileId());
 		Page<DonationDetail> donationPage = donationInfraService.getDonations(index, size, filterDTO).map(m -> {
@@ -211,10 +211,9 @@ public class DonationBLImpl implements IDonationBL {
 	@Override
 	public Paginate<DonationDetail> getLoggedInUserDonations(Integer index, Integer size) throws Exception {
 		if (SecurityUtils.isAuthenticated()) {
-			UserDTO userDTO = userInfraService.getUserByUserId(
-					propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
-							: SecurityUtils.getAuthUserId(),
-					false);
+			UserDTO userDTO = userInfraService
+					.getUser(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
+							: SecurityUtils.getAuthUserId(), IdType.AUTH_USER_ID, false);
 			DonationDTOFilter filterDTO = new DonationDTOFilter();
 			filterDTO.setDonorId(userDTO.getProfileId());
 			Page<DonationDetail> donationPage = donationInfraService.getDonations(index, size, filterDTO).map(m -> {
@@ -269,7 +268,7 @@ public class DonationBLImpl implements IDonationBL {
 		/**
 		 * Do not allow to update amount if resolved
 		 */
-		if (domainRefHelperService.isResolvedDonation(donation.getStatus())) {
+		if (businessHelper.isResolvedDonation(donation.getStatus())) {
 			throw new BusinessException("No updates are allowed on settled donations.");
 		}
 		DonationDTO updatedDetail = new DonationDTO();
@@ -291,10 +290,9 @@ public class DonationBLImpl implements IDonationBL {
 			updatedDetail
 					.setUpiName(request.getPaymentMethod() == PaymentMethod.UPI ? request.getPaidUsingUPI() : null);
 
-			UserDTO auth_user = userInfraService.getUserByUserId(
-					propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
-							: SecurityUtils.getAuthUserId(),
-					false);
+			UserDTO auth_user = userInfraService
+					.getUser(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
+							: SecurityUtils.getAuthUserId(), IdType.AUTH_USER_ID, false);
 			updatedDetail.setConfirmedBy(auth_user);
 			updatedDetail.setConfirmedOn(CommonUtils.getSystemDate());
 
@@ -322,7 +320,7 @@ public class DonationBLImpl implements IDonationBL {
 					throw new BusinessException("Donation cannot be paid to an Inactive account.");
 				}
 				TransactionDTO newTxn = new TransactionDTO();
-				newTxn.setId(idGenerator.generateTransactionId());
+				newTxn.setId(businessHelper.generateTransactionId());
 				newTxn.setToAccount(accDTO);
 				newTxn.setTxnAmount(donation.getAmount());
 				newTxn.setTxnDate(request.getPaidOn());
@@ -339,7 +337,7 @@ public class DonationBLImpl implements IDonationBL {
 			}
 		} else if (request.getDonationStatus() == DonationStatus.PAYMENT_FAILED) {
 			TransactionDTO newTxn = new TransactionDTO();
-			newTxn.setId(idGenerator.generateTransactionId());
+			newTxn.setId(businessHelper.generateTransactionId());
 			newTxn.setTxnAmount(donation.getAmount());
 			newTxn.setTxnDate(request.getPaidOn());
 			newTxn.setTxnRefId(donation.getId());
@@ -367,7 +365,7 @@ public class DonationBLImpl implements IDonationBL {
 		/**
 		 * Do not allow to update amount if resolved
 		 */
-		if (domainRefHelperService.isResolvedDonation(donation.getStatus())) {
+		if (businessHelper.isResolvedDonation(donation.getStatus())) {
 			throw new BusinessException("No updates are allowed on settled donations.");
 		}
 		DonationDTO updatedDetail = new DonationDTO();
@@ -381,7 +379,7 @@ public class DonationBLImpl implements IDonationBL {
 
 	@Override
 	public DonationSummary getDonationSummary(String id, List<String> fields) throws Exception {
-		List<DonationStatus> outStatus = domainRefHelperService.getOutstandingDonationStatus();
+		List<DonationStatus> outStatus = businessHelper.getOutstandingDonationStatus();
 		DonationDTOFilter filterDTO = new DonationDTOFilter();
 		filterDTO.setDonorId(id);
 		filterDTO.setDonationStatus(outStatus);
@@ -391,7 +389,7 @@ public class DonationBLImpl implements IDonationBL {
 		dsmry.setOutstandingAmount(outDons.stream().mapToDouble(DonationDTO::getAmount).sum());
 		dsmry.setHasOutstanding(dsmry.getOutstandingAmount() > 0);
 
-		if (fields.contains("INCLUDE_OUTSTANDING_MONTHS")) {
+		if (fields.contains(BusinessConstants.INCLUDE_OUTSTANDING_MONTHS)) {
 			List<String> months = new ArrayList<>();
 			for (DonationDTO outDon : outDons) {
 				if (outDon.getType() != DonationType.ONETIME) {
@@ -401,7 +399,7 @@ public class DonationBLImpl implements IDonationBL {
 			dsmry.setOutstandingMonths(months);
 		}
 
-		if (fields.contains("INCLUDE_PAYABLE_ACCOUNT")) {
+		if (fields.contains(BusinessConstants.INCLUDE_PAYABLE_ACCOUNT)) {
 			AccountDTOFilter filter = new AccountDTOFilter();
 			filter.setAccountStatus(List.of(AccountStatus.ACTIVE));
 			filter.setAccountType(List.of(AccountType.DONATION));

@@ -22,6 +22,9 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 
 	private static final String PROPERTY_SOURCE_NAME = "databaseProperties";
 	private static final String COLLECTION_DB_CONFIG = "db_config_";
+	private static final String DOPPLER_PROJECT_NAME = "DOPPLER_PROJECT_NAME";
+	private static final String DOPPLER_SERVICE_TOKEN = "DOPPLER_SERVICE_TOKEN";
+	private static final String ENVIRONMENT = "ENVIRONMENT";
 
 
 	private static boolean arePropertiesLoaded = false;
@@ -39,6 +42,7 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 				if(log.isDebugEnabled()) {
 					for(String key:propertySource.keySet()) {
 						log.debug("Property '"+key+"' initialized.");
+						// System.out.println(propertySource.get(key));
 					}
 				}
 				arePropertiesLoaded = true;
@@ -51,10 +55,10 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 	
 	
 	private Map<String, Object> loadFromExternalService() throws Exception {
-		String projectName=System.getProperty("DOPPLER_PROJECT_NAME");
-		String token=System.getProperty("DOPPLER_SERVICE_TOKEN");
-		String env = System.getProperty("ENVIRONMENT");
-		
+		String projectName=System.getenv(DOPPLER_PROJECT_NAME) == null ? System.getProperty(DOPPLER_PROJECT_NAME) : System.getenv(DOPPLER_PROJECT_NAME);
+		String token=System.getenv(DOPPLER_SERVICE_TOKEN) == null ? System.getProperty(DOPPLER_SERVICE_TOKEN) : System.getenv(DOPPLER_SERVICE_TOKEN);
+		String env = System.getenv(ENVIRONMENT) == null ? System.getProperty(ENVIRONMENT) : System.getenv(ENVIRONMENT);
+		System.out.println(projectName);
 		Assert.notNull(projectName, "DOPPLER_PROJECT_NAME must be set as argument");
 		Assert.notNull(token, "DOPPLER_SERVICE_TOKEN must be set as argument");
 		Assert.notNull(env, "ENVIRONMENT must be set as argument");

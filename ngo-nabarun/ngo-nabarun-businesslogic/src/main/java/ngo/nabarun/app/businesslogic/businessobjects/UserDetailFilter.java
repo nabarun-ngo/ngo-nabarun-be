@@ -23,4 +23,5 @@ public class UserDetailFilter {
 	
 	@JsonProperty("userId")
 	private String userId;
+	
 }

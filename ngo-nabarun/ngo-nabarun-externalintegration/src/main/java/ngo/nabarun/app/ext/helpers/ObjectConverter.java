@@ -2,42 +2,54 @@ package ngo.nabarun.app.ext.helpers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 
 import ngo.nabarun.app.common.enums.MeetingType;
+import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.objects.CalendarEvent;
 
 public class ObjectConverter {
-	public static User toAuth0User(AuthUser authUser) {
+	public static User toAuth0User(AuthUser authUser,String connection) {
 		User user = new User();
-		user.setAppMetadata(authUser.getAppMetadata());
+		//user.setAppMetadata(authUser.getAppMetadata());
 		user.setBlocked(authUser.isBlocked());
-		user.setConnection("Username-Password-Authentication");
+		user.setConnection(connection);
 		user.setEmail(authUser.getEmail());
-		user.setEmailVerified(authUser.isEmailVerified());
+		user.setEmailVerified(authUser.getEmailVerified());
 		user.setFamilyName(authUser.getLastName());
 		user.setGivenName(authUser.getFirstName());
 		user.setId(authUser.getUserId());
 		user.setName(authUser.getFullName());
 		user.setPicture(authUser.getPicture());
-		user.setUserMetadata(authUser.getUserMetadata());
+		
+		Map<String,Object> userMetaData= new HashMap<>();
+		if(authUser.getProfileId() != null) {
+			userMetaData.put("profile_id", authUser.getProfileId());
+		}
+		userMetaData.put("active_user", !authUser.isInactive());
+		user.setUserMetadata(userMetaData);
 		user.setUsername(authUser.getUsername());
-		user.setVerifyEmail(authUser.isVerifyEmail());
+		user.setVerifyEmail(authUser.getVerifyEmail());
+		
 		user.setPassword(authUser.getPassword() == null ? null : authUser.getPassword().toCharArray());
 		return user;
 
 	}
 
 	public static AuthUser toAuthUser(User user) {
+		//System.err.println(user);
 		AuthUser authUser = new AuthUser();
-		authUser.setAppMetadata(user.getAppMetadata());
+		//authUser.setAppMetadata(user.getAppMetadata());
 		authUser.setBlocked(user.isBlocked() == null ? false : user.isBlocked());
 		authUser.setCreatedAt(user.getCreatedAt());
 		authUser.setEmail(user.getEmail());
@@ -46,13 +58,23 @@ public class ObjectConverter {
 		authUser.setLastIp(user.getLastIP());
 		authUser.setLastLogin(user.getLastLogin());
 		authUser.setLastName(user.getFamilyName());
+		authUser.setFullName(user.getName());
 		authUser.setLastPasswordReset(user.getLastPasswordReset());
 		authUser.setLoginsCount(user.getLoginsCount() == null ? 0 : user.getLoginsCount());
 		authUser.setPicture(user.getPicture());
 		authUser.setUpdatedAt(user.getUpdatedAt());
 		authUser.setUserId(user.getId());
-		authUser.setUserMetadata(user.getUserMetadata());
+		//authUser.setUserMetadata(user.getUserMetadata());
+		authUser.setProviders(user.getIdentities() == null ? null : user.getIdentities().stream().map(m->m.getProvider()).toList());
 		authUser.setUsername(user.getUsername());
+		//System.err.println(user.getUserMetadata());
+		if(user != null && user.getUserMetadata() != null) {
+			Object profileId=user.getUserMetadata().get("profile_id");
+			authUser.setProfileId(profileId == null ? null : profileId.toString());	
+			Object active_user=user.getUserMetadata().get("active_user");
+			authUser.setInactive(active_user == null ? false : !Boolean.valueOf(active_user.toString()));
+		}
+
 		return authUser;
 
 	}
@@ -97,12 +119,19 @@ public class ObjectConverter {
 							: MeetingType.ONLINE_AUDIO);
 		}
 		calendarEvent.setCreatorEmail(event.getCreator() == null ? null : event.getCreator().getEmail());
-
-//		event.getEtag();
-//		event.getRecurrence();
-//		event.getSource();
-
 		return calendarEvent;
 
 	}
+
+	public static AuthConnection toAuthConnection(Connection connection) {
+		AuthConnection aconn= new AuthConnection();
+		aconn.setId(connection.getId());
+		aconn.setName(connection.getName());
+		aconn.setPasswordPolicy(connection.getOptions().containsKey("passwordPolicy") ? connection.getOptions().get("passwordPolicy").toString() : null);
+		aconn.setStrategy(connection.getStrategy());
+		aconn.setDatabaseConnection(connection.getName().equalsIgnoreCase("Username-Password-Authentication"));
+		return aconn;
+	}
+	
+	
 }

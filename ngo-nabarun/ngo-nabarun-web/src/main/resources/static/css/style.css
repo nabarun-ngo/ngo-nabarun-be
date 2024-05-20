@@ -320,6 +320,10 @@
     background: var(--primary);
 }
 
+.team-member{
+	max-height: 300px;
+}
+
 
 /*** Testimonial ***/
 

@@ -13,7 +13,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
+import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.util.SecurityUtils;
@@ -31,7 +31,7 @@ public class NoticeBLImpl implements INoticeBL {
 	private IDocumentInfraService documentInfraService;
 	
 	@Autowired
-	private  BusinessIdGenerator idGenerator;
+	private  BusinessHelper idGenerator;
 	
 	@Override
 	public Paginate<NoticeDetail> getAllNotice(Integer page, Integer size, NoticeDetailFilter filter) {

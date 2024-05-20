@@ -1,13 +1,15 @@
 package ngo.nabarun.app.infra.misc;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -16,20 +18,29 @@ import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
+import ngo.nabarun.app.common.enums.AdditionalFieldKey;
+import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.MeetingRefType;
 import ngo.nabarun.app.common.enums.MeetingStatus;
 import ngo.nabarun.app.common.enums.MeetingType;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
+import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.SocialMediaType;
-import ngo.nabarun.app.common.enums.TicketScope;
 import ngo.nabarun.app.common.enums.TicketStatus;
+import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.enums.UPIOption;
+import ngo.nabarun.app.common.enums.WorkFlowAction;
+import ngo.nabarun.app.common.enums.WorkType;
+import ngo.nabarun.app.common.enums.WorkflowDecision;
+import ngo.nabarun.app.common.enums.WorkflowStatus;
+import ngo.nabarun.app.common.enums.WorkflowType;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.util.CryptUtil;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.infra.core.entity.AccountEntity;
@@ -42,6 +53,9 @@ import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
 import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
+import ngo.nabarun.app.infra.core.entity.UserRoleEntity;
+import ngo.nabarun.app.infra.core.entity.WorkListEntity;
+import ngo.nabarun.app.infra.core.entity.WorkflowEntity;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
@@ -60,6 +74,8 @@ import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
+import ngo.nabarun.app.infra.dto.WorkFlowDTO;
+import ngo.nabarun.app.infra.dto.WorkListDTO;
 
 @Component
 public class InfraDTOHelper {
@@ -68,140 +84,153 @@ public class InfraDTOHelper {
 		return convertToUserDTO(profile, user, null);
 	}
 
-	public static UserDTO convertToUserDTO(UserProfileEntity profile, AuthUser user, AuthUserRole role) {
+	public static UserDTO convertToUserDTO(UserProfileEntity profile, AuthUser user, List<AuthUserRole> roles) {
 		UserDTO userDTO = new UserDTO();
-		userDTO.setAbout(profile.getAbout());
-		userDTO.setDateOfBirth(profile.getDateOfBirth());
-		userDTO.setEmail(profile.getEmail());
-		userDTO.setFirstName(profile.getFirstName());
-		userDTO.setGender(profile.getGender());
-		userDTO.setImageUrl(StringUtils.hasLength(profile.getAvatarUrl()) ? profile.getAvatarUrl()
-				: (user == null ? null : user.getPicture()));
-		userDTO.setLastName(profile.getLastName());
-		userDTO.setMiddleName(profile.getMiddleName());
-		userDTO.setName(profile.getFirstName() + " " + profile.getLastName());
-		userDTO.setProfileId(profile.getId());
-		userDTO.setStatus(profile.getStatus() == null ? null : ProfileStatus.valueOf(profile.getStatus()));
+		userDTO.setAbout(profile == null ? null : profile.getAbout());
+		userDTO.setDateOfBirth(profile == null ? null : profile.getDateOfBirth());
+		userDTO.setEmail(profile == null ? (user == null ? null : user.getEmail()) : profile.getEmail());
+		userDTO.setFirstName(profile == null ? (user == null ? null : user.getFirstName())  :profile.getFirstName());
+		userDTO.setGender(profile == null ? null : profile.getGender());
+		if(profile != null) {
+			userDTO.setImageUrl(StringUtils.hasLength(profile.getAvatarUrl()) ? profile.getAvatarUrl()
+					: (user == null ? null : user.getPicture()));
+		}
+		
+		userDTO.setLastName(profile == null ? (user == null ? null : user.getLastName())  :profile.getLastName());
+		userDTO.setMiddleName(profile == null ? null :profile.getMiddleName());
+		userDTO.setName(profile == null ? (user == null ? null : user.getFullName()) :profile.getFirstName() + " " + profile.getLastName());
+		userDTO.setProfileId(profile == null ? (user == null ? null : user.getProfileId()) : profile.getId());
+		userDTO.setStatus(profile == null || profile.getStatus() == null ? null : ProfileStatus.valueOf(profile.getStatus()));
 
-		userDTO.setUserId(profile.getUserId());
-		userDTO.setTitle(profile.getTitle());
+		userDTO.setUserId(profile == null ? (user == null ? null : user.getUserId())  : profile.getUserId());
+		userDTO.setTitle(profile == null ? null :profile.getTitle());
 
 		/**
 		 * additional details
 		 */
 		UserAdditionalDetailsDTO uaDTO = new UserAdditionalDetailsDTO();
-		uaDTO.setActiveContributor(profile.getActiveContributor());
+		uaDTO.setActiveContributor(profile == null ? false :profile.getActiveContributor());
 		uaDTO.setBlocked(user == null ? false : user.isBlocked());
 		uaDTO.setCreatedBy(null);
 		uaDTO.setCreatedOn(user != null ? user.getCreatedAt() : profile.getCreatedOn());
-		uaDTO.setDisplayPublic(profile.getPublicProfile());
-		uaDTO.setEmailVerified(user != null ? user.isEmailVerified() : false);
+		uaDTO.setDisplayPublic(profile == null  ? false : profile.getPublicProfile());
+		uaDTO.setEmailVerified(user != null ? user.getEmailVerified() : false);
 		uaDTO.setLastLogin(user != null ? user.getLastLogin() : null);
 		uaDTO.setLastPasswordChange(user != null ? user.getLastPasswordReset() : null);
 		uaDTO.setLoginsCount(user == null ? 0 : user.getLoginsCount());
 		uaDTO.setUpdatedOn(user != null ? user.getUpdatedAt() : null);
 		userDTO.setAdditionalDetails(uaDTO);
-		/**
-		 * roles
-		 */
-		// userDTO.setRoleNames(InfraFieldHelper.stringToStringList(profile.getRoleNames()));
-		if (role != null) {
-			userDTO.setRoles(null);
-		}
-
-		/**
-		 * address
-		 */
-		List<AddressDTO> addresses = new ArrayList<>();
-		if (profile.getAddressLine1() != null || profile.getAddressLine2() != null || profile.getAddressLine3() != null
-				|| profile.getHometown() != null || profile.getDistrict() != null || profile.getState() != null
-				|| profile.getCountry() != null) {
-			AddressDTO present = new AddressDTO();
-			present.setAddressType(AddressType.PRESENT);
-			present.setAddressLine1(profile.getAddressLine1());
-			present.setAddressLine2(profile.getAddressLine2());
-			present.setAddressLine3(profile.getAddressLine3());
-			present.setHometown(profile.getHometown());
-			present.setDistrict(profile.getDistrict());
-			present.setState(profile.getState());
-			present.setCountry(profile.getCountry());
-			addresses.add(present);
-		}
-		userDTO.setAddresses(addresses);
-
-		/**
-		 * phone number
-		 */
-		List<PhoneDTO> phones = new ArrayList<>();
-		if (profile.getPhoneNumber() != null) {
-			PhoneDTO primary_phone = new PhoneDTO();
-			primary_phone.setPhoneType(PhoneType.PRIMARY);
-			List<String> fieldValue = InfraFieldHelper.stringToStringList(profile.getPhoneNumber(), "-");
-			if (fieldValue.size() == 2) {
-				primary_phone.setPhoneCode(fieldValue.get(0));
-				primary_phone.setPhoneNumber(fieldValue.get(1));
-				userDTO.setPhoneNumber(fieldValue.get(0) + fieldValue.get(1));
-			} else if (fieldValue.size() == 1) {
-				primary_phone.setPhoneNumber(fieldValue.get(0));
-				userDTO.setPhoneNumber(fieldValue.get(0));
+		
+		if(profile != null) {
+			/**
+			 * roles
+			 */
+			// userDTO.setRoleNames(InfraFieldHelper.stringToStringList(profile.getRoleNames()));
+			if (roles != null) {
+				userDTO.setRoles(roles.stream().map(m->convertToRoleDTO(m)).toList());
+			}else {
+				userDTO.setRoles(InfraFieldHelper.stringToStringList(profile.getRoleNames()).stream().map(m->{
+					RoleDTO role= new RoleDTO();
+					role.setName(m);				
+					return role;
+				}).toList());
 			}
-			phones.add(primary_phone);
-		}
 
-		if (profile.getAltPhoneNumber() != null) {
-			PhoneDTO alt_phone = new PhoneDTO();
-			alt_phone.setPhoneType(PhoneType.ALTERNATIVE);
-			List<String> fieldValue = InfraFieldHelper.stringToStringList(profile.getAltPhoneNumber(), "-");
-			if (fieldValue.size() == 2) {
-				alt_phone.setPhoneCode(fieldValue.get(0));
-				alt_phone.setPhoneNumber(fieldValue.get(1));
-			} else if (fieldValue.size() == 1) {
-				alt_phone.setPhoneNumber(fieldValue.get(0));
+			/**
+			 * address
+			 */
+			List<AddressDTO> addresses = new ArrayList<>();
+			if (profile.getAddressLine1() != null || profile.getAddressLine2() != null || profile.getAddressLine3() != null
+					|| profile.getHometown() != null || profile.getDistrict() != null || profile.getState() != null
+					|| profile.getCountry() != null) {
+				AddressDTO present = new AddressDTO();
+				present.setAddressType(AddressType.PRESENT);
+				present.setAddressLine1(profile.getAddressLine1());
+				present.setAddressLine2(profile.getAddressLine2());
+				present.setAddressLine3(profile.getAddressLine3());
+				present.setHometown(profile.getHometown());
+				present.setDistrict(profile.getDistrict());
+				present.setState(profile.getState());
+				present.setCountry(profile.getCountry());
+				addresses.add(present);
 			}
-			phones.add(alt_phone);
-		}
-		userDTO.setPhones(phones);
+			userDTO.setAddresses(addresses);
 
-		/**
-		 * social media
-		 */
-		List<SocialMediaDTO> socialmedias = new ArrayList<>();
+			/**
+			 * phone number
+			 */
+			List<PhoneDTO> phones = new ArrayList<>();
+			if (profile.getPhoneNumber() != null) {
+				PhoneDTO primary_phone = new PhoneDTO();
+				primary_phone.setPhoneType(PhoneType.PRIMARY);
+				List<String> fieldValue = InfraFieldHelper.stringToStringList(profile.getPhoneNumber(), "-");
+				if (fieldValue.size() == 2) {
+					primary_phone.setPhoneCode(fieldValue.get(0));
+					primary_phone.setPhoneNumber(fieldValue.get(1));
+					userDTO.setPhoneNumber(fieldValue.get(0) + fieldValue.get(1));
+				} else if (fieldValue.size() == 1) {
+					primary_phone.setPhoneNumber(fieldValue.get(0));
+					userDTO.setPhoneNumber(fieldValue.get(0));
+				}
+				phones.add(primary_phone);
+			}
 
-		if (profile.getFacebookLink() != null) {
-			SocialMediaDTO socialMedia = new SocialMediaDTO();
-			socialMedia.setSocialMediaType(SocialMediaType.FACEBOOK);
-			socialMedia.setSocialMediaURL(profile.getFacebookLink());
-			socialmedias.add(socialMedia);
-		}
+			if (profile.getAltPhoneNumber() != null) {
+				PhoneDTO alt_phone = new PhoneDTO();
+				alt_phone.setPhoneType(PhoneType.ALTERNATIVE);
+				List<String> fieldValue = InfraFieldHelper.stringToStringList(profile.getAltPhoneNumber(), "-");
+				if (fieldValue.size() == 2) {
+					alt_phone.setPhoneCode(fieldValue.get(0));
+					alt_phone.setPhoneNumber(fieldValue.get(1));
+				} else if (fieldValue.size() == 1) {
+					alt_phone.setPhoneNumber(fieldValue.get(0));
+				}
+				phones.add(alt_phone);
+			}
+			userDTO.setPhones(phones);
 
-		if (profile.getInstagramLink() != null) {
-			SocialMediaDTO socialMedia = new SocialMediaDTO();
-			socialMedia.setSocialMediaType(SocialMediaType.INSTAGRAM);
-			socialMedia.setSocialMediaURL(profile.getInstagramLink());
-			socialmedias.add(socialMedia);
-		}
+			/**
+			 * social media
+			 */
+			List<SocialMediaDTO> socialmedias = new ArrayList<>();
 
-		if (profile.getTwitterLink() != null) {
-			SocialMediaDTO socialMedia = new SocialMediaDTO();
-			socialMedia.setSocialMediaType(SocialMediaType.TWITTER);
-			socialMedia.setSocialMediaURL(profile.getTwitterLink());
-			socialmedias.add(socialMedia);
-		}
+			if (profile.getFacebookLink() != null) {
+				SocialMediaDTO socialMedia = new SocialMediaDTO();
+				socialMedia.setSocialMediaType(SocialMediaType.FACEBOOK);
+				socialMedia.setSocialMediaURL(profile.getFacebookLink());
+				socialmedias.add(socialMedia);
+			}
 
-		if (profile.getLinkedInLink() != null) {
-			SocialMediaDTO socialMedia = new SocialMediaDTO();
-			socialMedia.setSocialMediaType(SocialMediaType.LINKEDIN);
-			socialMedia.setSocialMediaURL(profile.getLinkedInLink());
-			socialmedias.add(socialMedia);
-		}
+			if (profile.getInstagramLink() != null) {
+				SocialMediaDTO socialMedia = new SocialMediaDTO();
+				socialMedia.setSocialMediaType(SocialMediaType.INSTAGRAM);
+				socialMedia.setSocialMediaURL(profile.getInstagramLink());
+				socialmedias.add(socialMedia);
+			}
 
-		if (profile.getWhatsappLink() != null) {
-			SocialMediaDTO socialMedia = new SocialMediaDTO();
-			socialMedia.setSocialMediaType(SocialMediaType.WHATSAPP);
-			socialMedia.setSocialMediaURL(profile.getWhatsappLink());
-			socialmedias.add(socialMedia);
+			if (profile.getTwitterLink() != null) {
+				SocialMediaDTO socialMedia = new SocialMediaDTO();
+				socialMedia.setSocialMediaType(SocialMediaType.TWITTER);
+				socialMedia.setSocialMediaURL(profile.getTwitterLink());
+				socialmedias.add(socialMedia);
+			}
+
+			if (profile.getLinkedInLink() != null) {
+				SocialMediaDTO socialMedia = new SocialMediaDTO();
+				socialMedia.setSocialMediaType(SocialMediaType.LINKEDIN);
+				socialMedia.setSocialMediaURL(profile.getLinkedInLink());
+				socialmedias.add(socialMedia);
+			}
+
+			if (profile.getWhatsappLink() != null) {
+				SocialMediaDTO socialMedia = new SocialMediaDTO();
+				socialMedia.setSocialMediaType(SocialMediaType.WHATSAPP);
+				socialMedia.setSocialMediaURL(profile.getWhatsappLink());
+				socialmedias.add(socialMedia);
+			}
+			userDTO.setSocialMedias(socialmedias);
 		}
-		userDTO.setSocialMedias(socialmedias);
+		
 
 		return userDTO;
 	}
@@ -253,21 +282,42 @@ public class InfraDTOHelper {
 		if(donation.getCustomFields() != null) {
 			List<FieldDTO> list=donation.getCustomFields().stream().map(m->{
 				return convertToFieldDTO(m);
-			}).collect(Collectors.toList());
+			}).toList();
 			donationDTO.setAdditionalFields(list);
 		}
 		return donationDTO;
 	}
 
 	public static FieldDTO convertToFieldDTO(CustomFieldEntity field) {
+		return convertToFieldDTO(field,"");
+	}
+	public static FieldDTO convertToFieldDTO(CustomFieldEntity field,String secret) {
 		FieldDTO fieldDTO = new FieldDTO();
 		fieldDTO.setFieldDescription(field.getFieldDescription());
-		fieldDTO.setFieldKey(field.getFieldKey());
+		fieldDTO.setFieldKey(AdditionalFieldKey.valueOf(field.getFieldKey()));
 		fieldDTO.setFieldName(field.getFieldName());
 		fieldDTO.setFieldType(field.getFieldType());
-		fieldDTO.setFieldValue(field.getFieldValue());
 		fieldDTO.setFieldId(field.getId());
 		fieldDTO.setFieldSource(field.getSource());
+		fieldDTO.setFieldSourceType(AdditionalFieldSource.valueOf(field.getSourceType()));
+
+		fieldDTO.setHidden(field.isHidden());
+		if(field.isEncrypted()) {
+			IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(field.getEncryptionIV()));
+			String salt = field.getEncryptionSalt();
+			String value = field.getFieldValue();
+			SecretKey secretKeyObj;
+			try {
+				secretKeyObj = CryptUtil.getKeyFromPassword(secret, salt);
+				fieldDTO.setFieldValue(CryptUtil.decrypt(value, secretKeyObj, iv));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}else {
+			fieldDTO.setFieldValue(field.getFieldValue());
+		}
+		fieldDTO.setEncrypted(field.isEncrypted());
 		return fieldDTO;
 	}
 
@@ -285,11 +335,22 @@ public class InfraDTOHelper {
 
 	public static RoleDTO convertToRoleDTO(AuthUserRole userRole) {
 		RoleDTO roleDTO = new RoleDTO();
-		// roleDTO.setCode();
+		roleDTO.setName(userRole.getRoleDescription());
+		roleDTO.setCode(RoleCode.valueOf(userRole.getRoleName()));
+		roleDTO.setAuth0Id(userRole.getRoleId());
+		return roleDTO;
+	}
+	
+	public static RoleDTO convertToRoleDTO(UserRoleEntity userRole) {
+		RoleDTO roleDTO = new RoleDTO();
+		roleDTO.setCode(RoleCode.valueOf(userRole.getRoleCode()));
 		roleDTO.setDescription(userRole.getRoleDescription());
-		roleDTO.setDisplayName(userRole.getRoleName());
-		roleDTO.setId(userRole.getRoleId());
 		roleDTO.setName(userRole.getRoleName());
+		roleDTO.setId(userRole.getId());
+		roleDTO.setAuth0Id(userRole.getExtRoleId());
+		List<String> groups=InfraFieldHelper.stringToStringList(userRole.getRoleGroup());
+		//roleDTO.setGroups(groups.stream().map(m->RoleGroup.valueOf(m)).toList());
+		roleDTO.setGroups(groups);
 		return roleDTO;
 	}
 
@@ -369,7 +430,7 @@ public class InfraDTOHelper {
 	}
 
 	public static TicketDTO convertToTicketDTO(TicketInfoEntity tokenEntity) {
-		TicketDTO ticketDTO = new TicketDTO();
+		TicketDTO ticketDTO = new TicketDTO(TicketType.valueOf(tokenEntity.getType()));
 		if (tokenEntity.getCommunicationMethod() != null) {
 			ticketDTO.setCommunicationMethods(InfraFieldHelper.stringToStringList(tokenEntity.getCommunicationMethod())
 					.stream().map(m -> CommunicationMethod.valueOf(m)).toList());
@@ -380,19 +441,18 @@ public class InfraDTOHelper {
 		ticketDTO.setIncorrectOTPCount(tokenEntity.getIncorrectOTPCount());
 		ticketDTO.setOneTimePassword(tokenEntity.getOneTimePassword());
 		ticketDTO.setRefId(tokenEntity.getRefId());
+		ticketDTO.setAcceptCode(tokenEntity.getAcceptCode());
+		ticketDTO.setDeclineCode(tokenEntity.getDeclineCode());
+		
 		if (tokenEntity.getScope() != null) {
-			ticketDTO.setTicketScope(InfraFieldHelper.stringToStringList(tokenEntity.getScope()).stream()
-					.map(m -> TicketScope.valueOf(m)).toList());
+			ticketDTO.setTicketScope(InfraFieldHelper.stringToStringList(tokenEntity.getScope()));
 		}
-		if (tokenEntity.getBaseTicketUrl() != null) {
-			String url = UriComponentsBuilder.fromUriString(tokenEntity.getBaseTicketUrl())
-					.queryParam("token", tokenEntity.getToken()).build().toUri().toString();
-			ticketDTO.setTicketUrl(url);
-		}
+
 
 		ticketDTO.setToken(tokenEntity.getToken());
 
 		UserDTO userInfo = new UserDTO();
+		userInfo.setProfileId(tokenEntity.getForUserId());
 		userInfo.setName(tokenEntity.getName());
 		userInfo.setEmail(tokenEntity.getEmail());
 		userInfo.setPhoneNumber(tokenEntity.getMobileNumber());
@@ -473,6 +533,81 @@ public class InfraDTOHelper {
 		accountDTO.setUpiDetail(upiDTO);
 
 		return accountDTO;
+	}
+
+	public static WorkFlowDTO convertToWorkflowDTO(WorkflowEntity workflow,String secret) {
+		WorkFlowDTO workFlowDTO= new WorkFlowDTO();
+		workFlowDTO.setAdditionalFields(null);		
+		workFlowDTO.setCreatedBy(workflow.getCreatedBy());
+		workFlowDTO.setCreatedOn(workflow.getCreatedOn());
+		workFlowDTO.setDelegated(workflow.isDelegated());
+		UserDTO delegateDTO = new UserDTO();
+		delegateDTO.setProfileId(workflow.getDelegateProfileId());	
+		delegateDTO.setEmail(workflow.getDelegateProfileEmail());		
+		delegateDTO.setName(workflow.getDelegateProfileName());		
+
+		workFlowDTO.setDelegatedRequester(delegateDTO);
+		workFlowDTO.setId(workflow.getId());
+		workFlowDTO.setRemarks(workflow.getRemarks());
+		UserDTO requesterDTO = new UserDTO();
+		requesterDTO.setProfileId(workflow.getProfileId());
+		requesterDTO.setEmail(workflow.getProfileEmail());	
+		requesterDTO.setName(workflow.getProfileName());	
+
+		workFlowDTO.setRequester(requesterDTO);
+		workFlowDTO.setResolvedOn(workflow.getResolvedOn());
+		workFlowDTO.setWorkflowDescription(workflow.getDescription());
+		workFlowDTO.setWorkflowName(workflow.getName());
+		workFlowDTO.setWorkflowStatus(workflow.getStatus() == null ? null : WorkflowStatus.valueOf(workflow.getStatus()));
+		workFlowDTO.setLastStatus(workflow.getLastStatus() == null ? null : WorkflowStatus.valueOf(workflow.getLastStatus()));
+		workFlowDTO.setWorkflowType(WorkflowType.valueOf(workflow.getType()));
+		if(workflow.getCustomFields() != null) {
+			List<FieldDTO> list=workflow.getCustomFields().stream().map(m->{
+				return convertToFieldDTO(m,secret);
+			}).toList();
+			workFlowDTO.setAdditionalFields(list);
+		}
+		return workFlowDTO;
+	}
+
+	public static WorkListDTO convertToWorkListDTO(WorkListEntity worklist) {
+		WorkListDTO workListDTO= new WorkListDTO();
+		workListDTO.setActionPerformed(worklist.isActionPerformed());	
+		workListDTO.setCreatedOn(worklist.getCreatedOn());
+		workListDTO.setCurrentAction(worklist.getCurrentAction() == null ? null :WorkFlowAction.valueOf(worklist.getCurrentAction()));
+		workListDTO.setDecision(worklist.getDecision() == null ? null :WorkflowDecision.valueOf(worklist.getDecision()));
+		UserDTO dMaker = new UserDTO();
+		dMaker.setProfileId(worklist.getDecisionMakerId());	
+		dMaker.setName(worklist.getDecisionMakerName());		
+		workListDTO.setDecisionMaker(dMaker);
+		workListDTO.setDecisionMakerRoleGroup(worklist.getDecisionMakerRoleGroup());
+		workListDTO.setDescription(worklist.getDescription());
+		workListDTO.setGroupWork(worklist.isGroupWork());
+		workListDTO.setId(worklist.getId());
+		workListDTO.setPendingWithRoleGroups(InfraFieldHelper.stringToStringList(worklist.getPendingWithRoleGroups()));
+		workListDTO.setPendingWithRoles(InfraFieldHelper.stringToStringList(worklist.getPendingWithRoles()).stream().map(m->RoleCode.valueOf(m)).collect(Collectors.toList()));	
+		
+		List<UserDTO> pendingWithUsers= new ArrayList<>();
+		List<String> pendingIds=InfraFieldHelper.stringToStringList(worklist.getPendingWithUserId());
+		List<String> pendingNames=InfraFieldHelper.stringToStringList(worklist.getPendingWithUserName());
+		
+		for(int i=0;i<pendingIds.size();i++) {
+			UserDTO pendingWithUser = new UserDTO();
+			pendingWithUser.setUserId(pendingIds.get(i));	
+			pendingWithUser.setName(pendingNames.get(i));
+		}
+		workListDTO.setPendingWithUsers(pendingWithUsers);
+
+		
+		workListDTO.setRemarks(worklist.getRemarks());
+		workListDTO.setStepCompleted(worklist.isStepCompleted());
+		workListDTO.setWorkflowId(worklist.getSourceId());
+		workListDTO.setWorkflowStatus(worklist.getSourceStatus() == null ? null : WorkflowStatus.valueOf(worklist.getSourceStatus()));
+		workListDTO.setWorkflowType(worklist.getSourceType() == null ? null : WorkflowType.valueOf(worklist.getSourceType()));
+		workListDTO.setDecisionDate(worklist.getDecisionDate());
+		workListDTO.setWorkType(worklist.getWorkType() == null ? null : WorkType.valueOf(worklist.getWorkType()));
+
+		return workListDTO;
 	}
 
 }

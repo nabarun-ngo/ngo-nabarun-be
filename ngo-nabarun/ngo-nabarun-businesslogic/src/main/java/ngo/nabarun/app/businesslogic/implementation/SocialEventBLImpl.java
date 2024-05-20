@@ -23,7 +23,6 @@ import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IEventInfraService;
-import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Service
 public class SocialEventBLImpl implements ISocialEventBL {
@@ -31,8 +30,8 @@ public class SocialEventBLImpl implements ISocialEventBL {
 	@Autowired
 	private IEventInfraService eventInfraService;
 	
-	@Autowired
-	private IUserInfraService userInfraService;
+//	@Autowired
+//	private IUserInfraService userInfraService;
 	
 	@Autowired
 	private IDocumentInfraService documentInfraService;

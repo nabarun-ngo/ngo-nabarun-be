@@ -9,8 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
-import ngo.nabarun.app.common.enums.TicketScope;
 import ngo.nabarun.app.common.enums.TicketStatus;
+import ngo.nabarun.app.common.enums.TicketType;
 
 @Data
 @Builder
@@ -19,19 +19,28 @@ import ngo.nabarun.app.common.enums.TicketStatus;
 public class TicketDTO {
 	@Id
 	private String id;
-	private List<TicketScope> ticketScope;
+	private List<String> ticketScope;
 	private UserDTO userInfo;
 	private List<CommunicationMethod> communicationMethods;
 	private String refId;
 	private String oneTimePassword;
-	private int incorrectOTPCount;
+	private Integer incorrectOTPCount;
 	private int otpDigits;
 	private String token;
 	private String baseTicketUrl;
-	private String ticketUrl;
+	//private String ticketUrl;
 	private TicketStatus ticketStatus;
+	private TicketType ticketType; 
 	private Boolean expired;
 	private int expireTicketAfterSec;
+	private String acceptCode;
+	private String declineCode;
+	//private String userId;
+
+	
+	public TicketDTO( TicketType ticketType) {
+		this.ticketType=ticketType;
+	}
 
 
 }

@@ -48,6 +48,9 @@ public class UserDetail {
 	@JsonProperty("roles")
 	private List<UserRole> roles;
 	
+	@JsonProperty("roleString")
+	private String roleString;
+	
 	@JsonProperty("email")
 	private String email;
 	

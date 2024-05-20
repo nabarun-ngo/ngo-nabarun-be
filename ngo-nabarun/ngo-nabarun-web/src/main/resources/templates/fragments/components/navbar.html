@@ -2,21 +2,17 @@
 	data-wow-delay="0.1s" th:fragment="navbar">
 	<div
 		class="top-bar text-white-50 row gx-0 align-items-center d-none d-lg-flex">
-		<div class="col-lg-6 px-5 text-start">
-			<small><i class="fa fa-map-marker-alt me-2"></i>Barrackpore, West Bengal, India</small> <small class="ms-4"><i
-				class="fa fa-envelope me-2"></i>nabarunbangla18@gmail.com</small> <small
-				class="ms-4"><i class="fa fa-phone-alt me-2"></i>+91 9007611531</small>
+		<div class="col-lg-8 px-5 text-start">
+			<small><i class="fa fa-map-marker-alt me-2"></i>[[${LOCATION}]]</small>
+			<small class="ms-4" ><i class="fa fa-envelope me-2"></i>[[${EMAIL_ADDRESS}]]</small>
+			<small class="ms-4" ><i class="fa fa-phone-alt me-2"></i>[[${CONTACT_NO}]]</small>
 		</div>
-		<div class="col-lg-6 px-5 text-end">
-			<small>Follow us:</small> <a class="text-white-50 ms-3"
-				target="_blank" href="<%= basicInfo.socialMedia.facebook%>"><i
-				class="fab fa-facebook-f"></i></a> <a class="text-white-50 ms-3"
-				target="_blank" href="<%= basicInfo.socialMedia.twitter%>"><i
-				class="fab fa-twitter"></i></a> <a class="text-white-50 ms-3"
-				href="<%= basicInfo.socialMedia.youtube%>"><i
-				class="fab fa-youtube"></i></a> <a class="text-white-50 ms-3"
-				target="_blank" href="<%= basicInfo.socialMedia.instagram%>"><i
-				class="fab fa-instagram"></i></a>
+		<div class="col-lg-4 px-5 text-end">
+			<small>Follow us:</small> 
+			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}"><i class="fab fa-facebook-f"></i></a> 
+			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}" th:href="${TWITTER_LINK}"><i class="fab fa-twitter"></i></a> 
+			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}" th:href="${YOUTUBE_LINK}"><i class="fab fa-youtube"></i></a> 
+			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}"><i class="fab fa-instagram"></i></a>
 		</div>
 	</div>
 
@@ -55,8 +51,8 @@
 						<!-- <a href="/blog" class="dropdown-item">Blog</a> 
 						<a href="/gallery"
 							class="dropdown-item">Gallery</a>  -->
-							<a th:if="${loginURL != null}"
-							th:href="${loginURL}" target="_blank"
+							<a th:if="${LOGIN_URL != null}"
+							th:href="${LOGIN_URL}" target="_blank"
 							class="dropdown-item">Login</a>
 						<!-- <a href="" class="dropdown-item">Terms and Condition</a> -->
 					</div>

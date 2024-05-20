@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InfraFieldHelper {
+	
+	public static final String metadata_active_user= "active_user";
+	public static final String metadata_profile_id= "profile_id";
 
 	public static String stringListToString(List<String> fieldList,String splitter) {
 		if(fieldList == null) {

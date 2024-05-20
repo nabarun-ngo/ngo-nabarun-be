@@ -1,0 +1,5 @@
+package ngo.nabarun.app.common.enums;
+
+public enum WorkflowStatus {
+	EMAIL_VERIFY_PENDING,AWAITING_L1_APPROVAL,AWAITING_L2_APPROVAL,APPROVED_ONBOARDING,REJECTED, CANCELLED
+}

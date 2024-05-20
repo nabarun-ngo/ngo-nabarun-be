@@ -64,7 +64,7 @@ public class SecurityConfig {
 	@Order(2) // Order 2 for non-API requests
 	SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
 		return http.antMatcher("/**").sessionManagement(session -> {
-			session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+			session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
 		}).authorizeHttpRequests().anyRequest().permitAll().and().build();
 	}
 

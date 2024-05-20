@@ -17,7 +17,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -88,7 +87,6 @@ public class HandleRestException {
 		} else if (ex instanceof IllegalArgumentException) {
 			status = HttpStatus.BAD_REQUEST;
 		}
-System.out.println("hello");
 		return new ResponseEntity<Object>(new ErrorResponse(ex), status);
 	}
 

@@ -1,98 +1,75 @@
 package ngo.nabarun.app.web;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import ngo.nabarun.app.businesslogic.IUserBL;
-import ngo.nabarun.app.businesslogic.businessobjects.JoiningInterviewDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.ModelAndView;
 
+import ngo.nabarun.app.businesslogic.IPublicBL;
+import ngo.nabarun.app.businesslogic.IUserBL;
+import ngo.nabarun.app.businesslogic.businessobjects.SignUpDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
+import ngo.nabarun.app.businesslogic.exception.BusinessException;
 
 @Controller
+@SessionAttributes(names = { "interview"})
 public class PublicController {
-	
+
 	@Autowired
 	private IUserBL userBl;
-	
-	@GetMapping
+
+	@Autowired
+	private IPublicBL publicBl;
+
+	@GetMapping({"/","/signup","/contact"})
 	public String homePage(Model model) {
-		System.out.println("hello");
-		Paginate<UserDetail> users=userBl.getAllUser(null, null, null);
-		model.addAttribute("profiles", users.getContent());
-		model.addAttribute("interview", new JoiningInterviewDetail());
-		model.addAttribute("loginURL", "");
+		List<UserDetail> users = userBl.getPublicProfiles();
+		model.addAttribute("profiles", users);
+		model.addAttribute("interview", new SignUpDetail());
+		try {
+			for(KeyValue keyValue:publicBl.getOrganizationInfo()) {
+				model.addAttribute(keyValue.getKey(), keyValue.getValue());
+			} 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return "index";
 	}
 
-
-//	@PostMapping("/join/rules") 
-//	public ModelAndView showRulesAndRegulation(
-//			@ModelAttribute("interview") RegistrationObject interview)
-//			throws Exception {
-//		ModelAndView modelAndView = new ModelAndView("pages/joining-rule-otp");
-//		modelAndView.addObject("interview", interview);
-//		modelAndView.addObject("stage", 1);
-//		modelAndView.addObject("pageName", "Rules and Regulations");
-//		return modelAndView;
-//
-//	}
-//	@PostMapping("/join/verify-email")
-//	public ModelAndView register(
-//			@ModelAttribute("interview") RegistrationObject interview
-//			)
-//			throws Exception {
-//		ModelAndView modelAndView = new ModelAndView("pages/joining-rule-otp");
-//
-//		OtpObject otpObject=new OtpObject();
-//		otpObject.setName(interview.getFirstName()+" "+interview.getLastName());
-//		otpObject.setEmail(interview.getEmail());
-//		otpObject=registrationService.requestRegistrationOtp(otpObject);
-//		modelAndView.addObject("otpInfo", otpObject);
-//		modelAndView.addObject("stage", 2);
-//		modelAndView.addObject("pageName", "Verify Email");
-//		return modelAndView;
-//
-//
-//	}
-//	
-//	@PostMapping("/join/register")
-//	public ModelAndView register(
-//			@ModelAttribute("interview") RegistrationObject interview,
-//			@ModelAttribute("otpInfo") OtpObject otpObject
-//			)
-//			throws Exception {
-//		ModelAndView modelAndView = new ModelAndView("pages/joining-rule-otp");
-//
-//		try {
-//		String requestId=registrationService.register(interview,otpObject);
-//		modelAndView.addObject("stage", 3);
-//		modelAndView.addObject("message", contentStore.getRemoteMessage(MessageKey.SUCCESS_MSG_JOIN_REQUEST_CREATED, Map.of("id", requestId)));
-//		registrationService.invalidateRegistrationOtp(otpObject.getOtpServicetoken());
-//		modelAndView.addObject("pageName", "Success");
-//		}catch (Exception e) {
-//			e.printStackTrace();
-//			modelAndView.addObject("stage", 2);
-//			modelAndView.addObject("errorMessage", e.getCause() !=null ? e.getCause().getMessage():e.getMessage());
-//			modelAndView.addObject("pageName", "Verify Email");
-//		}
-//		return modelAndView;
-//
-//
-//	}
-//	
-//	@PostMapping("/join/resend-email")
-//	public ModelAndView resendOTP(
-//			@ModelAttribute("otpInfo") OtpObject otpObject
-//			)
-//			throws Exception {
-//		ModelAndView modelAndView = new ModelAndView("pages/joining-rule-otp");
-//		registrationService.resendRegistrationOtp(otpObject.getOtpServicetoken());
-//		modelAndView.addObject("stage", 2);
-//		modelAndView.addObject("successMessage", "One Time Password successfully sent.");
-//		return modelAndView;
-//
-//
-//	}
+	@PostMapping("/signup")
+	public ModelAndView signUp(@ModelAttribute("interview") SignUpDetail interview) throws Exception {
+		ModelAndView modelAndView = new ModelAndView("pages/joining-rule-otp");
+		modelAndView.addObject("interview", interview);
+		try {
+			interview = publicBl.signUp(interview);
+			modelAndView.addObject("stage", interview.getStageId());
+			modelAndView.addObject("successMessage", interview.getMessage());
+			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
+			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
+			modelAndView.addObject("rules", interview.getRules());
+			modelAndView.addObject("siteKey", interview.getSiteKey());
+		} catch (BusinessException e) {
+			modelAndView.addObject("stage", interview.getStageId());
+			modelAndView.addObject("errorMessage", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			modelAndView.addObject("successMessage", interview.getMessage());
+			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
+			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
+		}
+		return modelAndView;
+	}
+	
+	@PostMapping("/contact")
+	public ModelAndView contactUs(@ModelAttribute("interview") SignUpDetail interview) throws Exception {
+		ModelAndView modelAndView = new ModelAndView("pages/joining-rule-otp");
+		modelAndView.addObject("interview", interview);
+		return modelAndView;
+	}
+	
 }

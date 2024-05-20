@@ -1,15 +1,16 @@
 <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s" th:fragment="header">
     <div class="container text-center">
-        <h1 class="display-4 text-white animated slideInDown mb-4" th:if="${pageName !=null}" th:text="${pageName}">
+        <h1 class="display-4 text-white animated slideInDown mb-4" th:text="${pageName}">
            
         </h1>
-        <nav aria-label="breadcrumb animated slideInDown" th:if="${pageName !=null}">
+        <nav aria-label="breadcrumb animated slideInDown" th:if="${breadcrumb !=null}">
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a class="text-white">Home</a></li>
-                <li class="breadcrumb-item"><a class="text-white">Pages</a></li>
-                <li class="breadcrumb-item text-primary active" aria-current="page" th:text="${pageName}">
-                   
-                </li>
+				
+                <li class="breadcrumb-item" 
+                th:each="item,itemStat : ${breadcrumb}"  
+              ><a th:class="${itemStat.index == breadcrumb.size() -1} ? 'text-primary active' : 'text-white'" th:text="${item}"></a></li>
+                
+             
             </ol>
         </nav>
     </div>

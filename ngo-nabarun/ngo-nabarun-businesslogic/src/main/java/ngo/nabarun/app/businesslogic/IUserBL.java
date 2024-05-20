@@ -21,5 +21,8 @@ public interface IUserBL {
 	Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter filter);
 	void assignRolesToUser(String id,List<RoleCode> roleCodes) throws Exception;
 	void allocateUsersToRole(String id,List<String> users);
+	List<UserDetail> getPublicProfiles();
+	void syncUserDetail() throws Exception;
+
 
 }

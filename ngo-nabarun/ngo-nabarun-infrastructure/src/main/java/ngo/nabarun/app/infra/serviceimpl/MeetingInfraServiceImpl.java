@@ -3,8 +3,6 @@ package ngo.nabarun.app.infra.serviceimpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Base64;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +23,6 @@ import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
 import ngo.nabarun.app.infra.service.IMeetingInfraService;
-import ngo.nabarun.app.infra.service.ITicketInfraService;
 
 @Service
 public class MeetingInfraServiceImpl implements IMeetingInfraService {
@@ -39,7 +36,6 @@ public class MeetingInfraServiceImpl implements IMeetingInfraService {
 	@Autowired
 	private IGoogleCalendarExtService googleCalendarExtService;
 	
-	private static final String EXT_EVENT_STATUS_CREATED="created";
 
 	@Override
 	public MeetingDTO getMeeting(String id) {

@@ -17,9 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.common.enums.DocumentIndexType;
+import ngo.nabarun.app.common.enums.TicketStatus;
+import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.exception.NotFoundException;
 import ngo.nabarun.app.common.helper.GenericPropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.objects.RemoteConfig;
 import ngo.nabarun.app.ext.service.IEmailExtService;
@@ -34,11 +37,11 @@ import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
-import ngo.nabarun.app.infra.misc.EmailTemplate;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
@@ -76,11 +79,13 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Autowired
 	private IRemoteConfigExtService remoteConfigService;
+	
+//	@Autowired
+//	private IAuthManagementExtService authManagementService;
 
 	/**
 	 * Constants THIS SHOULD BE SAME AS REMOTE CONFIG
 	 */
-	private static final String EMAIL_TEMPLATES_CONFIG = "EMAIL_TEMPLATES";
 
 	private static final String DOMAIN_GLOBAL_CONFIG = "DOMAIN_GLOBAL_CONFIG";
 
@@ -149,35 +154,57 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	@Override
 	public TicketDTO createTicket(TicketDTO ticket) {
 		TicketInfoEntity ticketInfo = new TicketInfoEntity();
+		ticketInfo.setId(UUID.randomUUID().toString());
 		if (ticket.getCommunicationMethods() != null) {
 			ticketInfo.setCommunicationMethod(InfraFieldHelper
 					.stringListToString(ticket.getCommunicationMethods().stream().map(m -> m.name()).toList()));
 		}
 		ticketInfo.setCreatedBy("Company");
 		ticketInfo.setCreatedOn(CommonUtils.getSystemDate());
+		
+		ticketInfo.setForUserId(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getProfileId());
+		ticketInfo.setName(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName());
 		ticketInfo.setEmail(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getEmail());
+		ticketInfo.setMobileNumber(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPhoneNumber());
+
 		ticketInfo.setExpireOn(
 				CommonUtils.addSecondsToDate(CommonUtils.getSystemDate(), ticket.getExpireTicketAfterSec()));
-		ticketInfo.setIncorrectOTPCount(0);
-		ticketInfo.setMobileNumber(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPhoneNumber());
-		ticketInfo.setName(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName());
-		ticketInfo.setOneTimePassword(CommonUtils.generateRandomNumber(ticket.getOtpDigits()));
 		ticketInfo.setRefId(ticket.getRefId());
 		if (ticket.getTicketScope() != null) {
 			ticketInfo.setScope(
-					InfraFieldHelper.stringListToString(ticket.getTicketScope().stream().map(m -> m.name()).toList()));
+					InfraFieldHelper.stringListToString(ticket.getTicketScope()));
 		}
-		ticketInfo.setToken(CommonUtils.generateRandomString(128, true));
-		ticketInfo.setBaseTicketUrl(ticket.getBaseTicketUrl());
-		ticketInfo.setType(null);// otp- link
-		ticketInfo.setStatus(ticket.getTicketStatus().name());
-		ticketRepo.save(ticketInfo);
+		ticketInfo.setToken(PasswordUtils.generateRandomString(128, true));
+		ticketInfo.setType(ticket.getTicketType().name());// otp- link
+		if(ticket.getTicketType() == TicketType.OTP) {
+			ticketInfo.setStatus(TicketStatus.OPEN.name());
+			ticketInfo.setIncorrectOTPCount(0);
+			ticketInfo.setOneTimePassword(PasswordUtils.generateRandomNumber(ticket.getOtpDigits()));
+		}else if(ticket.getTicketType() == TicketType.LINK)  {
+			ticketInfo.setStatus(TicketStatus.UNUSED.name());
+			ticketInfo.setBaseTicketUrl(ticket.getBaseTicketUrl());
+		}else if(ticket.getTicketType() == TicketType.DECISION_LINK)  {
+			ticketInfo.setStatus(TicketStatus.UNUSED.name());
+			ticketInfo.setBaseTicketUrl(ticket.getBaseTicketUrl());
+			ticketInfo.setAcceptCode(PasswordUtils.generateRandomNumber(12));
+			ticketInfo.setDeclineCode(PasswordUtils.generateRandomNumber(12));
+		}
+		ticketInfo=ticketRepo.save(ticketInfo);
 		return InfraDTOHelper.convertToTicketDTO(ticketInfo);
 	}
 
 	@Override
 	public TicketDTO updateTicket(String id, TicketDTO updatedTicket) {
-		return null;
+		TicketInfoEntity tokenEntity = ticketRepo.findById(id)
+				.orElseThrow(() -> new NotFoundException("ticket", id));
+		if(updatedTicket.getTicketStatus() != null) {
+			tokenEntity.setStatus(updatedTicket.getTicketStatus().name());
+		}
+		if(updatedTicket.getIncorrectOTPCount() != null) {
+			tokenEntity.setIncorrectOTPCount(updatedTicket.getIncorrectOTPCount());
+		}
+		tokenEntity=ticketRepo.save(tokenEntity);
+		return InfraDTOHelper.convertToTicketDTO(tokenEntity);
 	}
 
 	@Override
@@ -250,12 +277,12 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	public void sendEmail(String senderName, List<CorrespondentDTO> recipients, EmailTemplate template) {
+	public void sendEmail(String senderName, List<CorrespondentDTO> recipients, EmailTemplateDTO template) {
 		sendEmail(senderName, recipients, template, List.of());
 	}
 
 	@Override
-	public void sendEmail(String senderName, List<CorrespondentDTO> recipients, EmailTemplate template,
+	public void sendEmail(String senderName, List<CorrespondentDTO> recipients, EmailTemplateDTO template,
 			List<DocumentDTO> attachFrom) {
 		List<Map<String, String>> recipientsList = new ArrayList<>();
 		for (CorrespondentDTO recipient : recipients) {
@@ -290,7 +317,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public void sendEmail(String senderName, List<CorrespondentDTO> recipients, String templateId,
-			EmailTemplate template, List<DocumentDTO> attachFrom) {
+			EmailTemplateDTO template, List<DocumentDTO> attachFrom) {
 		List<Map<String, String>> recipientsList = new ArrayList<>();
 		for (CorrespondentDTO recipient : recipients) {
 			Map<String, String> recipientMap = new HashMap<>();
@@ -299,42 +326,47 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			recipientMap.put("recipientName", recipient.getName());
 			recipientsList.add(recipientMap);
 		}
-
+		
 		List<Map<String, String>> attachmentList = new ArrayList<>();
-		Base64 x = new Base64();
-		for (DocumentDTO attachment : attachFrom) {
-			try {
-				Map<String, String> attachmentMap = new HashMap<>();
-				byte[] fileContent = CommonUtils.toByteArray(new URL(attachment.getDocumentURL()));
-				attachmentMap.put("content", x.encodeAsString(fileContent));
-				attachmentMap.put("contentId", attachment.getDocId());
-				attachmentMap.put("disposition", "attachment");
-				attachmentMap.put("fileName", attachment.getOriginalFileName());
-				attachmentMap.put("fileType", attachment.getFileType());
-				attachmentList.add(attachmentMap);
-			} catch (IOException e) {
-				e.printStackTrace();
+
+		if(attachFrom != null) {
+			Base64 x = new Base64();
+			for (DocumentDTO attachment : attachFrom) {
+				try {
+					Map<String, String> attachmentMap = new HashMap<>();
+					byte[] fileContent = CommonUtils.toByteArray(new URL(attachment.getDocumentURL()));
+					attachmentMap.put("content", x.encodeAsString(fileContent));
+					attachmentMap.put("contentId", attachment.getDocId());
+					attachmentMap.put("disposition", "attachment");
+					attachmentMap.put("fileName", attachment.getOriginalFileName());
+					attachmentMap.put("fileType", attachment.getFileType());
+					attachmentList.add(attachmentMap);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
+		
 		senderName = (senderName == null) ? propertyHelper.getAppName() : senderName;
 		emailExtService.sendEmail(template.getSubject(), senderName, recipientsList, templateId, template.getBody(),
 				attachmentList);
 	}
 
 	@Override
-	public EmailTemplate getEmailTemplate(String emailName) throws Exception {
-		List<RemoteConfig> configs = remoteConfigService.getRemoteConfigs();
-		for (RemoteConfig config : configs) {
-			if (EMAIL_TEMPLATES_CONFIG.equalsIgnoreCase(config.getName())) {
-				EmailTemplate[] templates = CommonUtils.jsonToPojo(config.getValue().toString(), EmailTemplate[].class);
-				for (EmailTemplate template : templates) {
-					if (emailName.equalsIgnoreCase(template.getTemplateName())) {
-						return template;
-					}
-				}
-				break;
-			}
-		}
+	@Deprecated
+	public EmailTemplateDTO getEmailTemplate(String emailName) throws Exception {
+//		List<RemoteConfig> configs = remoteConfigService.getRemoteConfigs();
+//		for (RemoteConfig config : configs) {
+//			if (EMAIL_TEMPLATES_CONFIG.equalsIgnoreCase(config.getName())) {
+//				EmailTemplateDTO[] templates = CommonUtils.jsonToPojo(config.getValue().toString(), EmailTemplateDTO[].class);
+//				for (EmailTemplateDTO template : templates) {
+//					//if (emailName.equalsIgnoreCase(template.getTemplateName())) {
+//						return template;
+//					//}
+//				}
+//				break;
+//			}
+//		}
 		return null;
 	}
 
@@ -355,14 +387,16 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		CustomFieldEntity entity = fieldDTO.getFieldId() == null ? new CustomFieldEntity()
 				: fieldRepository.findById(fieldDTO.getFieldId()).orElseThrow();
 		entity.setFieldDescription(fieldDTO.getFieldDescription() != null ?fieldDTO.getFieldDescription(): entity.getFieldDescription());
-		entity.setFieldKey(fieldDTO.getFieldKey() != null ?fieldDTO.getFieldKey(): entity.getFieldKey());
+		entity.setFieldKey(fieldDTO.getFieldKey() != null ?fieldDTO.getFieldKey().name(): entity.getFieldKey());
 		entity.setFieldName(fieldDTO.getFieldName() != null ?fieldDTO.getFieldName(): entity.getFieldName());
 		entity.setFieldType(fieldDTO.getFieldType() != null ?fieldDTO.getFieldType(): entity.getFieldType());
 		entity.setFieldValue(fieldDTO.getFieldValue() != null ?fieldDTO.getFieldValue(): entity.getFieldValue());
 		if(fieldDTO.getFieldId()== null) {
 			entity.setSource(fieldDTO.getFieldSource());
 		}
-		return InfraDTOHelper.convertToFieldDTO(entity);
+		return InfraDTOHelper.convertToFieldDTO(entity,propertyHelper.getAppSecret());
 	}
+
+	
 
 }

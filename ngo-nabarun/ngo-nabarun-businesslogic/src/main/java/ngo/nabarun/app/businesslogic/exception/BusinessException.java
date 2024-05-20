@@ -1,20 +1,23 @@
 package ngo.nabarun.app.businesslogic.exception;
 
-import org.springframework.stereotype.Component;
-
-
 public class BusinessException extends Exception {
 
-	public static final String s="";
 	private static final long serialVersionUID = 1L;
 
 	public BusinessException(String message) {
 		super(message);
-		
+
 	}
-	
-//	public BusinessException(BusinessExceptionMessage key) {
-//		super(inactiveDonor);
-//	}
-//	
+
+	public enum ExceptionEvent {
+		GENERIC_ERROR,
+		EMAIL_ALREADY_IN_USE, 
+		PASSWORD_NOT_COMPLIANT, 
+		INACTIVE_USER_DONATION,
+		REGULAR_DONATION_EXISTS,
+		//DONATION_ALREADY_RAISED,
+		NO_AMOUNT_CHANGE_PAID,
+		INACTIVE_USER_ACCOUNT, 
+		OTP_EXPIRED, INVALID_OTP, INSUFFICIENT_ACCESS,
+	}
 }

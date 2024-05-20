@@ -27,5 +27,12 @@ public class CustomFieldEntity{
 	private String fieldValue;
 	private String fieldDescription;
 	private String source;
+	private String sourceType;
+	private String encryptionSalt;
+	private String encryptionIV;
+
+	private boolean hidden;
+	private boolean encrypted;
+
 	
 }

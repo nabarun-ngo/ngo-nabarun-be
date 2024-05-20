@@ -3,11 +3,10 @@ package ngo.nabarun.app.infra.core.repo;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 
-@Repository
+
 public interface TicketRepository extends MongoRepository<TicketInfoEntity, String> {
 
 //	@Query(value = "select * from otps where identifier=:identifier", nativeQuery = true)

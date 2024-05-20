@@ -17,22 +17,18 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
-import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
-import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
+import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.common.enums.AuthRefType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
+import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
-import ngo.nabarun.app.infra.misc.DonationConfigTemplate;
-import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 import ngo.nabarun.app.infra.service.IMeetingInfraService;
-import ngo.nabarun.app.infra.service.ITicketInfraService;
 
 @Service
 public class CommonBLImpl implements ICommonBL {
@@ -47,14 +43,11 @@ public class CommonBLImpl implements ICommonBL {
 	private IMeetingInfraService meetingInfraService;
 	
 	@Autowired
-	private ITicketInfraService ticketInfraService;
-	
-	@Autowired
-	private BusinessDomainRefHelper domainRefHelper;
-	
-	@Autowired
 	private CacheManager cacheManager;
 	
+	@Autowired
+	private BusinessHelper businessHelper;
+
 	
 	@Override
 	public void uploadDocuments(MultipartFile[] files, String docIndexId, DocumentIndexType docIndexType) throws Exception {
@@ -107,8 +100,8 @@ public class CommonBLImpl implements ICommonBL {
 		if(authDetail.getAuthRefType() == AuthRefType.MEETING) {
 			MeetingDTO meetingDTO=meetingInfraService.getMeeting(authDetail.getAuthRefId());
 			if(meetingDTO.getAuthUrl() == null) {
-				TicketDTO ticketDTO = new TicketDTO();
-				ticketDTO=ticketInfraService.createTicket(ticketDTO);
+				TicketDTO ticketDTO = new TicketDTO(TicketType.LINK);
+				//ticketDTO=ticketInfraService.createTicket(ticketDTO);
 				meetingDTO.setAuthUrl(meetingInfraService.createAuthorizationLink(ticketDTO.getToken(),authDetail.getCallbackUrl()));
 				meetingDTO.setAuthCallbackUrl(authDetail.getCallbackUrl());
 				meetingDTO=meetingInfraService.updateMeeting(meetingDTO.getId(), meetingDTO);
@@ -137,15 +130,22 @@ public class CommonBLImpl implements ICommonBL {
 				type=DonationType.valueOf(attr.get("donationType"));
 				currStatus=DonationStatus.valueOf(attr.get("currentDonationStatus"));
 			}
-			obj.putAll(domainRefHelper.getDonationRefData(type, currStatus));
+			obj.putAll(businessHelper.getDonationRefData(type, currStatus));
 		}
 		
 		if(names == null || names.contains(RefDataType.USER)) {
-			obj.putAll(domainRefHelper.getUserRefData());
+			obj.putAll(businessHelper.getUserRefData());
 		}
 		
 		return obj;
 	}
+	
+	@Override
+	public Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception {
+		return getReferenceData(names,null);
+	}
+
+	
 
 	
 }

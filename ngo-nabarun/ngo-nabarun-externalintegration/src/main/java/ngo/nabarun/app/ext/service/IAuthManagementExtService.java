@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
+import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 
@@ -29,4 +30,6 @@ public interface IAuthManagementExtService {
 	
 	@Cacheable("all_available_roles")
 	List<AuthUserRole> getAllAvailableRoles() throws ThirdPartyException;
+	@Cacheable("all_connections")
+	List<AuthConnection> getConnections() throws ThirdPartyException;
 }

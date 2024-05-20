@@ -11,9 +11,10 @@ import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
-import ngo.nabarun.app.businesslogic.helper.BusinessIdGenerator;
+import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
+import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
@@ -43,7 +44,7 @@ public class AccountBLImpl implements IAccountBL {
 	private ITransactionInfraService transactionInfraService;
 
 	@Autowired
-	private BusinessIdGenerator idGenerator;
+	private BusinessHelper idGenerator;
 
 	@Override
 	public Paginate<AccountDetail> getAccounts(Integer page, Integer size, AccountDetailFilter filter) {
@@ -70,7 +71,7 @@ public class AccountBLImpl implements IAccountBL {
 
 	@Override
 	public AccountDetail createAccount(AccountDetailCreate accountDetail) throws Exception {
-		UserDTO userDTO = userInfraService.getUser(accountDetail.getAccountHolderProfileId(), false);
+		UserDTO userDTO = userInfraService.getUser(accountDetail.getAccountHolderProfileId(),IdType.ID, false);
 		if (userDTO.getStatus() != ProfileStatus.ACTIVE) {
 			throw new BusinessException("Account can only be created for an ACTIVE user.");
 		}

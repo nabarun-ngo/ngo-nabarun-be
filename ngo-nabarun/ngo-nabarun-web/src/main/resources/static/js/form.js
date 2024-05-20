@@ -9,11 +9,11 @@
 		rules: {
 			firstName: {
 				required: true,
-				rangelength: [2, 15]
+				rangelength: [2, 20]
 			},
 			lastName: {
 				required: true,
-				rangelength: [2, 15]
+				rangelength: [2, 20]
 			},
 			email: {
 				required: true,
@@ -28,12 +28,12 @@
 			hometown: {
 				required: true,
 				minlength: 5,
-				maxlength: 20
+				maxlength: 30
 			},
 			howDoUKnowAboutNabarun: {
 				required: true,
 				minlength: 5,
-				maxlength: 50
+				maxlength: 100
 			},
 			reasonForJoining: {
 				required: true,
@@ -86,9 +86,31 @@
 	
 	
 	
-	$("#resend").on('click', '#submitJoiningForm', function() {
-        $('#otpForm').attr({ method: "POST", action: "/join/resend-email" }).submit();
-    });
+
+$('#passwordForm').validate({ // initialize the plugin
+		rules: {
+			
+			email: {
+				required: true,
+				email: true
+			},
+			password: {
+				required: true,
+				minlength: 6,
+				maxlength: 30
+			},
+			confirmPassword: {
+				required: true,
+				equalTo: "#password"
+			}
+		},
+		submitHandler: function(form) {
+			return true;
+		},
+		errorPlacement: function(error, element) {
+			error.insertAfter(element.parent());
+		}
+	});
 	
 
 

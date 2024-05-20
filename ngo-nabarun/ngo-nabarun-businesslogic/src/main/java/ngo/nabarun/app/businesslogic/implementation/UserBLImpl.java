@@ -1,11 +1,10 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -17,7 +16,7 @@ import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
-import ngo.nabarun.app.businesslogic.helper.BusinessDomainRefHelper;
+import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
 import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
@@ -30,10 +29,7 @@ import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.UserDTO.UserDTOFilter;
-import ngo.nabarun.app.infra.misc.KeyValuePair;
-import ngo.nabarun.app.infra.misc.UserConfigTemplate;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Service
@@ -45,34 +41,30 @@ public class UserBLImpl implements IUserBL {
 	@Autowired 
 	private GenericPropertyHelper propertyHelper;
 	
-//	@Autowired 
-//	private IGlobalDataInfraService domainRefConfig;
 	@Autowired
-	private BusinessDomainRefHelper domainRefHelperService;
+	private BusinessHelper businessHelper;
 	
 	@Autowired
 	private IDocumentInfraService documentInfraService;
 	
+
 	
 	@Override
 	public UserDetail getAuthUserFullDetails() throws Exception {
 		UserDTO userDTO = null;
-		List<RoleDTO> roleDTO = new ArrayList<>();
 		if (SecurityUtils.isAuthenticated()) {
-			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() , true);
-			roleDTO =userService.getUserRoles(userDTO.getProfileId());  
+			userDTO = userService.getUser(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() ,IdType.AUTH_USER_ID  , true);
+			List<RoleDTO> roleDTO =userService.getUserRoles(userDTO.getProfileId(),IdType.ID,true);  
+			userDTO.setRoles(roleDTO);
 		} 
-//		else {
-//			throw new BusinessException(BusinessExceptionMessage.USER_AUTH_NEEDED.getMessage());
-//		}
-		return DTOToBusinessObjectConverter.toUserDetail(userDTO,roleDTO);
+		return DTOToBusinessObjectConverter.toUserDetail(userDTO);
 	}
 
 	@Override
 	public UserDetail updateAuthUserDetails(UserDetailUpdate updatedUserDetails) throws Exception {
 		UserDTO userDTO = null;
 		if (SecurityUtils.isAuthenticated()) {
-			userDTO = userService.getUserByUserId(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() , false);
+			userDTO = userService.getUser(propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId() : SecurityUtils.getAuthUserId() ,IdType.AUTH_USER_ID, false);
 			/** *******************************************
 			 *   All Business level validations start here
 			 *  *******************************************
@@ -99,22 +91,22 @@ public class UserBLImpl implements IUserBL {
 			 * Throwing error when if 'gender' and 'title' is getting changed then call config and check if new gender is aligned with new title 
 			 */
 			
-			if(updatedUserDetails.getGender() !=null && updatedUserDetails.getTitle()!=null && !domainRefHelperService.isTitleGenderAligned(updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
-				throw new BusinessException("Title '"+domainRefHelperService.getTitleValue(updatedUserDetails.getTitle())+"' is not aligned with gender '"+domainRefHelperService.getGenderValue(updatedUserDetails.getGender())+"'.");
+			if(updatedUserDetails.getGender() !=null && updatedUserDetails.getTitle()!=null && !businessHelper.isTitleGenderAligned(updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
+				throw new BusinessException("Title '"+businessHelper.getTitleValue(updatedUserDetails.getTitle())+"' is not aligned with gender '"+businessHelper.getGenderValue(updatedUserDetails.getGender())+"'.");
 			}else {
 				/**
 				 * Allowing to update 'gender' if it is compatible with title
 				 * Throwing error when if only gender is getting changed then call config and check if new gender is aligned with old title
 				 */
-				if(updatedUserDetails.getGender() !=null && !domainRefHelperService.isTitleGenderAligned(userDTO.getTitle(), updatedUserDetails.getGender())) {
-					throw new BusinessException("Title '"+domainRefHelperService.getTitleValue(userDTO.getTitle())+"' is not aligned with gender '"+domainRefHelperService.getGenderValue(updatedUserDetails.getGender())+"'.");
+				if(updatedUserDetails.getGender() !=null && !businessHelper.isTitleGenderAligned(userDTO.getTitle(), updatedUserDetails.getGender())) {
+					throw new BusinessException("Title '"+businessHelper.getTitleValue(userDTO.getTitle())+"' is not aligned with gender '"+businessHelper.getGenderValue(updatedUserDetails.getGender())+"'.");
 				}
 				/**
 				 * Allowing to update 'title' if it is compatible with gender
 				 * Throwing error when if only title is getting changed then call config and check if new title is aligned with old gender
 				 */
-				if(updatedUserDetails.getTitle() !=null && !domainRefHelperService.isTitleGenderAligned(updatedUserDetails.getTitle(), userDTO.getGender())) {
-					throw new BusinessException("Title '"+domainRefHelperService.getTitleValue(userDTO.getTitle())+"' is not aligned with gender '"+domainRefHelperService.getGenderValue(updatedUserDetails.getGender())+"'.");
+				if(updatedUserDetails.getTitle() !=null && !businessHelper.isTitleGenderAligned(updatedUserDetails.getTitle(), userDTO.getGender())) {
+					throw new BusinessException("Title '"+businessHelper.getTitleValue(userDTO.getTitle())+"' is not aligned with gender '"+businessHelper.getGenderValue(updatedUserDetails.getGender())+"'.");
 				}
 			}
 			
@@ -155,25 +147,12 @@ public class UserBLImpl implements IUserBL {
 
 	@Override
 	public UserDetail getUserDetails(String id, IdType idType,boolean includeAuthDetails,boolean includeRole) throws Exception {
-		UserDTO userDTO = null;
-		switch (idType) {
-		case EMAIL:
-			userDTO = userService.getUserByEmail(id, includeAuthDetails);
-			break;
-		case ID:
-			userDTO = userService.getUser(id, includeAuthDetails);
-			break;
-		case AUTH_USER_ID:
-			userDTO = userService.getUserByUserId(id, includeAuthDetails);
-			break;
-		default:
-			break;
-		}
-		List<RoleDTO> roleDTO = null;
+		UserDTO userDTO = userService.getUser(id,idType, includeAuthDetails);;
 		if(includeRole) {
-			roleDTO =userService.getUserRoles(userDTO.getProfileId());  
+			List<RoleDTO> roleDTO =userService.getUserRoles(userDTO.getProfileId(),IdType.ID,true);  
+			userDTO.setRoles(roleDTO);
 		}
-		return DTOToBusinessObjectConverter.toUserDetail(userDTO,roleDTO);
+		return DTOToBusinessObjectConverter.toUserDetail(userDTO);
 	}
 
 	@Override
@@ -188,18 +167,39 @@ public class UserBLImpl implements IUserBL {
 			userDTOFilter.setUserId(userDetailFilter.getUserId());
 		}
 		Page<UserDetail> content =userService.getUsers(page, size, userDTOFilter)
-				
 				.map(m -> DTOToBusinessObjectConverter.toUserDetail(m));
-//				.sorted(new Comparator<UserDetail>() {
-//					@Override
-//					public int compare(UserDetail o1, UserDetail o2) {
-//						return o1.getFirstName().compareTo(o2.getFirstName());
-//					}
-//				}).toList();
-
 		return new Paginate<UserDetail>(content);
 	}
 
+
+	@Override
+	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
+		/**
+		 * Validations
+		 */
+		if(CollectionUtils.isEmpty(roleCodes)) {
+			throw new Exception("Collection cannot be empty") ;
+		}
+		List<RoleDTO> roles=businessHelper.convertToRoleDTO(roleCodes);
+		userService.updateUserRoles(id, roles);
+	}
+
+	@Override
+	public void allocateUsersToRole(String roleId, List<String> users) {
+		
+	}
+
+	@Override
+	@Cacheable("public_profiles")
+	public List<UserDetail> getPublicProfiles() {
+		UserDTOFilter userDTOFilter = new UserDTOFilter();
+		userDTOFilter.setPublicProfile(true);
+		userDTOFilter.setDeleted(false);
+		List<UserDTO> content =userService.getUsers(null, null, userDTOFilter).getContent();
+		return content.stream().map(DTOToBusinessObjectConverter::toPublicUserDetail).toList();
+		
+	}
+	
 	@Override
 	public void initiatePasswordChange(String appClientId) throws Exception {
 		if (SecurityUtils.isAuthenticated()) {
@@ -209,51 +209,14 @@ public class UserBLImpl implements IUserBL {
 	}
 
 	@Override
-	public void initiateEmailChange(String newEmail) throws Exception {
-		if (SecurityUtils.isAuthenticated()) {
-			//UserDTO userDTO = userService.getUserByUserId(SecurityUtils.getAuthUserId(), false);
-			//String ticket =userService.initiateEmailChange(userDTO.getProfileId(),newEmail);
-			//send email from here
-			SecurityUtils.getAuthUserName();
-		}
-		
+	public void syncUserDetail() throws Exception {
+		userService.syncUserDetails();
 	}
 
 	@Override
-	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
-		List<RoleDTO> roles=userService.getUserRoles(id);
-		/**
-		 * Validations
-		 */
-		
-		if(CollectionUtils.isEmpty(roleCodes)) {
-			throw new BusinessException("Collection cannot be empty") ;
-		}
-		
-		if(roleCodes.equals(roles.stream().map(m->m.getCode()).toList())) {
-			throw new BusinessException("Past roles and new roles cannot be same.") ;
-		}
-		
-		/**
-		 * Removing all existing roles
-		 */
-		userService.deleteRolesFromUser(id, roles);
-		
-//		List<RoleDTO> rolesToBeAdded =new ArrayList<>();
-//		for(KeyValuePair roleConfig:userConfig.getAvailableUserRoles()) {
-//			if(roleCodes.stream().anyMatch(m-> m.name().equalsIgnoreCase(roleConfig.getKey())) ) {
-//				RoleDTO role = new RoleDTO();
-//				role.setCode(RoleCode.valueOf(roleConfig.getKey()));
-//				role.setId(roleConfig.getAttributes().getOrDefault("ROLE_ID", "NO_VALUE").toString());
-//				role.setName(roleConfig.getValue());
-//				rolesToBeAdded.add(role);
-//			}
-//		}
-//		userService.addRolesToUser(id, rolesToBeAdded);
-	}
-
-	@Override
-	public void allocateUsersToRole(String roleId, List<String> users) {
+	public void initiateEmailChange(String email) throws Exception {
+		// TODO Auto-generated method stub
 		
 	}
+	
 }

@@ -16,7 +16,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.EmailOrPasswordUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailUpdate;
@@ -51,13 +50,9 @@ public class UserController {
 	public ResponseEntity<SuccessResponse<Paginate<UserDetail>>> getUsers(
 			@RequestParam(required = false) Integer pageIndex,
 			@RequestParam(required = false) Integer pageSize,
-			@RequestParam(required = false) String search
+			UserDetailFilter filter
 			) {
-		UserDetailFilter userDetailFilter= null;
-		if(search != null) {
-			userDetailFilter= CommonUtils.jsonToPojo(search, UserDetailFilter.class);
-		}
-		Paginate<UserDetail> userList=userBL.getAllUser(pageIndex,pageSize,userDetailFilter);
+		Paginate<UserDetail> userList=userBL.getAllUser(pageIndex,pageSize,filter);
 		return new SuccessResponse<Paginate<UserDetail>>().payload(userList).get(HttpStatus.OK);
 	}
 	
@@ -95,6 +90,12 @@ public class UserController {
 
 	@PostMapping("/changeEmail")
 	public ResponseEntity<SuccessResponse<Void>> changeEmail(@RequestBody EmailOrPasswordUpdate requestBody) throws Exception {
+		return new SuccessResponse<Void>().get(HttpStatus.OK);
+	}
+	
+	@GetMapping("/sync")
+	public ResponseEntity<SuccessResponse<Void>> sync() throws Exception {
+		userBL.syncUserDetail();
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	

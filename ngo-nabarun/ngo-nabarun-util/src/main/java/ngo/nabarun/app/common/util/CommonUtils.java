@@ -37,52 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommonUtils {
 	private final static ObjectMapper objectMapper =new ObjectMapper();
-	private final static PasswordGenerator passwordGenerator = new PasswordGenerator();
 
-	public static String generateRandomString(int length, boolean alphaNumeric) {
-        List<CharacterRule> ruleList = new ArrayList<>();
-        ruleList.add(new CharacterRule(EnglishCharacterData.Alphabetical));
-        if(alphaNumeric) {
-            ruleList.add(new CharacterRule(EnglishCharacterData.Digit));
-        }
-		return passwordGenerator.generatePassword(length, ruleList);
-
-    }
 	
-	public static String generateRandomPassword(int length, boolean allowDigits, boolean allowSpecialChar, boolean allowUppercase, boolean allowLowercase) {
-        List<CharacterRule> ruleList = new ArrayList<>();
-        ruleList.add(new CharacterRule(EnglishCharacterData.Alphabetical));
-        if(allowDigits) {
-            ruleList.add(new CharacterRule(EnglishCharacterData.Digit));
-        }
-        if(allowSpecialChar) {
-        	CharacterRule specialCharacterRule = new CharacterRule(new CharacterData() {
-        	    @Override
-        	    public String getErrorCode() {
-        	        return "INVALID_SPECIAL_CHARACTER";
-        	    }
-
-        	    @Override
-        	    public String getCharacters() {
-        	        return "@#$%^&*?";
-        	    }
-        	});
-            ruleList.add(specialCharacterRule);
-        }
-        if(allowUppercase) {
-            ruleList.add(new CharacterRule(EnglishCharacterData.UpperCase));
-        }
-        if(allowLowercase) {
-            ruleList.add(new CharacterRule(EnglishCharacterData.LowerCase));
-        }
-		return passwordGenerator.generatePassword(length, ruleList);
-
-    }
-	
-	public static String generateRandomNumber(int digits) {
-        return passwordGenerator.generatePassword(digits, List.of(new CharacterRule(EnglishCharacterData.Digit)));
-
-    }
 
 	public static boolean isCurrentMonth(Date givenDate) {
 		Calendar cal1 = Calendar.getInstance();

@@ -7,12 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.stereotype.Repository;
 
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
 
 
-@Repository
 public interface TransactionRepository extends MongoRepository<TransactionEntity,String>,QuerydslPredicateExecutor<TransactionEntity>{
 
 	List<TransactionEntity> findByTransactionRefIdAndTransactionRefType(String txnRefNumber, String txnRefType);

@@ -1,8 +1,6 @@
 package ngo.nabarun.app.infra.serviceimpl;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -40,7 +38,7 @@ public class EventInfraServiceImpl implements IEventInfraService {
 		} else {
 			events = eventRepository.findAll();
 		}
-		return events.stream().map(m -> InfraDTOHelper.convertToEventDTO(m)).collect(Collectors.toList());
+		return events.stream().map(m -> InfraDTOHelper.convertToEventDTO(m)).toList();
 	}
 
 	@Override

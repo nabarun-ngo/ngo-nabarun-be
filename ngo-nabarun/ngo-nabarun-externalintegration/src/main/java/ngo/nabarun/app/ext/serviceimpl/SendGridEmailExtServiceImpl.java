@@ -31,6 +31,7 @@ public class SendGridEmailExtServiceImpl implements IEmailExtService {
 	@Override
 	public int sendEmail(String subject, String senderName, List<Map<String, String>> recipients, String templateId,
 			Object templateData, List<Map<String, String>> attachFrom) {
+	
 		Email from = new Email(propertyHelper.getDefaultEmailSender(), senderName);
 		Mail mail = new Mail();
 		mail.setFrom(from);

@@ -22,6 +22,9 @@ public class GenericPropertyHelper {
 	@Value("${ENVIRONMENT}")
 	private String environmentName;
 	
+	@Value("${APP_SECRET}")
+	private String appSecret; 
+	
 	@Value("${INCLUDE_ERROR_DETAILS:false}")
 	private boolean includeErrorDetails;
 	
@@ -36,8 +39,10 @@ public class GenericPropertyHelper {
 		return systemEnv.getProperty("CORS_ALLOWED_METHODS") == null ? null : systemEnv.getProperty("CORS_ALLOWED_METHODS").split(",");
 	}
 	
-	@Value("${APP_MAIl_SENDER_ADDRESS:''}")
-	private String defaultEmailSender;
+
+	public String getDefaultEmailSender() {
+		return systemEnv.getProperty("SENDGRID_SENDER_ADDRESS");
+	}
 	
 	@Value("${APP_NAME:'Nabarun'}")
 	private String appName;
@@ -121,6 +126,12 @@ public class GenericPropertyHelper {
 	@Value("${GOOGLE_CLIENT_SECRET:'NO_VALUE'}")
 	private String googleClientSecret;
 
+	@Value("${GOOGLE_RECAPTCHA_SITE_KEY:'NO_VALUE'}")
+	private String googleRecaptchaSiteKey;
+	
+	@Value("${GOOGLE_RECAPTCHA_SECURITY_KEY:'NO_VALUE'}")
+	private String googleRecaptchaSecurityKey;
+	
 	public String getDopplerServiceKey() {
 		return systemEnv.getProperty("DOPPLER_SERVICE_TOKEN");
 	}
@@ -131,5 +142,10 @@ public class GenericPropertyHelper {
 
 	public String getDopplerConfigName() {
 		return systemEnv.getProperty("ENVIRONMENT").toLowerCase() ;
+	}
+
+	public void get() {
+		// TODO Auto-generated method stub
+		
 	}
 }

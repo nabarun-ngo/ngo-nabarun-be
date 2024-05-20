@@ -1,4 +1,3 @@
-
 <div class="container-fluid py-5 scroll-margin" th:fragment="join"
 	id="join" data-parallax="scroll" data-image-src="img/carousel-2.jpg">
 	<div class="container">
@@ -15,7 +14,7 @@
 
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
 				<div class="h-100 bg-secondary p-5">
-					<form id="JoinUsForm" th:action="@{/join/rules}" method="post"
+					<form id="JoinUsForm" th:action="@{/signup}" method="post"
 						th:object="${interview}" autocomplete="off">
 						<div class="row g-3">
 							<div class="col-md-6">
@@ -68,16 +67,16 @@
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
-									<input type="text" class="form-control bg-light border-0"
+									<textarea rows="4" class="form-control bg-light border-0"
 										id="howDoUKnow" placeholder="How did you know about Nabarun?"
-										th:field="*{howDoUKnowAboutNabarun}"> <label
-										for="howDoUKnowAboutNabarun">How did you know about
+										th:field="*{howDoUKnowAboutNabarun}"></textarea> 
+										<label for="howDoUKnowAboutNabarun">How did you know about
 										Nabarun?</label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
-									<textarea class="form-control bg-light border-0"
+									<textarea rows="4" class="form-control bg-light border-0"
 										id="whyDoUWantToJoin"
 										placeholder="Why you want to join Nabarun?"
 										th:field="*{reasonForJoining}"></textarea>
@@ -85,7 +84,7 @@
 										Nabarun?</label>
 								</div>
 							</div>
-							<input type="hidden" name="status" th:value="SHOW_RULES">
+							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_BASIC_INFO'">
 							<div class="col-12">
 								<button type="submit" id="joinNow" class="btn btn-primary px-5"
 									style="height: 60px;">
@@ -107,86 +106,31 @@
 	</div>
 </div>
 
+
+
 <div class="container-xxl py-5 scroll-margin" th:fragment="joiningrules"
 	id="joiningrules" th:if="${stage == 1}">
 	<div class="container">
+		<div class="alert alert-danger" role="alert"
+						th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
 		<div class="text-center mx-auto mb-5 wow fadeInUp"
 			data-wow-delay="0.1s" style="max-width: 1000px;">
 			<h1 class="display-6 mb-5">Please Read Rules And Regulations
 				Carefully</h1>
 		</div>
 		<div class="row g-4 justify-content-center">
-
 			<div class="px-2 ">
-				<div class="py-2 ">
+				<div class="py-2 " th:each="rule,ruleStat : ${rules}" >
 					<p>
-						<b>1.</b> NABARUN is a fully charitable and non profit
-						organization, here everything is depend upon the members. So, if
-						anyone wants to help us by any suggestion, any idea or any
-						planning related to our group or upcoming work or about our social
-						media handles then he/she can write those to
-						nabarunbangla18@gmail.com.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>2.</b> Their must be a group meeting in every month end and
-						several important meetings can occur before any field work. So, if
-						anyone misses that meeting, it's his/her responsibility to get
-						updated with all those necessary information.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>2.</b> Those members are only added by the group coordinators
-						(after sharing wp number by the person wants to add them) and they
-						are welcomed by only the person wants to add him/her and by the
-						group coordinator.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>4.</b> Several persons are assigned for the duties in the
-						group, but they are not given any benefits for doing those. The
-						only thing for which they are managing their time from everything
-						is the love and dedication towards this group. So, every member
-						must respect them and in their field their decisions are always
-						the final.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>5.</b> Proper courtesy and good as well as friendly behavior is
-						expected from every members in the group. Remember your behavior
-						should not hurt others.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>6.</b> Unnecessary talks, unrelated posts must be avoided in
-						the group, only group work related conversations are appreciated.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>7.</b> Group members should clear their donation within 15th of
-						every month and their payments are approved after giving
-						screenshots in the group.
-					</p>
-				</div>
-				<div class="py-2 ">
-					<p>
-						<b>8.</b> If any member is having any problem or query related to
-						group then he/she must consult with the group coordinators within
-						the group. He/she will not bother other members by personal text.
+						<b>[[${ruleStat.index +1 }]]. </b>
+						[[${rule}]]
 					</p>
 				</div>
 			</div>
-			<form th:action="@{/join/verify-email}" method="post"
+			<form th:action="@{/signup}" method="post"
 				th:object="${interview}">
+				<input type="hidden" name="actionName" id="actionName" th:value="'ACCEPT_RULES'">
 				<div class="d-flex justify-content-center m-2">
-					<input type="hidden" name="status" th:value="SEND_OTP">
-
 					<button class="btn btn-outline-primary py-2 px-3 m-2 w-25 "
 						href="/">
 						<div
@@ -210,16 +154,89 @@
 </div>
 
 
+
+
+
+
 <div class="container-xxl py-5 scroll-margin"
-	th:fragment="otpvalidation" id="otpvalidation" th:if="${stage == 2}">
+	th:fragment="setAccountPassword" id="setAccountPassword" th:if="${stage == 2}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp"
 			data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5">Verify Your Email</h1>
-			<p class="mb-0"
-				th:text="'An One Time Password has been sent to '+ ${interview.getEmail()} +'.'"></p>
-				<form th:action="@{/join/resend-email}" method="post"
+			<h1 class="display-6 mb-5">Set Login details</h1>
+			<p class="mb-0 alert alert-info"  th:if="${successMessage !=null}" th:text="${successMessage}"
+				></p>
+		</div>
+		<div class="row g-4 justify-content-center">
+			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+				<div class="h-100 bg-secondary p-5">
+					<div class="alert alert-danger" role="alert"
+						th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
+					<!-- <div class="alert alert-success" role="alert" th:text="'Please set your login password. Your password should contain atleast 1 uppercase'"
+						></div> -->
+					<form id="passwordForm" th:action="@{/signup}" method="post"
+						th:object="${interview}">
+						<div class="row g-3">
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="email" class="form-control bg-light border-0"
+										id="loginemail" placeholder="Login Email" th:field="*{email}">
+									<label for="email">Login Email</label>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="password" class="form-control bg-light border-0"
+										id="password" placeholder="Login Password" th:field="*{password}">
+									<label for="password">Login Password</label>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="password" class="form-control bg-light border-0"
+										id="confirmpassword" placeholder="Confirm Login Password" th:field="*{confirmPassword}">
+									<label for="confirmpassword">Confirm Login Password</label>
+								</div>
+							</div>
+							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_LOGIN_DETAIL'">
+							<div class="col-12">
+							
+								<button type="submit" id="joinNow" class="btn btn-primary px-5"
+									style="height: 60px;">
+									Proceed
+									<div
+										class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
+										<i class="fa fa-arrow-right"></i>
+									</div>
+								</button>
+							</div>
+
+						</div>
+
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+<div class="container-xxl py-5 scroll-margin"
+	th:fragment="otpvalidation" id="otpvalidation" th:if="${stage == 3}">
+	<div class="container">
+		<div class="text-center mx-auto mb-5 wow fadeInUp"
+			data-wow-delay="0.1s" style="max-width: 1000px;">
+			<h1 class="display-6 mb-5">Verify Email and Submit</h1>
+			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:text="${successMessage}"></p>
+				<form th:action="@{/signup}" method="post"
 				th:object="${interview}">
+				<input type="hidden" name="actionName" id="actionName" th:value="'RESEND_OTP'">
 				<div class="d-flex justify-content-center m-2">
 					<button type="submit"
 						class="btn btn-outline-primary btn-primary py-2 px-3 m-2">
@@ -238,20 +255,20 @@
 				<div class="h-100 bg-secondary p-5">
 					<div class="alert alert-danger" role="alert"
 						th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
-					<div class="alert alert-success" role="alert"
-						th:if="${successMessage !=null}" th:text="${successMessage}"></div>
-					<form id="otpForm" th:action="@{/join/register}" method="post"
-						th:object="${otpInfo}">
+					<form id="otpForm" th:action="@{/signup}" method="post"
+						th:object="${interview}">
 						<div class="row g-3">
 							<div class="col-12">
 								<div class="form-floating">
-									<input type="text" class="form-control bg-light border-0"
-										id="otp" placeholder="One Time Password" th:field="*{otp}">
+									<input type="password" class="form-control bg-light border-0"
+										id="otp" placeholder="One Time Password" th:field="*{onetimePassword}">
 									<label for="otp">One Time Password</label>
 								</div>
 							</div>
-
-							<input type="hidden" name="status" th:value="REGISTER">
+							<div class="col-12">
+								<div class="g-recaptcha"  th:attr="data-sitekey='#{siteKey}'"></div>
+							</div>
+							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_OTP'">
 							<div class="col-12">
 							
 								<button type="submit" id="joinNow" class="btn btn-primary px-5"
@@ -274,15 +291,20 @@
 		</div>
 	</div>
 </div>
+
+
+
+
+
 <div class="container-xxl py-5 scroll-margin"
-	th:fragment="postsubmission" id="success" th:if="${stage == 3}">
+	th:fragment="postsubmission" id="success" th:if="${stage == 4}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp"
 			data-wow-delay="0.1s" style="max-width: 1000px;">
-			'
 			<h1 class="display-6 mb-5"
 				th:text="'Thank You '+${interview.getFirstName()}"></h1>
-			<div class="alert alert-success" role="alert" th:text="${message}"></div>
+			<div class="alert alert-success" role="alert"  th:if="${successMessage != null}" th:text="${successMessage}"></div>
+			<div class="alert alert-danger" role="alert"  th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
 		</div>
 		<div class="d-flex justify-content-center m-2">
 

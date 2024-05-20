@@ -1,17 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layouts/default}">
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
 
 <div layout:fragment="content" th:remove="tag">
 	<div th:replace="fragments/components/header :: header"></div>
-
-	<div 
-		th:replace="fragments/components/join :: joiningrules"></div>
-	
-	<div 
-		th:replace="fragments/components/join :: otpvalidation"></div>
-		<div 
-		th:replace="fragments/components/join :: postsubmission"></div>
+	<!-- <div th:replace="fragments/components/join :: join"></div> -->
+	<div th:if="${stage == 1}" th:replace="fragments/components/join :: joiningrules"></div>
+	<div th:if="${stage == 2}" th:replace="fragments/components/join :: setAccountPassword"></div>
+	<div th:if="${stage == 3}" th:replace="fragments/components/join :: otpvalidation"></div>
+	<div th:if="${stage == 4}" th:replace="fragments/components/join :: postsubmission"></div>
 </div>
 
 </html>

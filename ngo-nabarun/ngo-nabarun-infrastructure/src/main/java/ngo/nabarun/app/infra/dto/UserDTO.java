@@ -23,6 +23,7 @@ public class UserDTO {
 	private String gender;
 	private String about;
 	private List<RoleDTO> roles;
+	private String password;
 
 	private String email;
 	private String phoneNumber;
@@ -32,6 +33,8 @@ public class UserDTO {
 	private String profileId;
 	private String userId;
 	private ProfileStatus status;
+	private List<String> loginProviders;
+
 	
 	private UserAdditionalDetailsDTO additionalDetails;
 	
@@ -43,7 +46,10 @@ public class UserDTO {
 		private String phoneNumber;
 		private String profileId;
 		private String userId;
-		private ProfileStatus status;
+		private List<ProfileStatus> status;
+		private Boolean publicProfile;
+		private Boolean deleted;
+
 
 	}
 

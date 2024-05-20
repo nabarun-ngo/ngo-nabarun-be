@@ -14,10 +14,12 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDiscussion;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
 import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
+import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
@@ -31,21 +33,47 @@ import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
-import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.SocialMediaDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
+import ngo.nabarun.app.infra.dto.WorkFlowDTO;
+import ngo.nabarun.app.infra.dto.WorkListDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 
 public class DTOToBusinessObjectConverter {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	
+	public static UserDetail toPublicUserDetail(UserDTO userDTO) {
+		UserDetail userDetails = new UserDetail();
+		userDetails.setEmail(userDTO.getEmail());
+		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
+				: (userDetails.getInitials() == null ? null
+						: "https://i0.wp.com/cdn.auth0.com/avatars/" + userDetails.getInitials().toLowerCase()
+								+ ".png?ssl=1"));
+		String title = userDTO.getTitle() == null ? "" : userDTO.getTitle() + " ";
+		if (userDTO.getName() != null) {
+			userDetails.setFullName(title + userDTO.getName());
+		} else {
+			String firstName = userDTO.getFirstName() == null ? "" : userDTO.getFirstName() + " ";
+			String middleName = userDTO.getMiddleName() == null ? "" : userDTO.getMiddleName() + " ";
+			String lastName = userDTO.getLastName() == null ? "" : userDTO.getLastName();
+			userDetails.setFullName(title + firstName + middleName + lastName);
+		}
 
-	public static UserDetail toUserDetail(UserDTO userDTO) {
-		return toUserDetail(userDTO, null);
+		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+			userDetails.setRoles(userDTO
+					.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
+							.description(m.getDescription()).roleId(m.getId()).build())
+					.toList());
+			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m->m.getName()).toList()));	
+		}
+		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
+		return userDetails;
+
 	}
 
-	public static UserDetail toUserDetail(UserDTO userDTO, List<RoleDTO> role) {
+	public static UserDetail toUserDetail(UserDTO userDTO) {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setAbout(userDTO.getAbout());
 		userDetails.setActiveContributor(userDTO.getAdditionalDetails() != null
@@ -81,17 +109,18 @@ public class DTOToBusinessObjectConverter {
 			String lastName = userDTO.getLastName() == null ? "" : userDTO.getLastName();
 			userDetails.setFullName(title + firstName + middleName + lastName);
 		}
+		/*
+		 * Role management
+		 */
 
 		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
 			userDetails.setRoles(userDTO
 					.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
-							.roleGroup(m.getGroup()).description(m.getDescription()).roleId(m.getId()).build())
+							.description(m.getDescription()).roleId(m.getId()).build())
 					.toList());
+			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m->m.getName()).toList()));	
 		}
-//		else if (userDTO.getRoleNames() != null) {
-//			userDetails.setRoles(userDTO.getRoleNames().stream()
-//					.map(m -> UserRole.builder().roleCode(RoleCode.valueOf(m)).build()).collect(Collectors.toList()));
-//		}
+		
 		userDetails.setPublicProfile(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isDisplayPublic() : false);
 
@@ -137,18 +166,36 @@ public class DTOToBusinessObjectConverter {
 		donationDetail.setPaymentFailureDetail(donationDTO.getPaymentFailDetail());
 
 		donationDetail.setAdditionalFields(donationDTO.getAdditionalFields() == null ? List.of()
-				: donationDTO.getAdditionalFields().stream().map(DTOToBusinessObjectConverter::toAdditionalField)
+				: donationDTO.getAdditionalFields().stream().filter(f->!f.isHidden()).map(DTOToBusinessObjectConverter::toAdditionalField)
 						.collect(Collectors.toList()));
 		return donationDetail;
 	}
+	
+	public static RequestDetail toRequestDetail(WorkFlowDTO workflow) {
+		RequestDetail request= new RequestDetail();
+		request.setAdditionalFields(workflow.getAdditionalFields() == null ? List.of() : workflow.getAdditionalFields().stream().filter(f->!f.isHidden()).map(m->toAdditionalField(m)).toList());		
+		request.setCreatedOn(workflow.getCreatedOn());
+		request.setDelegated(workflow.isDelegated());
+		request.setDelegatedRequester(toUserDetail(workflow.getDelegatedRequester()));
+		request.setDescription(workflow.getWorkflowDescription());
+		request.setId(workflow.getId());
+		request.setName(workflow.getWorkflowName());
+		request.setRemarks(workflow.getRemarks());
+		request.setRequester(toUserDetail(workflow.getRequester()));
+		request.setResolvedOn(workflow.getResolvedOn());
+		request.setStatus(workflow.getWorkflowStatus() );
+		request.setType(workflow.getWorkflowType() );
+		return request;
+	}
 
 	public static AdditionalField toAdditionalField(FieldDTO fieldDTO) {
-		AdditionalField additionalField = new AdditionalField();
+		
+		AdditionalField additionalField = new AdditionalField(null, null, fieldDTO.isHidden());
 		additionalField.setId(fieldDTO.getFieldId());
 		additionalField.setKey(fieldDTO.getFieldKey());
 		additionalField.setName(fieldDTO.getFieldName());
 		additionalField.setType(fieldDTO.getFieldType());
-		additionalField.setValue(fieldDTO.getFieldValue());
+		additionalField.setValue(fieldDTO.isHidden() ? null :fieldDTO.getFieldValue());
 		return additionalField;
 	}
 
@@ -260,7 +307,7 @@ public class DTOToBusinessObjectConverter {
 	}
 
 	public static List<KeyValue> toKeyValueList(List<KeyValuePair> keyValPair) {
-		return keyValPair.stream().map(m -> {
+		return keyValPair == null ? List.of() : keyValPair.stream().map(m -> {
 			KeyValue kv = new KeyValue();
 			kv.setKey(m.getKey());
 			kv.setValue(m.getValue());
@@ -340,5 +387,27 @@ public class DTOToBusinessObjectConverter {
 		}
 
 		return txnDetail;
+	}
+	
+	public static WorkDetail toWorkItem(WorkListDTO workitemDTO) {
+		WorkDetail wiDetail = new WorkDetail();
+		wiDetail.setCreatedOn(workitemDTO.getCreatedOn());
+		wiDetail.setDecision(workitemDTO.getDecision());
+		wiDetail.setDecisionDate(workitemDTO.getDecisionDate());
+		wiDetail.setDescription(workitemDTO.getDescription());
+		wiDetail.setId(workitemDTO.getId());
+		
+		wiDetail.setRemarks(workitemDTO.getRemarks());
+		wiDetail.setStepCompleted(workitemDTO.getStepCompleted());
+		wiDetail.setWorkflowId(workitemDTO.getWorkflowId());
+		wiDetail.setWorkflowStatus(workitemDTO.getWorkflowStatus());
+		if(workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
+			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker()));
+		}else {
+			wiDetail.setPendingWithRoles(workitemDTO.getPendingWithRoles());
+		}
+		
+		wiDetail.setWorkType(workitemDTO.getWorkType());
+		return wiDetail;
 	}
 }

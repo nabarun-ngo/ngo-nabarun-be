@@ -2,6 +2,7 @@ package ngo.nabarun.app.ext.serviceimpl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import ngo.nabarun.app.common.helper.GenericPropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectConverter;
 import ngo.nabarun.app.ext.helpers.ThirdPartySystem;
+import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.service.IAuthManagementExtService;
@@ -83,11 +85,52 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
+	/**
+	 * this will always return the first user
+	 */
 	@Override
 	public AuthUser createUser(AuthUser userDetails) throws ThirdPartyException {
+		
 		try {
-			return ObjectConverter.toAuthUser(
-					initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails)).execute().getBody());
+			String connection = null;
+			for(String provider:userDetails.getProviders()) {
+				switch(provider) {
+				case "PASSWORD":
+					connection="Username-Password-Authentication";
+					break;
+				case "EMAIL":
+					connection="email";
+					userDetails.setPassword(null);
+					break;
+				case "SMS":
+					connection="sms";
+					userDetails.setPassword(null);
+					break;
+				}
+				initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection)).execute();
+			}		
+			/*
+			 * create for all connections and merge ids
+			 */
+			List<User> users= initManagementAPI().users().listByEmail(userDetails.getEmail(), null).execute().getBody();
+			if(users.size() >1) {
+				Map<String, Object> baseMetadata = users.get(0).getUserMetadata();
+				String primaryUserId=users.get(0).getId();
+				for(int i=1;i<users.size();i++) {
+					String secondaryUserId=users.get(i).getId();
+					String provider=users.get(i).getIdentities().get(0).getProvider();
+					baseMetadata.putAll(users.get(i).getUserMetadata());
+					initManagementAPI().users().linkIdentity(primaryUserId, secondaryUserId, provider, null).execute();
+				}
+				/*
+				 * Updating the user metadata
+				 */
+				User updatedUser= new User();
+				updatedUser.setUserMetadata(baseMetadata);
+				updatedUser = initManagementAPI().users().update(primaryUserId, updatedUser).execute().getBody();
+				return ObjectConverter.toAuthUser(updatedUser);
+			}
+			return ObjectConverter.toAuthUser(users.get(0));
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}
@@ -106,7 +149,6 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 	@Override
 	public void assignRolesToUser(String userId, List<String> roleIds) throws ThirdPartyException {
 		try {
-			System.out.println(roleIds);
 			initManagementAPI().users().addRoles(userId, roleIds).execute().getBody();
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
@@ -158,7 +200,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 	@Override
 	public AuthUser updateUser(String id, AuthUser auth0User) throws ThirdPartyException {
 		try {
-			User updatedUser = ObjectConverter.toAuth0User(auth0User);
+			User updatedUser = ObjectConverter.toAuth0User(auth0User,null);
 			updatedUser = initManagementAPI().users().update(id, updatedUser).execute().getBody();
 			return ObjectConverter.toAuthUser(updatedUser);
 		} catch (Auth0Exception e) {
@@ -175,5 +217,15 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}
 	}
-
+	
+	@Override
+	public List<AuthConnection> getConnections() throws ThirdPartyException {
+		try {
+			return initManagementAPI().connections().listAll(null).execute().getBody().getItems().stream().map(m->ObjectConverter.toAuthConnection(m)).toList();
+		} catch (Auth0Exception e) {
+			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
+		}
+	}
+	
+	
 }

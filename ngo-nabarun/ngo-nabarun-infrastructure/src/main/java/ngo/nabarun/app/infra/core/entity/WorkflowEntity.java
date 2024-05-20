@@ -1,83 +1,47 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
+import java.util.List;
 
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 /**
- * MongoDB
- * DAO for storing request in DB
+ * MongoDB DAO for storing request in DB
  */
-@Document("requests")
+@Document("workflow")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class WorkflowEntity{
-	
-	
+public class WorkflowEntity {
+
 	@Id
 	private String id;
-	
-	private String refNumber;
-	
-	private boolean hidden;
-
+	private String name;
 	private String type;
-	
 	private String status;
-	
-	private String requestName;
-	
-	private String requestDescription;
-	
-	private String ApprovedBy1;
-	
-	private String ApprovedBy2;
-	
-	private String reasonForRejection;
-	
-	private String rejectedBy;
-	
-	private String message;
-	
-	@CreatedDate
+	private String lastStatus;
+	private boolean lastActionCompleted;
+	private String description;
+	private String remarks;
 	private Date createdOn;
-	
-	@CreatedBy
 	private String createdBy;
-	
 	private Date resolvedOn;
-	
-	private String secretCode;
-	
-	private String requesterUserId;
-	
-	private RequestInfo registration;
-	
-	@DocumentReference
-	private UserProfileEntity profile;
-	
-	@DocumentReference
-	private UserProfileEntity delegateProfile;
-	
-	private Boolean delegated;
-	
-	private String rejoinDecision;
-	
-	private String getNotification;
-	
-	private Date rejoinDate;
-	
-	private Boolean continueDonation;
-	
-	private String suggession;
+
+	private String profileId;
+	private String profileName;
+	private String profileEmail;
+
 	
 
+	private boolean delegated;
+
+	private String delegateProfileId;
+	private String delegateProfileName;
+	private String delegateProfileEmail;
+
+
+	@DocumentReference(lookup = "{'source':?#{#self._id} }")
+	private List<CustomFieldEntity> customFields;
 }

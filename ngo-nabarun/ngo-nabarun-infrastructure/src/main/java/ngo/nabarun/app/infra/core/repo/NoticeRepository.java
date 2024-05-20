@@ -6,11 +6,10 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import ngo.nabarun.app.infra.core.entity.NoticeEntity;
 
-@Repository
+
 public interface NoticeRepository extends MongoRepository<NoticeEntity,String>{
 
 	@Query("{createdBy: ?0, draft: true}") 
