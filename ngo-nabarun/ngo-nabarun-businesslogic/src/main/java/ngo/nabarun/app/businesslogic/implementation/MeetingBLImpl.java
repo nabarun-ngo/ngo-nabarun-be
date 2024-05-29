@@ -10,7 +10,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetailCreate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
-import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
+import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.MeetingRefType;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.service.IEventInfraService;
@@ -51,11 +51,11 @@ public class MeetingBLImpl implements IMeetingBL {
 		meetingDTO.setEmailReminderBeforeMin(List.of(60,24*60));
 		meetingDTO.setPopupReminderBeforeMin(List.of(15,60));
 		meetingDTO=meetingInfraService.createMeeting(meetingDTO);
-		return DTOToBusinessObjectConverter.toMeetingDetail(meetingDTO);
+		return BusinessObjectConverter.toMeetingDetail(meetingDTO);
 	}
 
 	@Override
 	public MeetingDetail getMeetingDetail(String id) throws BusinessException, Exception {
-		return DTOToBusinessObjectConverter.toMeetingDetail(meetingInfraService.getMeeting(id));
+		return BusinessObjectConverter.toMeetingDetail(meetingInfraService.getMeeting(id));
 	}
 }

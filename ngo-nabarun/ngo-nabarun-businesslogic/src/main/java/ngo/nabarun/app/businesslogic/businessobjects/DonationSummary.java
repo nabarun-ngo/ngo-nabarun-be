@@ -28,6 +28,9 @@ public class DonationSummary {
 	
 	@Data
 	public static class PayableAccDetail{
+		@JsonProperty("id")
+		public String id;
+		
 		@JsonProperty("bankDetail")
 		public BankDetail payableBankDetails;
 		

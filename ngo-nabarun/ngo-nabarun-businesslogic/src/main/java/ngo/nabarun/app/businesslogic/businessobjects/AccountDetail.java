@@ -1,5 +1,6 @@
 package ngo.nabarun.app.businesslogic.businessobjects;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +10,12 @@ import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 
 @Data
-public class AccountDetail {
+public class AccountDetail implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	@JsonProperty("id")
 	private String id;
 	

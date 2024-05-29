@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -371,7 +370,6 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	@Cacheable("DOMAIN_GLOBAL_CONFIG")
 	public Map<String, List<KeyValuePair>> getDomainRefConfigs() throws Exception {
 		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_GLOBAL_CONFIG);
 		ConfigTemplate[] configList = CommonUtils.jsonToPojo(config.getValue().toString(), ConfigTemplate[].class);

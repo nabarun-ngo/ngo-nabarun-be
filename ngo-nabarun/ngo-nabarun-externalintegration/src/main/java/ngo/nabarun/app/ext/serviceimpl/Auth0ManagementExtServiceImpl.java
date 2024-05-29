@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.auth0.client.auth.AuthAPI;
@@ -57,6 +58,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
+	@Cacheable("all_auth0_users")
 	@Override
 	public List<AuthUser> getUsers() throws ThirdPartyException {
 		try {
@@ -67,6 +69,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
+	@Cacheable("Auth0User+#id")
 	@Override
 	public AuthUser getUser(String id) throws ThirdPartyException {
 		try {
@@ -136,6 +139,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
+	@Cacheable("Auth0Role+#userId")
 	@Override
 	public List<AuthUserRole> getRoles(String userId) throws ThirdPartyException {
 		try {
@@ -173,6 +177,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 	
+	@Cacheable("Auth0Users+#roleId")
 	@Override
 	public List<AuthUser> listUsersByRole(String roleId) throws ThirdPartyException {
 		try {
@@ -208,6 +213,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
+	@Cacheable("Auth0AllRoles")
 	@Override
 	public List<AuthUserRole> getAllAvailableRoles() throws ThirdPartyException {
 		try {
@@ -218,6 +224,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 	
+	@Cacheable("Auth0AllConn")
 	@Override
 	public List<AuthConnection> getConnections() throws ThirdPartyException {
 		try {

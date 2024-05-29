@@ -24,4 +24,6 @@ public class UserDetailFilter {
 	@JsonProperty("userId")
 	private String userId;
 	
+	@JsonProperty("publicFlag")
+	private Boolean publicFlag;
 }

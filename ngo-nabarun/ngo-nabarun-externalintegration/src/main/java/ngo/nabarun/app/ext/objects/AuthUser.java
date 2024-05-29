@@ -1,11 +1,16 @@
 package ngo.nabarun.app.ext.objects;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class AuthUser {
+public class AuthUser implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String firstName;
 	private String lastName;
 	private String fullName;

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -24,6 +25,7 @@ import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 @Service
 public class FirebaseRemoteConfigExtServiceImpl implements IRemoteConfigExtService {
 
+	@Cacheable("RemoteConfigs")
 	@Override
 	public List<RemoteConfig> getRemoteConfigs() throws ThirdPartyException {
 		List<RemoteConfig> firebaseConfig = new ArrayList<>();
@@ -66,6 +68,7 @@ public class FirebaseRemoteConfigExtServiceImpl implements IRemoteConfigExtServi
 
 	}
 	
+	@Cacheable("RemoteConfigs+configKey")
 	@Override
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f->f.getName().equalsIgnoreCase(configKey)).findFirst().get();
@@ -90,6 +93,7 @@ public class FirebaseRemoteConfigExtServiceImpl implements IRemoteConfigExtServi
 
 	}
 
+	@Cacheable("RemoteConfigParameterGroups")
 	@Override
 	public List<String> getRemoteConfigParameterGroups() throws ThirdPartyException {
 		try {

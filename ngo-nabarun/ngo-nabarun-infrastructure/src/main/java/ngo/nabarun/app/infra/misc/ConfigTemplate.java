@@ -1,5 +1,6 @@
 package ngo.nabarun.app.infra.misc;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,12 @@ public class ConfigTemplate {
 	private List<KeyValuePair> configValues;
 	
 	@Data
-	public static class KeyValuePair {
+	public static class KeyValuePair implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@JsonProperty("KEY")
 		private String key;
 		

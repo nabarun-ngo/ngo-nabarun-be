@@ -83,4 +83,11 @@ public class PasswordUtils {
         return passwordGenerator.generatePassword(digits, List.of(new CharacterRule(EnglishCharacterData.Digit)));
 
     }
+	
+	public static boolean isPasswordValid(String password,String regex) {
+        return validatePassword(password, regex).isValid();
+
+    }
+	
+	
 }

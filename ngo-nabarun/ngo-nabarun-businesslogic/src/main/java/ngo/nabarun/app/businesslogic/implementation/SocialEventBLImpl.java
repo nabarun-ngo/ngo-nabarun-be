@@ -15,7 +15,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
-import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
+import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.util.SecurityUtils;
@@ -46,7 +46,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 		}
 		List<EventDetail> content =eventInfraService.getEventList(page, size, eventDTOFilter).stream()
 				.filter(f->!f.isDraft())
-				.map(m -> DTOToBusinessObjectConverter.toEventDetail(m)).collect(Collectors.toList());
+				.map(m -> BusinessObjectConverter.toEventDetail(m)).collect(Collectors.toList());
 		long total;
 		if(page != null && size != null){
 			total=eventInfraService.getEventsCount();
@@ -59,7 +59,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 	@Override
 	public EventDetail getSocialEvent(String id) {
 		EventDTO event=eventInfraService.getEvent(id);
-		return DTOToBusinessObjectConverter.toEventDetail(event);
+		return BusinessObjectConverter.toEventDetail(event);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 			updatedEvent.setCoverPic(doc.getDocumentURL());
 			eventDTO=eventInfraService.updateEvent(eventDTO.getId(), updatedEvent);
 		}
-		return DTOToBusinessObjectConverter.toEventDetail(eventDTO);
+		return BusinessObjectConverter.toEventDetail(eventDTO);
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 			updatedDTO.setCoverPic(doc.getDocumentURL());
 		}
 		event=eventInfraService.updateEvent(id,updatedDTO);
-		return DTOToBusinessObjectConverter.toEventDetail(event);
+		return BusinessObjectConverter.toEventDetail(event);
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 		if(draftedEvants.size()==0) {
 			return null;
 		}
-		return DTOToBusinessObjectConverter.toEventDetail(draftedEvants.get(0));
+		return BusinessObjectConverter.toEventDetail(draftedEvants.get(0));
 	}
 
 	@Override

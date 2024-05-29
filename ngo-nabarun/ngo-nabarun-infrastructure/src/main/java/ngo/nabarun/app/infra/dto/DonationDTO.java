@@ -36,6 +36,7 @@ public class DonationDTO {
 	private String paymentFailDetail;
 	private Date paymentNotificationDate;
 	private List<FieldDTO> additionalFields;
+	private int lastPaymentDay;
 
 	
 	@Data

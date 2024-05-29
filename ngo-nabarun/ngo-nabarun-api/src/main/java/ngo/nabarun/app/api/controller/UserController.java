@@ -18,7 +18,6 @@ import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetailUpdate;
 
 import java.util.List;
 
@@ -42,8 +41,11 @@ public class UserController {
 	}
 	
 	@PatchMapping("/updateLoggedInUserDetails")
-	public ResponseEntity<SuccessResponse<UserDetail>> updateLoggedInUserDetails(@RequestBody UserDetailUpdate requestBody) throws Exception {
-		return new SuccessResponse<UserDetail>().payload(userBL.updateAuthUserDetails(requestBody)).get(HttpStatus.OK);
+	public ResponseEntity<SuccessResponse<UserDetail>> updateLoggedInUserDetails(
+			@RequestBody UserDetail requestBody,
+			@RequestParam(required = false) boolean updatePicture
+			) throws Exception {
+		return new SuccessResponse<UserDetail>().payload(userBL.updateAuthUserDetails(requestBody,updatePicture)).get(HttpStatus.OK);
 	}
 	
 	@GetMapping("/getUsers")
@@ -95,7 +97,7 @@ public class UserController {
 	
 	@GetMapping("/sync")
 	public ResponseEntity<SuccessResponse<Void>> sync() throws Exception {
-		userBL.syncUserDetail();
+		//userBL.syncUserDetail();
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	

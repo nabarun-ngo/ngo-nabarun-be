@@ -12,7 +12,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
-import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
+import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
@@ -56,7 +56,7 @@ public class AccountBLImpl implements IAccountBL {
 		}
 
 		Page<AccountDetail> pageDetail = accountInfraService.getAccounts(page, size, filterDTO).map(m -> {
-			AccountDetail acc = DTOToBusinessObjectConverter.toAccountDetail(m);
+			AccountDetail acc = BusinessObjectConverter.toAccountDetail(m);
 			if (!filter.isIncludePaymentDetail()) {
 				acc.setUpiDetail(null);
 				acc.setBankDetail(null);
@@ -118,7 +118,7 @@ public class AccountBLImpl implements IAccountBL {
 			newTxn.setTxnDescription("Initial opening balance for account " + accountDTO.getId());
 			newTxn = transactionInfraService.createTransaction(newTxn);
 		}
-		return DTOToBusinessObjectConverter.toAccountDetail(accountDTO);
+		return BusinessObjectConverter.toAccountDetail(accountDTO);
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class AccountBLImpl implements IAccountBL {
 		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filter);
 				//transactionInfraService.getTransactionsForAccount(id, index, size);
 		return new Paginate<TransactionDetail>(
-				transactions.map(m -> DTOToBusinessObjectConverter.toTransactionDetail(m, false)));
+				transactions.map(m -> BusinessObjectConverter.toTransactionDetail(m, false)));
 
 	}
 

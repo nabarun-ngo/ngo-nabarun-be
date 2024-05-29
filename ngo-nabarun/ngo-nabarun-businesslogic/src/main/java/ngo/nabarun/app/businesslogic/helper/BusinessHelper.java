@@ -148,7 +148,12 @@ public class BusinessHelper extends BusinessDomainHelper{
 	public void reSendOTP(String token) throws Exception {
 		TicketDTO ticket=ticketInfraService.getTicketInfoByToken(token);
 		throwBusinessExceptionIf(()->ticket.getExpired(), ExceptionEvent.OTP_EXPIRED);
-		//sendEmail("OTP_",)
+		CorrespondentDTO recipient= CorrespondentDTO.builder()
+				.name(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName())
+				.emailRecipientType(EmailRecipientType.TO)
+				.email(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getEmail())
+				.mobile(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPhoneNumber()).build();
+		sendEmail(BusinessConstants.EMAILTEMPLATE__SEND_OTP, List.of(recipient), Map.of("ticket",ticket));
 	}
 	
 	/**
@@ -177,8 +182,13 @@ public class BusinessHelper extends BusinessDomainHelper{
 	
 	@Async
 	public void sendEmail(String templateName,List<CorrespondentDTO> recipients, Map<String,Object> objectMap) throws Exception {
+		sendEmail(null,templateName,recipients, objectMap);
+	}
+	
+	@Async
+	public void sendEmail(String senderName,String templateName,List<CorrespondentDTO> recipients, Map<String,Object> objectMap) throws Exception {
 		EmailTemplateDTO template=findInterpolateAndConvertToEmailTemplateDTO(templateName, objectMap);
-		correspondenceInfraService.sendEmail(null, recipients, template.getTemplateId(), template,null);
+		correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template,null);
 	}
 	
 	@Async

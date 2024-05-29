@@ -32,5 +32,5 @@ public interface ICommonBL {
 
 	Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception;
 
-	//SignUpDetail contactUs(SignUpDetail interview);
+	//InterviewDetail contactUs(InterviewDetail interview);
 }

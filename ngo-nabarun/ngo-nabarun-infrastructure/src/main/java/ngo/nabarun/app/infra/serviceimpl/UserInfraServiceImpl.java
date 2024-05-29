@@ -140,7 +140,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 			newAuth0User.setPassword(userDTO.getPassword());
 			newAuth0User.setEmailVerified(
-					userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isEmailVerified() : null);
+					userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getEmailVerified() : null);
 			newAuth0User.setProviders(userDTO.getLoginProviders());
 			newAuth0User = authManagementService.createUser(newAuth0User);
 		} else {
@@ -167,7 +167,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		profile.setGender(userDTO.getGender());
 		profile.setEmail(newAuth0User.getEmail());
 		profile.setAbout(userDTO.getAbout());
-		profile.setCreatedBy(null);//
+		profile.setCreatedBy(null);
 		profile.setActiveContributor(
 				userDTO.getAdditionalDetails() == null ? null : userDTO.getAdditionalDetails().isActiveContributor());
 		profile.setCreatedOn(newAuth0User.getCreatedAt());
@@ -280,6 +280,13 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
 					: userDTO.getName());
 		}
+		boolean isEmailVerifiedUpdated=false;
+		if (userDTO.getAdditionalDetails() != null && userDTO.getAdditionalDetails().getEmailVerified() != null) {
+			updateAuthUser.setEmailVerified(
+					userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getEmailVerified() : null);
+			isEmailVerifiedUpdated=true;
+		}
+		
 		updatedProfile.setMiddleName(userDTO.getMiddleName());
 		updatedProfile.setAbout(userDTO.getAbout());
 		updatedProfile.setDateOfBirth(userDTO.getDateOfBirth());
@@ -306,7 +313,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 * changes, or profile status to update
 		 */
 		if (userDTO.getFirstName() != null || userDTO.getLastName() != null || userDTO.getEmail() != null
-				|| userDTO.getStatus() != null) {
+				|| userDTO.getStatus() != null || isEmailVerifiedUpdated) {
 			if (userDTO.getStatus() != null) {
 				updateAuthUser.setInactive(!ProfileStatus.ACTIVE.name().equalsIgnoreCase(profile.getStatus()));
 			}
@@ -436,15 +443,16 @@ public class UserInfraServiceImpl implements IUserInfraService {
 	}
 
 	@Override
-	public void syncUserDetails() throws Exception {
+	public void auth0UserSync() throws Exception {
 		for (AuthUser authUser : authManagementService.getUsers()) {
 			UserDTO userDTO = InfraDTOHelper.convertToUserDTO(null, authUser);
 			Optional<UserProfileEntity> profile = profileRepository.findByEmail(authUser.getEmail());
 			if (profile.isEmpty()) {
 				this.createUser(userDTO, authUser);
 			} else {
-				// this.updateUser(profile.get().getId(), userDTO);
+				this.updateUser(profile.get().getId(), userDTO);
 			}
+			Thread.sleep(2000);
 		}
 	}
 

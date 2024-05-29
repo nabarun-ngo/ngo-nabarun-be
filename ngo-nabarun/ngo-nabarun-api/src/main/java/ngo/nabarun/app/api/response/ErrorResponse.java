@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -11,13 +12,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
-import ngo.nabarun.app.businesslogic.exception.BusinessException;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ErrorResponse {
-
-	private static final String DEFAULT_ERROR_MESSAGE = "Something went wrong.";
 
 	@JsonProperty("info")
 	private final String info = "Error";
@@ -40,15 +38,17 @@ public class ErrorResponse {
 	@JsonProperty("stackTrace")
 	private String[] stackTrace;
 
-	public ErrorResponse(Exception e) {
-		messages.add(e instanceof BusinessException ? e.getMessage() : DEFAULT_ERROR_MESSAGE);
+	public ErrorResponse(Exception e,boolean includeStacktrace) {
+		messages.add(e.getMessage());
 		details.add("Message : " + e.getMessage());
 		if (e.getCause() != null) {
 			details.add("Cause : " + e.getCause().getMessage());
 		}
 		details.add("Exception : " + e.getClass().getSimpleName());
 		errorCause = e.getCause() != null ? e.getCause().getMessage() : null;
-		// this.stackTrace=ExceptionUtils.getStackFrames(e);
+		if(includeStacktrace) {
+			this.stackTrace=ExceptionUtils.getStackFrames(e);
+		}
 
 	}
 

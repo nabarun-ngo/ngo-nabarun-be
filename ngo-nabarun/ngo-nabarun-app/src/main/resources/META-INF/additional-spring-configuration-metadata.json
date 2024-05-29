@@ -38,5 +38,35 @@
     "name": "app.config.datasource",
     "type": "java.lang.String",
     "description": "A description for 'app.config.datasource'"
+  },
+  {
+    "name": "redis.server",
+    "type": "java.lang.String",
+    "description": "A description for 'redis.server'"
+  },
+  {
+    "name": "redis.timeout",
+    "type": "java.lang.String",
+    "description": "A description for 'redis.timeout'"
+  },
+  {
+    "name": "redis.database",
+    "type": "java.lang.String",
+    "description": "A description for 'redis.database'"
+  },
+  {
+    "name": "redis.username",
+    "type": "java.lang.String",
+    "description": "A description for 'redis.username'"
+  },
+  {
+    "name": "redis.password",
+    "type": "java.lang.String",
+    "description": "A description for 'redis.password'"
+  },
+  {
+    "name": "redis.globalTtl",
+    "type": "java.lang.String",
+    "description": "A description for 'redis.globalTtl'"
   }
 ]}

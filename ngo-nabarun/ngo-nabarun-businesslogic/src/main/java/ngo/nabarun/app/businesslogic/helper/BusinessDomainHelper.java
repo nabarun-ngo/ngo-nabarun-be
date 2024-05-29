@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.stringtemplate.v4.ST;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
@@ -30,6 +29,7 @@ import ngo.nabarun.app.common.enums.WorkflowDecision;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
 import ngo.nabarun.app.common.enums.WorkflowType;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
@@ -61,6 +61,10 @@ public class BusinessDomainHelper {
 	private static final String ITEM_NABARUN_RULES_REGULATIONS = "NABARUN_RULES_REGULATIONS";
 	private static final String ITEM_BUSINESS_EXCEPTION_MESSAGES = "BUSINESS_EXCEPTION_MESSAGES";
 	private static final String ITEM_EMAIL_TEMPLATE_CONFIG = "EMAIL_TEMPLATE_CONFIG";
+
+	private static final String ITEM_DONATION_TYPE__ATTR_DEFAULT_STATUS = "DEFAULT_STATUS";
+	private static final String ITEM_DONATION_TYPE__ATTR_DEFAULT_AMOUNT = "DEFAULT_AMOUNT";
+	private static final String ITEM_DONATION_TYPE__ATTR_LAST_PAYMENT_DAY = "LAST_PAYMENT_DAY";
 
 	private static final String ITEM_USER_TITLE__ATTR_GENDER = "GENDER";
 	private static final String ITEM_DONATION_STATUS__ATTR_IS_FINAL_STATUS = "IS_FINAL_STATUS";
@@ -168,11 +172,11 @@ public class BusinessDomainHelper {
 	public Map<String, List<KeyValue>> getUserRefData() throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
-		obj.put("userTitles", DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_TITLE)));
-		obj.put("userGenders", DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_GENDER)));
-		obj.put("availableRoles", DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE)));
+		obj.put("userTitles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_TITLE)));
+		obj.put("userGenders", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_GENDER)));
+		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE)));
 		obj.put("availableRoleGroups",
-				DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
+				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
 		return obj;
 	}
 
@@ -376,6 +380,28 @@ public class BusinessDomainHelper {
 				.map(m -> DonationStatus.valueOf(m.getKey())).collect(Collectors.toList());
 		return resolvedStatus.contains(status);
 	}
+	
+	public DonationDTO convertToDonationDTO(DonationType type) throws Exception {
+		List<KeyValuePair> kvDType = getDomainConfig(ITEM_DONATION_TYPE);
+		KeyValuePair donationType=kvDType.stream().filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst().orElseThrow(() -> new Exception("Invalid donation type [" + type + "]"));
+		Map<String, Object> donTypeAttr = donationType.getAttributes();
+		DonationDTO donDTO=new DonationDTO();
+		Object lastday=donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_LAST_PAYMENT_DAY);
+		if(lastday != null) {
+			donDTO.setLastPaymentDay(Integer.parseInt(lastday.toString()));
+		}
+		Object amount=donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_AMOUNT);
+		if(amount != null) {
+			donDTO.setAmount(Double.valueOf(amount.toString()));
+		}
+		
+		Object status=donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_STATUS);
+		if(amount != null) {
+			donDTO.setStatus(DonationStatus.valueOf(status.toString()));
+		}
+		return donDTO;
+
+	}
 
 	/**
 	 * Get the next applicable donation status w.r.t. donationType and currentStatus
@@ -412,10 +438,10 @@ public class BusinessDomainHelper {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
 		List<KeyValuePair> kvStatus = domainRef.get(ITEM_DONATION_STATUS);
-		obj.put("donationStatuses", DTOToBusinessObjectConverter.toKeyValueList(kvStatus));
-		obj.put("donationTypes", DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_DONATION_TYPE)));
-		obj.put("paymentMethods", DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PAYMENT_METHODS)));
-		obj.put("upiOptions", DTOToBusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_UPI_OPTIONS)));
+		obj.put("donationStatuses", BusinessObjectConverter.toKeyValueList(kvStatus));
+		obj.put("donationTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_DONATION_TYPE)));
+		obj.put("paymentMethods", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PAYMENT_METHODS)));
+		obj.put("upiOptions", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_UPI_OPTIONS)));
 		if (donationType != null && currentStatus != null) {
 			Optional<KeyValuePair> tarCurrStatus = kvStatus.stream()
 					.filter(f -> f.getKey().equalsIgnoreCase(currentStatus.name())).findFirst();
@@ -513,10 +539,9 @@ public class BusinessDomainHelper {
 	 * @return list of KeyValue pair
 	 * @throws Exception
 	 */
-	@Cacheable("org_info")
 	public List<KeyValue> getNabarunOrgInfo() throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_ORG_INFO);
-		return DTOToBusinessObjectConverter.toKeyValueList(kvFields);
+		return BusinessObjectConverter.toKeyValueList(kvFields);
 	}
 
 	/*
@@ -532,10 +557,9 @@ public class BusinessDomainHelper {
 	 * @return list of KeyValue pair
 	 * @throws Exception
 	 */
-	@Cacheable("rules_and_reg")
 	public List<KeyValue> getRules() throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_RULES_REGULATIONS);
-		return DTOToBusinessObjectConverter.toKeyValueList(kvFields);
+		return BusinessObjectConverter.toKeyValueList(kvFields);
 	}
 
 	/*

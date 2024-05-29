@@ -12,7 +12,7 @@ public class UserAdditionalDetailsDTO {
 		private boolean blocked;
 		private boolean activeContributor;
 		private boolean displayPublic;
-		private boolean emailVerified;
+		private Boolean emailVerified;
 		private Date lastLogin;
 		private Date lastPasswordChange;
 		private int loginsCount;

@@ -1,5 +1,5 @@
 <div class="container-fluid py-5 scroll-margin" th:fragment="join"
-	id="join" data-parallax="scroll" data-image-src="img/carousel-2.jpg">
+	id="join" data-parallax="scroll" data-image-src="img/nbrn/pic5.jpeg">
 	<div class="container">
 		<div class="row g-5 align-items-center">
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
@@ -8,11 +8,11 @@
 					A Part Of Us</div>
 				<h1 class="display-6 text-white mb-5">We Welcome You To Join Us
 					In This Great Initiative</h1>
-				<p class="text-white-50 mb-0">Please answer some basic questions
-					in the form given. We will connect you shortly.</p>
+			
 			</div>
 
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+				
 				<div class="h-100 bg-secondary p-5">
 					<form id="JoinUsForm" th:action="@{/signup}" method="post"
 						th:object="${interview}" autocomplete="off">
@@ -109,7 +109,7 @@
 
 
 <div class="container-xxl py-5 scroll-margin" th:fragment="joiningrules"
-	id="joiningrules" th:if="${stage == 1}">
+	id="joiningrules" th:if="${stage == '1'}">
 	<div class="container">
 		<div class="alert alert-danger" role="alert"
 						th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
@@ -159,7 +159,7 @@
 
 
 <div class="container-xxl py-5 scroll-margin"
-	th:fragment="setAccountPassword" id="setAccountPassword" th:if="${stage == 2}">
+	th:fragment="setAccountPassword" id="setAccountPassword" th:if="${stage == '2'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp"
 			data-wow-delay="0.1s" style="max-width: 1000px;">
@@ -228,7 +228,7 @@
 
 
 <div class="container-xxl py-5 scroll-margin"
-	th:fragment="otpvalidation" id="otpvalidation" th:if="${stage == 3}">
+	th:fragment="otpvalidation" id="otpvalidation" th:if="${stage == '3'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp"
 			data-wow-delay="0.1s" style="max-width: 1000px;">
@@ -297,7 +297,7 @@
 
 
 <div class="container-xxl py-5 scroll-margin"
-	th:fragment="postsubmission" id="success" th:if="${stage == 4}">
+	th:fragment="postsubmission" id="success" th:if="${stage == 'POST_SUBMIT'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp"
 			data-wow-delay="0.1s" style="max-width: 1000px;">

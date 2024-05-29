@@ -45,6 +45,9 @@ public class UserDetail {
 	@JsonProperty("picture")
 	private String picture;
 	
+	@JsonProperty("pictureBase64")
+	private String pictureBase64;
+	
 	@JsonProperty("roles")
 	private List<UserRole> roles;
 	

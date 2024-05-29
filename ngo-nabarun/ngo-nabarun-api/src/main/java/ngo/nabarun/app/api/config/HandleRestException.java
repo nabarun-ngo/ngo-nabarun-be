@@ -2,6 +2,7 @@ package ngo.nabarun.app.api.config;
 
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,14 +32,21 @@ import ngo.nabarun.app.businesslogic.exception.BusinessException;
 @Order(1)
 public class HandleRestException {
 
+	private static final String DEFAULT_ERROR_MESSAGE = "Something went wrong.";
+	
+	@Value("${INCLUDE_ERROR_DETAILS}")
+	private boolean includeErrorDetails;
+
 	@ExceptionHandler(value = { Exception.class })
-	//@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<ErrorResponse> handleServerExceptions(Exception ex) {
 		ex.printStackTrace();
 		if (ex instanceof BusinessException) {
-			return new ErrorResponse(ex).get(HttpStatus.BAD_REQUEST);
+			return new ErrorResponse(ex,includeErrorDetails).get(HttpStatus.BAD_REQUEST);
 		}
-		return new ErrorResponse(ex).get(HttpStatus.INTERNAL_SERVER_ERROR);
+		Exception exception=new Exception(DEFAULT_ERROR_MESSAGE);
+		exception.initCause(ex);
+		System.out.println(includeErrorDetails);
+		return new ErrorResponse(exception,includeErrorDetails).get(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 
@@ -87,7 +95,7 @@ public class HandleRestException {
 		} else if (ex instanceof IllegalArgumentException) {
 			status = HttpStatus.BAD_REQUEST;
 		}
-		return new ResponseEntity<Object>(new ErrorResponse(ex), status);
+		return new ResponseEntity<Object>(new ErrorResponse(ex,includeErrorDetails), status);
 	}
 
 }

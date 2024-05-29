@@ -14,7 +14,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
-import ngo.nabarun.app.businesslogic.helper.DTOToBusinessObjectConverter;
+import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
@@ -43,7 +43,7 @@ public class NoticeBLImpl implements INoticeBL {
 		}
 		List<NoticeDetail> content =noticeIndraService.getNoticeList(page, size, noticeDTOFilter).stream()
 				.filter(f->!f.isDraft())
-				.map(m -> DTOToBusinessObjectConverter.toNoticeDetail(m)).collect(Collectors.toList());
+				.map(m -> BusinessObjectConverter.toNoticeDetail(m)).collect(Collectors.toList());
 		long total;
 		if(page != null && size != null){
 			total=noticeIndraService.getNoticeCount();
@@ -56,7 +56,7 @@ public class NoticeBLImpl implements INoticeBL {
 	@Override
 	public NoticeDetail getNoticeDetail(String id) {
 		NoticeDTO noticeDTO=noticeIndraService.getNotice(id);
-		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDTO);
+		return BusinessObjectConverter.toNoticeDetail(noticeDTO);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class NoticeBLImpl implements INoticeBL {
 		noticeDTO.setId(idGenerator.generateNoticeId());
 		noticeDTO.setCreatedBy(SecurityUtils.getAuthUserId());
 		noticeDTO=noticeIndraService.createNotice(noticeDTO);
-		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDTO);
+		return BusinessObjectConverter.toNoticeDetail(noticeDTO);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class NoticeBLImpl implements INoticeBL {
 		noticeDTO.setTitle(noticeDetail.getTitle());
 		//noticeDTO.setType(noticeEntity.getVisibility());		
 		noticeDTO=noticeIndraService.updateNotice(id,noticeDTO);
-		return DTOToBusinessObjectConverter.toNoticeDetail(noticeDTO);
+		return BusinessObjectConverter.toNoticeDetail(noticeDTO);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class NoticeBLImpl implements INoticeBL {
 		if(draftNotice.size()==0) {
 			return null;
 		}
-		return DTOToBusinessObjectConverter.toNoticeDetail(draftNotice.get(0));
+		return BusinessObjectConverter.toNoticeDetail(draftNotice.get(0));
 	}
 
 	@Override
