@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layouts/default}">
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
 
 <div layout:fragment="content" th:remove="tag">
 	<div th:replace="fragments/components/header :: header"></div>
@@ -14,11 +13,15 @@
 					<p class="mb-4" th:if="description !=null" th:text="${description}"></p>
 					<a class="btn btn-outline-primary py-2 px-3" href="/"> Go Back
 						To Home
-						<div
-							class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+						<div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
 							<i class="fa fa-arrow-right"></i>
 						</div>
 					</a>
+					<script type="text/javascript">
+						window.setTimeout(function () {
+							location.href = window.location.origin;
+						}, 5 * 60 * 1000);
+					</script>
 				</div>
 			</div>
 		</div>

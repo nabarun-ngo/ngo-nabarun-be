@@ -4,9 +4,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -17,37 +14,26 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
-import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
-import ngo.nabarun.app.common.enums.AuthRefType;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
+import ngo.nabarun.app.businesslogic.domain.CommonDO;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
-import ngo.nabarun.app.common.enums.TicketType;
-import ngo.nabarun.app.infra.dto.MeetingDTO;
-import ngo.nabarun.app.infra.dto.TicketDTO;
-import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IDonationInfraService;
-import ngo.nabarun.app.infra.service.IMeetingInfraService;
+import ngo.nabarun.app.common.util.SecurityUtils;
 
 @Service
 public class CommonBLImpl implements ICommonBL {
-
-	@Autowired
-	private IDocumentInfraService docInfraService;
-	
-	@Autowired
-	private IDonationInfraService donationInfraService;
-	
-	@Autowired
-	private IMeetingInfraService meetingInfraService;
 	
 	@Autowired
 	private CacheManager cacheManager;
 	
 	@Autowired
-	private BusinessHelper businessHelper;
+	private BusinessDomainHelper businessHelper;
 
+	@Autowired
+	private CommonDO commonDO;
 	
 	@Override
 	public void uploadDocuments(MultipartFile[] files, String docIndexId, DocumentIndexType docIndexType) throws Exception {
@@ -55,13 +41,12 @@ public class CommonBLImpl implements ICommonBL {
 		Assert.notNull(docIndexId,"docIndexId must not be null !");
 		Assert.notNull(docIndexType, "docIndexType must not be null !");
 		
-		String id=docIndexId;
-		if(docIndexType == DocumentIndexType.DONATION) {
-			id=donationInfraService.getDonation(docIndexId).getId();
-		}
-		
 		for (MultipartFile file : files) {
-			docInfraService.uploadDocument(file, id, docIndexType);
+			DocumentDetailUpload doc= new DocumentDetailUpload();
+			doc.setContent(file.getBytes());
+			doc.setContentType(file.getContentType());
+			doc.setOriginalFileName(file.getOriginalFilename());
+			commonDO.uploadDocument(doc, docIndexId, docIndexType);
 		}
 	}
 	
@@ -72,42 +57,37 @@ public class CommonBLImpl implements ICommonBL {
 		Assert.notNull(docIndexId,"docIndexId must not be null !");
 		Assert.notNull(docIndexType, "docIndexType must not be null !");
 		
-		String id=docIndexId;
-		if(docIndexType == DocumentIndexType.DONATION) {
-			id=donationInfraService.getDonation(docIndexId).getId();
-		}
-		
 		for (DocumentDetailUpload file : files) {
-			byte[] content = Base64.decodeBase64(file.getBase64Content());
-			docInfraService.uploadDocument(file.getOriginalFileName(),file.getContentType(), id, docIndexType,content);
+			commonDO.uploadDocument(file, docIndexId, docIndexType);
 		}		
 	}
 
 	@Override
 	public URL getDocumentUrl(String docId) throws Exception {
 		Assert.notNull(docId,"docId must not be null !");
-		return docInfraService.getTempDocumentUrl(docId,15,TimeUnit.MINUTES);
+		return commonDO.getDocumentUrl(docId);
 	}
 	
 	@Override
 	public boolean deleteDocument(String docId) throws Exception {
 		Assert.notNull(docId,"docId must not be null !");
-		return docInfraService.hardDeleteDocument(docId);
+		return commonDO.deleteDocument(docId);
 	}
 
 	@Override
+	@Deprecated
 	public String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception {
-		if(authDetail.getAuthRefType() == AuthRefType.MEETING) {
-			MeetingDTO meetingDTO=meetingInfraService.getMeeting(authDetail.getAuthRefId());
-			if(meetingDTO.getAuthUrl() == null) {
-				TicketDTO ticketDTO = new TicketDTO(TicketType.LINK);
-				//ticketDTO=ticketInfraService.createTicket(ticketDTO);
-				meetingDTO.setAuthUrl(meetingInfraService.createAuthorizationLink(ticketDTO.getToken(),authDetail.getCallbackUrl()));
-				meetingDTO.setAuthCallbackUrl(authDetail.getCallbackUrl());
-				meetingDTO=meetingInfraService.updateMeeting(meetingDTO.getId(), meetingDTO);
-			}
-			return meetingDTO.getAuthUrl();
-		}
+//		if(authDetail.getAuthRefType() == AuthRefType.MEETING) {
+//			MeetingDTO meetingDTO=meetingInfraService.getMeeting(authDetail.getAuthRefId());
+//			if(meetingDTO.getAuthUrl() == null) {
+//				TicketDTO ticketDTO = new TicketDTO(TicketType.LINK);
+//				//ticketDTO=ticketInfraService.createTicket(ticketDTO);
+//				meetingDTO.setAuthUrl(meetingInfraService.createAuthorizationLink(ticketDTO.getToken(),authDetail.getCallbackUrl()));
+//				meetingDTO.setAuthCallbackUrl(authDetail.getCallbackUrl());
+//				meetingDTO=meetingInfraService.updateMeeting(meetingDTO.getId(), meetingDTO);
+//			}
+//			return meetingDTO.getAuthUrl();
+//		}
 		return null;
 	}
 
@@ -136,7 +116,6 @@ public class CommonBLImpl implements ICommonBL {
 		if(names == null || names.contains(RefDataType.USER)) {
 			obj.putAll(businessHelper.getUserRefData());
 		}
-		
 		return obj;
 	}
 	
@@ -145,7 +124,27 @@ public class CommonBLImpl implements ICommonBL {
 		return getReferenceData(names,null);
 	}
 
-	
+	@Override
+	public Paginate<Map<String,String>> getNotifications(Integer pageIndex, Integer pageSize) {
+		return commonDO.getNotifications(pageIndex, pageSize);
+	}
+
+
+	@Override
+	public void manageNotification(String action,Map<String, Object> payload) throws Exception {
+		switch(action.toUpperCase()) {
+		case "SAVE_TOKEN":
+			String userId= SecurityUtils.getAuthUserId();
+			commonDO.saveNotificationToken(userId, payload.get("token").toString());
+			break;
+		case "DELETE_TOKEN":
+			commonDO.removeNotificationToken(null,payload.get("token").toString());
+			break;
+		case "MARK_READ":
+			//commonDO.upda(null,String.valueOf(payload.get("token")));
+			break;
+		}
+	}
 
 	
 }

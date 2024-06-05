@@ -8,6 +8,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserAddress;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.BankDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
@@ -27,6 +28,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserRole;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
@@ -37,13 +39,13 @@ import ngo.nabarun.app.infra.dto.SocialMediaDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
-import ngo.nabarun.app.infra.dto.WorkFlowDTO;
-import ngo.nabarun.app.infra.dto.WorkListDTO;
+import ngo.nabarun.app.infra.dto.RequestDTO;
+import ngo.nabarun.app.infra.dto.WorkDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 
 public class BusinessObjectConverter {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	
+
 	public static UserDetail toPublicUserDetail(UserDTO userDTO) {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setEmail(userDTO.getEmail());
@@ -62,11 +64,9 @@ public class BusinessObjectConverter {
 		}
 
 		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
-			userDetails.setRoles(userDTO
-					.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
-							.description(m.getDescription()).roleId(m.getId()).build())
-					.toList());
-			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m->m.getName()).toList()));	
+			userDetails.setRoles(userDTO.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName())
+					.roleCode(m.getCode()).description(m.getDescription()).roleId(m.getId()).build()).toList());
+			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m -> m.getName()).toList()));
 		}
 		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
 		return userDetails;
@@ -114,13 +114,11 @@ public class BusinessObjectConverter {
 		 */
 
 		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
-			userDetails.setRoles(userDTO
-					.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName()).roleCode(m.getCode())
-							.description(m.getDescription()).roleId(m.getId()).build())
-					.toList());
-			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m->m.getName()).toList()));	
+			userDetails.setRoles(userDTO.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName())
+					.roleCode(m.getCode()).description(m.getDescription()).roleId(m.getId()).build()).toList());
+			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m -> m.getName()).toList()));
 		}
-		
+
 		userDetails.setPublicProfile(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().isDisplayPublic() : false);
 
@@ -132,8 +130,6 @@ public class BusinessObjectConverter {
 		return userDetails;
 
 	}
-
-
 
 	public static DonationDetail toDonationDetail(DonationDTO donationDTO) {
 		return toDonationDetail(donationDTO, null, null);
@@ -168,36 +164,38 @@ public class BusinessObjectConverter {
 		donationDetail.setPaymentFailureDetail(donationDTO.getPaymentFailDetail());
 
 		donationDetail.setAdditionalFields(donationDTO.getAdditionalFields() == null ? List.of()
-				: donationDTO.getAdditionalFields().stream().filter(f->!f.isHidden()).map(BusinessObjectConverter::toAdditionalField)
-						.collect(Collectors.toList()));
+				: donationDTO.getAdditionalFields().stream().filter(f -> !f.isHidden())
+						.map(BusinessObjectConverter::toAdditionalField).collect(Collectors.toList()));
 		return donationDetail;
 	}
-	
-	public static RequestDetail toRequestDetail(WorkFlowDTO workflow) {
-		RequestDetail request= new RequestDetail();
-		request.setAdditionalFields(workflow.getAdditionalFields() == null ? List.of() : workflow.getAdditionalFields().stream().filter(f->!f.isHidden()).map(m->toAdditionalField(m)).toList());		
+
+	public static RequestDetail toRequestDetail(RequestDTO workflow) {
+		RequestDetail request = new RequestDetail();
+		request.setAdditionalFields(workflow.getAdditionalFields() == null ? List.of()
+				: workflow.getAdditionalFields().stream().filter(f -> !f.isHidden()).map(m -> toAdditionalField(m))
+						.toList());
 		request.setCreatedOn(workflow.getCreatedOn());
 		request.setDelegated(workflow.isDelegated());
 		request.setDelegatedRequester(toUserDetail(workflow.getDelegatedRequester()));
-		request.setDescription(workflow.getWorkflowDescription());
+		request.setDescription(workflow.getDescription());
 		request.setId(workflow.getId());
 		request.setName(workflow.getWorkflowName());
 		request.setRemarks(workflow.getRemarks());
 		request.setRequester(toUserDetail(workflow.getRequester()));
 		request.setResolvedOn(workflow.getResolvedOn());
-		request.setStatus(workflow.getWorkflowStatus() );
-		request.setType(workflow.getWorkflowType() );
+		request.setStatus(workflow.getStatus());
+		request.setType(workflow.getType());
 		return request;
 	}
 
 	public static AdditionalField toAdditionalField(FieldDTO fieldDTO) {
-		
+
 		AdditionalField additionalField = new AdditionalField(null, null, fieldDTO.isHidden());
 		additionalField.setId(fieldDTO.getFieldId());
 		additionalField.setKey(fieldDTO.getFieldKey());
 		additionalField.setName(fieldDTO.getFieldName());
 		additionalField.setType(fieldDTO.getFieldType());
-		additionalField.setValue(fieldDTO.isHidden() ? null :fieldDTO.getFieldValue());
+		additionalField.setValue(fieldDTO.isHidden() ? null : fieldDTO.getFieldValue());
 		return additionalField;
 	}
 
@@ -390,35 +388,33 @@ public class BusinessObjectConverter {
 
 		return txnDetail;
 	}
-	
-	public static WorkDetail toWorkItem(WorkListDTO workitemDTO) {
+
+	public static WorkDetail toWorkItem(WorkDTO workitemDTO) {
 		WorkDetail wiDetail = new WorkDetail();
 		wiDetail.setCreatedOn(workitemDTO.getCreatedOn());
 		wiDetail.setDecision(workitemDTO.getDecision());
 		wiDetail.setDecisionDate(workitemDTO.getDecisionDate());
 		wiDetail.setDescription(workitemDTO.getDescription());
 		wiDetail.setId(workitemDTO.getId());
-		
+
 		wiDetail.setRemarks(workitemDTO.getRemarks());
 		wiDetail.setStepCompleted(workitemDTO.getStepCompleted());
 		wiDetail.setWorkflowId(workitemDTO.getWorkflowId());
 		wiDetail.setWorkflowStatus(workitemDTO.getWorkflowStatus());
-		if(workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
+		if (workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
 			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker()));
-		}else {
+		} else {
 			wiDetail.setPendingWithRoles(workitemDTO.getPendingWithRoles());
 		}
-		
+
 		wiDetail.setWorkType(workitemDTO.getWorkType());
 		return wiDetail;
 	}
-	
-	
-	
+
 	/**
 	 * User details to DTO
 	 */
-	
+
 	public static UserDTO toUserDTO(UserDetail requester) {
 		UserDTO requesterDTO = new UserDTO();
 		requesterDTO.setProfileId(requester == null ? null : requester.getId());
@@ -428,7 +424,7 @@ public class BusinessObjectConverter {
 		requesterDTO.setEmail(requester == null ? null : requester.getEmail());
 		return requesterDTO;
 	}
-	
+
 	public static AddressDTO toAddressDTO(UserAddress m) {
 		AddressDTO address = new AddressDTO();
 		address.setAddressType(m.getAddressType());
@@ -443,8 +439,6 @@ public class BusinessObjectConverter {
 		return address;
 
 	}
-	
-	
 
 	public static List<PhoneDTO> toPhoneDTO(List<UserPhoneNumber> phoneNumbers) {
 		return phoneNumbers == null ? List.of() : phoneNumbers.stream().map(m -> {
@@ -467,4 +461,46 @@ public class BusinessObjectConverter {
 			return sm;
 		}).collect(Collectors.toList());
 	}
+
+	public static DocumentDetail toDocumentDetail(DocumentDTO documentDTO) {
+		return toDocumentDetail(documentDTO, false);
+	}
+
+	public static DocumentDetail toDocumentDetail(DocumentDTO documentDTO, boolean isGenerated) {
+		DocumentDetail documentDetail = new DocumentDetail();
+		documentDetail.setDocId(documentDTO.getDocId());
+		documentDetail.setDocumentIndexId(documentDTO.getDocumentRefId());
+		documentDetail.setGeneratedDoc(isGenerated);
+		documentDetail.setImage(documentDTO.isImage());
+		documentDetail.setOriginalFileName(documentDTO.getOriginalFileName());
+		return documentDetail;
+	}
+
+//	public static NotificationDetail toNotificationDetail(NotificationDTO notificationDTO) {
+//		NotificationDetail notificationDetail= new NotificationDetail();
+//		
+//		notificationDetail.setActionTaken(notificationDTO.isItemClosed());
+//		notificationDetail.setHasSender(notificationDTO.getSource() != null);
+//
+//		if(notificationDetail.isHasSender()) {
+//			String url=notificationDTO.getSource().getImageUrl() != null ? notificationDTO.getSource().getImageUrl()
+//					: "https://i0.wp.com/cdn.auth0.com/avatars/" + notificationDTO.getSource().getName().substring(0, 2).toLowerCase()
+//					+ ".png?ssl=1";
+//			notificationDetail.setSenderImage(url);
+//			notificationDetail.setSenderName(notificationDTO.getSource().getName());
+//		}
+//		notificationDetail.setId(notificationDTO.getId());
+//		notificationDetail.setNotifyDate(notificationDTO.getNotificationDate());
+//		notificationDetail.setRead(notificationDTO.isRead());
+//		notificationDetail.setRefItemId(notificationDTO.getRefItemId());
+//		
+//		
+//		notificationDetail.setType(notificationDTO.getType());
+//		if(notificationDTO.getType() == NotificationType.FYA) {
+//			notificationDetail.setActionCommand(notificationDTO.getCommand());
+//			notificationDetail.setActionExtLink(notificationDTO.getExtLink());
+//			notificationDetail.setActionLink(notificationDTO.getLink());
+//		}
+//		return notificationDetail;
+//	}
 }

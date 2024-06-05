@@ -33,7 +33,8 @@ public class WorkListEntity {
 	private String remarks;
 	private String currentAction;
 	private boolean actionPerformed;
-	private boolean stepCompleted;
+	private Boolean stepCompleted;
+	private boolean finalStep;
 	private Date decisionDate;
 
 

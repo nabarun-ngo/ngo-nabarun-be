@@ -9,14 +9,18 @@ import ngo.nabarun.app.common.enums.WorkflowStatus;
 import ngo.nabarun.app.common.enums.WorkflowType;
 
 @Data
-public class WorkFlowDTO {
+public class RequestDTO {
 	private String id;
 	private String workflowName;
-	private WorkflowType workflowType;
-	private WorkflowStatus workflowStatus;
+	private WorkflowType type;
+	private String typeValue;
+
+	private WorkflowStatus status;
+	private String statusValue;
+
 	private WorkflowStatus lastStatus;
 	private boolean lastActionCompleted;
-	private String workflowDescription;
+	private String description;
 	private String remarks;
 	private Date createdOn;
 	private String createdBy;
@@ -28,7 +32,7 @@ public class WorkFlowDTO {
 
 	
 	@Data
-	public static class WorkFlowDTOFilter{
+	public static class RequestDTOFilter{
 		private String workflowId;
 		private List<WorkflowType> workflowType;
 		private List<WorkflowStatus> workflowStatus;

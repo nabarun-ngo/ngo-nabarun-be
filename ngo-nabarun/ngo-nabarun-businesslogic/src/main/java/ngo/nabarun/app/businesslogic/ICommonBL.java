@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
 
@@ -32,5 +33,8 @@ public interface ICommonBL {
 
 	Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception;
 
-	//InterviewDetail contactUs(InterviewDetail interview);
+	Paginate<Map<String,String>> getNotifications(Integer pageIndex, Integer pageSize);
+
+	void manageNotification(String action, Map<String, Object> payload) throws Exception;
+
 }

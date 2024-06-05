@@ -1,5 +1,5 @@
 package ngo.nabarun.app.common.enums;
 
-public enum AuthRefType {
-	MEETING
+public enum NotificationType {
+	FYA,FYI
 }

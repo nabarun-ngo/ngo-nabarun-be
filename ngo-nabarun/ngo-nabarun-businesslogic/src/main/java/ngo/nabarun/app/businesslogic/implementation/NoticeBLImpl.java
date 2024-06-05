@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.util.SecurityUtils;
@@ -30,8 +30,8 @@ public class NoticeBLImpl implements INoticeBL {
 	@Autowired
 	private IDocumentInfraService documentInfraService;
 	
-	@Autowired
-	private  BusinessHelper idGenerator;
+//	@Autowired
+//	private  BusinessHelper idGenerator;
 	
 	@Override
 	public Paginate<NoticeDetail> getAllNotice(Integer page, Integer size, NoticeDetailFilter filter) {
@@ -68,7 +68,7 @@ public class NoticeBLImpl implements INoticeBL {
 		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
 		noticeDTO.setTitle(noticeDetail.getTitle());
 		//noticeDTO.setType(noticeEntity.getVisibility());		
-		noticeDTO.setId(idGenerator.generateNoticeId());
+		noticeDTO.setId(/*idGenerator.generateNoticeId()*/ UUID.randomUUID().toString());
 		noticeDTO.setCreatedBy(SecurityUtils.getAuthUserId());
 		noticeDTO=noticeIndraService.createNotice(noticeDTO);
 		return BusinessObjectConverter.toNoticeDetail(noticeDTO);

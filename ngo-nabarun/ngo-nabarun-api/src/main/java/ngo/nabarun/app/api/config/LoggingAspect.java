@@ -57,6 +57,9 @@ public class LoggingAspect {
 	 */
 	@AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "e")
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
+		if(log.isDebugEnabled()) {
+			//e.printStackTrace();
+		}
 		log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
 				joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL");
 	}

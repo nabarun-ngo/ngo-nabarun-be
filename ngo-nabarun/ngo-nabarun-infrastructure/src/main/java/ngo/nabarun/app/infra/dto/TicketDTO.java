@@ -1,5 +1,6 @@
 package ngo.nabarun.app.infra.dto;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -35,10 +36,12 @@ public class TicketDTO {
 	private int expireTicketAfterSec;
 	private String acceptCode;
 	private String declineCode;
+	private Date expireOn;
+
 	//private String userId;
 
 	
-	public TicketDTO( TicketType ticketType) {
+	public TicketDTO(TicketType ticketType) {
 		this.ticketType=ticketType;
 	}
 

@@ -40,7 +40,7 @@ public class ErrorResponse {
 
 	public ErrorResponse(Exception e,boolean includeStacktrace) {
 		messages.add(e.getMessage());
-		details.add("Message : " + e.getMessage());
+		details.add("Notification : " + e.getMessage());
 		if (e.getCause() != null) {
 			details.add("Cause : " + e.getCause().getMessage());
 		}

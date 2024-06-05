@@ -174,7 +174,7 @@
 
 
 	$('.check-item-1').click(function() {
-		console.log("hi 1"+this.value)
+		console.log("hi 1" + this.value)
 		var checked_status = this.checked;
 		if (checked_status == true) {
 			$("#sub_bt1").removeAttr("disabled");
@@ -193,7 +193,7 @@
 			$("#sub_bt2").attr("disabled", "disabled");
 		}
 	});
-	
+
 	/*
 	$('#donate_upi').add('#donate_bank').validate({
 		rules: {
@@ -229,6 +229,7 @@
 			$box.prop("checked", false);
 		}
 	});
+
 
 
 

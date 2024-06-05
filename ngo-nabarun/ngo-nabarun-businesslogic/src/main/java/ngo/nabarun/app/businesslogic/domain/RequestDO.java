@@ -2,47 +2,47 @@ package ngo.nabarun.app.businesslogic.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField; 
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.ActionFunction;
-import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
+import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AdditionalFieldSource;
+import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.WorkFlowAction;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
-import ngo.nabarun.app.infra.dto.WorkFlowDTO;
-import ngo.nabarun.app.infra.dto.WorkListDTO;
-import ngo.nabarun.app.infra.dto.WorkFlowDTO.WorkFlowDTOFilter;
-import ngo.nabarun.app.infra.dto.WorkListDTO.WorkListDTOFilter;
+import ngo.nabarun.app.infra.dto.RequestDTO;
+import ngo.nabarun.app.infra.dto.WorkDTO;
+import ngo.nabarun.app.infra.dto.RequestDTO.RequestDTOFilter;
+import ngo.nabarun.app.infra.dto.WorkDTO.WorkListDTOFilter;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 import ngo.nabarun.app.infra.service.IWorkflowInfraService;
 
 @Component
-public class RequestDO {
+public class RequestDO extends CommonDO{
 
 	@Autowired
 	private IWorkflowInfraService workflowInfraService;
 
 	@Autowired
 	private IUserInfraService userInfraService;
-
-	@Autowired
-	private BusinessHelper businessHelper;
 
 	/**
 	 * 
@@ -51,14 +51,13 @@ public class RequestDO {
 	 * @param filter
 	 * @return
 	 */
-	public Paginate<RequestDetail> retrieveAllRequests(Integer index, Integer size, RequestDetailFilter filter) {
-		WorkFlowDTOFilter filterDTO = null;
+	public Paginate<RequestDTO> retrieveAllRequests(Integer index, Integer size, RequestDetailFilter filter) {
+		RequestDTOFilter filterDTO = null;
 		if (filter != null) {
-			filterDTO = new WorkFlowDTOFilter();
+			filterDTO = new RequestDTOFilter();
 		}
-		Page<RequestDetail> page = workflowInfraService.getWorkflows(index, size, filterDTO)
-				.map(BusinessObjectConverter::toRequestDetail);
-		return new Paginate<RequestDetail>(page);
+		Page<RequestDTO> page = workflowInfraService.getWorkflows(index, size, filterDTO);
+		return new Paginate<RequestDTO>(page);
 	}
 	
 	/**
@@ -66,9 +65,8 @@ public class RequestDO {
 	 * @param id
 	 * @return
 	 */
-	public RequestDetail retrieveRequestDetails(String id) {
-		WorkFlowDTO workflow = workflowInfraService.getWorkflow(id);
-		return BusinessObjectConverter.toRequestDetail(workflow);
+	public RequestDTO retrieveRequestDetails(String id) {
+		return workflowInfraService.getWorkflow(id);//BusinessObjectConverter.toRequestDetail(workflow);
 	}
 
 	/**
@@ -80,18 +78,18 @@ public class RequestDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public Paginate<RequestDetail> retrieveUserRequests(Integer index, Integer size, String userId, boolean isDelegated)
+	public Paginate<RequestDTO> retrieveUserRequests(Integer index, Integer size, String userId, boolean isDelegated)
 			throws Exception {
-		WorkFlowDTOFilter filterDTO = new WorkFlowDTOFilter();
+		RequestDTOFilter filterDTO = new RequestDTOFilter();
 		UserDTO user = userInfraService.getUser(userId, IdType.AUTH_USER_ID, false);
 		if (isDelegated) {
 			filterDTO.setDelegatedRequesterId(user.getProfileId());
 		} else {
 			filterDTO.setRequesterId(user.getProfileId());
 		}
-		Page<RequestDetail> page = workflowInfraService.getWorkflows(index, size, filterDTO)
-				.map(BusinessObjectConverter::toRequestDetail);
-		return new Paginate<RequestDetail>(page);
+		Page<RequestDTO> page = workflowInfraService.getWorkflows(index, size, filterDTO);
+				/*.map(BusinessObjectConverter::toRequestDetail);*/
+		return new Paginate<RequestDTO>(page);
 	}
 
 	/**
@@ -103,7 +101,7 @@ public class RequestDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public Paginate<WorkDetail> retrieveUserWorkList(Integer index, Integer size, String userId, boolean isCompleted)
+	public Paginate<WorkDTO> retrieveUserWorkList(Integer index, Integer size, String userId, boolean isCompleted)
 			throws Exception {
 		WorkListDTOFilter filter = new WorkListDTOFilter();
 		filter.setStepCompleted(isCompleted);
@@ -113,9 +111,9 @@ public class RequestDO {
 		} else {
 			filter.setPendingWithUserId(userId);
 		}
-		Page<WorkDetail> page = workflowInfraService.getWorkList(index, size, filter)
-				.map(m -> BusinessObjectConverter.toWorkItem(m));
-		return new Paginate<WorkDetail>(page);
+		Page<WorkDTO> page = workflowInfraService.getWorkList(index, size, filter);
+				//;
+		return new Paginate<WorkDTO>(page);
 
 	}
 
@@ -125,11 +123,11 @@ public class RequestDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<WorkDetail> retrieveWorkflowWorkList(String workflowId) throws Exception {
+	public List<WorkDTO> retrieveWorkflowWorkList(String workflowId) throws Exception {
 		WorkListDTOFilter filter = new WorkListDTOFilter();
 		filter.setWorkflowId(workflowId);
-		List<WorkListDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
-		return worklist.stream().map(m -> BusinessObjectConverter.toWorkItem(m)).toList();
+		List<WorkDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
+		return worklist;
 	}
 
 	/**
@@ -141,11 +139,11 @@ public class RequestDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public RequestDetail createRequest(RequestDetail createRequest, boolean isPublicRequest,String creatorUserId,ActionFunction<WorkFlowAction, WorkFlowDTO,WorkFlowDTO> task)
+	public RequestDTO createRequest(RequestDetail createRequest, boolean isPublicRequest,String creatorUserId,ActionFunction<WorkFlowAction, RequestDTO,RequestDTO> task)
 			throws Exception {
-		WorkFlowDTO workflow = businessHelper.convertToWorkflowDTO(createRequest.getType(),
+		RequestDTO workflow = businessDomainHelper.convertToWorkflowDTO(createRequest.getType(),
 				createRequest.getAdditionalFields());
-		/*
+		/**
 		 * If it is a public request then no delegation is possible
 		 * If it is a delegated request then delegated_requester = token_user and requester = UI_provided_requester
 		 * else requester = token_user
@@ -164,17 +162,55 @@ public class RequestDO {
 			workflow.setRequester(tokenUser);
 		}
 
-		workflow.setWorkflowDescription(createRequest.getDescription());
-		workflow.setId(businessHelper.generateWorkflowId());
+		workflow.setDescription(createRequest.getDescription());
+		workflow.setId(generateWorkflowId());
 		workflow = workflowInfraService.createWorkflow(workflow);
-		WorkListDTO worklist = businessHelper.prepareWorkList(workflow.getWorkflowType(), workflow.getWorkflowStatus(),
+		WorkDTO workItem = businessDomainHelper.prepareWorkList(workflow.getType(), workflow.getStatus(),
 				null);
-		worklist.setPendingWithUsers(userInfraService.getUsersByRole(worklist.getPendingWithRoles()));
-		workflow=task.exec(worklist.getCurrentAction(), workflow);
-		worklist.setActionPerformed(workflow.isLastActionCompleted());
-		worklist.setWorkflowId(workflow.getId());
-		workflowInfraService.createWorkList(worklist);
-		return BusinessObjectConverter.toRequestDetail(workflow);
+		workItem=createWorkItem(workflow,workItem,task);
+		/**
+		 * Sending email to requester and delegated requester
+		 */
+		List<CorrespondentDTO> corrDTO=new ArrayList<>();
+		corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
+		if(workflow.isDelegated()) {
+			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC).email(workflow.getDelegatedRequester().getEmail()).name(workflow.getDelegatedRequester().getName()).build());
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO, Map.of("request",workflow));
+		}else {
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO, Map.of("request",workflow));
+		}
+		return workflow;
+	}
+	
+	public WorkDTO createWorkItem(RequestDTO workflow, WorkDTO workItem,ActionFunction<WorkFlowAction, RequestDTO,RequestDTO> task) throws Exception {
+		//System.err.println("Final Step1 = "+workItem.isFinalStep()); 
+		workItem.setId(generateWorkId());
+		workItem.setPendingWithUsers(userInfraService.getUsersByRole(workItem.getPendingWithRoles()));
+		workflow=task.exec(workItem.getCurrentAction(), workflow);
+		workItem.setActionPerformed(workflow.isLastActionCompleted());
+		workItem.setWorkflowId(workflow.getId());
+		System.err.println("cash"+workItem.getPendingWithUsers());
+
+		workItem=workflowInfraService.createWorkList(workItem);
+		//System.err.println("Final Step = "+workItem.isFinalStep());
+		
+		workItem.setWfTypeValue(businessDomainHelper.getDisplayValue(workItem.getWorkflowType().name()));
+		workItem.setWfStatusValue(businessDomainHelper.getDisplayValue(workItem.getWorkflowStatus().name()));
+		
+		/**
+		 * Sending email and notification to concerned persons
+		 */
+		System.err.println("cash2"+workItem.getPendingWithUsers());
+		if(workItem.getPendingWithUsers() != null && !workItem.getPendingWithUsers().isEmpty()) {
+			List<CorrespondentDTO> corrDTO=new ArrayList<>();
+			for(UserDTO user:workItem.getPendingWithUsers()) {
+				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.BCC).email(user.getEmail()).name(user.getName()).build());
+			}
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_WORK_CREATION, corrDTO, Map.of("work",workItem));
+			sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CREATION , Map.of("work",workItem), workItem.getPendingWithUsers());
+		}
+		
+		return workItem;
 	}
 
 	/**
@@ -184,32 +220,32 @@ public class RequestDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public RequestDetail updateRequest(String id, RequestDetail request) throws Exception {
-		WorkFlowDTO workflow = new WorkFlowDTO();
+	public RequestDTO updateRequest(String id, RequestDetail request) throws Exception {
+		RequestDTO workflow = new RequestDTO();
 		if (request.getAdditionalFields() != null) {
 			List<FieldDTO> addF = new ArrayList<>();
 			for (AdditionalField attr : request.getAdditionalFields()) {
 				if (attr.isUpdateField()) {
-					addF.add(businessHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.WORKFLOW, attr));
+					addF.add(businessDomainHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.WORKFLOW, attr));
 				}
 			}
 			workflow.setAdditionalFields(addF);
 		}
-		workflow.setWorkflowDescription(request.getDescription());
+		workflow.setDescription(request.getDescription());
 		workflow.setWorkflowName(request.getName());
 		if (request.getStatus() != null && request.getStatus() == WorkflowStatus.CANCELLED) {
-			workflow.setWorkflowStatus(request.getStatus());
+			workflow.setStatus(request.getStatus());
 			workflow.setRemarks(request.getRemarks());
 			WorkListDTOFilter filter = new WorkListDTOFilter();
 			filter.setWorkflowId(id);
-			List<WorkListDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
-			for (WorkListDTO work : worklist) {
+			List<WorkDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
+			for (WorkDTO work : worklist) {
 				work.setStepCompleted(true);
 				workflowInfraService.updateWorkList(work.getId(), work);
 			}
 		}
 		workflow = workflowInfraService.updateWorkflow(request.getId(), workflow);
-		return BusinessObjectConverter.toRequestDetail(workflow);
+		return workflow;
 	}
 
 	/**
@@ -221,18 +257,18 @@ public class RequestDO {
 	 * @throws Exception
 	 */
 
-	public WorkDetail updateWorkItem(String id, WorkDetail request, String loggedInUserId,ActionFunction<WorkFlowAction, WorkFlowDTO,WorkFlowDTO> task) throws Exception {
-		WorkListDTO workList = workflowInfraService.getWorkList(id);
+	public WorkDTO updateWorkItem(String id, WorkDetail request, String loggedInUserId,ActionFunction<WorkFlowAction, RequestDTO,RequestDTO> task) throws Exception {
+		WorkDTO workList = workflowInfraService.getWorkList(id);
 
-		businessHelper.throwBusinessExceptionIf(() -> workList.getStepCompleted() == true,
+		businessDomainHelper.throwBusinessExceptionIf(() -> workList.getStepCompleted() == true,
 				ExceptionEvent.GENERIC_ERROR);
 
 		List<RoleDTO> tokenUserRoles = userInfraService.getUserRoles(loggedInUserId, IdType.AUTH_USER_ID, true);
-		/*
+		/**
 		 * check if valid access
 		 */
 		String decisionGroup = null;
-		List<String> rolegroups = businessHelper
+		List<String> rolegroups = businessDomainHelper
 				.getGroupsFromRole(tokenUserRoles.stream().map(m -> m.getCode()).collect(Collectors.toList()));
 		for (String roleGroup : rolegroups) {
 			if (workList.getPendingWithRoleGroups().contains(roleGroup)) {
@@ -241,14 +277,14 @@ public class RequestDO {
 			}
 		}
 		boolean insufficientScope = decisionGroup == null;
-		businessHelper.throwBusinessExceptionIf(() -> insufficientScope, ExceptionEvent.INSUFFICIENT_ACCESS);
+		businessDomainHelper.throwBusinessExceptionIf(() -> insufficientScope, ExceptionEvent.INSUFFICIENT_ACCESS);
 
-		WorkFlowDTO workflow = workflowInfraService.getWorkflow(workList.getWorkflowId());
+		RequestDTO workflow = workflowInfraService.getWorkflow(workList.getWorkflowId());
 
-		/*
-		 * Now update old worklist
+		/**
+		 * Now update old work list
 		 */
-		WorkListDTO wlDTO = new WorkListDTO();
+		WorkDTO wlDTO = new WorkDTO();
 		wlDTO.setDecision(request.getDecision());
 		wlDTO.setDecisionDate(CommonUtils.getSystemDate());
 		wlDTO.setDecisionMakerRoleGroup(decisionGroup);
@@ -256,27 +292,56 @@ public class RequestDO {
 		wlDTO.setDecisionMaker(tokenUser);
 		wlDTO.setRemarks(request.getRemarks());
 		wlDTO.setStepCompleted(true);
+		wlDTO=workflowInfraService.updateWorkList(id, wlDTO);
 
-		/*
-		 * next step based on decision and prepare next worklist
+		/**
+		 * Sending notification to requester and delegated requester
+		 * Regarding work item update
+		 */
+		List<UserDTO> notifyUser= new ArrayList<>();
+		notifyUser.add(workflow.getRequester());
+		if(workflow.isDelegated()) {
+			notifyUser.add(workflow.getDelegatedRequester());
+		}
+		sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CLOSURE , Map.of("work",wlDTO), notifyUser);
+
+
+		/**
+		 * next step based on decision and prepare next work list and create it
 		 */
 
-		WorkflowStatus nextStatus = businessHelper.getWorkflowNextStatus(workList.getWorkflowStatus(),
+		WorkflowStatus nextStatus = businessDomainHelper.getWorkflowNextStatus(workList.getWorkflowStatus(),
 				workList.getWorkflowType(), request.getDecision());
-		WorkListDTO nextWorkList = businessHelper.prepareWorkList(workList.getWorkflowType(), nextStatus,
+		
+		
+		WorkDTO nextWorkList = businessDomainHelper.prepareWorkList(workList.getWorkflowType(), nextStatus,
 				decisionGroup);
-
-		nextWorkList.setPendingWithUsers(userInfraService.getUsersByRole(nextWorkList.getPendingWithRoles()));
-		workflow=task.exec(nextWorkList.getCurrentAction(), workflow);
-		//boolean isActionPerformed = performWorkflowAction(nextWorkList.getCurrentAction(), workflow);
-		nextWorkList.setActionPerformed(workflow.isLastActionCompleted());
-		nextWorkList.setWorkflowId(workflow.getId());
-
-		nextWorkList = workflowInfraService.createWorkList(nextWorkList);
-		workflowInfraService.updateWorkList(id, wlDTO);
-		workflow.setWorkflowStatus(nextStatus);
+		//System.err.println("i=> "+nextWorkList.isFinalStep());
+		nextWorkList = createWorkItem(workflow, nextWorkList, task);
+		
+		/**
+		 * Updating next workflow status to workflow
+		 */
+		workflow.setStatus(nextStatus);
 		workflow = workflowInfraService.updateWorkflow(workList.getWorkflowId(), workflow);
-		return BusinessObjectConverter.toWorkItem(nextWorkList);
+		/**
+		 * ON COMPLETION
+		 * When step = final step and action performed
+		 * Then send email to re
+		 */
+		//if final step then check if action performed so update step completed on action performed
+		System.err.println("action performed = "+nextWorkList.getActionPerformed() +" final step ="+nextWorkList.isFinalStep());
+		if(nextWorkList.getActionPerformed() && nextWorkList.isFinalStep()) {
+			System.err.println("All step completed");
+			List<CorrespondentDTO> corrDTO=new ArrayList<>();
+			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
+			if(workflow.isDelegated()) {
+				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC).email(workflow.getDelegatedRequester().getEmail()).name(workflow.getDelegatedRequester().getName()).build());
+			}
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO, Map.of("request",workflow,"work",nextWorkList));
+
+		}
+		return nextWorkList;
 	}
 	
 	

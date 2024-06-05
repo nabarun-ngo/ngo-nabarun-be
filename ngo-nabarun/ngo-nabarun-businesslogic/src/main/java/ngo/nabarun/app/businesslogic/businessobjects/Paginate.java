@@ -1,9 +1,10 @@
 package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -57,5 +58,10 @@ public class Paginate<T> {
 	}
 	
 	
+	public <U> Paginate<U> map(Function<? super T, ? extends U> converter) {
+		List<U> newList=content.stream().map(converter::apply).collect(Collectors.toList());
+		return new Paginate<>(pageIndex,pageSize,totalSize,newList);
+	}
+
 
 }

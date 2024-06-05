@@ -12,12 +12,14 @@ import ngo.nabarun.app.common.enums.WorkflowStatus;
 import ngo.nabarun.app.common.enums.WorkflowType;
 
 @Data
-public class WorkListDTO {
+public class WorkDTO {
 	private String id;
 	private String workflowId;
 	private String description;
 	private WorkflowStatus workflowStatus;
+	private String wfStatusValue;
 	private WorkflowType workflowType;
+	private String wfTypeValue;
 	private WorkType workType;
 
 	private List<UserDTO> pendingWithUsers;
@@ -33,6 +35,8 @@ public class WorkListDTO {
 	private Boolean actionPerformed;
 	private Boolean stepCompleted;
 	private Date decisionDate;
+	private boolean finalStep;
+
 
 	@Data
 	public static class WorkListDTOFilter{

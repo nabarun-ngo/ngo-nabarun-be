@@ -58,7 +58,7 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 		String projectName=System.getenv(DOPPLER_PROJECT_NAME) == null ? System.getProperty(DOPPLER_PROJECT_NAME) : System.getenv(DOPPLER_PROJECT_NAME);
 		String token=System.getenv(DOPPLER_SERVICE_TOKEN) == null ? System.getProperty(DOPPLER_SERVICE_TOKEN) : System.getenv(DOPPLER_SERVICE_TOKEN);
 		String env = System.getenv(ENVIRONMENT) == null ? System.getProperty(ENVIRONMENT) : System.getenv(ENVIRONMENT);
-		System.out.println(projectName);
+		//System.out.println(projectName);
 		Assert.notNull(projectName, "DOPPLER_PROJECT_NAME must be set as argument");
 		Assert.notNull(token, "DOPPLER_SERVICE_TOKEN must be set as argument");
 		Assert.notNull(env, "ENVIRONMENT must be set as argument");

@@ -9,17 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
-import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
+import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
-import ngo.nabarun.app.common.enums.AccountType;
+import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
@@ -33,8 +32,10 @@ import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
@@ -49,7 +50,7 @@ public class DonationDO extends AccountDO {
 	@Autowired
 	private IDocumentInfraService documentInfraService;
 
-	public Paginate<DonationDetail> retrieveDonations(Integer index, Integer size, DonationDetailFilter filter) {
+	public Paginate<DonationDTO> retrieveDonations(Integer index, Integer size, DonationDetailFilter filter) {
 		DonationDTOFilter filterDTO = null;
 		if (filter != null) {
 			filterDTO = new DonationDTOFilter();
@@ -62,41 +63,41 @@ public class DonationDO extends AccountDO {
 			filterDTO.setIsGuestDonation(filter.getIsGuest());
 			filterDTO.setPaidAccountId(filter.getPaidToAccountId());
 		}
-		Page<DonationDetail> page = donationInfraService.getDonations(index, size, filterDTO)
-				.map(BusinessObjectConverter::toDonationDetail);
-		return new Paginate<DonationDetail>(page);
+		Page<DonationDTO> page = donationInfraService.getDonations(index, size, filterDTO);
+		return new Paginate<DonationDTO>(page);
 	}
 
-	public Paginate<DonationDetail> retrieveUserDonations(Integer index, Integer size, String id, IdType idType)
+	public Paginate<DonationDTO> retrieveUserDonations(Integer index, Integer size, String id, IdType idType)
 			throws Exception {
 		UserDTO userDTO = userInfraService.getUser(id, idType, false);
 		DonationDTOFilter filterDTO = new DonationDTOFilter();
 		filterDTO.setDonorId(userDTO.getProfileId());
-		Page<DonationDetail> donationPage = donationInfraService.getDonations(index, size, filterDTO).map(m -> {
+		Page<DonationDTO> donationPage = donationInfraService.getDonations(index, size, filterDTO).map(m -> {
 			m.setDonor(userDTO);
-			return BusinessObjectConverter.toDonationDetail(m);
+			return m;
 		});
-		return new Paginate<DonationDetail>(donationPage);
+		return new Paginate<DonationDTO>(donationPage);
 	}
 
-	public List<DocumentDetail> retrieveDonationDocument(String donationId) {
-		return documentInfraService.getDocumentList(donationId, DocumentIndexType.DONATION).stream().map(m -> {
-			DocumentDetail doc = new DocumentDetail();
-			doc.setDocId(m.getDocId());
-			doc.setDocumentIndexId(donationId);
-			doc.setImage(m.isImage());
-			doc.setOriginalFileName(m.getOriginalFileName());
-			return doc;
-		}).toList();
+	public List<DocumentDTO> retrieveDonationDocument(String donationId) {
+		return documentInfraService.getDocumentList(donationId, DocumentIndexType.DONATION);
+//				.stream().map(m -> {
+//			DocumentDetail doc = new DocumentDetail();
+//			doc.setDocId(m.getDocId());
+//			doc.setDocumentIndexId(donationId);
+//			doc.setImage(m.isImage());
+//			doc.setOriginalFileName(m.getOriginalFileName());
+//			return doc;
+//		}).toList();
 	}
 
-	public DonationDetail raiseDonation(DonationDetail donationDetail) throws Exception {
-		DonationDTO donationDTO = businessHelper.convertToDonationDTO(donationDetail.getDonationType());
+	public DonationDTO raiseDonation(DonationDetail donationDetail) throws Exception {
+		DonationDTO donationDTO = businessDomainHelper.convertToDonationDTO(donationDetail.getDonationType());
 		
 		UserDTO donor = new UserDTO();
 
 		if (donationDetail.getIsGuest() == Boolean.TRUE) {
-			donationDTO.setId(businessHelper.generateDonationId());
+			donationDTO.setId(generateDonationId());
 			donationDTO.setAmount(donationDetail.getAmount());
 			donationDTO.setType(DonationType.ONETIME);
 			donationDTO.setGuest(true);
@@ -110,8 +111,14 @@ public class DonationDO extends AccountDO {
 			donationDTO.setForEventId(donationDetail.getEvent() == null ? null : donationDetail.getEvent().getId());
 
 		} else {
-			donationDTO.setId(businessHelper.generateDonationId());
-			//donationDTO.setAmount(donationDetail.getAmount());
+			donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), IdType.ID, false);
+			if (!donor.getAdditionalDetails().isActiveContributor()) {
+				throw new BusinessException("Donor is not active");
+			}
+			donationDTO.setId(generateDonationId());
+			if(donationDetail.getAmount() != null) {
+				donationDTO.setAmount(donationDetail.getAmount());
+			}
 			donationDTO.setDonor(donor);
 			donationDTO.setForEventId(
 					donationDetail.getEvent() != null && donationDetail.getDonationType() == DonationType.ONETIME
@@ -134,7 +141,7 @@ public class DonationDO extends AccountDO {
 			List<FieldDTO> fieldDTO = new ArrayList<>();
 			for (AdditionalField addfield : donationDetail.getAdditionalFields()) {
 				fieldDTO.add(
-						businessHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.DONATION, addfield));
+						businessDomainHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.DONATION, addfield));
 			}
 			donationDTO.setAdditionalFields(fieldDTO);
 		}
@@ -143,9 +150,9 @@ public class DonationDO extends AccountDO {
 		CorrespondentDTO recipient = CorrespondentDTO.builder().name(donor.getName())
 				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
 				.build();
-		businessHelper.sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),
+		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),
 				Map.of("user", donor, "donation", donationDTO));
-		return BusinessObjectConverter.toDonationDetail(donationDTO, null, null);
+		return donationDTO;
 	}
 
 
@@ -163,14 +170,23 @@ public class DonationDO extends AccountDO {
 
 	}
 
-	public DonationDetail updateDonation(DonationDetail donation, DonationDetail request, String loggedInUserId,
-			AccountDetail paidTo) throws Exception {
-
+	public DonationDTO updateDonation(String id, DonationDetail request, String loggedInUserId) throws Exception {
+		DonationDTO donation = retrieveDonation(id);
+		/**
+		 * Do not allow to update amount if resolved
+		 */
+		if (businessDomainHelper.isResolvedDonation(donation.getStatus())) {
+			throw new BusinessException("No updates are allowed on settled donations.");
+		}
+		AccountDTO paidTo= retrieveAccount(request.getReceivedAccount().getId());
+		if (paidTo.getAccountStatus() == AccountStatus.INACTIVE) {
+			throw new BusinessException("Donation cannot be paid to an Inactive account.");
+		}
 		DonationDTO updatedDetail = new DonationDTO();
 		updatedDetail.setAmount(request.getAmount());
 		updatedDetail.setStatus(request.getDonationStatus());
-
-		if (donation.getIsGuest() == Boolean.TRUE) {
+		
+		if (donation.getGuest() == Boolean.TRUE) {
 			UserDTO donor = new UserDTO();
 			donor.setName(request.getDonorDetails() == null ? null : request.getDonorDetails().getFullName());
 			donor.setEmail(request.getDonorDetails() == null ? null : request.getDonorDetails().getEmail());
@@ -190,7 +206,7 @@ public class DonationDO extends AccountDO {
 			updatedDetail.setConfirmedOn(CommonUtils.getSystemDate());
 
 			TransactionDetail newTxn = new TransactionDetail();
-			newTxn.setTransferTo(paidTo);
+			newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(paidTo));
 			newTxn.setTxnAmount(donation.getAmount());
 			newTxn.setTxnDate(request.getPaidOn());
 			newTxn.setTxnRefId(donation.getId());
@@ -198,12 +214,12 @@ public class DonationDO extends AccountDO {
 			newTxn.setTxnStatus(TransactionStatus.SUCCESS);
 			newTxn.setTxnType(TransactionType.IN);
 			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-			newTxn = createTransaction(newTxn);
+			TransactionDTO newTxnDet = createTransaction(newTxn);
 
-			updatedDetail.setTransactionRefNumber(newTxn.getTxnId());
+			updatedDetail.setTransactionRefNumber(newTxnDet.getId());
 
 			AccountDTO accDTO = new AccountDTO();
-			accDTO.setAccountName(paidTo.getAccountHolderName());
+			accDTO.setAccountName(paidTo.getAccountName());
 			accDTO.setId(paidTo.getId());
 			updatedDetail.setPaidToAccount(accDTO);
 			updatedDetail.setComment(request.getRemarks());
@@ -218,8 +234,8 @@ public class DonationDO extends AccountDO {
 			newTxn.setTxnType(TransactionType.IN);
 			newTxn.setComment(request.getPaymentFailureDetail());
 			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-			newTxn = createTransaction(newTxn);
-			updatedDetail.setTransactionRefNumber(newTxn.getTxnId());
+			TransactionDTO newTxnDet = createTransaction(newTxn);
+			updatedDetail.setTransactionRefNumber(newTxnDet.getId());
 			updatedDetail.setPaymentFailDetail(request.getPaymentFailureDetail());
 
 		} else if (request.getDonationStatus() == DonationStatus.PAY_LATER) {
@@ -228,11 +244,11 @@ public class DonationDO extends AccountDO {
 			updatedDetail.setCancelReason(request.getCancelletionReason());
 		}
 		updatedDetail = donationInfraService.updateDonation(donation.getId(), updatedDetail);
-		return BusinessObjectConverter.toDonationDetail(updatedDetail, null, null);
+		return updatedDetail;
 	}
 
-	public DonationSummary retrieveDonationSummary(String id, boolean includePayableAcc) throws Exception {
-		List<DonationStatus> outStatus = businessHelper.getOutstandingDonationStatus();
+	public DonationSummary retrieveDonationSummary(String id) throws Exception {
+		List<DonationStatus> outStatus = businessDomainHelper.getOutstandingDonationStatus();
 		DonationDTOFilter filterDTO = new DonationDTOFilter();
 		filterDTO.setDonorId(id);
 		filterDTO.setDonationStatus(outStatus);
@@ -249,16 +265,11 @@ public class DonationDO extends AccountDO {
 			}
 		}
 		dsmry.setOutstandingMonths(months);
-
-		if (includePayableAcc) {
-			dsmry.setPayableAccounts(retrievePayableAccounts(AccountType.DONATION));
-		}
-
 		return dsmry;
 	}
 
-	public DonationDetail retrieveDonation(String id) {
-		return BusinessObjectConverter.toDonationDetail(donationInfraService.getDonation(id));
+	public DonationDTO retrieveDonation(String id) {
+		return donationInfraService.getDonation(id);
 	}
 
 	

@@ -14,6 +14,7 @@ import lombok.Data;
 
 @Document("user_roles")
 @Data
+@Deprecated
 public class UserRoleEntity{
 	
 	@Id

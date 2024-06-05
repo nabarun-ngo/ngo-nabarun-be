@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
@@ -22,6 +24,7 @@ import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
+import ngo.nabarun.app.common.enums.NotificationType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.WorkFlowAction;
 import ngo.nabarun.app.common.enums.WorkType;
@@ -32,17 +35,20 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
-import ngo.nabarun.app.infra.dto.WorkFlowDTO;
-import ngo.nabarun.app.infra.dto.WorkListDTO;
+import ngo.nabarun.app.infra.dto.RequestDTO;
+import ngo.nabarun.app.infra.dto.WorkDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 
+@Component
 public class BusinessDomainHelper {
 
 	@Autowired
 	private IGlobalDataInfraService domainInfraService;
 	private static Map<String, List<KeyValuePair>> domainConfig = null;
+	private static Map<String, String> domainKeyValue = new HashMap<>();
 
 	private static final String SPLITTER = ",";
 	private static final String STAR = "*";
@@ -61,6 +67,7 @@ public class BusinessDomainHelper {
 	private static final String ITEM_NABARUN_RULES_REGULATIONS = "NABARUN_RULES_REGULATIONS";
 	private static final String ITEM_BUSINESS_EXCEPTION_MESSAGES = "BUSINESS_EXCEPTION_MESSAGES";
 	private static final String ITEM_EMAIL_TEMPLATE_CONFIG = "EMAIL_TEMPLATE_CONFIG";
+	private static final String ITEM_NOTIFICATION_TEMPLATE_CONFIG = "NOTIFICATION_TEMPLATE_CONFIG";
 
 	private static final String ITEM_DONATION_TYPE__ATTR_DEFAULT_STATUS = "DEFAULT_STATUS";
 	private static final String ITEM_DONATION_TYPE__ATTR_DEFAULT_AMOUNT = "DEFAULT_AMOUNT";
@@ -74,9 +81,7 @@ public class BusinessDomainHelper {
 
 	private static final String ITEM_WORKFLOW_TYPE = "WORKFLOW_TYPES";
 	private static final String ITEM_WORKFLOW_TYPE__ATTR_DEFAULT_STEP = "DEFAULT_STEP";
-	//private static final String ITEM_WORKFLOW_TYPE__ATTR_APPROVAL_REQUIRED = "APPROVAL_REQUIRED";
 
-	//private static final String ITEM_WORKFLOW_TYPE__ATTR_APPROVAL_GROUPS = "APPROVAL_GROUPS";
 	private static final String ITEM_ADDITIONAL_CONFIG = "ADDITIONAL_CONFIG";
 	private static final String ITEM_WORKFLOW_STEP = "WORKFLOW_STEPS";
 	private static final String ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP = "IS_FINAL_STEP";
@@ -90,6 +95,19 @@ public class BusinessDomainHelper {
 			domainConfig = domainInfraService.getDomainRefConfigs();
 		}
 		return domainConfig;
+		// return domainInfraService.getDomainRefConfigs();
+	}
+
+	public String getDisplayValue(String key) throws Exception {
+		if (domainKeyValue.isEmpty()) {
+			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
+			for (Entry<String, List<KeyValuePair>> config : configs.entrySet()) {
+				for (KeyValuePair item : config.getValue()) {
+					domainKeyValue.put(item.getKey(), item.getValue());
+				}
+			}
+		}
+		return domainKeyValue.get(key);
 	}
 
 	protected List<KeyValuePair> getDomainConfig(String name) throws Exception {
@@ -135,32 +153,6 @@ public class BusinessDomainHelper {
 		}
 		String allowedGender = String.valueOf(userTitle.get().getAttributes().get(ITEM_USER_TITLE__ATTR_GENDER));
 		return allowedGender.contains(STAR) || allowedGender.toUpperCase().contains(gender.toUpperCase());
-	}
-
-	/**
-	 * Get value corresponding to gender key
-	 * 
-	 * @param key
-	 * @return value for the key
-	 * @throws Exception
-	 */
-	public String getGenderValue(String key) throws Exception {
-		List<KeyValuePair> kvGender = getDomainConfig(ITEM_USER_GENDER);
-		Optional<KeyValuePair> gender = kvGender.stream().filter(f -> f.getKey().equalsIgnoreCase(key)).findFirst();
-		return gender.isEmpty() ? key : gender.get().getValue();
-	}
-
-	/**
-	 * Get value corresponding to title key
-	 * 
-	 * @param titleKey
-	 * @return value for the key
-	 * @throws Exception
-	 */
-	public String getTitleValue(String titleKey) throws Exception {
-		Optional<KeyValuePair> title = getDomainConfig(ITEM_USER_TITLE).stream()
-				.filter(f -> f.getKey().equalsIgnoreCase(titleKey)).findFirst();
-		return title.isEmpty() ? titleKey : title.get().getValue();
 	}
 
 	/**
@@ -240,17 +232,17 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public WorkFlowDTO convertToWorkflowDTO(WorkflowType type, List<AdditionalField> addifields) throws Exception {
+	public RequestDTO convertToWorkflowDTO(WorkflowType type, List<AdditionalField> addifields) throws Exception {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
 		KeyValuePair wftype = domainRef.get(ITEM_WORKFLOW_TYPE).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst()
 				.orElseThrow(() -> new Exception("No such workflow type found."));
 
-		WorkFlowDTO wf = new WorkFlowDTO();
+		RequestDTO wf = new RequestDTO();
 		wf.setWorkflowName(wftype.getValue());
 		String status = wftype.getAttributes().get(ITEM_WORKFLOW_TYPE__ATTR_DEFAULT_STEP).toString();
-		wf.setWorkflowStatus(WorkflowStatus.valueOf(status));
-		wf.setWorkflowType(type);
+		wf.setStatus(WorkflowStatus.valueOf(status));
+		wf.setType(type);
 		if (addifields != null) {
 			List<FieldDTO> fieldDTO = new ArrayList<>();
 			for (AdditionalField addfield : addifields) {
@@ -269,14 +261,14 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public WorkListDTO prepareWorkList(WorkflowType type, WorkflowStatus currentStatus, String decisionGroup)
+	public WorkDTO prepareWorkList(WorkflowType type, WorkflowStatus currentStatus, String decisionGroup)
 			throws Exception {
 		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEP).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(currentStatus.name())).findFirst()
 				.orElseThrow(() -> new Exception("No such workflow status found."));
 		Map<String, Object> attributes = kvWfStep.getAttributes();
 
-		WorkListDTO wl = new WorkListDTO();
+		WorkDTO wl = new WorkDTO();
 		wl.setWorkflowStatus(currentStatus);
 		wl.setWorkflowType(type);
 		wl.setCreatedOn(CommonUtils.getSystemDate());
@@ -284,29 +276,27 @@ public class BusinessDomainHelper {
 		wl.setGroupWork(true);
 		Object groups = attributes.get(ITEM_WORKFLOW_STEP__ATTR_DECISION_MAKER_ROLE_GROUPS);
 		List<String> groupList = new ArrayList<String>();
-		if(groups != null) {
-			for(String group:groups.toString().split(SPLITTER)) {
+		if (groups != null) {
+			for (String group : groups.toString().split(SPLITTER)) {
 				if (!group.equalsIgnoreCase(decisionGroup)) {
 					groupList.add(group);
 				}
 			}
 		}
 		boolean isDecisionStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_DECISION_STEP);
-		if(isDecisionStep) {
+		if (isDecisionStep) {
 			wl.setWorkType(WorkType.DECISION);
 		}
-	
-		
+
 		wl.setPendingWithRoleGroups(groupList);
 		wl.setPendingWithRoles(this.getRolesFromGroup(groupList));
-		//boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP);
+		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP);
+		wl.setFinalStep(isFinalStep);
 		Object actionName = attributes.get(ITEM_WORKFLOW_STEP__ATTR_CURRENT_ACTION + "-" + type.name());
-		wl.setCurrentAction(/*isFinalStep || */actionName == null ? WorkFlowAction.NO_ACTION
+		wl.setCurrentAction(/* isFinalStep || */actionName == null ? WorkFlowAction.NO_ACTION
 				: WorkFlowAction.valueOf(actionName.toString()));
 		return wl;
 	}
-
-	
 
 	@Deprecated
 	public WorkFlowAction getWorkflowAction(WorkflowStatus status, WorkflowType type) throws Exception {
@@ -343,8 +333,6 @@ public class BusinessDomainHelper {
 		return nextStatus == null ? null : WorkflowStatus.valueOf(nextStatus.toString());
 	}
 
-	
-
 	/*
 	 * *****************************************************************************
 	 * ******************* DONATION
@@ -380,23 +368,25 @@ public class BusinessDomainHelper {
 				.map(m -> DonationStatus.valueOf(m.getKey())).collect(Collectors.toList());
 		return resolvedStatus.contains(status);
 	}
-	
+
 	public DonationDTO convertToDonationDTO(DonationType type) throws Exception {
 		List<KeyValuePair> kvDType = getDomainConfig(ITEM_DONATION_TYPE);
-		KeyValuePair donationType=kvDType.stream().filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst().orElseThrow(() -> new Exception("Invalid donation type [" + type + "]"));
+		KeyValuePair donationType = kvDType.stream().filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst()
+				.orElseThrow(() -> new Exception("Invalid donation type [" + type + "]"));
 		Map<String, Object> donTypeAttr = donationType.getAttributes();
-		DonationDTO donDTO=new DonationDTO();
-		Object lastday=donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_LAST_PAYMENT_DAY);
-		if(lastday != null) {
+		DonationDTO donDTO = new DonationDTO();
+		donDTO.setType(type);
+		Object lastday = donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_LAST_PAYMENT_DAY);
+		if (lastday != null) {
 			donDTO.setLastPaymentDay(Integer.parseInt(lastday.toString()));
 		}
-		Object amount=donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_AMOUNT);
-		if(amount != null) {
+		Object amount = donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_AMOUNT);
+		if (amount != null) {
 			donDTO.setAmount(Double.valueOf(amount.toString()));
 		}
-		
-		Object status=donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_STATUS);
-		if(amount != null) {
+
+		Object status = donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_STATUS);
+		if (status != null) {
 			donDTO.setStatus(DonationStatus.valueOf(status.toString()));
 		}
 		return donDTO;
@@ -639,6 +629,42 @@ public class BusinessDomainHelper {
 		wrapper.setPropertyValues(attributes);
 		emailTemplate.setTemplateId(template.getValue());
 		return emailTemplate;
+	}
+
+	private String interpolateText(String text, Map<String, Object> objectMap) {
+		ST st = new ST(text);
+		for (String object : objectMap.keySet()) {
+			st.add(object, objectMap.get(object));
+		}
+		return st.render();
+	}
+
+	public NotificationDTO findInterpolateAndConvertToNotificationDTO(String templateName,
+			Map<String, Object> objectMap) throws Exception {
+		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NOTIFICATION_TEMPLATE_CONFIG);
+		KeyValuePair template = kvFields.stream().filter(f -> f.getKey().equalsIgnoreCase(templateName)).findFirst()
+				.orElseThrow(() -> new Exception("No template found [" + templateName + "]"));
+
+		NotificationDTO notificationDTO = new NotificationDTO();
+		notificationDTO.setTitle(interpolateText(template.getValue(), objectMap));
+		notificationDTO.setSummary(interpolateText(template.getDescription(), objectMap));
+
+		Map<String, Object> attributes = template.getAttributes();
+		for (String key : attributes.keySet()) {
+			if (attributes.get(key) != null) {
+				String text = attributes.get(key).toString();
+				attributes.put(key, interpolateText(text, objectMap));
+			}
+		}
+		notificationDTO.setCommand(attributes.get("ACTION") == null ? null : attributes.get("ACTION").toString());
+		// notificationDTO.setExtLink(attributes.get("extLink") == null ? null :
+		// attributes.get("extLink").toString());
+		notificationDTO.setImage(attributes.get("IMAGE_URL") == null ? null : attributes.get("IMAGE_URL").toString());
+		notificationDTO
+				.setLink(attributes.get("ACTION_LINK") == null ? null : attributes.get("ACTION_LINK").toString());
+		notificationDTO.setType(attributes.get("TYPE") == null ? NotificationType.FYI
+				: NotificationType.valueOf(attributes.get("TYPE").toString()));
+		return notificationDTO;
 	}
 
 }

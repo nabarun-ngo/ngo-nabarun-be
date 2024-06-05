@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,15 +17,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.passay.CharacterData;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -70,16 +68,29 @@ public class CommonUtils {
 		return getMonthsBetween(startDate, endDate, "MMMM yyyy");
 	}
 
-	public static String getFormattedDate(Date date, String format) {
+	public static Date getFormattedDate(String dateStr, String format) {
+		if (dateStr == null || StringUtils.isBlank(dateStr)) {
+			return null;
+		}
+		DateFormat formaterYd = new SimpleDateFormat(format);
+		try {
+			return formaterYd.parse(dateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static String getFormattedDateString(Date date, String format) {
 		if (date == null) {
-			return "";
+			return null;
 		}
 		DateFormat formaterYd = new SimpleDateFormat(format);
 		return formaterYd.format(date);
 	}
 
-	public static String getFormattedDate(Date date) {
-		return getFormattedDate(date, "MMMM yyyy");
+	public static String getFormattedDateString(Date date) {
+		return getFormattedDateString(date, "MMMM yyyy");
 	}
 
 	public static Date addDaysToDate(Date date, int days) {

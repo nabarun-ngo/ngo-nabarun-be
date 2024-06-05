@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
+import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
-import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.IdType;
+import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
@@ -33,7 +33,7 @@ import ngo.nabarun.app.infra.service.ITransactionInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Component
-public class AccountDO {
+public class AccountDO extends CommonDO{
 
 	@Autowired
 	private ITransactionInfraService transactionInfraService;
@@ -44,9 +44,6 @@ public class AccountDO {
 	@Autowired
 	protected IUserInfraService userInfraService;
 
-	@Autowired
-	protected BusinessHelper businessHelper;
-
 	/**
 	 * 
 	 * @param page
@@ -54,7 +51,7 @@ public class AccountDO {
 	 * @param filter
 	 * @return
 	 */
-	public Paginate<AccountDetail> retrieveAccounts(Integer page, Integer size, AccountDetailFilter filter) {
+	public Paginate<AccountDTO> retrieveAccounts(Integer page, Integer size, AccountDetailFilter filter) {
 		AccountDTOFilter filterDTO = null;
 		if (filter != null) {
 			filterDTO = new AccountDTOFilter();
@@ -62,8 +59,7 @@ public class AccountDO {
 			filterDTO.setAccountType(filter.getType());
 		}
 
-		Page<AccountDetail> pageDetail = accountInfraService.getAccounts(page, size, filterDTO).map(m -> {
-			AccountDetail acc = BusinessObjectConverter.toAccountDetail(m);
+		Page<AccountDTO> pageDetail = accountInfraService.getAccounts(page, size, filterDTO).map(acc -> {
 			if (!filter.isIncludePaymentDetail()) {
 				acc.setUpiDetail(null);
 				acc.setBankDetail(null);
@@ -73,11 +69,11 @@ public class AccountDO {
 			}
 			return acc;
 		});
-		return new Paginate<AccountDetail>(pageDetail);
+		return new Paginate<AccountDTO>(pageDetail);
 	}
 	
-	public AccountDetail retrieveAccount(String id) {
-		return BusinessObjectConverter.toAccountDetail(accountInfraService.getAccountDetails(id));
+	public AccountDTO retrieveAccount(String id) {
+		return accountInfraService.getAccountDetails(id);
 	}
 
 	/**
@@ -85,18 +81,11 @@ public class AccountDO {
 	 * @param type
 	 * @return
 	 */
-	public List<PayableAccDetail> retrievePayableAccounts(AccountType... type) {
+	public List<AccountDTO> retrievePayableAccounts(AccountType... type) {
 		AccountDTOFilter filter = new AccountDTOFilter();
 		filter.setAccountStatus(List.of(AccountStatus.ACTIVE));
 		filter.setAccountType(List.of(type));
-		List<PayableAccDetail> accounts = accountInfraService.getAccounts(null, null, filter).getContent().stream()
-				.map(m -> {
-					PayableAccDetail pad = new PayableAccDetail();
-					pad.setId(m.getId());
-					pad.setPayableBankDetails(BusinessObjectConverter.toBankDetail(m.getBankDetail()));
-					pad.setPayableUPIDetail(BusinessObjectConverter.toUPIDetail(m.getUpiDetail()));
-					return pad;
-				}).collect(Collectors.toList());
+		List<AccountDTO> accounts = accountInfraService.getAccounts(null, null, filter).getContent();
 		return accounts;
 	}
 
@@ -107,10 +96,13 @@ public class AccountDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public AccountDetail createAccount(AccountDetail accountDetail, Double openingBal) throws Exception {
+	public AccountDTO createAccount(AccountDetail accountDetail, Double openingBal) throws Exception {
 		UserDTO userDTO = userInfraService.getUser(accountDetail.getAccountHolder().getId(), IdType.ID, false);
+		if (userDTO.getStatus() != ProfileStatus.ACTIVE) {
+			throw new BusinessException("Account can only be created for an ACTIVE user.");
+		}
 		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setId(businessHelper.generateAccountId());
+		accountDTO.setId(generateAccountId());
 		accountDTO.setProfile(userDTO);
 		accountDTO.setAccountName(userDTO.getName());
 		if (accountDetail.getBankDetail() != null) {
@@ -151,9 +143,9 @@ public class AccountDO {
 			newTxn.setTxnDescription("Initial opening balance for account " + accountDTO.getId());
 			AccountDetail toAccount = BusinessObjectConverter.toAccountDetail(accountDTO);
 			newTxn.setTransferTo(toAccount);
-			newTxn = createTransaction(newTxn);
+			createTransaction(newTxn);
 		}
-		return BusinessObjectConverter.toAccountDetail(accountDTO);
+		return accountDTO;
 	}
 
 	/**
@@ -163,12 +155,11 @@ public class AccountDO {
 	 * @param size
 	 * @return
 	 */
-	public Paginate<TransactionDetail> retrieveAccountTransactions(String accountId, int index, int size) {
+	public Paginate<TransactionDTO> retrieveAccountTransactions(String accountId, int index, int size) {
 		TransactionDTOFilter filter = new TransactionDTOFilter();
 		filter.setAccountId(accountId);
 		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filter);
-		return new Paginate<TransactionDetail>(
-				transactions.map(m -> BusinessObjectConverter.toTransactionDetail(m, false)));
+		return new Paginate<TransactionDTO>(transactions);
 	}
 
 	/**
@@ -179,15 +170,13 @@ public class AccountDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TransactionDetail> retrieveTransactions(String refId, TransactionRefType refType,
+	public List<TransactionDTO> retrieveTransactions(String refId, TransactionRefType refType,
 			TransactionStatus status) throws Exception {
 		List<TransactionDTO> allTxns = transactionInfraService.getTransactions(refId, refType);
 		if (status != null) {
-			return allTxns.stream().filter(f -> f.getTxnStatus() == status)
-					.map(m -> BusinessObjectConverter.toTransactionDetail(m, true)).collect(Collectors.toList());
+			return allTxns.stream().filter(f -> f.getTxnStatus() == status).collect(Collectors.toList());
 		}
-		return allTxns.stream().map(m -> BusinessObjectConverter.toTransactionDetail(m, true))
-				.collect(Collectors.toList());
+		return allTxns;
 	}
 
 	/**
@@ -196,26 +185,26 @@ public class AccountDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public TransactionDetail createTransaction(TransactionDetail transaction) throws Exception {
+	public TransactionDTO createTransaction(TransactionDetail transaction) throws Exception {
 		/*
 		 * Checking for any existing transactions created against the ref id if one or
 		 * more transaction exists then checking if any of the transaction status is
 		 * success or not create a transaction with success status if none of then is
 		 * success
 		 */
-		List<TransactionDetail> successTxn = retrieveTransactions(transaction.getTxnRefId(),
+		List<TransactionDTO> successTxn = retrieveTransactions(transaction.getTxnRefId(),
 				transaction.getTxnRefType(), TransactionStatus.SUCCESS);
 
 		if (successTxn.isEmpty()) {
 			TransactionDTO newTxn = generateNewTxn(transaction);
-			return BusinessObjectConverter.toTransactionDetail(newTxn, true);
+			return newTxn;
 		}
 		return successTxn.get(0);
 	}
 
 	private TransactionDTO generateNewTxn(TransactionDetail transaction) throws Exception {
 		TransactionDTO newTxn = new TransactionDTO();
-		newTxn.setId(businessHelper.generateTransactionId());
+		newTxn.setId(generateTransactionId());
 		newTxn.setTxnAmount(transaction.getTxnAmount());
 		newTxn.setTxnDate(transaction.getTxnDate());
 		newTxn.setTxnRefId(transaction.getTxnRefId());
@@ -250,9 +239,9 @@ public class AccountDO {
 
 	public void revertTransaction(String refId, TransactionRefType refType, TransactionStatus status)
 			throws Exception {
-		List<TransactionDetail> transactions = retrieveTransactions(refId, refType, status);
+		List<TransactionDTO> transactions = retrieveTransactions(refId, refType, status);
 
-		for (TransactionDetail transaction : transactions) {
+		for (TransactionDTO transaction : transactions) {
 			if(transaction.getTxnStatus() == TransactionStatus.SUCCESS) {
 				TransactionDetail newTxn = new TransactionDetail();
 				newTxn.setTxnAmount(transaction.getTxnAmount());
@@ -260,24 +249,23 @@ public class AccountDO {
 				newTxn.setTxnRefId(transaction.getTxnRefId());
 				newTxn.setTxnRefType(transaction.getTxnRefType());
 				newTxn.setTxnStatus(TransactionStatus.SUCCESS);
-				newTxn.setTxnDescription("Reverting last transaction " + transaction.getTxnId());
+				newTxn.setTxnDescription("Reverting last transaction " + transaction.getId());
 
 				if (transaction.getTxnType() == TransactionType.IN) {
 					newTxn.setTxnType(TransactionType.OUT);
-					newTxn.setTransferFrom(transaction.getTransferTo());
+					newTxn.setTransferFrom(BusinessObjectConverter.toAccountDetail(transaction.getToAccount()));
 				}
 				else if (transaction.getTxnType() == TransactionType.OUT) {
 					newTxn.setTxnType(TransactionType.IN);
-					newTxn.setTransferTo(transaction.getTransferFrom());
+					newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(transaction.getFromAccount()));
 				}else {
 					newTxn.setTxnType(TransactionType.OUT);
-					newTxn.setTransferFrom(transaction.getTransferTo());
+					newTxn.setTransferFrom(BusinessObjectConverter.toAccountDetail(transaction.getToAccount()));
 					newTxn.setTxnType(TransactionType.IN);
-					newTxn.setTransferTo(transaction.getTransferFrom());
+					newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(transaction.getFromAccount()));
 				}
 				generateNewTxn(newTxn);
 			}
 		}
 	}
-
 }

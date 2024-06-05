@@ -1,14 +1,25 @@
-package ngo.nabarun.app.businesslogic.helper;
+package ngo.nabarun.app.businesslogic.domain;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
+import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
+import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
+import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
@@ -16,15 +27,21 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
+import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
+import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
+import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.ISequenceInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 
-@Service
-public class BusinessHelper extends BusinessDomainHelper{
-
+@Component
+public class CommonDO {
+	
+	@Autowired
+	private ICorrespondenceInfraService correspondenceInfraService;
+	
 	@Autowired
 	private ISequenceInfraService sequenceInfraService;
 	
@@ -32,7 +49,10 @@ public class BusinessHelper extends BusinessDomainHelper{
 	private ITicketInfraService ticketInfraService;
 	
 	@Autowired
-	private ICorrespondenceInfraService correspondenceInfraService;
+	protected BusinessDomainHelper businessDomainHelper;
+	
+	@Autowired
+	private IDocumentInfraService docInfraService;
 	
 	/**
 	 * Generate sequential human readable number for notice
@@ -41,8 +61,8 @@ public class BusinessHelper extends BusinessDomainHelper{
 	public String generateNoticeId() {
 		String seqName="NOTICE_SEQUENCE";
 		String pattern="NNOT%s%sN%s";
-		String year = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "yy");
-		String month = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "MMM").toUpperCase();
+		String year = CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yy");
+		String month = CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "MMM").toUpperCase();
 		String ran = PasswordUtils.generateRandomNumber(3);
 
 		Date lastResetDate=sequenceInfraService.getLastResetDate(seqName);
@@ -63,7 +83,7 @@ public class BusinessHelper extends BusinessDomainHelper{
 		String seqName="ACCOUNT_SEQUENCE";
 		String pattern="NACC%s%sA%s";
 		String ran = PasswordUtils.generateRandomNumber(6);
-		String yearmonth = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "yyyyMM").toUpperCase();
+		String yearmonth = CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyyMM").toUpperCase();
 		int seq=sequenceInfraService.incrementSequence(seqName);
 		return String.format(pattern,yearmonth,ran,seq);
 	}
@@ -76,7 +96,7 @@ public class BusinessHelper extends BusinessDomainHelper{
 		String seqName="DONATION_SEQUENCE";
 		String pattern="NDON%s%sD%s";
 		String ran = PasswordUtils.generateRandomNumber(4);
-		String yearmonth = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "yyyyMMM").toUpperCase();
+		String yearmonth = CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyyMMM").toUpperCase();
 		int seq=sequenceInfraService.incrementSequence(seqName);
 		return String.format(pattern, yearmonth, ran,seq);
 	}
@@ -88,7 +108,7 @@ public class BusinessHelper extends BusinessDomainHelper{
 	public String generateTransactionId() {
 		String seqName="TRANSACTION_SEQUENCE";
 		String pattern="NTXN%s%sT%s";
-		String date = CommonUtils.getFormattedDate(CommonUtils.getSystemDate(), "yyyyMMddHHmmss");
+		String date = CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyyMMddHHmmss");
 		String ran = PasswordUtils.generateRandomNumber(4);
 		int seq=sequenceInfraService.incrementSequence(seqName);
 		return String.format(pattern, date,ran,seq);
@@ -106,6 +126,14 @@ public class BusinessHelper extends BusinessDomainHelper{
 		return String.format(pattern,ran,seq);
 	}
 	
+	public String generateWorkId() {
+		String seqName="WORK_SEQUENCE";
+		String pattern="NWO%sR%s";
+		String ran = PasswordUtils.generateRandomNumber(2);
+		int seq=sequenceInfraService.incrementSequence(seqName);
+		return String.format(pattern,ran,seq);
+	}
+	
 	/**
 	 * Generate and send OTP to user
 	 * @param name
@@ -117,6 +145,9 @@ public class BusinessHelper extends BusinessDomainHelper{
 	 * @throws Exception 
 	 */
 	public String sendOTP(String name,String email,String mobileNo,String scope,String refId) throws Exception {
+		String ticketValidity=businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.OTP_TICKET_VALIDITY);
+		String otpDigit=businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.OTP_DIGITS);
+
 		TicketDTO ticket= new TicketDTO(TicketType.OTP);
 		ticket.setCommunicationMethods(List.of(CommunicationMethod.EMAIL));
 		UserDTO userDTO = new UserDTO();
@@ -125,8 +156,8 @@ public class BusinessHelper extends BusinessDomainHelper{
 		userDTO.setPhoneNumber(mobileNo);
 		ticket.setUserInfo(userDTO);
 		ticket.setRefId(refId);
-		ticket.setOtpDigits(6);
-		ticket.setExpireTicketAfterSec(84000);//configure it
+		ticket.setOtpDigits(Integer.parseInt(otpDigit));
+		ticket.setExpireTicketAfterSec(Integer.parseInt(ticketValidity));//configure it
 		ticket.setTicketScope(List.of(scope));
 		ticket=ticketInfraService.createTicket(ticket);
 		CorrespondentDTO recipient= CorrespondentDTO.builder()
@@ -147,7 +178,7 @@ public class BusinessHelper extends BusinessDomainHelper{
 	 */
 	public void reSendOTP(String token) throws Exception {
 		TicketDTO ticket=ticketInfraService.getTicketInfoByToken(token);
-		throwBusinessExceptionIf(()->ticket.getExpired(), ExceptionEvent.OTP_EXPIRED);
+		businessDomainHelper.throwBusinessExceptionIf(()->ticket.getExpired(), ExceptionEvent.OTP_EXPIRED);
 		CorrespondentDTO recipient= CorrespondentDTO.builder()
 				.name(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName())
 				.emailRecipientType(EmailRecipientType.TO)
@@ -165,8 +196,8 @@ public class BusinessHelper extends BusinessDomainHelper{
 	 */
 	public void validateOTP(String token,String otp,String scope) throws Exception {
 		TicketDTO ticket=ticketInfraService.getTicketInfoByToken(token);
-		throwBusinessExceptionIf(()->ticket.getExpired(), ExceptionEvent.OTP_EXPIRED);
-		throwBusinessExceptionIf(()->!ticket.getTicketScope().contains(scope), ExceptionEvent.GENERIC_ERROR,"Err2468");
+		businessDomainHelper.throwBusinessExceptionIf(()->ticket.getExpired(), ExceptionEvent.OTP_EXPIRED);
+		businessDomainHelper.throwBusinessExceptionIf(()->!ticket.getTicketScope().contains(scope), ExceptionEvent.GENERIC_ERROR);
 		if(ticket.getOneTimePassword().equals(otp)) {
 			TicketDTO tDTO= new TicketDTO();
 			tDTO.setTicketStatus(TicketStatus.USED);
@@ -176,7 +207,7 @@ public class BusinessHelper extends BusinessDomainHelper{
 			int count = tDTO.getIncorrectOTPCount() == null ? 1 : tDTO.getIncorrectOTPCount()+1;
 			tDTO.setIncorrectOTPCount(count);
 			ticketInfraService.updateTicket(ticket.getId(), tDTO);
-			throwBusinessExceptionIf(()->true, ExceptionEvent.INVALID_OTP);
+			businessDomainHelper.throwBusinessExceptionIf(()->true, ExceptionEvent.INVALID_OTP);
 		}
 	}
 	
@@ -187,13 +218,51 @@ public class BusinessHelper extends BusinessDomainHelper{
 	
 	@Async
 	public void sendEmail(String senderName,String templateName,List<CorrespondentDTO> recipients, Map<String,Object> objectMap) throws Exception {
-		EmailTemplateDTO template=findInterpolateAndConvertToEmailTemplateDTO(templateName, objectMap);
+		EmailTemplateDTO template=businessDomainHelper.findInterpolateAndConvertToEmailTemplateDTO(templateName, objectMap);
 		correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template,null);
 	}
 	
-	@Async
-	public void sendSMS(String templateName,List<CorrespondentDTO> recipients, Map<String,Object> objectMap) throws Exception {
-	
+	public Paginate<Map<String, String>> getNotifications(Integer index, Integer size) {
+		Page<Map<String, String>> page = correspondenceInfraService.getNotifications(index, size, new NotificationDTOFilter())
+				.map(m->m.toMap());
+		return new Paginate<>(page);
 	}
 	
+	@Async
+	public void sendNotification(NotificationDTO template,List<UserDTO> recipients) throws Exception {
+		List<UserDTO> target = recipients.stream().filter(f->f.getUserId() != null).collect(Collectors.toList());
+		template.setItemClosed(false);
+		template.setNotificationDate(CommonUtils.getSystemDate());
+		template.setTarget(target);	
+		correspondenceInfraService.createAndSendNotification(template);
+	}
+	
+	@Async
+	public void sendNotification(String templateName,Map<String,Object> objectMap,List<UserDTO> recipients) throws Exception {
+		NotificationDTO template=businessDomainHelper.findInterpolateAndConvertToNotificationDTO(templateName, objectMap);
+		sendNotification(template,recipients);
+	}
+	
+	public void saveNotificationToken(String userId,String token) throws Exception {
+		correspondenceInfraService.saveNotificationToken(userId, token);
+	}
+
+	public void removeNotificationToken(String object, String token) throws Exception {
+		correspondenceInfraService.deleteNotificationTargetToken(token);
+	}
+	
+	public void uploadDocument(DocumentDetailUpload file,String docIndexId, DocumentIndexType docIndexType) throws Exception {
+		byte[] content = file.getContent() == null ?  Base64.decodeBase64(file.getBase64Content()) : file.getContent();
+		docInfraService.uploadDocument(file.getOriginalFileName(),file.getContentType(), docIndexId, docIndexType,content);	
+	}
+
+	public URL getDocumentUrl(String docId) throws Exception {
+		String docLinkValidity=businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DOCUMENT_LINK_VALIDITY);
+		return docInfraService.getTempDocumentUrl(docId,Integer.parseInt(docLinkValidity),TimeUnit.SECONDS);
+	}
+
+	public boolean deleteDocument(String docId) throws Exception {
+		return docInfraService.hardDeleteDocument(docId);
+	}
+
 }

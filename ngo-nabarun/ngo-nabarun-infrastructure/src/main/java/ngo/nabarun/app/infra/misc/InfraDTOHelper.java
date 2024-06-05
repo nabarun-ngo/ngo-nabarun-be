@@ -74,8 +74,8 @@ import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
-import ngo.nabarun.app.infra.dto.WorkFlowDTO;
-import ngo.nabarun.app.infra.dto.WorkListDTO;
+import ngo.nabarun.app.infra.dto.RequestDTO;
+import ngo.nabarun.app.infra.dto.WorkDTO;
 
 @Component
 public class InfraDTOHelper {
@@ -458,6 +458,7 @@ public class InfraDTOHelper {
 		userInfo.setPhoneNumber(tokenEntity.getMobileNumber());
 		ticketDTO.setUserInfo(userInfo);
 		ticketDTO.setTicketStatus(TicketStatus.valueOf(tokenEntity.getStatus()));
+		ticketDTO.setExpireOn(tokenEntity.getExpireOn());
 		return ticketDTO;
 	}
 
@@ -535,8 +536,8 @@ public class InfraDTOHelper {
 		return accountDTO;
 	}
 
-	public static WorkFlowDTO convertToWorkflowDTO(WorkflowEntity workflow,String secret) {
-		WorkFlowDTO workFlowDTO= new WorkFlowDTO();
+	public static RequestDTO convertToWorkflowDTO(WorkflowEntity workflow,String secret) {
+		RequestDTO workFlowDTO= new RequestDTO();
 		workFlowDTO.setAdditionalFields(null);		
 		workFlowDTO.setCreatedBy(workflow.getCreatedBy());
 		workFlowDTO.setCreatedOn(workflow.getCreatedOn());
@@ -556,11 +557,11 @@ public class InfraDTOHelper {
 
 		workFlowDTO.setRequester(requesterDTO);
 		workFlowDTO.setResolvedOn(workflow.getResolvedOn());
-		workFlowDTO.setWorkflowDescription(workflow.getDescription());
+		workFlowDTO.setDescription(workflow.getDescription());
 		workFlowDTO.setWorkflowName(workflow.getName());
-		workFlowDTO.setWorkflowStatus(workflow.getStatus() == null ? null : WorkflowStatus.valueOf(workflow.getStatus()));
+		workFlowDTO.setStatus(workflow.getStatus() == null ? null : WorkflowStatus.valueOf(workflow.getStatus()));
 		workFlowDTO.setLastStatus(workflow.getLastStatus() == null ? null : WorkflowStatus.valueOf(workflow.getLastStatus()));
-		workFlowDTO.setWorkflowType(WorkflowType.valueOf(workflow.getType()));
+		workFlowDTO.setType(WorkflowType.valueOf(workflow.getType()));
 		if(workflow.getCustomFields() != null) {
 			List<FieldDTO> list=workflow.getCustomFields().stream().map(m->{
 				return convertToFieldDTO(m,secret);
@@ -570,8 +571,8 @@ public class InfraDTOHelper {
 		return workFlowDTO;
 	}
 
-	public static WorkListDTO convertToWorkListDTO(WorkListEntity worklist) {
-		WorkListDTO workListDTO= new WorkListDTO();
+	public static WorkDTO convertToWorkListDTO(WorkListEntity worklist) {
+		WorkDTO workListDTO= new WorkDTO();
 		workListDTO.setActionPerformed(worklist.isActionPerformed());	
 		workListDTO.setCreatedOn(worklist.getCreatedOn());
 		workListDTO.setCurrentAction(worklist.getCurrentAction() == null ? null :WorkFlowAction.valueOf(worklist.getCurrentAction()));
@@ -595,18 +596,19 @@ public class InfraDTOHelper {
 			UserDTO pendingWithUser = new UserDTO();
 			pendingWithUser.setUserId(pendingIds.get(i));	
 			pendingWithUser.setName(pendingNames.get(i));
+			pendingWithUsers.add(pendingWithUser);
 		}
 		workListDTO.setPendingWithUsers(pendingWithUsers);
 
 		
 		workListDTO.setRemarks(worklist.getRemarks());
-		workListDTO.setStepCompleted(worklist.isStepCompleted());
+		workListDTO.setStepCompleted(worklist.getStepCompleted());
 		workListDTO.setWorkflowId(worklist.getSourceId());
 		workListDTO.setWorkflowStatus(worklist.getSourceStatus() == null ? null : WorkflowStatus.valueOf(worklist.getSourceStatus()));
 		workListDTO.setWorkflowType(worklist.getSourceType() == null ? null : WorkflowType.valueOf(worklist.getSourceType()));
 		workListDTO.setDecisionDate(worklist.getDecisionDate());
 		workListDTO.setWorkType(worklist.getWorkType() == null ? null : WorkType.valueOf(worklist.getWorkType()));
-
+		workListDTO.setFinalStep(worklist.isFinalStep());
 		return workListDTO;
 	}
 

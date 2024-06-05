@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAccountBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
@@ -31,7 +30,7 @@ public class AccountController {
 	private IAccountBL accountBL;
 
 	@PostMapping("/createAccount")
-	public ResponseEntity<SuccessResponse<AccountDetail>> createAccount(@RequestBody AccountDetailCreate accountDetail)
+	public ResponseEntity<SuccessResponse<AccountDetail>> createAccount(@RequestBody AccountDetail accountDetail)
 			throws Exception {
 		return new SuccessResponse<AccountDetail>().payload(accountBL.createAccount(accountDetail)).get(HttpStatus.OK);
 	}

@@ -1,5 +1,5 @@
 package ngo.nabarun.app.common.enums;
 
 public enum TicketType {
-	OTP,LINK,DECISION_LINK
+	OTP,LINK,DECISION_LINK,
 }

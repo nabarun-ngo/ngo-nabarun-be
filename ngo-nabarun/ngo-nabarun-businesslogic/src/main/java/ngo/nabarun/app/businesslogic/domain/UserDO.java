@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
-import ngo.nabarun.app.businesslogic.helper.BusinessHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -31,13 +30,10 @@ import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Component
-public class UserDO {
+public class UserDO extends CommonDO{
 	
 	@Autowired
 	private IUserInfraService userInfraService;
-	
-	@Autowired
-	private BusinessHelper businessHelper;
 	
 	@Autowired
 	private IDocumentInfraService documentInfraService;
@@ -51,7 +47,7 @@ public class UserDO {
 	 * @param userDetailFilter
 	 * @return
 	 */
-	public Paginate<UserDetail> retrieveAllUsers(Integer page, Integer size, UserDetailFilter userDetailFilter) {
+	public Paginate<UserDTO> retrieveAllUsers(Integer page, Integer size, UserDetailFilter userDetailFilter) {
 		UserDTOFilter userDTOFilter = null;
 		if(userDetailFilter != null) {
 			userDTOFilter= new UserDTOFilter();
@@ -63,9 +59,8 @@ public class UserDO {
 			userDTOFilter.setPublicProfile(userDetailFilter.getPublicFlag());
 			userDTOFilter.setDeleted(false);
 		}
-		Page<UserDetail> content =userInfraService.getUsers(page, size, userDTOFilter)
-				.map(m -> BusinessObjectConverter.toUserDetail(m));
-		return new Paginate<UserDetail>(content);
+		Page<UserDTO> content =userInfraService.getUsers(page, size, userDTOFilter);
+		return new Paginate<UserDTO>(content);
 	}
 	
 	/**
@@ -76,13 +71,13 @@ public class UserDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDetail retrieveUserDetail(String id,IdType idType,boolean fullDetail,boolean includeRole) throws Exception {
+	public UserDTO retrieveUserDetail(String id,IdType idType,boolean fullDetail,boolean includeRole) throws Exception {
 		UserDTO userDTO = userInfraService.getUser(id ,idType, fullDetail);
 		if(includeRole) {
 			List<RoleDTO> roleDTO =userInfraService.getUserRoles(id,idType,true);  
 			userDTO.setRoles(roleDTO);
 		}
-		return BusinessObjectConverter.toUserDetail(userDTO);
+		return userDTO;
 	}
 	
 	
@@ -109,7 +104,7 @@ public class UserDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDetail createUser(String firstName,String lastName,String email, String phoneCode,String phoneNumber, String hometown, String password,boolean emailVerified) throws Exception {
+	public UserDTO createUser(String firstName,String lastName,String email, String phoneCode,String phoneNumber, String hometown, String password,boolean emailVerified) throws Exception {
 		UserDTO userDTO = new UserDTO();
 		PhoneDTO phoneDto = new PhoneDTO();
 		AddressDTO addressDto = new AddressDTO();
@@ -135,13 +130,13 @@ public class UserDO {
 		userDTO.setPhones(List.of(phoneDto));
 		userDTO.setAddresses(List.of(addressDto));
 		userDTO.setAdditionalDetails(additionalDetailDto);
-		String[] loginMethods = businessHelper.getAdditionalConfig(AdditionalConfigKey.LOGIN_METHODS).split(",");
-		String defaultRoleCode = businessHelper.getAdditionalConfig(AdditionalConfigKey.DEFAULT_ROLE_CODE);
+		String[] loginMethods = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.LOGIN_METHODS).split(",");
+		String defaultRoleCode = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DEFAULT_ROLE_CODE);
 		userDTO.setLoginProviders(List.of(loginMethods));
 		userDTO = userInfraService.createUser(userDTO);
-		List<RoleDTO> roles = businessHelper.convertToRoleDTO(List.of(RoleCode.valueOf(defaultRoleCode)));
+		List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(List.of(RoleCode.valueOf(defaultRoleCode)));
 		userInfraService.updateUserRoles(userDTO.getProfileId(), roles);
-		return BusinessObjectConverter.toUserDetail(userDTO);
+		return userDTO;
 	}
 	
 	/**
@@ -152,7 +147,7 @@ public class UserDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDetail updateUserDetail(String id,UserDetail updatedUserDetails,boolean updateProfilePic) throws Exception {
+	public UserDTO updateUserDetail(String id,UserDetail updatedUserDetails,boolean updateProfilePic) throws Exception {
 		UserDTO updatedUserDTO = new UserDTO();
 		updatedUserDTO.setTitle(updatedUserDetails.getTitle());
 		updatedUserDTO.setFirstName(updatedUserDetails.getFirstName());
@@ -188,7 +183,7 @@ public class UserDO {
 			}
 		}
 		userDTO = userInfraService.updateUser(id,updatedUserDTO);
-		return BusinessObjectConverter.toUserDetail(userDTO);
+		return userDTO;
 	}
 	
 	/**
@@ -210,7 +205,7 @@ public class UserDO {
 	 * @throws Exception
 	 */
 	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
-		List<RoleDTO> roles=businessHelper.convertToRoleDTO(roleCodes);
+		List<RoleDTO> roles=businessDomainHelper.convertToRoleDTO(roleCodes);
 		userInfraService.updateUserRoles(id, roles);
 	}
 
@@ -222,13 +217,9 @@ public class UserDO {
 		userInfraService.auth0UserSync();
 	}
 	
-	public List<UserDetail> getUsers(List<RoleCode> codes) throws Exception {
+	public List<UserDTO> getUsers(List<RoleCode> codes) throws Exception {
 		List<UserDTO> users= userInfraService.getUsersByRole(codes);
-		return users.stream().map(BusinessObjectConverter::toUserDetail).collect(Collectors.toList());
+		return users;
 	}
-	
-	
-
-	
 
 }

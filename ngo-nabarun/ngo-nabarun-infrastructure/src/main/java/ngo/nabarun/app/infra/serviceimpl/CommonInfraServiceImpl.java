@@ -9,9 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,9 +26,13 @@ import ngo.nabarun.app.common.helper.GenericPropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
+import ngo.nabarun.app.ext.helpers.ObjectFilter;
+import ngo.nabarun.app.ext.helpers.ObjectFilter.Operator;
 import ngo.nabarun.app.ext.objects.RemoteConfig;
+import ngo.nabarun.app.ext.service.ICollectionExtService;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 import ngo.nabarun.app.ext.service.IFileStorageExtService;
+import ngo.nabarun.app.ext.service.IMessageExtService;
 import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
@@ -38,6 +45,8 @@ import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.NotificationDTO;
+import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
@@ -79,14 +88,21 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	@Autowired
 	private IRemoteConfigExtService remoteConfigService;
 	
-//	@Autowired
-//	private IAuthManagementExtService authManagementService;
+	@Autowired
+	private IMessageExtService messageExtService;
+	
+	@Autowired
+	private ICollectionExtService collectionExtService;
 
 	/**
 	 * Constants THIS SHOULD BE SAME AS REMOTE CONFIG
 	 */
 
 	private static final String DOMAIN_GLOBAL_CONFIG = "DOMAIN_GLOBAL_CONFIG";
+
+	private static final String COLLECTION_NOTIFICATION = "notifications";
+
+	private static final String COLLECTION_NOTIFICATION_TOKEN = "notification_tokens";
 
 	@Override
 	public int getLastSequence(String seqName) {
@@ -173,7 +189,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			ticketInfo.setScope(
 					InfraFieldHelper.stringListToString(ticket.getTicketScope()));
 		}
-		ticketInfo.setToken(PasswordUtils.generateRandomString(128, true));
+		ticketInfo.setToken(ticket.getToken() == null ? PasswordUtils.generateRandomString(128, true):ticket.getToken());
 		ticketInfo.setType(ticket.getTicketType().name());// otp- link
 		if(ticket.getTicketType() == TicketType.OTP) {
 			ticketInfo.setStatus(TicketStatus.OPEN.name());
@@ -352,24 +368,6 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	@Deprecated
-	public EmailTemplateDTO getEmailTemplate(String emailName) throws Exception {
-//		List<RemoteConfig> configs = remoteConfigService.getRemoteConfigs();
-//		for (RemoteConfig config : configs) {
-//			if (EMAIL_TEMPLATES_CONFIG.equalsIgnoreCase(config.getName())) {
-//				EmailTemplateDTO[] templates = CommonUtils.jsonToPojo(config.getValue().toString(), EmailTemplateDTO[].class);
-//				for (EmailTemplateDTO template : templates) {
-//					//if (emailName.equalsIgnoreCase(template.getTemplateName())) {
-//						return template;
-//					//}
-//				}
-//				break;
-//			}
-//		}
-		return null;
-	}
-
-	@Override
 	public Map<String, List<KeyValuePair>> getDomainRefConfigs() throws Exception {
 		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_GLOBAL_CONFIG);
 		ConfigTemplate[] configList = CommonUtils.jsonToPojo(config.getValue().toString(), ConfigTemplate[].class);
@@ -393,6 +391,70 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			entity.setSource(fieldDTO.getFieldSource());
 		}
 		return InfraDTOHelper.convertToFieldDTO(entity,propertyHelper.getAppSecret());
+	}
+
+	@Override
+	public Page<NotificationDTO> getNotifications(Integer index, Integer size, NotificationDTOFilter filterDTO) {
+		List<ObjectFilter> filter = new ArrayList<>();
+		List<NotificationDTO> notifications = new ArrayList<>();
+
+		if(filterDTO.getRead() != null) {
+			filter.add(new ObjectFilter("read",Operator.EQUAL,filterDTO.getRead()));
+		}
+		if(filterDTO.getTargetUserId() != null) {
+			filter.add(new ObjectFilter("userId",Operator.EQUAL,filterDTO.getTargetUserId()));
+		}
+		try {
+			List<Map<String, Object>> notificationCollection = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION, index, size, filter);
+			for(Map<String, Object> notification:notificationCollection) {
+				notifications.add(new NotificationDTO(notification));
+			}
+		} catch (ThirdPartyException e) {
+			e.printStackTrace();
+		}
+		return new PageImpl<>(notifications);
+	}
+
+	@Override
+	public NotificationDTO createAndSendNotification(NotificationDTO notificationDTO) throws Exception {
+		if(notificationDTO.getTarget() != null && !notificationDTO.getTarget().isEmpty()) {
+			List<String> userIds=notificationDTO.getTarget().stream().map(m-> m.getUserId()).collect(Collectors.toList());
+			System.err.println(userIds);
+			ObjectFilter filter= new ObjectFilter("userId",Operator.IN,userIds);
+			List<Map<String, Object>> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter));
+			if(!collections.isEmpty()) {
+				List<String> messageIds=messageExtService.sendMessage(notificationDTO.getTitle(), notificationDTO.getSummary(), notificationDTO.getImage(), null, notificationDTO.toMap());
+				notificationDTO.toSourceMap().put("message_ids", messageIds);
+			}
+		}
+		Map<String, Object> data=collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION, notificationDTO.toSourceMap());
+		return new NotificationDTO(data);
+	}
+
+	@Override
+	public NotificationDTO updateNotification(String id, NotificationDTO notificationDTO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean saveNotificationToken(String userId, String token) throws Exception {
+		Map<String,Object> dataMap= new HashMap<>();
+		dataMap.put("userId", userId);
+		dataMap.put("token", token);
+		dataMap.put("registration_date", CommonUtils.getSystemDate());
+		collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION_TOKEN, dataMap);
+		return true;
+	}
+
+	@Override
+	public boolean deleteNotificationTargetToken(String token) throws Exception {
+		ObjectFilter filter= new ObjectFilter("token",Operator.EQUAL,token);
+		List<Map<String, Object>> collections=collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter));
+		for(Map<String, Object> collection:collections) {
+			collectionExtService.removeCollectionData(COLLECTION_NOTIFICATION_TOKEN, String.valueOf(collection.get("id")));
+		}
+		return true;
 	}
 
 	

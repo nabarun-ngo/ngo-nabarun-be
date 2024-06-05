@@ -16,6 +16,7 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -102,5 +103,20 @@ public class CommonController {
 				.payload(commonBL.getReferenceData(names,options))
 				.get(HttpStatus.OK); 
 	}
+	
+	@GetMapping(value = "/getNotifications")
+	public ResponseEntity<SuccessResponse<Paginate<Map<String,String>>>> getNotification(
+			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize) throws Exception {
+		Paginate<Map<String,String>> notifications=commonBL.getNotifications(pageIndex,pageSize);
+		return new SuccessResponse<Paginate<Map<String,String>>>().payload(notifications).get(HttpStatus.OK);
+	}
 
+	
+	@PostMapping(value = "/manageNotification")
+	public ResponseEntity<SuccessResponse<Void>> manageNotification(
+			@RequestParam(required = true) String action ,
+			@RequestBody Map<String,Object>  body) throws Exception {
+		commonBL.manageNotification(action, body);
+		return new SuccessResponse<Void>().get(HttpStatus.OK);
+	}
 }

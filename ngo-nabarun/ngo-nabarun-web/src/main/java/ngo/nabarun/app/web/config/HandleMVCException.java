@@ -21,10 +21,10 @@ public class HandleMVCException {
 
 	public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response, Exception ex) {
         ModelAndView mav = new ModelAndView("error");
-        ex.printStackTrace();
+        //ex.printStackTrace();
         mav.addObject("message", DEFAULT_ERROR_MESSAGE);
 		if(includeErrorDetails) {
-	        mav.addObject("description", ex.getCause() != null ? "Error Message: "+ ex.getMessage() +"<br> Error Cause: "+ ex.getCause().getMessage() : "Error Message: "+ ex.getMessage());
+	        mav.addObject("description", ex.getCause() != null ? "Error Notification: "+ ex.getMessage() +"<br> Error Cause: "+ ex.getCause().getMessage() : "Error Notification: "+ ex.getMessage());
 		}
         mav.addObject("code", response.getStatus());
         mav.addObject("pageName", "Error");

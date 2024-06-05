@@ -39,7 +39,7 @@ public class HandleRestException {
 
 	@ExceptionHandler(value = { Exception.class })
 	public ResponseEntity<ErrorResponse> handleServerExceptions(Exception ex) {
-		ex.printStackTrace();
+		//ex.printStackTrace();
 		if (ex instanceof BusinessException) {
 			return new ErrorResponse(ex,includeErrorDetails).get(HttpStatus.BAD_REQUEST);
 		}

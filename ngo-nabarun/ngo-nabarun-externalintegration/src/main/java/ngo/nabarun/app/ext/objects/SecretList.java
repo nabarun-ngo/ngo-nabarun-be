@@ -9,10 +9,5 @@ public class SecretList {
 	
 	private Map<String,SecretValue> secrets;
 	
-//	@Data
-//	public static class Secrets{
-//		private Map<String,SecretValue> secretList;
-//
-//	}
 
 }

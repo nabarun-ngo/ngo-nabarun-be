@@ -8,6 +8,7 @@ import org.springframework.util.CollectionUtils;
 import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
+import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
@@ -16,6 +17,7 @@ import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.util.SecurityUtils;
+import ngo.nabarun.app.infra.dto.UserDTO;
 
 @Service
 public class UserBLImpl extends BaseBLImpl implements IUserBL {
@@ -27,14 +29,15 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 	public UserDetail getAuthUserFullDetails() throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
-		return userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, true,true);
+		UserDTO user= userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, true,true);
+		return BusinessObjectConverter.toUserDetail(user);
 	}
 
 	@Override
 	public UserDetail updateAuthUserDetails(UserDetail updatedUserDetails, boolean updatePicture) throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
-		UserDetail userDTO = userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, false,false);
+		UserDTO userDTO = userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, false,false);
 		/**
 		 * Allow user profile update only if status is active Throwing error if user
 		 * profile status is anything other than ACTIVE
@@ -52,8 +55,8 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 
 		if (updatedUserDetails.getGender() != null && updatedUserDetails.getTitle() != null && !businessHelper
 				.isTitleGenderAligned(updatedUserDetails.getTitle(), updatedUserDetails.getGender())) {
-			throw new BusinessException("Title '" + businessHelper.getTitleValue(updatedUserDetails.getTitle())
-					+ "' is not aligned with gender '" + businessHelper.getGenderValue(updatedUserDetails.getGender())
+			throw new BusinessException("Title '" + businessHelper.getDisplayValue(updatedUserDetails.getTitle())
+					+ "' is not aligned with gender '" + businessHelper.getDisplayValue(updatedUserDetails.getGender())
 					+ "'.");
 		} else {
 			/**
@@ -64,8 +67,8 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 			if (updatedUserDetails.getGender() != null
 					&& !businessHelper.isTitleGenderAligned(userDTO.getTitle(), updatedUserDetails.getGender())) {
 				throw new BusinessException(
-						"Title '" + businessHelper.getTitleValue(userDTO.getTitle()) + "' is not aligned with gender '"
-								+ businessHelper.getGenderValue(updatedUserDetails.getGender()) + "'.");
+						"Title '" + businessHelper.getDisplayValue(userDTO.getTitle()) + "' is not aligned with gender '"
+								+ businessHelper.getDisplayValue(updatedUserDetails.getGender()) + "'.");
 			}
 			/**
 			 * Allowing to update 'title' if it is compatible with gender Throwing error
@@ -75,24 +78,26 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 			if (updatedUserDetails.getTitle() != null
 					&& !businessHelper.isTitleGenderAligned(updatedUserDetails.getTitle(), userDTO.getGender())) {
 				throw new BusinessException(
-						"Title '" + businessHelper.getTitleValue(userDTO.getTitle()) + "' is not aligned with gender '"
-								+ businessHelper.getGenderValue(updatedUserDetails.getGender()) + "'.");
+						"Title '" + businessHelper.getDisplayValue(userDTO.getTitle()) + "' is not aligned with gender '"
+								+ businessHelper.getDisplayValue(updatedUserDetails.getGender()) + "'.");
 			}
 		}
-
-		return userDO.updateUserDetail(userDTO.getId(), updatedUserDetails, updatePicture);
+		UserDTO updatedUser=userDO.updateUserDetail(userDTO.getProfileId(), updatedUserDetails, updatePicture);
+		return BusinessObjectConverter.toUserDetail(updatedUser);
 
 	}
 
 	@Override
 	public UserDetail getUserDetails(String id, IdType idType, boolean includeAuthDetails, boolean includeRole)
 			throws Exception {
-		return userDO.retrieveUserDetail(id, idType, includeAuthDetails, includeRole);
+		UserDTO user= userDO.retrieveUserDetail(id, idType, includeAuthDetails, includeRole);
+		return BusinessObjectConverter.toUserDetail(user);
+
 	}
 
 	@Override
 	public Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter userDetailFilter) {
-		return userDO.retrieveAllUsers(page, size, userDetailFilter);
+		return userDO.retrieveAllUsers(page, size, userDetailFilter).map(BusinessObjectConverter::toUserDetail);
 	}
 
 	@Override
