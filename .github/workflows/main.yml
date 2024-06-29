@@ -38,7 +38,6 @@ jobs:
 
       - name: Set environment variables from secrets
         run: |
-          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> $GITHUB_ENV
           echo "DOPPLER_PROJECT_NAME=${{ secrets.DOPPLER_PROJECT_NAME }}" >> $GITHUB_ENV
           echo "DOPPLER_SERVICE_TOKEN=${{ secrets.DOPPLER_SERVICE_TOKEN }}" >> $GITHUB_ENV
 
@@ -49,11 +48,8 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
-      - name: Run tests
-        run: mvn clean install -DskipTests
-
       - name: Build with Maven
-        run: mvn spring-boot:run
+        run: mvn clean package
 
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v0
