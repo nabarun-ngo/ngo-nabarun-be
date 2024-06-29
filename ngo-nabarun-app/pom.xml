@@ -32,6 +32,11 @@
 			<artifactId>spring-boot-devtools</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>ngo.nabarun.app</groupId>
 			<artifactId>ngo-nabarun-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
