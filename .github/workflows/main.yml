@@ -1,20 +1,8 @@
 name: Deploy Workflow
-
 on: 
   workflow_dispatch
+  
 jobs:
-  test:
-    # This job runs on pull_request events
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Add steps for testing your java app
-      - name: Run tests
-        run: mvn clean install -DskipTests
-
   build_and_deploy:
     # This job runs on push events, specifically after PRs are merged into main
     # needs: test
