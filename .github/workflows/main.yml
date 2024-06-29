@@ -6,7 +6,7 @@ jobs:
   build_and_deploy:
     # This job runs on push events, specifically after PRs are merged into main
     # needs: test
-    if: github.event_name == 'push'
+    #if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
