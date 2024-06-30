@@ -106,7 +106,7 @@ public class GenericPropertyHelper {
 	private String sendGridAPIKey;
 	
 	@Value("${FIREBASE_CREDENTIAL:'NO_VALUE'}")
-	private String firebaseBase64Credential;
+	private String firebaseCredential;
 	
 	@Value("${AUTH0_BASE_URL:'NO_VALUE'}")
 	private String auth0BaseURL;
@@ -142,10 +142,5 @@ public class GenericPropertyHelper {
 
 	public String getDopplerConfigName() {
 		return systemEnv.getProperty("ENVIRONMENT").toLowerCase() ;
-	}
-
-	public void get() {
-		// TODO Auto-generated method stub
-		
 	}
 }
