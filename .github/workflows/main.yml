@@ -21,7 +21,7 @@ jobs:
       - name: Setup Google Cloud CLI
         uses: google-github-actions/auth@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
@@ -33,15 +33,15 @@ jobs:
         with:
           path: "app.yaml"
         env:
-         ENVIRONMENT: ${{ env.APP_ENV }} 
-         DOPPLER_PROJECT_NAME: ${{ env.DOPPLER_PROJECT_NAME }} 
+         ENVIRONMENT: ${{ vars.APP_ENV }} 
+         DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
-         LOG_LEVEL: ${{ secrets.LOG_LEVEL }} 
+         LOG_LEVEL: ${{ vars.LOG_LEVEL }} 
          
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
           credentials: ${{ secrets.GCP_SA_KEY }}
           promote: true
           version: auto # Automatically generate a version ID
