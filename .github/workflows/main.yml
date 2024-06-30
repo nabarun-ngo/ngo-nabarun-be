@@ -30,6 +30,8 @@ jobs:
         
       - name: Set Env Var
         uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
+        with:
+          path: "app.yaml"
         env:
          ENVIRONMENT: ${{ secrets.APP_ENV }} 
          DOPPLER_PROJECT_NAME: ${{ secrets.DOPPLER_PROJECT_NAME }} 
