@@ -33,16 +33,17 @@ jobs:
         with:
           path: "app.yaml"
         env:
-         ENVIRONMENT: ${{ secrets.APP_ENV }} 
-         DOPPLER_PROJECT_NAME: ${{ secrets.DOPPLER_PROJECT_NAME }} 
+         ENVIRONMENT: ${{ env.APP_ENV }} 
+         DOPPLER_PROJECT_NAME: ${{ env.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
-           
+         LOG_LEVEL: ${{ secrets.LOG_LEVEL }} 
+         
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
           credentials: ${{ secrets.GCP_SA_KEY }}
           promote: true
-          version: 'auto' # Automatically generate a version ID
+          version: auto # Automatically generate a version ID
           deliverables: ngo-nabarun-app/target/ngo-nabarun-app-0.0.3.jar
           flags: '--appyaml=app.yaml'
