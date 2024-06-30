@@ -35,7 +35,7 @@ jobs:
           credentials: ${{ secrets.GCP_SA_KEY }}
           promote: true
           version: 'auto' # Automatically generate a version ID
-          deliverables: app.yaml # Update this to the path of your built JAR
+          deliverables: app.yaml ngo-nabarun-app/target/ngo-nabarun-app-0.0.3.jar
         env:
           ENVIRONMENT: ${{ secrets.APP_ENV }} 
           DOPPLER_PROJECT_NAME: ${{ secrets.DOPPLER_PROJECT_NAME }} 
