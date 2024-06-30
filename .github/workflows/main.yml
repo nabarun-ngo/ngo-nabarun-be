@@ -27,7 +27,14 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean package
-
+        
+      - name: Set Env Var
+        uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
+        env:
+         ENVIRONMENT: ${{ secrets.APP_ENV }} 
+         DOPPLER_PROJECT_NAME: ${{ secrets.DOPPLER_PROJECT_NAME }} 
+         DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
+           
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
         with:
@@ -37,7 +44,3 @@ jobs:
           version: 'auto' # Automatically generate a version ID
           deliverables: ngo-nabarun-app/target/ngo-nabarun-app-0.0.3.jar
           flags: '--appyaml=app.yaml'
-        env:
-          ENVIRONMENT: ${{ secrets.APP_ENV }} 
-          DOPPLER_PROJECT_NAME: ${{ secrets.DOPPLER_PROJECT_NAME }} 
-          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
