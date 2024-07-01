@@ -49,9 +49,10 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 	public Map<String, Object> getPageData() {
 		Map<String, Object> pageDataMap = new HashMap<>();
 		try {
-			UserDetailFilter filter= new UserDetailFilter();
+			UserDetailFilter filter = new UserDetailFilter();
 			filter.setPublicFlag(true);
-			List<UserDetail> users = userDO.retrieveAllUsers(null, null, filter).map(BusinessObjectConverter::toPublicUserDetail).getContent();
+			List<UserDetail> users = userDO.retrieveAllUsers(null, null, filter)
+					.map(BusinessObjectConverter::toPublicUserDetail).getContent();
 			pageDataMap.put("profiles", users);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -125,7 +126,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 			RequestDetail request = new RequestDetail();
 			request.setDescription(
-					"I want to join NABARUN for " + interview.getReasonForJoining() + ". Please do needful.");
+					"I want to join NABARUN for '" + interview.getReasonForJoining() + "'. Please do needful.");
 			request.setAdditionalFields(addFieldList);
 			request.setType(WorkflowType.JOIN_REQUEST);
 			request.setDelegated(false);
@@ -154,19 +155,17 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.getBreadCrumb().add("Home");
 		}
 		if (interview.getActionName() == UserAction.SUBMIT_PAYMENT_INFO) {
-			List<PayableAccDetail> accounts = accountDO.retrievePayableAccounts(AccountType.PUBLIC_DONATION)
-					.stream()
+			List<PayableAccDetail> accounts = accountDO.retrievePayableAccounts(AccountType.PUBLIC_DONATION).stream()
 					.map(m -> {
 						PayableAccDetail pad = new PayableAccDetail();
 						pad.setId(m.getId());
 						pad.setPayableBankDetails(BusinessObjectConverter.toBankDetail(m.getBankDetail()));
-						UPIDetail upiDetail=BusinessObjectConverter.toUPIDetail(m.getUpiDetail());
+						UPIDetail upiDetail = BusinessObjectConverter.toUPIDetail(m.getUpiDetail());
 						upiDetail.setQrData(CommonUtils.getUPIURI(upiDetail.getUpiId(), upiDetail.getPayeeName(),
 								interview.getAmount(), null, null, null));
 						pad.setPayableUPIDetail(upiDetail);
 						return pad;
-					})
-					.collect(Collectors.toList());
+					}).collect(Collectors.toList());
 			interview.setAccounts(accounts);
 			interview.setStage("MAKE_PAYMENT");
 			interview.getBreadCrumb().add("Make Payment");
@@ -179,7 +178,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			addFieldList
 					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount()), true));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.paidToAccount, interview.getPaidToAccountId(), true));
+			addFieldList
+					.add(new AdditionalField(AdditionalFieldKey.paidToAccount, interview.getPaidToAccountId(), true));
 
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please check and confirm payment.");
@@ -199,7 +199,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Payment Completed");
-			interview.setMessage("We will check and confirm about this payment soonest.");
+			interview.setMessage("Your request number is " + request.getId()
+					+ ". We will check and confirm about this payment soonest.");
 
 		} else if (interview.getActionName() == UserAction.SUBMIT_REQUEST) {
 			List<AdditionalField> addFieldList = new ArrayList<>();
@@ -229,7 +230,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Request Submitted");
-			interview.setMessage("We will connect very shortly to collect your cash payment.");
+			interview.setMessage("Your request number is " + request.getId()
+					+ ". We will connect very shortly to collect your cash payment.");
 		}
 		return interview;
 	}
@@ -262,8 +264,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 		 */
 		requestDO.sendEmail(interview.getFirstName(), BusinessConstants.EMAILTEMPLATE__PUBLIC_QUERY, recipients,
 				Map.of("interview", interview));
-		requestDO.sendNotification(BusinessConstants.NOTIFICATION__PUBLIC_QUERY, Map.of(), users);		
-		
+		requestDO.sendNotification(BusinessConstants.NOTIFICATION__PUBLIC_QUERY, Map.of(), users);
+
 		interview.setStage("POST_SUBMIT");
 		interview.getBreadCrumb().add("Request Submitted");
 		interview.setMessage("We have acknowledged your request (Request Id : " + interview.getId()
