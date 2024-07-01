@@ -85,7 +85,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.setStage("2");
 			interview.getBreadCrumb().add("Login Details");
 		} else if (interview.getActionName() == UserAction.SUBMIT_LOGIN_DETAIL) {
-			String name = interview.getPassword();
+			String name = interview.getFirstName();
 			String email = interview.getEmail();
 			String mobileNo = interview.getDialCode() + interview.getContactNumber();
 			String password = interview.getPassword();
