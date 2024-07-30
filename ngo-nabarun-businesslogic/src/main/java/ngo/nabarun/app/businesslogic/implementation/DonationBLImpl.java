@@ -64,7 +64,7 @@ public class DonationBLImpl implements IDonationBL {
 	}
 
 	@Override
-	public void autoRaiseDonation() {
+	public void autoRaiseDonation() throws Exception {
 
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.DAY_OF_MONTH, 1);
@@ -129,8 +129,9 @@ public class DonationBLImpl implements IDonationBL {
 		if (request.getDonationStatus() == DonationStatus.PAID && request.getAmount() != null) {
 			throw new BusinessException("Amount cannot be changed while updating status as PAID.");
 		}
-	
-		return BusinessObjectConverter.toDonationDetail(donationDO.updateDonation(id, request, id));
+		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
+				: SecurityUtils.getAuthUserId();
+		return BusinessObjectConverter.toDonationDetail(donationDO.updateDonation(id, request, userId));
 	}
 
 	@Override

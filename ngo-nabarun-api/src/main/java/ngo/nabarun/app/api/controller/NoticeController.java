@@ -15,11 +15,8 @@ import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.INoticeBL;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.common.util.CommonUtils;
 
 import java.util.List;
 
@@ -41,13 +38,9 @@ public class NoticeController {
 	@GetMapping("/getNotices")
 	public ResponseEntity<SuccessResponse<Paginate<NoticeDetail>>> getAllNotice(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
-			@RequestParam(required = false) String filter) throws Exception {
-		NoticeDetailFilter noticeFilter = null;
-		if (filter != null) {
-			noticeFilter = CommonUtils.jsonToPojo(filter, NoticeDetailFilter.class);
-		}
+			NoticeDetailFilter filter) throws Exception {
 		return new SuccessResponse<Paginate<NoticeDetail>>()
-				.payload(noticeBL.getAllNotice(pageIndex, pageSize, noticeFilter)).get(HttpStatus.OK);
+				.payload(noticeBL.getAllNotice(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
 	
 	@GetMapping("/getDraftedNotice")
@@ -62,7 +55,7 @@ public class NoticeController {
 	}
 
 	@PostMapping("/createNotice")
-	public ResponseEntity<SuccessResponse<NoticeDetail>> createNotice(@RequestBody NoticeDetailCreate noticeDetail)
+	public ResponseEntity<SuccessResponse<NoticeDetail>> createNotice(@RequestBody NoticeDetail noticeDetail)
 			throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.createNotice(noticeDetail))
 				.get(HttpStatus.OK);
@@ -70,7 +63,7 @@ public class NoticeController {
 
 	@PatchMapping("/updateNotice/{id}")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> updateNotice(@PathVariable String id,
-			@RequestBody NoticeDetailUpdate noticeDetail) throws Exception {
+			@RequestBody NoticeDetail noticeDetail) throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.updateNotice(id, noticeDetail))
 				.get(HttpStatus.OK);
 	}

@@ -30,6 +30,7 @@ public class UserProfileEntity{
 	private String about;
 
 	private String roleNames;
+	private String roleCodes;
 	@Indexed(unique = true)
 	private String email;
 	private String phoneNumber;

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -36,7 +37,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CommonUtils {
 	private final static ObjectMapper objectMapper =new ObjectMapper();
 
-	
+
+	/**
+	 * Utility function to convert java Date to TimeZone format
+	 * @param date
+	 * @param format
+	 * @param timeZone
+	 * @return
+	 */
+	public static String formatDateToString(Date date, String format,
+			String timeZone) {
+		// null check
+		if (date == null) return null;
+		// create SimpleDateFormat object with input format
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		// default system timezone if passed null or empty
+		if (timeZone == null || "".equalsIgnoreCase(timeZone.trim())) {
+			timeZone = Calendar.getInstance().getTimeZone().getID();
+		}
+		// set timezone to SimpleDateFormat
+		sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+		// return Date in required format with timezone as String
+		return sdf.format(date);
+	}
 
 	public static boolean isCurrentMonth(Date givenDate) {
 		Calendar cal1 = Calendar.getInstance();
@@ -211,6 +234,10 @@ public class CommonUtils {
 			}
 			url=url.queryParam("cu", "INR");
 		return url.build().encode().toUriString();
+	}
+	
+	public static String toJSONString(Object obj) throws JsonProcessingException {
+		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
 	}
 	
 }

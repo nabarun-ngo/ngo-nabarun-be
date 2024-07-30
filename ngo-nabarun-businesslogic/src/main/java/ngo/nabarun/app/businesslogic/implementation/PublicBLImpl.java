@@ -46,18 +46,20 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 	private RequestDO requestDO;
 
 	@Override
-	public Map<String, Object> getPageData() {
+	public Map<String, Object> getPageData(List<String> dataFilter) {
 		Map<String, Object> pageDataMap = new HashMap<>();
-		try {
-			UserDetailFilter filter = new UserDetailFilter();
-			filter.setPublicFlag(true);
-			List<UserDetail> users = userDO.retrieveAllUsers(null, null, filter)
-					.map(BusinessObjectConverter::toPublicUserDetail).getContent();
-			pageDataMap.put("profiles", users);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(dataFilter != null && dataFilter.contains("profiles")) {
+			try {
+				UserDetailFilter filter = new UserDetailFilter();
+				filter.setPublicFlag(true);
+				List<UserDetail> users = userDO.retrieveAllUsers(null, null, filter)
+						.map(BusinessObjectConverter::toPublicUserDetail).getContent();
+				pageDataMap.put("profiles", users);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-
+		
 		try {
 			for (KeyValue keyValue : businessHelper.getNabarunOrgInfo()) {
 				pageDataMap.put(keyValue.getKey(), keyValue.getValue());
@@ -65,6 +67,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return pageDataMap;
 
 	}
@@ -146,6 +149,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.setMessage("Thank you for your interest. Your request number is " + requestDTO.getId()
 					+ ". We will connect you very shortly.");
 		}
+		
 		return interview;
 	}
 
@@ -193,13 +197,13 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			requester.setEmail(interview.getEmail());
 			request.setRequester(requester);
 
-			requestDO.createRequest(request, true, null, (t, u) -> {
+			RequestDTO requestDTO=requestDO.createRequest(request, true, null, (t, u) -> {
 				return performWorkflowAction(t, u);
 			});
 
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Payment Completed");
-			interview.setMessage("Your request number is " + request.getId()
+			interview.setMessage("Your request number is " + requestDTO.getId()
 					+ ". We will check and confirm about this payment soonest.");
 
 		} else if (interview.getActionName() == UserAction.SUBMIT_REQUEST) {
@@ -224,13 +228,13 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			requester.setEmail(interview.getEmail());
 			request.setRequester(requester);
 
-			requestDO.createRequest(request, true, null, (t, u) -> {
+			RequestDTO requestDTO=requestDO.createRequest(request, true, null, (t, u) -> {
 				return performWorkflowAction(t, u);
 			});
 
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Request Submitted");
-			interview.setMessage("Your request number is " + request.getId()
+			interview.setMessage("Your request number is " + requestDTO.getId()
 					+ ". We will connect very shortly to collect your cash payment.");
 		}
 		return interview;

@@ -17,10 +17,6 @@ public class SecurityUtils {
 	
 	public static String getAuthUserName() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//		System.out.println(authentication.getCredentials());
-//		System.out.println(authentication.getDetails());
-//		System.out.println(((UserDetails) authentication.getPrincipal()));
-
 		return authentication.getName();
 	}
 }

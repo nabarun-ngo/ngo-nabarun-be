@@ -165,8 +165,8 @@ public class CommonDO {
 				.emailRecipientType(EmailRecipientType.TO)
 				.email(email)
 				.mobile(mobileNo).build();
-		
-		sendEmail(BusinessConstants.EMAILTEMPLATE__SEND_OTP, List.of(recipient), Map.of("ticket",ticket));
+		Map<String, Object> ticket_vars=ticket.toMap(businessDomainHelper.getDomainKeyValues());
+		sendEmail(BusinessConstants.EMAILTEMPLATE__SEND_OTP, List.of(recipient), Map.of("ticket",ticket_vars));
 		return ticket.getToken();
 	}
 
@@ -184,7 +184,9 @@ public class CommonDO {
 				.emailRecipientType(EmailRecipientType.TO)
 				.email(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getEmail())
 				.mobile(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getPhoneNumber()).build();
-		sendEmail(BusinessConstants.EMAILTEMPLATE__SEND_OTP, List.of(recipient), Map.of("ticket",ticket));
+		
+		Map<String, Object> ticket_vars=ticket.toMap(businessDomainHelper.getDomainKeyValues());
+		sendEmail(BusinessConstants.EMAILTEMPLATE__SEND_OTP, List.of(recipient), Map.of("ticket",ticket_vars));
 	}
 	
 	/**

@@ -12,4 +12,5 @@ public interface IAccountInfraService {
 	AccountDTO getAccountDetails(String id);
 	Page<AccountDTO> getAccounts(Integer page, Integer size, AccountDTOFilter filter);
 	AccountDTO createAccount(AccountDTO accountDTO);
+	AccountDTO updateAccount(String id, AccountDTO accountUpdate);
 }

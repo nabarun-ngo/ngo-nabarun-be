@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,20 +17,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 import ngo.nabarun.app.infra.core.entity.QUserProfileEntity;
 import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
-import ngo.nabarun.app.infra.core.entity.UserRoleEntity;
 import ngo.nabarun.app.infra.core.repo.UserProfileRepository;
-import ngo.nabarun.app.infra.core.repo.UserRoleRepository;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
@@ -50,10 +51,23 @@ public class UserInfraServiceImpl implements IUserInfraService {
 	@Autowired
 	private UserProfileRepository profileRepository;
 
-	@Autowired
-	private UserRoleRepository roleRepository;
+//	@Autowired
+//	private UserRoleRepository roleRepository;
 
 	private static Map<String, String> roleVsIdMap = new HashMap<>();
+
+	private String getRoleId(String code) {
+		if (roleVsIdMap.isEmpty()) {
+			try {
+				for (AuthUserRole role : authManagementService.getAllAvailableRoles()) {
+					roleVsIdMap.put(role.getRoleName(), role.getRoleId());
+				}
+			} catch (ThirdPartyException e) {
+				e.printStackTrace();
+			}
+		}
+		return roleVsIdMap.get(code);
+	}
 
 	@Override
 	public Page<UserDTO> getUsers(Integer page, Integer size, UserDTOFilter filter) {
@@ -75,6 +89,17 @@ public class UserInfraServiceImpl implements IUserInfraService {
 					.optionalAnd(filter.getDeleted() != null, () -> qUser.deleted.eq(filter.getDeleted()))
 					.optionalAnd(filter.getUserId() != null, () -> qUser.userId.eq(filter.getUserId())).build();
 
+			/**
+			 * 
+			 */
+			if (filter.getRoles() != null && !filter.getRoles().isEmpty()) {
+				BooleanExpression exp = qUser.roleCodes.contains(filter.getRoles().get(0).name());
+				for (int i = 1; i < filter.getRoles().size(); i++) {
+					exp = exp.or(qUser.roleCodes.contains(filter.getRoles().get(i).name()));
+				}
+				query = query.and(exp);
+			}
+			
 			if (page == null || size == null) {
 				List<UserProfileEntity> result = new ArrayList<>();
 				profileRepository.findAll(query).iterator().forEachRemaining(result::add);
@@ -280,13 +305,13 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
 					: userDTO.getName());
 		}
-		boolean isEmailVerifiedUpdated=false;
+		boolean isEmailVerifiedUpdated = false;
 		if (userDTO.getAdditionalDetails() != null && userDTO.getAdditionalDetails().getEmailVerified() != null) {
 			updateAuthUser.setEmailVerified(
 					userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getEmailVerified() : null);
-			isEmailVerifiedUpdated=true;
+			isEmailVerifiedUpdated = true;
 		}
-		
+
 		updatedProfile.setMiddleName(userDTO.getMiddleName());
 		updatedProfile.setAbout(userDTO.getAbout());
 		updatedProfile.setDateOfBirth(userDTO.getDateOfBirth());
@@ -348,8 +373,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 //					: roleRepository.findByProfileId(identifier);
 			UserProfileEntity profile = profileRepository.findById(identifier).orElseThrow();
 			roles.addAll(authManagementService.getRoles(profile.getUserId()));
-		}
-		else if (isActiveRole && type == IdType.EMAIL) {
+		} else if (isActiveRole && type == IdType.EMAIL) {
 			UserProfileEntity profile = profileRepository.findByEmail(identifier).orElseThrow();
 			roles.addAll(authManagementService.getRoles(profile.getUserId()));
 		} else if (isActiveRole && type == IdType.AUTH_USER_ID) {
@@ -362,53 +386,49 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 	@Override
 	public void updateUserRoles(String profileId, List<RoleDTO> roles) throws Exception {
-		if (roleVsIdMap.isEmpty()) {
-			for (AuthUserRole role : authManagementService.getAllAvailableRoles()) {
-				roleVsIdMap.put(role.getRoleName(), role.getRoleId());
-			}
-		}
 
 		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		List<UserRoleEntity> currentRoles = roleRepository.findByProfileIdAndActiveTrue(profileId);
+		// List<UserRoleEntity> currentRoles =
+		// roleRepository.findByProfileIdAndActiveTrue(profileId);
+		List<String> currentRoles = InfraFieldHelper.stringToStringList(profile.getRoleCodes());
 		List<String> newRoles = roles.stream().map(m -> m.getCode().name()).toList();
 
-		List<String> rolesToRemove = currentRoles.stream().filter(f -> !newRoles.contains(f.getRoleCode()))
-				.map(m -> roleVsIdMap.get(m.getRoleCode())).toList();
+		List<String> rolesToRemove = currentRoles.stream().filter(f -> !newRoles.contains(f)).map(m -> getRoleId(m))
+				.toList();
 		if (!rolesToRemove.isEmpty()) {
 			authManagementService.removeRolesFromUser(profile.getUserId(), rolesToRemove);
 		}
-		List<String> rolesToAdd = currentRoles.stream().filter(f -> newRoles.contains(f.getRoleCode()))
-				.map(m -> roleVsIdMap.get(m.getRoleCode())).toList();
+		List<String> rolesToAdd = currentRoles.stream().filter(f -> newRoles.contains(f)).map(m -> getRoleId(m))
+				.toList();
 		if (!rolesToAdd.isEmpty()) {
 			authManagementService.assignRolesToUser(profile.getUserId(), rolesToAdd);
 		}
 
-		if (!currentRoles.isEmpty()) {
-			roleRepository.saveAll(currentRoles.stream().map(m -> {
-				m.setActive(false);
-				m.setEndDate(CommonUtils.getSystemDate());
-				return m;
-			}).toList());
-		}
+		/*
+		 * if (!currentRoles.isEmpty()) {
+		 * roleRepository.saveAll(currentRoles.stream().map(m -> { m.setActive(false);
+		 * m.setEndDate(CommonUtils.getSystemDate()); return m; }).toList()); }
+		 */
 
 		if (!roles.isEmpty()) {
-			roleRepository.saveAll(roles.stream().map(m -> {
-				UserRoleEntity role = new UserRoleEntity();
-				role.setId(UUID.randomUUID().toString());
-				role.setActive(true);
-				role.setExtRoleId(roleVsIdMap.get(m.getCode().name()));
-				role.setProfileId(profile.getId());
-				role.setRoleCode(m.getCode().name());
-				role.setRoleDescription(m.getDescription());
-				// role.setRoleGroup(InfraFieldHelper.stringListToString(m.getGroups().stream().map(k->k.name()).toList()));
-				role.setRoleGroup(InfraFieldHelper.stringListToString(m.getGroups()));
-				role.setRoleName(m.getName());
-				role.setStartDate(CommonUtils.getSystemDate());
-				role.setUserId(profile.getUserId());
-				return role;
-			}).toList());
+			/*
+			 * roleRepository.saveAll(roles.stream().map(m -> { UserRoleEntity role = new
+			 * UserRoleEntity(); role.setId(UUID.randomUUID().toString());
+			 * role.setActive(true); role.setExtRoleId(getRoleId(m.getCode().name()));
+			 * role.setProfileId(profile.getId()); role.setRoleCode(m.getCode().name());
+			 * role.setRoleDescription(m.getDescription()); //
+			 * role.setRoleGroup(InfraFieldHelper.stringListToString(m.getGroups().stream().
+			 * map(k->k.name()).toList()));
+			 * role.setRoleGroup(InfraFieldHelper.stringListToString(m.getGroups()));
+			 * role.setRoleName(m.getName());
+			 * role.setStartDate(CommonUtils.getSystemDate());
+			 * role.setUserId(profile.getUserId()); return role; }).toList());
+			 */
 
-			profile.setRoleNames(String.join(", ", roles.stream().map(m -> m.getName()).toList()));
+			profile.setRoleNames(InfraFieldHelper.stringListToString(roles.stream().map(m -> m.getName()).toList()));
+			profile.setRoleCodes(
+					InfraFieldHelper.stringListToString(roles.stream().map(m -> m.getCode().name()).toList()));
+
 		}
 
 		profileRepository.save(profile);
@@ -428,14 +448,9 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 	@Override
 	public List<UserDTO> getUsersByRole(List<RoleCode> roles) throws Exception {
-		if (roleVsIdMap.isEmpty()) {
-			for (AuthUserRole role : authManagementService.getAllAvailableRoles()) {
-				roleVsIdMap.put(role.getRoleName(), role.getRoleId());
-			}
-		}
 		List<UserDTO> finalUsers = new ArrayList<>();
 		for (RoleCode role : roles) {
-			List<UserDTO> Authusers = authManagementService.listUsersByRole(roleVsIdMap.get(role.name())).stream()
+			List<UserDTO> Authusers = authManagementService.listUsersByRole(getRoleId(role.name())).stream()
 					.map(m -> InfraDTOHelper.convertToUserDTO(null, m)).collect(Collectors.toList());
 			finalUsers.addAll(Authusers);
 		}
@@ -454,6 +469,21 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			}
 			Thread.sleep(2000);
 		}
+	}
+
+	@Override
+	public List<UserDTO> getUsersByRole(List<RoleCode> roles, Boolean isActive) throws Exception {
+		List<UserDTO> finalUsers = new ArrayList<>();
+		for (RoleCode role : roles) {
+			Stream<AuthUser> stream = authManagementService.listUsersByRole(getRoleId(role.name())).stream();
+			if (isActive != null) {
+				stream = stream.filter(f -> !f.isInactive() == isActive);
+			}
+			List<UserDTO> authUsers = stream.map(m -> InfraDTOHelper.convertToUserDTO(null, m))
+					.collect(Collectors.toList());
+			finalUsers.addAll(authUsers);
+		}
+		return finalUsers.stream().distinct().collect(Collectors.toList());
 	}
 
 }

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetailCreate;
+import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserAddress;
@@ -170,7 +170,7 @@ public class BusinessObjectToDTOConverter {
 		NoticeDTO noticeDTO = new NoticeDTO();
 		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
 		noticeDTO.setDescription(noticeDetail.getDescription());
-		noticeDTO.setDraft(noticeDetail.getDraft());
+		//noticeDTO.setDraft(noticeDetail.getDraft());
 		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
 		noticeDTO.setTitle(noticeDetail.getTitle());
 		// noticeDTO.setType(noticeEntity.getVisibility());
@@ -183,7 +183,7 @@ public class BusinessObjectToDTOConverter {
 		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
 		noticeDTO.setDescription(noticeDetail.getDescription());
 		if (noticeDetail.getPublish() != null && noticeDetail.getPublish() == Boolean.TRUE) {
-			noticeDTO.setDraft(noticeDetail.getPublish());
+			//noticeDTO.setDraft(noticeDetail.getPublish());
 		}
 		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
 		noticeDTO.setTitle(noticeDetail.getTitle());
@@ -191,7 +191,7 @@ public class BusinessObjectToDTOConverter {
 		return noticeDTO;
 	}
 
-	public static MeetingDTO toMeetingDTO(MeetingDetailCreate meetingDetail) {
+	public static MeetingDTO toMeetingDTO(MeetingDetail meetingDetail) {
 		MeetingDTO meetingDTO = new MeetingDTO();
 		meetingDTO.setDescription(meetingDetail.getMeetingDescription());
 
@@ -203,7 +203,7 @@ public class BusinessObjectToDTOConverter {
 			});
 		}
 		meetingDTO.setAttendees(attendees);
-		meetingDTO.setDefaultReminder(true);
+		//meetingDTO.setDefaultReminder(true);
 		meetingDTO.setLocation(meetingDetail.getMeetingLocation());
 		meetingDTO.setStartTime(meetingDetail.getMeetingStartTime());
 		meetingDTO.setSummary(meetingDetail.getMeetingSummary());
@@ -219,14 +219,14 @@ public class BusinessObjectToDTOConverter {
 			});
 		}
 
-		meetingDTO.setDiscussions(discussions);
-		meetingDTO.setDraft(meetingDetail.getDraft() == null ? false : meetingDetail.getDraft());
-		meetingDTO.setAuthCode(meetingDetail.getAuthorization() == null ? null
-				: meetingDetail.getAuthorization().getAuthorizationCode());
-		meetingDTO.setAuthState(meetingDetail.getAuthorization() == null ? null
-				: meetingDetail.getAuthorization().getAuthorizationState());
-		meetingDTO.setAuthCallbackUrl(
-				meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getCallbackUrl());
+		//meetingDTO.setDiscussions(discussions);
+//		meetingDTO.setDraft(meetingDetail.getDraft() == null ? false : meetingDetail.getDraft());
+//		meetingDTO.setAuthCode(meetingDetail.getAuthorization() == null ? null
+//				: meetingDetail.getAuthorization().getAuthorizationCode());
+//		meetingDTO.setAuthState(meetingDetail.getAuthorization() == null ? null
+//				: meetingDetail.getAuthorization().getAuthorizationState());
+//		meetingDTO.setAuthCallbackUrl(
+//				meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getCallbackUrl());
 		return meetingDTO;
 	}
 

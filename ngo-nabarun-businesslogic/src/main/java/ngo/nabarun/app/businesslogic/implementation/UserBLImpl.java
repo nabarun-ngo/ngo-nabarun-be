@@ -96,7 +96,7 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 	}
 
 	@Override
-	public Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter userDetailFilter) {
+	public Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter userDetailFilter) throws Exception {
 		return userDO.retrieveAllUsers(page, size, userDetailFilter).map(BusinessObjectConverter::toUserDetail);
 	}
 

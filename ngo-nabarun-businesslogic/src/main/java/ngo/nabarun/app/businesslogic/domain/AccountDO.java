@@ -1,5 +1,6 @@
 package ngo.nabarun.app.businesslogic.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
@@ -33,7 +35,7 @@ import ngo.nabarun.app.infra.service.ITransactionInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Component
-public class AccountDO extends CommonDO{
+public class AccountDO extends CommonDO {
 
 	@Autowired
 	private ITransactionInfraService transactionInfraService;
@@ -57,6 +59,7 @@ public class AccountDO extends CommonDO{
 			filterDTO = new AccountDTOFilter();
 			filterDTO.setAccountStatus(filter.getStatus());
 			filterDTO.setAccountType(filter.getType());
+			filterDTO.setProfileId(filter.getAccountHolderId());
 		}
 
 		Page<AccountDTO> pageDetail = accountInfraService.getAccounts(page, size, filterDTO).map(acc -> {
@@ -71,7 +74,7 @@ public class AccountDO extends CommonDO{
 		});
 		return new Paginate<AccountDTO>(pageDetail);
 	}
-	
+
 	public AccountDTO retrieveAccount(String id) {
 		return accountInfraService.getAccountDetails(id);
 	}
@@ -96,11 +99,13 @@ public class AccountDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public AccountDTO createAccount(AccountDetail accountDetail, Double openingBal) throws Exception {
+	public AccountDTO createAccount(AccountDetail accountDetail, Double openingBal,String logged_in_user) throws Exception {
 		UserDTO userDTO = userInfraService.getUser(accountDetail.getAccountHolder().getId(), IdType.ID, false);
 		if (userDTO.getStatus() != ProfileStatus.ACTIVE) {
 			throw new BusinessException("Account can only be created for an ACTIVE user.");
 		}
+		UserDTO auth_user = userInfraService.getUser(logged_in_user, IdType.AUTH_USER_ID,false);
+
 		AccountDTO accountDTO = new AccountDTO();
 		accountDTO.setId(generateAccountId());
 		accountDTO.setProfile(userDTO);
@@ -127,6 +132,7 @@ public class AccountDO extends CommonDO{
 		accountDTO.setAccountStatus(AccountStatus.ACTIVE);
 		accountDTO.setActivatedOn(CommonUtils.getSystemDate());
 		accountDTO.setOpeningBalance(openingBal);
+		accountDTO.setCreatedBy(auth_user);
 		accountDTO = accountInfraService.createAccount(accountDTO);
 		/*
 		 * Create transaction and update current value if opening balance is > 0
@@ -143,7 +149,7 @@ public class AccountDO extends CommonDO{
 			newTxn.setTxnDescription("Initial opening balance for account " + accountDTO.getId());
 			AccountDetail toAccount = BusinessObjectConverter.toAccountDetail(accountDTO);
 			newTxn.setTransferTo(toAccount);
-			createTransaction(newTxn);
+			createTransaction(newTxn,auth_user);
 		}
 		return accountDTO;
 	}
@@ -170,8 +176,8 @@ public class AccountDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TransactionDTO> retrieveTransactions(String refId, TransactionRefType refType,
-			TransactionStatus status) throws Exception {
+	public List<TransactionDTO> retrieveTransactions(String refId, TransactionRefType refType, TransactionStatus status)
+			throws Exception {
 		List<TransactionDTO> allTxns = transactionInfraService.getTransactions(refId, refType);
 		if (status != null) {
 			return allTxns.stream().filter(f -> f.getTxnStatus() == status).collect(Collectors.toList());
@@ -179,30 +185,36 @@ public class AccountDO extends CommonDO{
 		return allTxns;
 	}
 
+
 	/**
 	 * 
 	 * @param transaction
 	 * @return
 	 * @throws Exception
 	 */
-	public TransactionDTO createTransaction(TransactionDetail transaction) throws Exception {
+	public TransactionDTO createTransaction(TransactionDetail transaction,UserDTO auth_user) throws Exception {
 		/*
 		 * Checking for any existing transactions created against the ref id if one or
 		 * more transaction exists then checking if any of the transaction status is
 		 * success or not create a transaction with success status if none of then is
 		 * success
 		 */
-		List<TransactionDTO> successTxn = retrieveTransactions(transaction.getTxnRefId(),
-				transaction.getTxnRefType(), TransactionStatus.SUCCESS);
+		List<TransactionDTO> successTxn = new ArrayList<>();
+		if(transaction.getTxnRefId() != null) {
+			List<TransactionDTO> nonRevertedTxn=retrieveTransactions(transaction.getTxnRefId(), transaction.getTxnRefType(),
+					TransactionStatus.SUCCESS).stream().filter(f->!f.isTxnReverted()).collect(Collectors.toList());
+			successTxn.addAll(nonRevertedTxn);
+		}
+		
 
 		if (successTxn.isEmpty()) {
-			TransactionDTO newTxn = generateNewTxn(transaction);
+			TransactionDTO newTxn = generateNewTransaction(transaction,auth_user);
 			return newTxn;
 		}
 		return successTxn.get(0);
 	}
 
-	private TransactionDTO generateNewTxn(TransactionDetail transaction) throws Exception {
+	public TransactionDTO generateNewTransaction(TransactionDetail transaction,UserDTO auth_user) throws Exception {
 		TransactionDTO newTxn = new TransactionDTO();
 		newTxn.setId(generateTransactionId());
 		newTxn.setTxnAmount(transaction.getTxnAmount());
@@ -211,6 +223,7 @@ public class AccountDO extends CommonDO{
 		newTxn.setTxnRefType(transaction.getTxnRefType());
 		newTxn.setTxnStatus(transaction.getTxnStatus());
 		newTxn.setTxnType(transaction.getTxnType());
+		newTxn.setCreatedBy(auth_user);
 		newTxn.setTxnDescription(transaction.getTxnDescription());
 		if (transaction.getTxnType() == TransactionType.IN) {
 			AccountDTO destAccDTO = new AccountDTO();
@@ -221,7 +234,7 @@ public class AccountDO extends CommonDO{
 			AccountDTO srcAccDTO = new AccountDTO();
 			srcAccDTO.setId(transaction.getTransferFrom().getId());
 			srcAccDTO.setAccountName(transaction.getTransferFrom().getAccountHolderName());
-			newTxn.setToAccount(srcAccDTO);
+			newTxn.setFromAccount(srcAccDTO);
 		} else {
 			AccountDTO destAccDTO = new AccountDTO();
 			destAccDTO.setId(transaction.getTransferTo().getId());
@@ -230,42 +243,90 @@ public class AccountDO extends CommonDO{
 			AccountDTO srcAccDTO = new AccountDTO();
 			srcAccDTO.setId(transaction.getTransferFrom().getId());
 			srcAccDTO.setAccountName(transaction.getTransferFrom().getAccountHolderName());
-			newTxn.setToAccount(srcAccDTO);
+			newTxn.setFromAccount(srcAccDTO);
 		}
 
 		return transactionInfraService.createTransaction(newTxn);
 
 	}
 
-	public void revertTransaction(String refId, TransactionRefType refType, TransactionStatus status)
-			throws Exception {
+	public void revertTransaction(String refId, TransactionRefType refType, TransactionStatus status,UserDTO auth_user) throws Exception {
 		List<TransactionDTO> transactions = retrieveTransactions(refId, refType, status);
 
 		for (TransactionDTO transaction : transactions) {
-			if(transaction.getTxnStatus() == TransactionStatus.SUCCESS) {
-				TransactionDetail newTxn = new TransactionDetail();
-				newTxn.setTxnAmount(transaction.getTxnAmount());
-				newTxn.setTxnDate(transaction.getTxnDate());
-				newTxn.setTxnRefId(transaction.getTxnRefId());
-				newTxn.setTxnRefType(transaction.getTxnRefType());
-				newTxn.setTxnStatus(TransactionStatus.SUCCESS);
-				newTxn.setTxnDescription("Reverting last transaction " + transaction.getId());
-
-				if (transaction.getTxnType() == TransactionType.IN) {
-					newTxn.setTxnType(TransactionType.OUT);
-					newTxn.setTransferFrom(BusinessObjectConverter.toAccountDetail(transaction.getToAccount()));
-				}
-				else if (transaction.getTxnType() == TransactionType.OUT) {
-					newTxn.setTxnType(TransactionType.IN);
-					newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(transaction.getFromAccount()));
-				}else {
-					newTxn.setTxnType(TransactionType.OUT);
-					newTxn.setTransferFrom(BusinessObjectConverter.toAccountDetail(transaction.getToAccount()));
-					newTxn.setTxnType(TransactionType.IN);
-					newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(transaction.getFromAccount()));
-				}
-				generateNewTxn(newTxn);
-			}
+			revertTransaction(transaction,auth_user);
 		}
+	}
+	
+	public TransactionDTO retrieveTransaction(String id) throws Exception {
+		return transactionInfraService.getTransaction(id);
+	}
+	
+	/**
+	 * This will return latest transaction instance
+	 * @return 
+	 */
+	public TransactionDTO revertTransaction(TransactionDTO transaction,UserDTO auth_user) throws Exception {
+		if (transaction.getTxnStatus() != TransactionStatus.SUCCESS && transaction.isTxnReverted()) {
+			throw new Exception("Transaction cannot be reverted as status is not successful or already reverted");
+		}
+		TransactionDetail newTxn = new TransactionDetail();
+		newTxn.setTxnAmount(transaction.getTxnAmount());
+		newTxn.setTxnDate(transaction.getTxnDate());
+		newTxn.setTxnRefId(transaction.getTxnRefId());
+		newTxn.setTxnRefType(transaction.getTxnRefType());
+		newTxn.setTxnStatus(TransactionStatus.SUCCESS);
+		newTxn.setTxnDescription("Reverting last transaction " + transaction.getId());
+
+		if (transaction.getTxnType() == TransactionType.IN) {
+			newTxn.setTxnType(TransactionType.OUT);
+			newTxn.setTransferFrom(BusinessObjectConverter.toAccountDetail(transaction.getToAccount()));
+		} else if (transaction.getTxnType() == TransactionType.OUT) {
+			newTxn.setTxnType(TransactionType.IN);
+			newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(transaction.getFromAccount()));
+		} else {
+			newTxn.setTxnType(TransactionType.OUT);
+			newTxn.setTransferFrom(BusinessObjectConverter.toAccountDetail(transaction.getToAccount()));
+			newTxn.setTxnType(TransactionType.IN);
+			newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(transaction.getFromAccount()));
+		}
+		TransactionDTO revertedTxn = generateNewTransaction(newTxn,auth_user);
+		TransactionDTO oldTxn = new TransactionDTO();
+		oldTxn.setRevertedBy(auth_user);
+		oldTxn.setTxnReverted(true);
+		oldTxn.setRevertRefTxnId(revertedTxn.getRevertRefTxnId());
+		transactionInfraService.updateTransaction(transaction.getId(),oldTxn);
+		return revertedTxn;
+	}
+
+	public Paginate<AccountDTO> retrieveMyAccounts(Integer pageIndex, Integer pageSize, AccountDetailFilter filter)
+			throws Exception {
+		UserDTO me = userInfraService.getUser(SecurityUtils.getAuthUserId(), IdType.AUTH_USER_ID, false);
+		filter.setAccountHolderId(me.getProfileId());
+		return retrieveAccounts(pageIndex, pageSize, filter);
+	}
+
+	public AccountDTO updateAccount(String id, AccountDetail accountDetail) {
+		AccountDTO accountUpdate = new AccountDTO();
+		accountUpdate.setAccountStatus(accountDetail.getAccountStatus());
+		if(accountDetail.getBankDetail() != null) {
+			BankDTO bankDTO= new BankDTO();
+			bankDTO.setAccountHolderName(accountDetail.getBankDetail().getBankAccountHolderName());
+			bankDTO.setAccountNumber(accountDetail.getBankDetail().getBankAccountNumber());
+			bankDTO.setAccountType(accountDetail.getBankDetail().getBankAccountType());
+			bankDTO.setBankName(accountDetail.getBankDetail().getBankName());
+			bankDTO.setBranchName(accountDetail.getBankDetail().getBankBranch());
+			bankDTO.setIFSCNumber(accountDetail.getBankDetail().getIFSCNumber());
+			accountUpdate.setBankDetail(bankDTO);
+		}
+		if(accountDetail.getUpiDetail() != null) {
+			UpiDTO upiDTO= new UpiDTO();
+			upiDTO.setMobileNumber(accountDetail.getUpiDetail().getMobileNumber());
+			upiDTO.setPayeeName(accountDetail.getUpiDetail().getPayeeName());
+			upiDTO.setUpiId(accountDetail.getUpiDetail().getUpiId());
+			accountUpdate.setUpiDetail(upiDTO);
+		}
+		return accountInfraService.updateAccount(id,accountUpdate);
+
 	}
 }

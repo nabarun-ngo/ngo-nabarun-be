@@ -25,6 +25,12 @@ public class TransactionDTO {
 	private Double toAccBalAfterTxn;
     private Date txnDate;
     private String comment;
+    private boolean txnReverted;
+	private UserDTO revertedBy;
+	private UserDTO createdBy;
+	private String revertRefTxnId;
+
+
 
     @Data
     public static class TransactionDTOFilter{

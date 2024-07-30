@@ -173,11 +173,12 @@ public class RequestDO extends CommonDO{
 		 */
 		List<CorrespondentDTO> corrDTO=new ArrayList<>();
 		corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
+		Map<String, Object> workflow_vars = workflow.toMap(businessDomainHelper.getDomainKeyValues());
 		if(workflow.isDelegated()) {
 			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC).email(workflow.getDelegatedRequester().getEmail()).name(workflow.getDelegatedRequester().getName()).build());
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO, Map.of("request",workflow));
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO, Map.of("request",workflow_vars));
 		}else {
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO, Map.of("request",workflow));
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,Map.of("request",workflow_vars));
 		}
 		return workflow;
 	}
@@ -189,25 +190,24 @@ public class RequestDO extends CommonDO{
 		workflow=task.exec(workItem.getCurrentAction(), workflow);
 		workItem.setActionPerformed(workflow.isLastActionCompleted());
 		workItem.setWorkflowId(workflow.getId());
-		System.err.println("cash"+workItem.getPendingWithUsers());
+		//System.err.println("cash"+workItem.getPendingWithUsers());
 
 		workItem=workflowInfraService.createWorkList(workItem);
 		//System.err.println("Final Step = "+workItem.isFinalStep());
 		
-		workItem.setWfTypeValue(businessDomainHelper.getDisplayValue(workItem.getWorkflowType().name()));
-		workItem.setWfStatusValue(businessDomainHelper.getDisplayValue(workItem.getWorkflowStatus().name()));
 		
 		/**
 		 * Sending email and notification to concerned persons
 		 */
-		System.err.println("cash2"+workItem.getPendingWithUsers());
+		//System.err.println("cash2"+workItem.getPendingWithUsers());
 		if(workItem.getPendingWithUsers() != null && !workItem.getPendingWithUsers().isEmpty()) {
 			List<CorrespondentDTO> corrDTO=new ArrayList<>();
 			for(UserDTO user:workItem.getPendingWithUsers()) {
 				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.BCC).email(user.getEmail()).name(user.getName()).build());
 			}
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_WORK_CREATION, corrDTO, Map.of("work",workItem));
-			sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CREATION , Map.of("work",workItem), workItem.getPendingWithUsers());
+			Map<String,Object> work_item_vars=workItem.toMap(businessDomainHelper.getDomainKeyValues());
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_WORK_CREATION, corrDTO, Map.of("workItem",work_item_vars));
+			sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CREATION , Map.of("workItem",work_item_vars), workItem.getPendingWithUsers());
 		}
 		
 		return workItem;
@@ -330,15 +330,17 @@ public class RequestDO extends CommonDO{
 		 * Then send email to re
 		 */
 		//if final step then check if action performed so update step completed on action performed
-		System.err.println("action performed = "+nextWorkList.getActionPerformed() +" final step ="+nextWorkList.isFinalStep());
+		//System.err.println("action performed = "+nextWorkList.getActionPerformed() +" final step ="+nextWorkList.isFinalStep());
 		if(nextWorkList.getActionPerformed() && nextWorkList.isFinalStep()) {
-			System.err.println("All step completed");
+			//System.err.println("All step completed");
 			List<CorrespondentDTO> corrDTO=new ArrayList<>();
 			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
 			if(workflow.isDelegated()) {
 				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC).email(workflow.getDelegatedRequester().getEmail()).name(workflow.getDelegatedRequester().getName()).build());
 			}
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO, Map.of("request",workflow,"work",nextWorkList));
+			Map<String, Object> work_item_vars=nextWorkList.toMap(businessDomainHelper.getDomainKeyValues());
+			Map<String, Object> work_flow_vars=workflow.toMap(businessDomainHelper.getDomainKeyValues());
+			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO, Map.of("request",work_flow_vars,"workItem",work_item_vars));
 
 		}
 		return nextWorkList;

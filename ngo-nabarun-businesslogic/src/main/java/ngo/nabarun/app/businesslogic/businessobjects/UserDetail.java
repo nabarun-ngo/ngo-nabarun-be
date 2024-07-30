@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 
-@Getter
-@Setter
+@Data
 public class UserDetail {
 	@JsonProperty("id")
 	private String id;

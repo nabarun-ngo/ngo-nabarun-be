@@ -53,7 +53,7 @@ public class UserController {
 			@RequestParam(required = false) Integer pageIndex,
 			@RequestParam(required = false) Integer pageSize,
 			UserDetailFilter filter
-			) {
+			) throws Exception {
 		Paginate<UserDetail> userList=userBL.getAllUser(pageIndex,pageSize,filter);
 		return new SuccessResponse<Paginate<UserDetail>>().payload(userList).get(HttpStatus.OK);
 	}

@@ -12,7 +12,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
 
 @Service
 public interface IUserBL {
-	Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter filter);
+	Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter filter) throws Exception;
 	UserDetail getAuthUserFullDetails() throws Exception;
 	UserDetail updateAuthUserDetails(UserDetail updatedUserDetails, boolean updatePicture) throws Exception;
 	UserDetail getUserDetails(String id, IdType idType,boolean includeAuthDetails,boolean includeRole) throws Exception;

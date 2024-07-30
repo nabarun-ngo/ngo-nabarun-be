@@ -42,4 +42,5 @@ public class AccountDetail implements Serializable{
 	
 	@JsonProperty("upiDetail")
 	private UPIDetail upiDetail;
+	
 }

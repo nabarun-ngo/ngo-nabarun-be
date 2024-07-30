@@ -150,8 +150,8 @@ public class DonationDO extends AccountDO {
 		CorrespondentDTO recipient = CorrespondentDTO.builder().name(donor.getName())
 				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
 				.build();
-		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),
-				Map.of("user", donor, "donation", donationDTO));
+		Map<String, Object> donation_vars=donationDTO.toMap(businessDomainHelper.getDomainKeyValues());
+		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),Map.of("donation",donation_vars));
 		return donationDTO;
 	}
 
@@ -175,13 +175,17 @@ public class DonationDO extends AccountDO {
 		/**
 		 * Do not allow to update amount if resolved
 		 */
-		if (businessDomainHelper.isResolvedDonation(donation.getStatus())) {
+		if (request.getDonationStatus() != DonationStatus.UPDATE_MISTAKE && businessDomainHelper.isResolvedDonation(donation.getStatus())) {
 			throw new BusinessException("No updates are allowed on settled donations.");
 		}
-		AccountDTO paidTo= retrieveAccount(request.getReceivedAccount().getId());
-		if (paidTo.getAccountStatus() == AccountStatus.INACTIVE) {
-			throw new BusinessException("Donation cannot be paid to an Inactive account.");
+		AccountDTO paidTo=null;
+		if(request.getDonationStatus() == DonationStatus.PAID) {
+			paidTo= retrieveAccount(request.getReceivedAccount().getId());
+			if (paidTo.getAccountStatus() == AccountStatus.INACTIVE) {
+				throw new BusinessException("Donation cannot be paid to an Inactive account.");
+			}
 		}
+		
 		DonationDTO updatedDetail = new DonationDTO();
 		updatedDetail.setAmount(request.getAmount());
 		updatedDetail.setStatus(request.getDonationStatus());
@@ -195,7 +199,8 @@ public class DonationDO extends AccountDO {
 			updatedDetail.setDonor(donor);
 		}
 
-		if (request.getDonationStatus() == DonationStatus.PAID) {
+		if (donation.getStatus() != DonationStatus.PAID && request.getDonationStatus() == DonationStatus.PAID) {
+			updatedDetail.setAmount(null);// not allowing amount change if status is paid
 			updatedDetail.setPaidOn(request.getPaidOn());
 			updatedDetail.setPaymentMethod(request.getPaymentMethod());
 			updatedDetail
@@ -208,13 +213,13 @@ public class DonationDO extends AccountDO {
 			TransactionDetail newTxn = new TransactionDetail();
 			newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(paidTo));
 			newTxn.setTxnAmount(donation.getAmount());
-			newTxn.setTxnDate(request.getPaidOn());
+			newTxn.setTxnDate(request.getPaidOn() == null ? donation.getPaidOn(): request.getPaidOn());
 			newTxn.setTxnRefId(donation.getId());
 			newTxn.setTxnRefType(TransactionRefType.DONATION);
 			newTxn.setTxnStatus(TransactionStatus.SUCCESS);
 			newTxn.setTxnType(TransactionType.IN);
 			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-			TransactionDTO newTxnDet = createTransaction(newTxn);
+			TransactionDTO newTxnDet = generateNewTransaction(newTxn,auth_user);
 
 			updatedDetail.setTransactionRefNumber(newTxnDet.getId());
 
@@ -225,27 +230,35 @@ public class DonationDO extends AccountDO {
 			updatedDetail.setComment(request.getRemarks());
 
 		} else if (request.getDonationStatus() == DonationStatus.PAYMENT_FAILED) {
-			TransactionDetail newTxn = new TransactionDetail();
-			newTxn.setTxnAmount(donation.getAmount());
-			newTxn.setTxnDate(request.getPaidOn());
-			newTxn.setTxnRefId(donation.getId());
-			newTxn.setTxnRefType(TransactionRefType.DONATION);
-			newTxn.setTxnStatus(TransactionStatus.FAILURE);
-			newTxn.setTxnType(TransactionType.IN);
-			newTxn.setComment(request.getPaymentFailureDetail());
-			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-			TransactionDTO newTxnDet = createTransaction(newTxn);
-			updatedDetail.setTransactionRefNumber(newTxnDet.getId());
+			//UserDTO auth_user = userInfraService.getUser(loggedInUserId, IdType.AUTH_USER_ID, false);
+
+			//TransactionDetail newTxn = new TransactionDetail();
+//			newTxn.setTxnAmount(donation.getAmount());
+//			newTxn.setTxnDate(request.getPaidOn());
+//			newTxn.setTxnRefId(donation.getId());
+//			newTxn.setTxnRefType(TransactionRefType.DONATION);
+//			newTxn.setTxnStatus(TransactionStatus.FAILURE);
+//			newTxn.setTxnType(TransactionType.IN);
+//			newTxn.setComment(request.getPaymentFailureDetail());
+//			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
+//			TransactionDTO newTxnDet = createTransaction(newTxn,auth_user);
+			//updatedDetail.setTransactionRefNumber(newTxnDet.getId());
 			updatedDetail.setPaymentFailDetail(request.getPaymentFailureDetail());
 
 		} else if (request.getDonationStatus() == DonationStatus.PAY_LATER) {
 			updatedDetail.setPayLaterReason(request.getLaterPaymentReason());
 		} else if (request.getDonationStatus() == DonationStatus.CANCELLED) {
 			updatedDetail.setCancelReason(request.getCancelletionReason());
+		}else if (donation.getStatus() == DonationStatus.PAID && request.getDonationStatus() == DonationStatus.UPDATE_MISTAKE) {
+			UserDTO auth_user = userInfraService.getUser(loggedInUserId, IdType.AUTH_USER_ID, false);
+			revertTransaction(id, TransactionRefType.DONATION, TransactionStatus.SUCCESS,auth_user);
+			updatedDetail.setTransactionRefNumber("");
 		}
 		updatedDetail = donationInfraService.updateDonation(donation.getId(), updatedDetail);
 		return updatedDetail;
 	}
+
+	
 
 	public DonationSummary retrieveDonationSummary(String id) throws Exception {
 		List<DonationStatus> outStatus = businessDomainHelper.getOutstandingDonationStatus();

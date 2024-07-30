@@ -23,6 +23,7 @@ public interface IUserInfraService {
 	void assignUsersToRole(String roleId, List<UserDTO> users) throws Exception;
 	String initiatePasswordReset(String userId, String appClientId, int expireInSec) throws Exception;
 	String getPaswordPolicy() throws Exception;
+	List<UserDTO> getUsersByRole(List<RoleCode> roles,Boolean isActive) throws Exception;
 	List<UserDTO> getUsersByRole(List<RoleCode> roles) throws Exception;
 	void auth0UserSync() throws Exception;
 

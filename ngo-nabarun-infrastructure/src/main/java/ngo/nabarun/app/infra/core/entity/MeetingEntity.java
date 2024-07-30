@@ -1,14 +1,8 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,8 +27,8 @@ public class MeetingEntity {
 	private String description;
 	private String location;
 	private Date meetingDate;
-	private Date startTime;
-	private Date endTime;
+	private String startTime;
+	private String endTime;
 	private boolean defaultReminder;
 	private String emailReminderBeforeMin;
 	private String popupReminderBeforeMin;
@@ -43,6 +37,9 @@ public class MeetingEntity {
 	private String htmlLink;
 	private String extEventStatus;
 	private String creatorEmail;
+	private String attendeeNames;
+
+	private String attendeeEmails;
 
 
 	private String meetingRefId;
@@ -57,9 +54,9 @@ public class MeetingEntity {
 
 	private boolean draft;
 
-	@DocumentReference(lookup = "{ 'meeting' : ?#{#self._id} }")
-	@JsonManagedReference
-	private List<MeetingAdditionalInfoEntity> additionalDetails;
+//	@DocumentReference(lookup = "{ 'meeting' : ?#{#self._id} }")
+//	@JsonManagedReference
+//	private List<MeetingAdditionalInfoEntity> additionalDetails;
 	
 //	@DBRef
 //	private List<UserProfileEntity> attendees;

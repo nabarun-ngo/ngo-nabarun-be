@@ -47,7 +47,7 @@ public class BusinessDomainHelper {
 
 	@Autowired
 	private IGlobalDataInfraService domainInfraService;
-	private static Map<String, List<KeyValuePair>> domainConfig = null;
+	// private static Map<String, List<KeyValuePair>> domainConfig = null;
 	private static Map<String, String> domainKeyValue = new HashMap<>();
 
 	private static final String SPLITTER = ",";
@@ -89,16 +89,22 @@ public class BusinessDomainHelper {
 	private static final String ITEM_WORKFLOW_STEP__ATTR_IS_DECISION_STEP = "IS_DECISION_STEP";
 	private static final String ITEM_WORKFLOW_STEP__ATTR_NEXT_STEP = "NEXT_STEP";
 	private static final String ITEM_WORKFLOW_STEP__ATTR_DECISION_MAKER_ROLE_GROUPS = "DECISION_MAKER_ROLE_GROUPS";
+	private static final Object ITEM_ACCOUNT_TYPE = "ACCOUNT_TYPES";
+	private static final Object ITEM_ACCOUNT_STATUS = "ACCOUNT_STATUSES";
 
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
 //		if (domainConfig == null) {
 //			domainConfig = domainInfraService.getDomainRefConfigs();
 //		}
 //		return domainConfig;
-		 return domainInfraService.getDomainRefConfigs();
+		return domainInfraService.getDomainRefConfigs();
 	}
 
 	public String getDisplayValue(String key) throws Exception {
+		return getDomainKeyValues().get(key);
+	}
+
+	public Map<String, String> getDomainKeyValues() throws Exception {
 		if (domainKeyValue.isEmpty()) {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
 			for (Entry<String, List<KeyValuePair>> config : configs.entrySet()) {
@@ -107,7 +113,8 @@ public class BusinessDomainHelper {
 				}
 			}
 		}
-		return domainKeyValue.get(key);
+		System.err.println(domainKeyValue);
+		return domainKeyValue;
 	}
 
 	protected List<KeyValuePair> getDomainConfig(String name) throws Exception {
@@ -436,8 +443,10 @@ public class BusinessDomainHelper {
 			Optional<KeyValuePair> tarCurrStatus = kvStatus.stream()
 					.filter(f -> f.getKey().equalsIgnoreCase(currentStatus.name())).findFirst();
 			if (!tarCurrStatus.isEmpty()) {
-				String[] nextStatusString = String.valueOf(tarCurrStatus.get().getAttributes()
-						.get(ITEM_DONATION_STATUS__ATTR_NEXT_STATUS + donationType.name())).split(SPLITTER);
+				String[] nextStatusString = String
+						.valueOf(tarCurrStatus.get().getAttributes()
+								.get(ITEM_DONATION_STATUS__ATTR_NEXT_STATUS + "-" + donationType.name()))
+						.split(SPLITTER);
 				List<KeyValue> nextStatus = List.of(nextStatusString).stream().filter(f -> !StringUtils.isEmpty(f))
 						.map(m -> {
 							KeyValue kv = new KeyValue();
@@ -610,6 +619,7 @@ public class BusinessDomainHelper {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_EMAIL_TEMPLATE_CONFIG);
 		KeyValuePair template = kvFields.stream().filter(f -> f.getKey().equalsIgnoreCase(name)).findFirst()
 				.orElseThrow(() -> new Exception("No template found [" + name + "]"));
+		System.err.println(objectMap);
 		Map<String, Object> attributes = template.getAttributes();
 		for (String key : attributes.keySet()) {
 			if (attributes.get(key) != null) {
@@ -617,13 +627,20 @@ public class BusinessDomainHelper {
 				/*
 				 * String Interpolation
 				 */
-				ST st = new ST(text);
-				for (String object : objectMap.keySet()) {
-					st.add(object, objectMap.get(object));
+				try {
+					ST st = new ST(text);
+					for (String object : objectMap.keySet()) {
+						st.add(object, objectMap.get(object));
+					}
+					attributes.put(key, st.render());
+				} catch (Exception e) {
+					System.err.println(e+" "+text);
 				}
-				attributes.put(key, st.render());
+
 			}
 		}
+		System.err.println(attributes);
+
 		EmailTemplateDTO emailTemplate = new EmailTemplateDTO();
 		BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(emailTemplate);
 		wrapper.setAutoGrowNestedPaths(true);
@@ -666,6 +683,14 @@ public class BusinessDomainHelper {
 		notificationDTO.setType(attributes.get("TYPE") == null ? NotificationType.FYI
 				: NotificationType.valueOf(attributes.get("TYPE").toString()));
 		return notificationDTO;
+	}
+
+	public Map<String, List<KeyValue>> getAccountRefData() throws Exception {
+		Map<String, List<KeyValue>> obj = new HashMap<>();
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		obj.put("accountTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_TYPE)));
+		obj.put("accountStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_STATUS)));
+		return obj;
 	}
 
 }

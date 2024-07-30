@@ -20,9 +20,9 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.AdditionalFieldSource;
-import ngo.nabarun.app.common.enums.MeetingRefType;
 import ngo.nabarun.app.common.enums.MeetingStatus;
 import ngo.nabarun.app.common.enums.MeetingType;
+import ngo.nabarun.app.common.enums.NoticeStatus;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
@@ -53,13 +53,11 @@ import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 import ngo.nabarun.app.infra.core.entity.TransactionEntity;
 import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
-import ngo.nabarun.app.infra.core.entity.UserRoleEntity;
 import ngo.nabarun.app.infra.core.entity.WorkListEntity;
 import ngo.nabarun.app.infra.core.entity.WorkflowEntity;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
-import ngo.nabarun.app.infra.dto.DiscussionDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
@@ -341,18 +339,18 @@ public class InfraDTOHelper {
 		return roleDTO;
 	}
 	
-	public static RoleDTO convertToRoleDTO(UserRoleEntity userRole) {
-		RoleDTO roleDTO = new RoleDTO();
-		roleDTO.setCode(RoleCode.valueOf(userRole.getRoleCode()));
-		roleDTO.setDescription(userRole.getRoleDescription());
-		roleDTO.setName(userRole.getRoleName());
-		roleDTO.setId(userRole.getId());
-		roleDTO.setAuth0Id(userRole.getExtRoleId());
-		List<String> groups=InfraFieldHelper.stringToStringList(userRole.getRoleGroup());
-		//roleDTO.setGroups(groups.stream().map(m->RoleGroup.valueOf(m)).toList());
-		roleDTO.setGroups(groups);
-		return roleDTO;
-	}
+//	public static RoleDTO convertToRoleDTO(UserRoleEntity userRole) {
+//		RoleDTO roleDTO = new RoleDTO();
+//		roleDTO.setCode(RoleCode.valueOf(userRole.getRoleCode()));
+//		roleDTO.setDescription(userRole.getRoleDescription());
+//		roleDTO.setName(userRole.getRoleName());
+//		roleDTO.setId(userRole.getId());
+//		roleDTO.setAuth0Id(userRole.getExtRoleId());
+//		List<String> groups=InfraFieldHelper.stringToStringList(userRole.getRoleGroup());
+//		//roleDTO.setGroups(groups.stream().map(m->RoleGroup.valueOf(m)).toList());
+//		roleDTO.setGroups(groups);
+//		return roleDTO;
+//	}
 
 	public static EventDTO convertToEventDTO(SocialEventEntity event) {
 		EventDTO eventDTO = new EventDTO();
@@ -371,43 +369,86 @@ public class InfraDTOHelper {
 
 	public static NoticeDTO convertToNoticeDTO(NoticeEntity noticeEntity) {
 		NoticeDTO noticeDTO = new NoticeDTO();
-		noticeDTO.setCreatedBy(noticeEntity.getCreatedBy());
+		UserDTO createdBy=new UserDTO();
+		createdBy.setName(noticeEntity.getCreatedBy());
+		createdBy.setProfileId(noticeEntity.getCreatedById());	
+		noticeDTO.setCreatedBy(createdBy);
 		noticeDTO.setCreatorRole(noticeEntity.getCreatorRole());
 		noticeDTO.setDescription(noticeEntity.getDescription());
-		noticeDTO.setDraft(noticeEntity.isDraft());
 		noticeDTO.setId(noticeEntity.getId());
 		noticeDTO.setNoticeDate(noticeEntity.getNoticeDate());
 		// noticeDTO.setNoticeNumber(noticeEntity.getNoticeNumber());
 		noticeDTO.setPublishDate(
 				noticeEntity.getPublishedOn() == null ? noticeEntity.getCreatedOn() : noticeEntity.getPublishedOn());
-		// noticeDTO.setRecentNotice(noticeDTO.getPublishDate().compareTo(CommonUtils.getSystemDate()));
 		noticeDTO.setTitle(noticeEntity.getTitle());
-		// noticeDTO.setType(noticeEntity.getVisibility());
+		noticeDTO.setStatus(noticeEntity.getStatus() == null ? null : NoticeStatus.valueOf(noticeEntity.getStatus()));
+		noticeDTO.setNeedMeeting(noticeEntity.getNeedMeeting());
+		if(noticeEntity.getNeedMeeting() != null && noticeEntity.getNeedMeeting()) {
+			MeetingDTO meetingDTO = new MeetingDTO();
+			meetingDTO.setAudioMeetingLink(noticeEntity.getMeetingLinkA());
+			meetingDTO.setDescription(noticeEntity.getMeetingDescription());
+
+			
+			if(noticeEntity.getAttendeeEmails() != null) {
+				List<UserDTO> attendees= new ArrayList<>();
+				List<String> attendeesEmail=InfraFieldHelper.stringToStringList(noticeEntity.getAttendeeEmails());
+				List<String> attendeesNames=InfraFieldHelper.stringToStringList(noticeEntity.getAttendeeNames());
+				
+				for(int i=0;i<attendeesEmail.size();i++) {
+					UserDTO attendee = new UserDTO();
+					attendee.setEmail(attendeesEmail.get(i));	
+					attendee.setName(attendeesNames.get(i));
+					attendees.add(attendee);
+				}
+				meetingDTO.setAttendees(attendees);
+			}
+			
+			
+
+			meetingDTO.setEndTime(noticeEntity.getMeetingEndTime());
+			meetingDTO.setExtMeetingId(noticeEntity.getExtMeetingId());
+			meetingDTO.setLocation(noticeEntity.getMeetingLocation());
+			meetingDTO.setRemarks(noticeEntity.getMeetingRemarks());
+			meetingDTO.setStartTime(noticeEntity.getMeetingStartTime());
+			meetingDTO.setStatus(noticeEntity.getMeetingStatus() == null ? null : MeetingStatus.valueOf(noticeEntity.getMeetingStatus()));
+			meetingDTO.setSummary(noticeEntity.getMeetingSummary());
+			meetingDTO.setType(noticeEntity.getMeetingType() == null ? null : MeetingType.valueOf(noticeEntity.getMeetingType()));
+			meetingDTO.setVideoMeetingLink(noticeEntity.getMeetingLinkV());
+			meetingDTO.setHtmlLink(noticeEntity.getHtmlLink());
+			meetingDTO.setExternalStatus(noticeEntity.getExtEventStatus());
+			meetingDTO.setDate(noticeEntity.getMeetingDate()); 
+			noticeDTO.setMeeting(meetingDTO);	
+		}
 		return noticeDTO;
 	}
 
 	public static MeetingDTO convertToMeetingDTO(MeetingEntity meetEntity) {
 		MeetingDTO meetingDTO = new MeetingDTO();
 		meetingDTO.setAudioMeetingLink(meetEntity.getMeetingLinkA());
-		meetingDTO.setDefaultReminder(meetEntity.isDefaultReminder());
 		meetingDTO.setDescription(meetEntity.getDescription());
-		meetingDTO.setDiscussions(meetEntity.getAdditionalDetails() == null ? null
-				: meetEntity.getAdditionalDetails().stream().filter(f -> f.isDiscussionDetail())
-						.map(m -> new DiscussionDTO(m.getId(), m.getAgenda(), m.getMinutes())).toList());
 
-		meetingDTO.setAttendees(meetEntity.getAdditionalDetails() == null ? null
-				: meetEntity.getAdditionalDetails().stream().filter(f -> f.isAttendeeDetail()).map(m -> {
-					UserDTO userDTO = new UserDTO();
-					userDTO.setName(m.getAttendeeName());
-					return userDTO;
-				}).toList());
+		
+		if(meetEntity.getAttendeeEmails() != null) {
+			List<UserDTO> attendees= new ArrayList<>();
+			List<String> attendeesEmail=InfraFieldHelper.stringToStringList(meetEntity.getAttendeeEmails());
+			List<String> attendeesNames=InfraFieldHelper.stringToStringList(meetEntity.getAttendeeNames());
+			
+			for(int i=0;i<attendeesEmail.size();i++) {
+				UserDTO attendee = new UserDTO();
+				attendee.setEmail(attendeesEmail.get(i));	
+				attendee.setName(attendeesNames.get(i));
+				attendees.add(attendee);
+			}
+			meetingDTO.setAttendees(attendees);
+		}
+		
+		
 
 		meetingDTO.setEndTime(meetEntity.getEndTime());
 		meetingDTO.setExtMeetingId(meetEntity.getExtMeetingId());
-		meetingDTO.setId(meetEntity.getId());
 		meetingDTO.setLocation(meetEntity.getLocation());
-		meetingDTO.setRefId(meetEntity.getMeetingRefId());
-		meetingDTO.setRefType(MeetingRefType.valueOf(meetEntity.getMeetingRefType()));
+		meetingDTO.setRefId(null);
+		meetingDTO.setRefType(null);
 		meetingDTO.setRemarks(meetEntity.getRemarks());
 		meetingDTO.setStartTime(meetEntity.getStartTime());
 		meetingDTO.setStatus(MeetingStatus.valueOf(meetEntity.getMeetingStatus()));
@@ -416,15 +457,16 @@ public class InfraDTOHelper {
 		meetingDTO.setVideoMeetingLink(meetEntity.getMeetingLinkV());
 		meetingDTO.setHtmlLink(meetEntity.getHtmlLink());
 		meetingDTO.setExternalStatus(meetEntity.getExtEventStatus());
+		meetingDTO.setDate(meetEntity.getMeetingDate()); 
 
-		if (meetEntity.getEmailReminderBeforeMin() != null) {
-			meetingDTO.setEmailReminderBeforeMin(
-					InfraFieldHelper.stringToIntegerList(meetEntity.getEmailReminderBeforeMin()));
-		}
-		if (meetEntity.getPopupReminderBeforeMin() != null) {
-			meetingDTO.setPopupReminderBeforeMin(
-					InfraFieldHelper.stringToIntegerList(meetEntity.getPopupReminderBeforeMin()));
-		}
+//		if (meetEntity.getEmailReminderBeforeMin() != null) {
+//			meetingDTO.setEmailReminderBeforeMin(
+//					InfraFieldHelper.stringToIntegerList(meetEntity.getEmailReminderBeforeMin()));
+//		}
+//		if (meetEntity.getPopupReminderBeforeMin() != null) {
+//			meetingDTO.setPopupReminderBeforeMin(
+//					InfraFieldHelper.stringToIntegerList(meetEntity.getPopupReminderBeforeMin()));
+//		}
 
 		return meetingDTO;
 	}
@@ -496,6 +538,20 @@ public class InfraDTOHelper {
 				.setTxnStatus(txnEntity.getStatus() == null ? null : TransactionStatus.valueOf(txnEntity.getStatus()));
 		transactionDTO.setTxnType(txnEntity.getTransactionType() == null ? null
 				: TransactionType.valueOf(txnEntity.getTransactionType()));
+		
+		UserDTO createdBy = new UserDTO();
+		createdBy.setName(txnEntity.getCreatedByName());
+		createdBy.setProfileId(txnEntity.getCreatedById());
+		createdBy.setEmail(txnEntity.getCreatedByEmail());
+		
+		
+		transactionDTO.setCreatedBy(createdBy);
+		
+		UserDTO revertedBy = new UserDTO();
+		revertedBy.setName(txnEntity.getRevertedByName());
+		revertedBy.setProfileId(txnEntity.getRevertedById());
+		revertedBy.setEmail(txnEntity.getRevertedByEmail());
+		transactionDTO.setRevertedBy(revertedBy);
 		return transactionDTO;
 	}
 
@@ -515,6 +571,7 @@ public class InfraDTOHelper {
 		} else {
 			UserDTO userDTO = new UserDTO();
 			userDTO.setProfileId(accountInfo.getProfile());
+			userDTO.setName(accountInfo.getAccountName());		
 			accountDTO.setProfile(userDTO);
 		}
 
@@ -533,6 +590,12 @@ public class InfraDTOHelper {
 		upiDTO.setUpiId(accountInfo.getUpiId());
 		accountDTO.setUpiDetail(upiDTO);
 
+		UserDTO createdBy = new UserDTO();
+		createdBy.setName(accountInfo.getCreatedByName());
+		createdBy.setProfileId(accountInfo.getCreatedById());
+		createdBy.setEmail(accountInfo.getCreatedByEmail());
+		accountDTO.setCreatedBy(createdBy);
+		
 		return accountDTO;
 	}
 

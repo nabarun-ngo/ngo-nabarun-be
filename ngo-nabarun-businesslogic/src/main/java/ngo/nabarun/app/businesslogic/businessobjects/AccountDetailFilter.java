@@ -17,6 +17,9 @@ public class AccountDetailFilter {
 	@JsonProperty("type")
 	private List<AccountType> type;
 	
+	@JsonProperty("accountHolderId")
+	private String accountHolderId;
+	
 	@JsonProperty("includePaymentDetail")
 	private boolean includePaymentDetail;
 	

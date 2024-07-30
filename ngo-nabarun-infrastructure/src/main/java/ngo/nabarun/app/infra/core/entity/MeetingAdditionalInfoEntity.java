@@ -18,6 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Deprecated
 public class MeetingAdditionalInfoEntity {
 	@Id
 	private String id;

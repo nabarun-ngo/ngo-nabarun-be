@@ -2,8 +2,7 @@ package ngo.nabarun.app.api.config;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -13,6 +12,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import ngo.nabarun.app.common.util.CommonUtils;
 
 @Aspect
 @Component
@@ -22,33 +22,24 @@ public class LoggingAspect {
 	/**
 	 * Pointcut that matches all repositories, services and Web REST endpoints.
 	 */
-//	@Pointcut("within(@org.springframework.stereotype.Repository *)"
-//			+ " || within(@org.springframework.stereotype.Service *)"
-//			+ " || within(@org.springframework.web.bind.annotation.RestController *)")
-//	public void springBeanPointcut() {
-//	}
+
 
 	/**
 	 * Pointcut that matches all Spring beans in the application's main packages.
 	 */
-	//@Pointcut("execution(* ngo.nabarun.app..*(..))")
 	@Pointcut("execution(* *(..)) &&"
 			+ "("
 			+ "    within(ngo.nabarun.app.api..*) ||"
 			+ "    within(ngo.nabarun.app.businesslogic..*) ||"
 			+ "    within(ngo.nabarun.app.infra..*) ||"
 			+ "    within(ngo.nabarun.app.ext..*) ||"
-			+ "    within(ngo.nabarun.app.util..*)"
+			+ "    within(ngo.nabarun.app.util..*)||"
+			+ "    within(com.auth0.net.client..*)"
 			+ ")")
 	public void applicationPackagePointcut() {
 	}
 	
 
-//    @Pointcut("@annotation(ngo.nabarun.spring.server.helper.NoLogging)")
-//    public void noLogging()  {
-//    	//return writeLog(joinPoint);
-//        
-//    }
 	/**
 	 * Advice that logs methods throwing exceptions.
 	 *
@@ -57,11 +48,12 @@ public class LoggingAspect {
 	 */
 	@AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "e")
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-		if(log.isDebugEnabled()) {
-			e.printStackTrace();
-		}
-		log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
-				joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL");
+//		if(log.isDebugEnabled()) {
+//			e.printStackTrace();
+//		}
+		log.error("Exception in {}.{}() with cause = {} Stacktrace : {}", joinPoint.getSignature().getDeclaringTypeName(),
+				joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL",ExceptionUtils.getStackTrace(e));
+		
 	}
 
 	/**
@@ -79,8 +71,14 @@ public class LoggingAspect {
 	private Object writeLog(ProceedingJoinPoint joinPoint) throws Throwable {
 		// System.out.println(log.isDebugEnabled());
 		if (log.isDebugEnabled()) {
+			String args;
+			try{
+				args=CommonUtils.toJSONString(joinPoint.getArgs());
+			}catch (Exception e) {
+				args=Arrays.toString(joinPoint.getArgs());
+			}
 			log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
-					joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
+					joinPoint.getSignature().getName(),args );
 		}
 		try {
 			Object result = joinPoint.proceed();
@@ -88,13 +86,15 @@ public class LoggingAspect {
 			if (log.isDebugEnabled()) {
 				if (result != null) {
 					try {
-						value = ToStringBuilder.reflectionToString(result, ToStringStyle.MULTI_LINE_STYLE);
+//						value = ToStringBuilder.reflectionToString(result, ToStringStyle.MULTI_LINE_STYLE);
+						value = CommonUtils.toJSONString(result);
 					} catch (Exception e) {
-						try {
-							value = ToStringBuilder.reflectionToString(result, ToStringStyle.MULTI_LINE_STYLE);
-						} catch (Exception e1) {
-							value = String.valueOf(result);
-						}
+//						try {
+//							value = ToStringBuilder.reflectionToString(result, ToStringStyle.MULTI_LINE_STYLE);
+//						} catch (Exception e1) {
+//							value = String.valueOf(result);
+//						}
+						value =String.valueOf(result);
 					}
 				} else {
 					value = String.valueOf(result);

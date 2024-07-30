@@ -1,13 +1,16 @@
 package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.UPIOption;
+import ngo.nabarun.app.common.util.CommonUtils;
 
 @Data
 public class DonationDTO {
@@ -50,5 +53,23 @@ public class DonationDTO {
 		private Date fromDate;
 		private Date toDate;
 		private String paidAccountId;
+	}
+
+
+	public Map<String, Object> toMap(Map<String, String> domainKeyValues) {
+		Map<String, Object> donation = new HashMap<>();
+		donation.put("id", id);
+		donation.put("amount", amount);
+		donation.put("startDate", CommonUtils.formatDateToString(startDate, "dd MMM yyyy", "IST"));
+		donation.put("endDate", CommonUtils.formatDateToString(endDate, "dd MMM yyyy", "IST"));
+		donation.put("raisedOn", CommonUtils.formatDateToString(raisedOn, "dd MMM yyyy", "IST"));
+		donation.put("type", type == null ? null : domainKeyValues.get(type.name()));
+		donation.put("status", status == null ? null : domainKeyValues.get(status.name()));
+		donation.put("paidOn", CommonUtils.formatDateToString(paidOn, "dd MMM yyyy", "IST"));
+		donation.put("confirmedBy", confirmedBy.toMap(domainKeyValues));
+		donation.put("confirmedOn", CommonUtils.formatDateToString(confirmedOn, "dd MMM yyyy", "IST"));
+		donation.put("paymentMethod", paymentMethod == null ? null : domainKeyValues.get(paymentMethod.name()));
+		donation.put("donor", donor.toMap(domainKeyValues));
+		return donation;
 	}
 }

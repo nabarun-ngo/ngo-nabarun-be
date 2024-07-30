@@ -15,8 +15,9 @@ public class MeetingDetail {
 	private String meetingSummary;
 	private String meetingDescription;
 	private String meetingLocation;
-	private Date meetingStartTime;
-	private Date meetingEndTime;
+	private Date meetingDate;
+	private String meetingStartTime;
+	private String meetingEndTime;
 	private String meetingRefId;
 	private MeetingType meetingType;
 	private MeetingStatus meetingStatus;
@@ -27,7 +28,7 @@ public class MeetingDetail {
 	private String extAudioConferenceLink;
 	private String extVideoConferenceLink;
 	private String extHtmlLink;
+	private String creatorEmail;
 
-	private boolean googleSignInRequired;
-	private String googleSignInURL;
+	private String extConferenceStatus;
 }

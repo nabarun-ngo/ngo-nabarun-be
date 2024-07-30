@@ -46,11 +46,12 @@ public class MeetingBLImpl implements IMeetingBL {
 			eventInfraService.getEvent(meetingDetail.getMeetingRefId());
 		}
 		
-		MeetingDTO meetingDTO=BusinessObjectToDTOConverter.toMeetingDTO(meetingDetail);
-		meetingDTO.setDefaultReminder(false);
-		meetingDTO.setEmailReminderBeforeMin(List.of(60,24*60));
-		meetingDTO.setPopupReminderBeforeMin(List.of(15,60));
-		meetingDTO=meetingInfraService.createMeeting(meetingDTO);
+		MeetingDTO meetingDTO=null;
+		//BusinessObjectToDTOConverter.toMeetingDTO(meetingDetail);
+//		meetingDTO.setDefaultReminder(false);
+//		meetingDTO.setEmailReminderBeforeMin(List.of(60,24*60));
+//		meetingDTO.setPopupReminderBeforeMin(List.of(15,60));
+//		meetingDTO=meetingInfraService.createMeeting(meetingDTO);
 		return BusinessObjectConverter.toMeetingDetail(meetingDTO);
 	}
 

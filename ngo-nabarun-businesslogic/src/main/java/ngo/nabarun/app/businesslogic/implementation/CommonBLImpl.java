@@ -116,6 +116,9 @@ public class CommonBLImpl implements ICommonBL {
 		if(names == null || names.contains(RefDataType.USER)) {
 			obj.putAll(businessHelper.getUserRefData());
 		}
+		if(names == null || names.contains(RefDataType.ACCOUNT)) {
+			obj.putAll(businessHelper.getAccountRefData());
+		}
 		return obj;
 	}
 	

@@ -18,28 +18,21 @@ public class MeetingDTO {
 	private String summary;
 	private String description;
 	private String location;
-	private Date startTime;
-	private Date endTime;
+	private Date date;
+	private String startTime;
+	private String endTime;
 	private List<UserDTO> attendees;
-	private boolean defaultReminder;
-	private List<Integer> emailReminderBeforeMin;
-	private List<Integer> popupReminderBeforeMin;
 	private String videoMeetingLink;
 	private String audioMeetingLink;
 	private String refId;
 	private MeetingRefType refType;
 	private String remarks;
-	private List<DiscussionDTO> discussions;
 	private String htmlLink;
 	private String externalStatus;
+	private String creatorEmail;
 
-	//private boolean createAuthorizationLink;
 	private boolean draft;
 
-	private String authUrl;
-	private String authCallbackUrl;
-	private String authState;
-	private String authCode;
 
 
 

@@ -1,5 +1,6 @@
 package ngo.nabarun.app.web;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -25,7 +26,7 @@ public class PublicController {
 
 	@GetMapping({"/","/signup","/contact","/donate"})
 	public String homePage(Model model) {
-		Map<String, Object> pageDataMap=publicBl.getPageData();
+		Map<String, Object> pageDataMap=publicBl.getPageData(List.of("profiles"));
 		for(Entry<String, Object> data:pageDataMap.entrySet()) {
 			model.addAttribute(data.getKey(), data.getValue());
 		}
@@ -52,6 +53,10 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
+		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
+		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+			modelAndView.addObject(data.getKey(), data.getValue());
+		}
 		return modelAndView;
 	}
 	
@@ -73,6 +78,10 @@ public class PublicController {
 			modelAndView.addObject("successMessage", interview.getMessage());
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
+		}
+		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
+		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+			modelAndView.addObject(data.getKey(), data.getValue());
 		}
 		return modelAndView;
 	}
@@ -96,6 +105,10 @@ public class PublicController {
 			modelAndView.addObject("successMessage", interview.getMessage());
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
+		}
+		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
+		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+			modelAndView.addObject(data.getKey(), data.getValue());
 		}
 		return modelAndView;
 	}

@@ -14,5 +14,8 @@ public interface IAccountBL {
 	AccountDetail updateAccount(String id,AccountDetail accountDetail) throws Exception;
 	Paginate<TransactionDetail> getTransactions(String id, int index, int size);
 	AccountDetail createAccount(AccountDetail accountDetail) throws Exception;
+	Paginate<AccountDetail> getMyAccounts(Integer pageIndex, Integer pageSize, AccountDetailFilter filter) throws Exception;
+	TransactionDetail createTransaction(TransactionDetail txnDetail) throws Exception;
+	AccountDetail updateMyAccount(String id, AccountDetail accountDetail) throws Exception;
 
 }

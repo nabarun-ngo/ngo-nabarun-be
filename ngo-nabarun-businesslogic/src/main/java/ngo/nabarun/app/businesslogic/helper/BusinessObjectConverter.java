@@ -21,6 +21,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
 import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
+import ngo.nabarun.app.common.enums.NoticeStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
@@ -74,6 +75,9 @@ public class BusinessObjectConverter {
 	}
 
 	public static UserDetail toUserDetail(UserDTO userDTO) {
+		if(userDTO == null) {
+			return null;
+		}
 		UserDetail userDetails = new UserDetail();
 		userDetails.setAbout(userDTO.getAbout());
 		userDetails.setActiveContributor(userDTO.getAdditionalDetails() != null
@@ -260,16 +264,20 @@ public class BusinessObjectConverter {
 	public static NoticeDetail toNoticeDetail(NoticeDTO noticeDTO) {
 		NoticeDetail noticeDetail = new NoticeDetail();
 
-		noticeDetail.setCreatorName(noticeDTO.getCreatedBy());
-		noticeDetail.setCreatorRole(noticeDTO.getCreatorRole());
+		noticeDetail.setCreator(toUserDetail(noticeDTO.getCreatedBy()));
 		noticeDetail.setCreatorRoleCode(noticeDTO.getCreatorRole());
 		noticeDetail.setDescription(noticeDTO.getDescription());
 		noticeDetail.setId(noticeDTO.getId());
-		// noticeDetail.setMeeting(noticeDTO.getMeeting());
+		//noticeDetail.setMeeting(noticeDTO.getMeeting());
 		noticeDetail.setNoticeDate(noticeDTO.getNoticeDate());
 		// noticeDetail.setNoticeNumber(noticeDTO.getNoticeNumber());
 		noticeDetail.setPublishDate(noticeDTO.getPublishDate());
 		noticeDetail.setTitle(noticeDTO.getTitle());
+		noticeDetail.setHasMeeting(noticeDTO.getNeedMeeting());
+		if(noticeDTO.getMeeting() != null) {
+			noticeDetail.setMeeting(toMeetingDetail(noticeDTO.getMeeting()));
+		}
+		noticeDetail.setNoticeStatus(noticeDTO.getStatus());
 		return noticeDetail;
 	}
 
@@ -282,9 +290,9 @@ public class BusinessObjectConverter {
 		meetingDetail.setMeetingAttendees(meetingDTO.getAttendees() == null ? List.of()
 				: meetingDTO.getAttendees().stream().map(m -> toUserDetail(m)).toList());
 		meetingDetail.setMeetingDescription(meetingDTO.getDescription());
-		meetingDetail.setMeetingDiscussions(meetingDTO.getDiscussions() == null ? List.of()
-				: meetingDTO.getDiscussions().stream()
-						.map(m -> new MeetingDiscussion(m.getId(), m.getAgenda(), m.getMinutes())).toList());
+//		meetingDetail.setMeetingDiscussions(meetingDTO.getDiscussions() == null ? List.of()
+//				: meetingDTO.getDiscussions().stream()
+//						.map(m -> new MeetingDiscussion(m.getId(), m.getAgenda(), m.getMinutes())).toList());
 		meetingDetail.setMeetingEndTime(meetingDTO.getEndTime());
 		meetingDetail.setMeetingLocation(meetingDTO.getLocation());
 		meetingDetail.setMeetingRefId(meetingDTO.getRefId());
@@ -294,7 +302,7 @@ public class BusinessObjectConverter {
 		meetingDetail.setMeetingStatus(meetingDTO.getStatus());
 		meetingDetail.setMeetingSummary(meetingDTO.getSummary());
 		meetingDetail.setMeetingType(meetingDTO.getType());
-
+		meetingDetail.setMeetingDate(meetingDTO.getDate());
 		meetingDetail.setExtHtmlLink(meetingDTO.getHtmlLink());
 //		if(meetingDTO.getAuthUrl() != null) {
 //			MeetingAuthorization meetAuth = new MeetingAuthorization();
@@ -311,6 +319,15 @@ public class BusinessObjectConverter {
 			KeyValue kv = new KeyValue();
 			kv.setKey(m.getKey());
 			kv.setValue(m.getValue());
+			return kv;
+		}).toList();
+	}
+	
+	public static List<KeyValue> toKeyValueList(List<KeyValuePair> keyValPair,String attrKey) {
+		return keyValPair == null ? List.of() : keyValPair.stream().map(m -> {
+			KeyValue kv = new KeyValue();
+			kv.setKey(m.getKey());
+			kv.setValue(m.getAttributes().get(attrKey) == null ? null : m.getAttributes().get(attrKey).toString());
 			return kv;
 		}).toList();
 	}
@@ -355,13 +372,12 @@ public class BusinessObjectConverter {
 		return upiDetail;
 	}
 
-	public static TransactionDetail toTransactionDetail(TransactionDTO transactionDTO, boolean includeFull) {
+	public static TransactionDetail toTransactionDetail(TransactionDTO transactionDTO, boolean includeFull,String accountId) {
 		TransactionDetail txnDetail = new TransactionDetail();
 
 		txnDetail.setTxnAmount(transactionDTO.getTxnAmount());
 		txnDetail.setTxnDate(transactionDTO.getTxnDate());
 		txnDetail.setTxnDescription(transactionDTO.getTxnDescription());
-		txnDetail.setTxnParticulars(null);
 		txnDetail.setTxnId(transactionDTO.getId());
 
 		txnDetail.setTxnStatus(transactionDTO.getTxnStatus());
@@ -369,10 +385,13 @@ public class BusinessObjectConverter {
 
 		if (transactionDTO.getTxnType() == TransactionType.IN) {
 			txnDetail.setAccBalance(transactionDTO.getToAccBalAfterTxn());
+			txnDetail.setTxnParticulars(accountId == null ? null :"Credit");
 		} else if (transactionDTO.getTxnType() == TransactionType.OUT) {
 			txnDetail.setAccBalance(transactionDTO.getFromAccBalAfterTxn());
+			txnDetail.setTxnParticulars(accountId == null ? null :"Debit");
 		} else {
-			Double balance = transactionDTO.getId().equals(transactionDTO.getToAccount().getId())
+			txnDetail.setTxnParticulars(accountId == null ? null : (transactionDTO.getToAccount().getId().equals(accountId) ? "Credit":"Debit"));
+			Double balance = transactionDTO.getToAccount().getId().equals(accountId)
 					? transactionDTO.getToAccBalAfterTxn()
 					: transactionDTO.getFromAccBalAfterTxn();
 			txnDetail.setAccBalance(balance);
@@ -381,7 +400,7 @@ public class BusinessObjectConverter {
 		if (includeFull) {
 			txnDetail.setComment(transactionDTO.getComment());
 			txnDetail.setTransferFrom(toAccountDetail(transactionDTO.getFromAccount()));
-			txnDetail.setTransferTo(toAccountDetail(transactionDTO.getFromAccount()));
+			txnDetail.setTransferTo(toAccountDetail(transactionDTO.getToAccount()));
 			txnDetail.setTxnRefId(transactionDTO.getTxnRefId());
 			txnDetail.setTxnRefType(transactionDTO.getTxnRefType());
 		}

@@ -10,7 +10,7 @@ public interface IMeetingInfraService {
 	MeetingDTO getMeeting(String id);
 	MeetingDTO createMeeting(MeetingDTO meetingDTO) throws Exception;
 	MeetingDTO updateMeeting(String id, MeetingDTO meetingDTO) throws Exception;
-	Void deleteMeeting(String id);
+	void deleteMeeting(String id);
 	String createAuthorizationLink(String meetingState, String callbackUrl) throws ThirdPartyException;
 
 

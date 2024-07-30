@@ -17,7 +17,7 @@ public interface IDonationBL {
 
 	Paginate<DonationDetail> getLoggedInUserDonations(Integer index,Integer size) throws Exception;
 
-	void autoRaiseDonation();
+	void autoRaiseDonation() throws Exception;
 
 	Paginate<DonationDetail> getDonations(Integer index,Integer size, DonationDetailFilter filter);
 	

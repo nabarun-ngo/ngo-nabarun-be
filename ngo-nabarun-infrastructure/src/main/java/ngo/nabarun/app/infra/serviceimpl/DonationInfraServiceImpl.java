@@ -29,7 +29,6 @@ public class DonationInfraServiceImpl extends BaseServiceImpl implements IDonati
 	private DonationRepository donationRepo;
 
 	
-
 	@Override
 	public Page<DonationDTO> getDonations(Integer page, Integer size, DonationDTOFilter filter) {
 		Page<DonationEntity> donationPage = null;
