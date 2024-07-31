@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FilterConfig implements Filter {
-    public static final String CORRELATION_ID = "X-Correlation-Id";
+    public static final String CORRELATION_ID = "X-Cloud-Trace-Context";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         MDC.put(CORRELATION_ID, httpRequest.getHeader(CORRELATION_ID));
-        System.err.println(MDC.get(CORRELATION_ID));
+        //System.err.println(MDC.get(CORRELATION_ID));
         //log.info("Intercept coming request and set MDC context information");
         // pass the request
         chain.doFilter(request, response);
