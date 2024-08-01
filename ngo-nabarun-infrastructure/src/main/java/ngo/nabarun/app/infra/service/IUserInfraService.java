@@ -25,6 +25,6 @@ public interface IUserInfraService {
 	String getPaswordPolicy() throws Exception;
 	List<UserDTO> getUsersByRole(List<RoleCode> roles,Boolean isActive) throws Exception;
 	List<UserDTO> getUsersByRole(List<RoleCode> roles) throws Exception;
-	void auth0UserSync() throws Exception;
+	List<UserDTO> getAuthUsers() throws Exception;
 
 }

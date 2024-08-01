@@ -92,6 +92,7 @@ public class UserController {
 
 	@PostMapping("/changeEmail")
 	public ResponseEntity<SuccessResponse<Void>> changeEmail(@RequestBody EmailOrPasswordUpdate requestBody) throws Exception {
+		userBL.initiateEmailChange(null);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	

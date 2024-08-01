@@ -123,7 +123,7 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 
 	@Override
 	public void initiateEmailChange(String email) throws Exception {
-
+		userDO.syncUsers();
 	}
 
 }

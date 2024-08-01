@@ -99,7 +99,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 				}
 				query = query.and(exp);
 			}
-			
+
 			if (page == null || size == null) {
 				List<UserProfileEntity> result = new ArrayList<>();
 				profileRepository.findAll(query).iterator().forEachRemaining(result::add);
@@ -458,17 +458,9 @@ public class UserInfraServiceImpl implements IUserInfraService {
 	}
 
 	@Override
-	public void auth0UserSync() throws Exception {
-		for (AuthUser authUser : authManagementService.getUsers()) {
-			UserDTO userDTO = InfraDTOHelper.convertToUserDTO(null, authUser);
-			Optional<UserProfileEntity> profile = profileRepository.findByEmail(authUser.getEmail());
-			if (profile.isEmpty()) {
-				this.createUser(userDTO, authUser);
-			} else {
-				this.updateUser(profile.get().getId(), userDTO);
-			}
-			Thread.sleep(2000);
-		}
+	public List<UserDTO> getAuthUsers() throws Exception {
+		return authManagementService.getUsers().stream()
+				.map(authUser -> InfraDTOHelper.convertToUserDTO(null, authUser)).collect(Collectors.toList());
 	}
 
 	@Override

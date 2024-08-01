@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,8 @@ import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
+import ngo.nabarun.app.ext.objects.AuthUser;
+import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -26,6 +29,7 @@ import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.UserDTO.UserDTOFilter;
+import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
@@ -227,7 +231,26 @@ public class UserDO extends CommonDO {
 	 * @throws Exception
 	 */
 	public void syncUsers() throws Exception {
-		userInfraService.auth0UserSync();
+		for (UserDTO userDTO : userInfraService.getAuthUsers()) {
+			try {
+				System.err.println(userDTO);
+				UserDTOFilter filter= new UserDTOFilter();
+				filter.setEmail(userDTO.getEmail());
+				List<UserDTO> users=userInfraService.getUsers(null, null, filter).getContent();
+				System.err.println(users);
+
+				if (!users.isEmpty()) {
+					userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
+					
+				} else {
+					userInfraService.createUser(userDTO);
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		//	Thread.sleep(2000);
+		}
 	}
 
 	public List<UserDTO> getUsers(List<RoleCode> codes) throws Exception {
