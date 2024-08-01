@@ -78,7 +78,7 @@ public class CommonBLImpl implements ICommonBL {
 	@Deprecated
 	public String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception {
 //		if(authDetail.getAuthRefType() == AuthRefType.MEETING) {
-//			MeetingDTO meetingDTO=meetingInfraService.getMeeting(authDetail.getAuthRefId());
+//			LogsDTO meetingDTO=meetingInfraService.getMeeting(authDetail.getAuthRefId());
 //			if(meetingDTO.getAuthUrl() == null) {
 //				TicketDTO ticketDTO = new TicketDTO(TicketType.LINK);
 //				//ticketDTO=ticketInfraService.createTicket(ticketDTO);

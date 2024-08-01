@@ -183,3 +183,63 @@
 //	
 //
 //}
+
+//
+//	public static LogsDTO convertToMeetingDTO(LogsEntity meetEntity) {
+//		LogsDTO meetingDTO = new LogsDTO();
+//		meetingDTO.setAudioMeetingLink(meetEntity.getMeetingLinkA());
+//		meetingDTO.setDescription(meetEntity.getDescription());
+//
+//		
+//		if(meetEntity.getAttendeeEmails() != null) {
+//			List<UserDTO> attendees= new ArrayList<>();
+//			List<String> attendeesEmail=InfraFieldHelper.stringToStringList(meetEntity.getAttendeeEmails());
+//			List<String> attendeesNames=InfraFieldHelper.stringToStringList(meetEntity.getAttendeeNames());
+//			
+//			for(int i=0;i<attendeesEmail.size();i++) {
+//				UserDTO attendee = new UserDTO();
+//				attendee.setEmail(attendeesEmail.get(i));	
+//				attendee.setName(attendeesNames.get(i));
+//				attendees.add(attendee);
+//			}
+//			meetingDTO.setAttendees(attendees);
+//		}
+//		
+//		
+//
+//		meetingDTO.setEndTime(meetEntity.getEndTime());
+//		meetingDTO.setExtMeetingId(meetEntity.getExtMeetingId());
+//		meetingDTO.setLocation(meetEntity.getLocation());
+//		meetingDTO.setRefId(null);
+//		meetingDTO.setRefType(null);
+//		meetingDTO.setRemarks(meetEntity.getRemarks());
+//		meetingDTO.setStartTime(meetEntity.getStartTime());
+//		meetingDTO.setStatus(MeetingStatus.valueOf(meetEntity.getMeetingStatus()));
+//		meetingDTO.setSummary(meetEntity.getSummary());
+//		meetingDTO.setType(MeetingType.valueOf(meetEntity.getType()));
+//		meetingDTO.setVideoMeetingLink(meetEntity.getMeetingLinkV());
+//		meetingDTO.setHtmlLink(meetEntity.getHtmlLink());
+//		meetingDTO.setExternalStatus(meetEntity.getExtEventStatus());
+//		meetingDTO.setDate(meetEntity.getMeetingDate()); 
+
+//		if (meetEntity.getEmailReminderBeforeMin() != null) {
+//			meetingDTO.setEmailReminderBeforeMin(
+//					InfraFieldHelper.stringToIntegerList(meetEntity.getEmailReminderBeforeMin()));
+//		}
+//		if (meetEntity.getPopupReminderBeforeMin() != null) {
+//			meetingDTO.setPopupReminderBeforeMin(
+//					InfraFieldHelper.stringToIntegerList(meetEntity.getPopupReminderBeforeMin()));
+//		}
+//
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//import ngo.nabarun.app.common.enums.MeetingStatus;
+//import ngo.nabarun.app.common.enums.MeetingType;
+//import ngo.nabarun.app.infra.core.entity.LogsEntity;
+//import ngo.nabarun.app.infra.dto.LogsDTO;
+//import ngo.nabarun.app.infra.dto.UserDTO;
+//import ngo.nabarun.app.infra.misc.InfraFieldHelper;
+//
+//return meetingDTO;
+//	}

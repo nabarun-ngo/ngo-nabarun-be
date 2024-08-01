@@ -37,14 +37,17 @@ import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
+import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
+import ngo.nabarun.app.infra.core.repo.LogsRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.dto.TicketDTO;
@@ -56,19 +59,23 @@ import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
+import ngo.nabarun.app.infra.service.ILogInfraService;
 import ngo.nabarun.app.infra.service.ISequenceInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 
 @Service
 public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInfraService, IDocumentInfraService,
-		IHistoryInfraService, ICorrespondenceInfraService, IGlobalDataInfraService {
+		IHistoryInfraService, ICorrespondenceInfraService, IGlobalDataInfraService,ILogInfraService {
 
 	@Autowired
 	private DBSequenceRepository dbSeqRepository;
 
 	@Autowired
 	private TicketRepository ticketRepo;
+	
+	@Autowired
+	private LogsRepository logsRepo;
 
 	@Autowired
 	private IFileStorageExtService fileStorageService;
@@ -103,6 +110,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	private static final String COLLECTION_NOTIFICATION = "notifications";
 
 	private static final String COLLECTION_NOTIFICATION_TOKEN = "notification_tokens";
+	
 
 	@Override
 	public int getLastSequence(String seqName) {
@@ -465,6 +473,28 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			collectionExtService.removeCollectionData(COLLECTION_NOTIFICATION_TOKEN, String.valueOf(collection.get("id")));
 		}
 		return true;
+	}
+
+	@Override
+	public List<LogsDTO> getLogs(String corelationId) {
+		List<LogsEntity> logs=logsRepo.findByCorelationId(corelationId);
+		return logs.stream().map(InfraDTOHelper::convertToLogsDTO).toList();
+	}
+
+	@Override
+	public LogsDTO saveLog(LogsDTO logsDTO) {
+		LogsEntity logsEntity= new LogsEntity();
+		logsEntity.setCorelationId(logsDTO.getCorelationId());
+		logsEntity.setEndTime(logsDTO.getEndTime());
+		logsEntity.setError(logsDTO.getError());
+		logsEntity.setId(UUID.randomUUID().toString());
+		logsEntity.setInputs(logsDTO.getInputs());
+		logsEntity.setMethodName(logsDTO.getMethodName());
+		logsEntity.setOutputs(logsDTO.getOutputs());
+		logsEntity.setStartTime(logsDTO.getStartTime());
+		logsEntity.setType(logsDTO.getType());
+		logsEntity=logsRepo.save(logsEntity);
+		return InfraDTOHelper.convertToLogsDTO(logsEntity);
 	}
 
 	

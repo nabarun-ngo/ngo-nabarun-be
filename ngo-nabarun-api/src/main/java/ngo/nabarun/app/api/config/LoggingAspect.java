@@ -1,6 +1,7 @@
 package ngo.nabarun.app.api.config;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
@@ -9,11 +10,18 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.infra.dto.LogsDTO;
+import ngo.nabarun.app.infra.service.ILogInfraService;
 
+@Profile("!prod")
 @Aspect
 @Component
 @Slf4j
@@ -23,7 +31,10 @@ public class LoggingAspect {
 	 * Pointcut that matches all repositories, services and Web REST endpoints.
 	 */
 
-
+//	@Lazy
+//	@Autowired
+//	private ILogInfraService logInfraService;
+	
 	/**
 	 * Pointcut that matches all Spring beans in the application's main packages.
 	 */
@@ -70,6 +81,9 @@ public class LoggingAspect {
 
 	private Object writeLog(ProceedingJoinPoint joinPoint) throws Throwable {
 		// System.out.println(log.isDebugEnabled());
+		LogsDTO logsDTO= new LogsDTO();
+		logsDTO.setCorelationId(MDC.get(FilterConfig.CORRELATION_ID));
+		
 		if (log.isDebugEnabled()) {
 			String args;
 			try{
@@ -77,6 +91,8 @@ public class LoggingAspect {
 			}catch (Exception e) {
 				args=Arrays.toString(joinPoint.getArgs());
 			}
+			logsDTO.setInputs(args);
+			logsDTO.setStartTime(new Date());
 			log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
 					joinPoint.getSignature().getName(),args );
 		}
@@ -99,6 +115,8 @@ public class LoggingAspect {
 				} else {
 					value = String.valueOf(result);
 				}
+				logsDTO.setMethodName(joinPoint.getSignature().getDeclaringTypeName()+"."+joinPoint.getSignature().getName()+"()");
+				logsDTO.setOutputs(value);
 				log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(),
 						joinPoint.getSignature().getName(), value);
 			}
@@ -106,7 +124,17 @@ public class LoggingAspect {
 		} catch (IllegalArgumentException e) {
 			log.error("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
 					joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+			logsDTO.setError(ExceptionUtils.getStackTrace(e));
 			throw e;
+		} catch (Exception e) {
+			logsDTO.setError(ExceptionUtils.getStackTrace(e));
+			throw e;
+		}
+		finally {
+			if (log.isDebugEnabled()) {
+				logsDTO.setEndTime(new Date());
+				//logInfraService.saveLog(logsDTO);
+			}
 		}
 	}
 }

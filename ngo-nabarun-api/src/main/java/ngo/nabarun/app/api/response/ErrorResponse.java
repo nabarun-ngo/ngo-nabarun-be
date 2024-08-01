@@ -36,7 +36,7 @@ public class ErrorResponse {
 	private List<String> details = new ArrayList<String>();
 
 	@JsonProperty("stackTrace")
-	private String[] stackTrace;
+	private String stackTrace;
 
 	public ErrorResponse(Exception e,boolean includeStacktrace) {
 		messages.add(e.getMessage());
@@ -47,7 +47,7 @@ public class ErrorResponse {
 		details.add("Exception : " + e.getClass().getSimpleName());
 		errorCause = e.getCause() != null ? e.getCause().getMessage() : null;
 		if(includeStacktrace) {
-			this.stackTrace=ExceptionUtils.getStackFrames(e);
+			this.stackTrace=ExceptionUtils.getStackTrace(e);
 		}
 
 	}

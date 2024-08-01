@@ -47,7 +47,7 @@ import ngo.nabarun.app.infra.core.entity.AccountEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
-import ngo.nabarun.app.infra.core.entity.MeetingEntity;
+import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.NoticeEntity;
 import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
@@ -62,6 +62,7 @@ import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -422,53 +423,19 @@ public class InfraDTOHelper {
 		return noticeDTO;
 	}
 
-	public static MeetingDTO convertToMeetingDTO(MeetingEntity meetEntity) {
-		MeetingDTO meetingDTO = new MeetingDTO();
-		meetingDTO.setAudioMeetingLink(meetEntity.getMeetingLinkA());
-		meetingDTO.setDescription(meetEntity.getDescription());
-
-		
-		if(meetEntity.getAttendeeEmails() != null) {
-			List<UserDTO> attendees= new ArrayList<>();
-			List<String> attendeesEmail=InfraFieldHelper.stringToStringList(meetEntity.getAttendeeEmails());
-			List<String> attendeesNames=InfraFieldHelper.stringToStringList(meetEntity.getAttendeeNames());
-			
-			for(int i=0;i<attendeesEmail.size();i++) {
-				UserDTO attendee = new UserDTO();
-				attendee.setEmail(attendeesEmail.get(i));	
-				attendee.setName(attendeesNames.get(i));
-				attendees.add(attendee);
-			}
-			meetingDTO.setAttendees(attendees);
-		}
-		
-		
-
-		meetingDTO.setEndTime(meetEntity.getEndTime());
-		meetingDTO.setExtMeetingId(meetEntity.getExtMeetingId());
-		meetingDTO.setLocation(meetEntity.getLocation());
-		meetingDTO.setRefId(null);
-		meetingDTO.setRefType(null);
-		meetingDTO.setRemarks(meetEntity.getRemarks());
-		meetingDTO.setStartTime(meetEntity.getStartTime());
-		meetingDTO.setStatus(MeetingStatus.valueOf(meetEntity.getMeetingStatus()));
-		meetingDTO.setSummary(meetEntity.getSummary());
-		meetingDTO.setType(MeetingType.valueOf(meetEntity.getType()));
-		meetingDTO.setVideoMeetingLink(meetEntity.getMeetingLinkV());
-		meetingDTO.setHtmlLink(meetEntity.getHtmlLink());
-		meetingDTO.setExternalStatus(meetEntity.getExtEventStatus());
-		meetingDTO.setDate(meetEntity.getMeetingDate()); 
-
-//		if (meetEntity.getEmailReminderBeforeMin() != null) {
-//			meetingDTO.setEmailReminderBeforeMin(
-//					InfraFieldHelper.stringToIntegerList(meetEntity.getEmailReminderBeforeMin()));
-//		}
-//		if (meetEntity.getPopupReminderBeforeMin() != null) {
-//			meetingDTO.setPopupReminderBeforeMin(
-//					InfraFieldHelper.stringToIntegerList(meetEntity.getPopupReminderBeforeMin()));
-//		}
-
-		return meetingDTO;
+	public static LogsDTO convertToLogsDTO(LogsEntity logsEntity) {
+		LogsDTO logsDTO=new LogsDTO();
+		logsDTO.setCorelationId(logsEntity.getCorelationId());
+		logsDTO.setDuration(logsEntity.getEndTime().getTime() - logsEntity.getStartTime().getTime());
+		logsDTO.setEndTime(logsEntity.getEndTime());
+		logsDTO.setId(logsEntity.getId());
+		logsDTO.setInputs(logsEntity.getInputs());
+		logsDTO.setMethodName(logsEntity.getMethodName());
+		logsDTO.setOutputs(logsEntity.getOutputs());
+		logsDTO.setStartTime(logsEntity.getStartTime());
+		logsDTO.setType(logsEntity.getType());
+		logsDTO.setError(logsEntity.getError());
+		return logsDTO;
 	}
 
 	public static TicketDTO convertToTicketDTO(TicketInfoEntity tokenEntity) {
