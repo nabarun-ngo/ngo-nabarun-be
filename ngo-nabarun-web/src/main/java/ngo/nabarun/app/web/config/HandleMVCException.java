@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
 
@@ -19,6 +20,7 @@ public class HandleMVCException {
 	@Value("${INCLUDE_ERROR_DETAILS}")
 	private boolean includeErrorDetails;
 
+	@ExceptionHandler(value = { Exception.class })
 	public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response, Exception ex) {
         ModelAndView mav = new ModelAndView("error");
         //ex.printStackTrace();

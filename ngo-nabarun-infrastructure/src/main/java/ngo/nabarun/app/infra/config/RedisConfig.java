@@ -3,14 +3,20 @@ package ngo.nabarun.app.infra.config;
 import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration.JedisClientConfigurationBuilder;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 @Configuration
 public class RedisConfig {
@@ -58,9 +64,28 @@ public class RedisConfig {
 		return new JedisConnectionFactory(redisConfiguration, jedisClientConfiguration.build());
 	}
 
-//	@Bean
-//	CacheManager cacheManager() {
-//		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(Integer.parseInt(globalTtl)));
-//		return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).transactionAware().build();
-//	}
+	@Bean
+	RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+		
+		JdkSerializationRedisSerializer contextAwareRedisSerializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
+
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .disableCachingNullValues()
+                .entryTtl(Duration.ofHours(24))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(contextAwareRedisSerializer));
+
+
+         return  RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(connectionFactory)
+                .cacheDefaults(redisCacheConfiguration)
+                .build();
+		
+		
+//	  RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
+//	      .entryTtl(Duration.ofHours(1)) //
+//	      .disableCachingNullValues();
+//
+//	  return RedisCacheManager.builder(connectionFactory) //
+//	      .cacheDefaults(config) //
+//	      .build();
+	}
 }

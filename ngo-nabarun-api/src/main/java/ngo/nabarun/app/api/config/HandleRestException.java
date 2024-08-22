@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ngo.nabarun.app.api.response.ErrorResponse;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
+import ngo.nabarun.app.common.annotation.NoLogging;
 
 @ControllerAdvice(annotations = RestController.class)
 @Order(1)
@@ -38,6 +39,7 @@ public class HandleRestException {
 	private boolean includeErrorDetails;
 
 	@ExceptionHandler(value = { Exception.class })
+	@NoLogging
 	public ResponseEntity<ErrorResponse> handleServerExceptions(Exception ex) {
 		//ex.printStackTrace();
 		if (ex instanceof BusinessException) {
@@ -57,7 +59,7 @@ public class HandleRestException {
 			HttpMessageNotWritableException.class, MethodArgumentNotValidException.class,
 			MissingServletRequestPartException.class, BindException.class, NoHandlerFoundException.class,
 			AsyncRequestTimeoutException.class, MaxUploadSizeExceededException.class, IllegalArgumentException.class })
-
+	@NoLogging
 	public final ResponseEntity<Object> handleException2(Exception ex, WebRequest request) throws Exception {
 		HttpStatus status = null;
 		if (ex instanceof HttpRequestMethodNotSupportedException) {

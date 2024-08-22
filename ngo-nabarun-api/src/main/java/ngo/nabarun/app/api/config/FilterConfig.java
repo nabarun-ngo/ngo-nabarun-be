@@ -12,18 +12,25 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import ngo.nabarun.app.common.annotation.NoLogging;
+
 
 @Component
 public class FilterConfig implements Filter {
     public static final String CORRELATION_ID = "X-Cloud-Trace-Context";
 
+    @NoLogging
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        MDC.put(CORRELATION_ID, httpRequest.getHeader(CORRELATION_ID));
+        String corrId=httpRequest.getHeader(CORRELATION_ID);
+		if (corrId == null) {
+        	corrId = request.getParameter(CORRELATION_ID);
+        }
+        MDC.put("CorrelationId", corrId);
         //System.err.println(MDC.get(CORRELATION_ID));
         //log.info("Intercept coming request and set MDC context information");
         // pass the request
-        chain.doFilter(request, response);
+        chain.doFilter(request, response); 
     }
 }

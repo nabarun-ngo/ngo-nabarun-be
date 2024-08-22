@@ -46,7 +46,9 @@ public class LoggingAspect {
 			+ "    within(ngo.nabarun.app.ext..*) ||"
 			+ "    within(ngo.nabarun.app.util..*)||"
 			+ "    within(com.auth0.net.client..*)"
-			+ ")")
+			+ ")"
+			+ "&&"
+			+ "!@annotation(ngo.nabarun.app.common.annotation.NoLogging)")
 	public void applicationPackagePointcut() {
 	}
 	
@@ -82,7 +84,7 @@ public class LoggingAspect {
 	private Object writeLog(ProceedingJoinPoint joinPoint) throws Throwable {
 		// System.out.println(log.isDebugEnabled());
 		LogsDTO logsDTO= new LogsDTO();
-		logsDTO.setCorelationId(MDC.get(FilterConfig.CORRELATION_ID));
+		logsDTO.setCorelationId(MDC.get("CorrelationId"));
 		
 		if (log.isDebugEnabled()) {
 			String args;
@@ -133,7 +135,10 @@ public class LoggingAspect {
 		finally {
 			if (log.isDebugEnabled()) {
 				logsDTO.setEndTime(new Date());
-				//logInfraService.saveLog(logsDTO);
+				if(logsDTO.getCorelationId() != null) {
+					//logInfraService.saveLog(logsDTO);
+				}
+				
 			}
 		}
 	}

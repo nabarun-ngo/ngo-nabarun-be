@@ -19,7 +19,7 @@ public interface IUserBL {
 	void initiatePasswordChange(String appClientId) throws Exception;
 	void initiateEmailChange(String email)throws Exception;
 	void assignRolesToUser(String id,List<RoleCode> roleCodes) throws Exception;
-	void allocateUsersToRole(String id,List<String> users);
+	void allocateUsersToRole(RoleCode roleCode,List<UserDetail> users) throws Exception;
 
 
 }

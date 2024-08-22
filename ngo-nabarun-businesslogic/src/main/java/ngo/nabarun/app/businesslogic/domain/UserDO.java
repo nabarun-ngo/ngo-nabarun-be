@@ -1,7 +1,9 @@
 package ngo.nabarun.app.businesslogic.domain;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,8 +22,6 @@ import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.ext.objects.AuthUser;
-import ngo.nabarun.app.infra.core.entity.UserProfileEntity;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -29,7 +29,6 @@ import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.UserDTO.UserDTOFilter;
-import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
@@ -67,12 +66,10 @@ public class UserDO extends CommonDO {
 			userDTOFilter.setStatus(userDetailFilter.getStatus());
 			userDTOFilter.setRoles(userDetailFilter.getRoles());
 		}
-		/*if (userDetailFilter.getRoles() != null && !userDetailFilter.getRoles().isEmpty()) {
-			Boolean isActive = userDetailFilter.getStatus() != null && !userDetailFilter.getStatus().isEmpty() ? null
-					: userDetailFilter.getStatus().contains(ProfileStatus.ACTIVE);
-			List<UserDTO> users = userInfraService.getUsersByRole(userDetailFilter.getRoles(), isActive);
+		if (userDetailFilter.isUserByRole()){
+			List<UserDTO> users = userInfraService.getUsersByRole(userDetailFilter.getRoles());
 			return new Paginate<UserDTO>(page, size, users.size(), users);
-		}*/
+		}
 		Page<UserDTO> content = userInfraService.getUsers(page, size, userDTOFilter);
 		return new Paginate<UserDTO>(content);
 	}
@@ -176,6 +173,7 @@ public class UserDO extends CommonDO {
 		updatedUserDTO.setAddresses(updatedUserDetails.getAddresses() == null ? List.of()
 				: updatedUserDetails.getAddresses().stream().map(BusinessObjectConverter::toAddressDTO)
 						.collect(Collectors.toList()));
+		updatedUserDTO.setPresentPermanentSame(updatedUserDetails.getPresentAndPermanentAddressSame());
 		updatedUserDTO.setPhones(BusinessObjectConverter.toPhoneDTO(updatedUserDetails.getPhoneNumbers()));
 		updatedUserDTO
 				.setSocialMedias(BusinessObjectConverter.toSocialMediaDTO(updatedUserDetails.getSocialMediaLinks()));
@@ -225,6 +223,14 @@ public class UserDO extends CommonDO {
 		List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(roleCodes);
 		userInfraService.updateUserRoles(id, roles);
 	}
+	
+	public void assignUsersToRole(RoleCode roleCode, List<String> usersIds) throws Exception {
+
+		//if(!usersIds.isEmpty()) {
+			RoleDTO roleDTO= businessDomainHelper.convertToRoleDTO(roleCode);
+			userInfraService.assignUsersToRole(roleDTO, usersIds);
+		//}
+	}
 
 	/**
 	 * 
@@ -257,5 +263,7 @@ public class UserDO extends CommonDO {
 		List<UserDTO> users = userInfraService.getUsersByRole(codes);
 		return users;
 	}
+
+	
 
 }

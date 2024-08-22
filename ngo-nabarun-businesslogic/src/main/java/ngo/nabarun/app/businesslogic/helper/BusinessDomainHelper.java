@@ -20,6 +20,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.exception.BusinessCondition;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
+import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.DonationStatus;
@@ -89,14 +90,15 @@ public class BusinessDomainHelper {
 	private static final String ITEM_WORKFLOW_STEP__ATTR_IS_DECISION_STEP = "IS_DECISION_STEP";
 	private static final String ITEM_WORKFLOW_STEP__ATTR_NEXT_STEP = "NEXT_STEP";
 	private static final String ITEM_WORKFLOW_STEP__ATTR_DECISION_MAKER_ROLE_GROUPS = "DECISION_MAKER_ROLE_GROUPS";
-	private static final Object ITEM_ACCOUNT_TYPE = "ACCOUNT_TYPES";
-	private static final Object ITEM_ACCOUNT_STATUS = "ACCOUNT_STATUSES";
+	private static final String ITEM_ACCOUNT_TYPE = "ACCOUNT_TYPES";
+	private static final String ITEM_ACCOUNT_STATUS = "ACCOUNT_STATUSES";
+	private static final String ITEM_PROFILE_STATUSES = "PROFILE_STATUSES";
+	private static final String ITEM_COUNTRY_LIST =  "COUNTRY_LIST";
+	private static final String ITEM_STATE_LIST =  "STATE_LIST";
+	private static final String ITEM_DISTRICT_LIST =  "DISTRICT_LIST";
 
+	@NoLogging
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
-//		if (domainConfig == null) {
-//			domainConfig = domainInfraService.getDomainRefConfigs();
-//		}
-//		return domainConfig;
 		return domainInfraService.getDomainRefConfigs();
 	}
 
@@ -113,7 +115,7 @@ public class BusinessDomainHelper {
 				}
 			}
 		}
-		System.err.println(domainKeyValue);
+		//System.err.println(domainKeyValue);
 		return domainKeyValue;
 	}
 
@@ -151,9 +153,16 @@ public class BusinessDomainHelper {
 	 * @return returns true if titlre and gender is aligned
 	 * @throws Exception
 	 */
-	public boolean isTitleGenderAligned(String title, String gender) throws Exception {
-		List<KeyValuePair> kvTitle = getDomainConfig(ITEM_USER_TITLE);
-
+	public boolean isTitleGenderAligned(String title, String gender) {
+		List<KeyValuePair> kvTitle = null;
+		try {
+			kvTitle = getDomainConfig(ITEM_USER_TITLE);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (kvTitle == null) {
+			return false;
+		}
 		Optional<KeyValuePair> userTitle = kvTitle.stream().filter(f -> f.getKey().equalsIgnoreCase(title)).findFirst();
 		if (userTitle.isEmpty()) {
 			return false;
@@ -168,14 +177,27 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public Map<String, List<KeyValue>> getUserRefData() throws Exception {
+	public Map<String, List<KeyValue>> getUserRefData(String countryCode,String stateCode) throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
 		obj.put("userTitles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_TITLE)));
 		obj.put("userGenders", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_GENDER)));
-		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE)));
+		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE).stream().filter(m->m.getAttributes().get("ACTIVE") == Boolean.TRUE).collect(Collectors.toList()) ));
 		obj.put("availableRoleGroups",
 				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
+		obj.put("userStatuses",
+				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream().filter(m->m.getAttributes().get("IS_VISIBLE") == Boolean.TRUE).collect(Collectors.toList()) ));
+		obj.put("countries", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_COUNTRY_LIST)));
+		if(countryCode != null) {
+			List<KeyValuePair> states=domainRef.get(ITEM_STATE_LIST).stream().filter(f->countryCode.equals(f.getAttributes().get("COUNTRYKEY"))).collect(Collectors.toList());
+			obj.put("states", BusinessObjectConverter.toKeyValueList(states));
+		}
+		if(countryCode != null && stateCode != null) {
+			List<KeyValuePair> districts=domainRef.get(ITEM_DISTRICT_LIST).stream()
+					.filter(f->countryCode.equals(f.getAttributes().get("COUNTRYKEY")) && stateCode.equals(f.getAttributes().get("STATEKEY")))
+					.collect(Collectors.toList());
+			obj.put("districts", BusinessObjectConverter.toKeyValueList(districts));
+		}
 		return obj;
 	}
 
@@ -201,6 +223,23 @@ public class BusinessDomainHelper {
 			}
 		}
 		return obj;
+	}
+	
+	public RoleDTO convertToRoleDTO(RoleCode roleCode) throws Exception {
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		for (KeyValuePair roleObj : domainRef.get(ITEM_AVAILABLE_ROLE)) {
+			if (roleCode == RoleCode.valueOf(roleObj.getKey().trim())) {
+				RoleDTO role = new RoleDTO();
+				role.setCode(RoleCode.valueOf(roleObj.getKey()));
+				role.setDescription(roleObj.getDescription());
+				String groups = roleObj.getAttributes().get(ITEM_AVAILABLE_ROLE__ATTR_GROUPS).toString();
+				// role.setGroups(List.of(groups.split(",")).stream().map(m->RoleGroup.valueOf(m)).toList());
+				role.setGroups(List.of(groups.split(SPLITTER)));
+				role.setName(roleObj.getValue());
+				return role;
+			}
+		}
+		return null;
 	}
 
 	public List<RoleCode> getRolesFromGroup(List<String> roleGroups) throws Exception {

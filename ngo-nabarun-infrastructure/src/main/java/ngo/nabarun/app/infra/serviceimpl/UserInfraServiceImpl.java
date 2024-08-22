@@ -2,9 +2,11 @@ package ngo.nabarun.app.infra.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +21,7 @@ import org.springframework.util.Assert;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
+import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
@@ -42,6 +45,7 @@ import ngo.nabarun.app.infra.misc.InfraFieldHelper;
 import ngo.nabarun.app.infra.misc.WhereClause;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
+@Slf4j
 @Service
 public class UserInfraServiceImpl implements IUserInfraService {
 
@@ -144,10 +148,6 @@ public class UserInfraServiceImpl implements IUserInfraService {
 	 */
 	@Override
 	public UserDTO createUser(UserDTO userDTO) throws Exception {
-		return createUser(userDTO, null);
-	}
-
-	private UserDTO createUser(UserDTO userDTO, AuthUser authUser) throws Exception {
 		Assert.notNull(userDTO.getAdditionalDetails(), "additionalDetails object must not be null.");
 
 		/**
@@ -155,21 +155,21 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 * with email this will be hard blocker as for re joiners auth0 profile must be
 		 * deleted during their termination
 		 */
-		AuthUser newAuth0User = null;
-		if (authUser == null) {
-			newAuth0User = new AuthUser();
-			newAuth0User.setFirstName(userDTO.getFirstName());
-			newAuth0User.setLastName(userDTO.getLastName());
-			newAuth0User.setEmail(userDTO.getEmail());
-			newAuth0User.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+		AuthUser newAuth0User = new AuthUser();
+		newAuth0User.setFirstName(userDTO.getFirstName());
+		newAuth0User.setLastName(userDTO.getLastName());
+		newAuth0User.setEmail(userDTO.getEmail());
+		newAuth0User.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
 
-			newAuth0User.setPassword(userDTO.getPassword());
-			newAuth0User.setEmailVerified(
-					userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getEmailVerified() : null);
-			newAuth0User.setProviders(userDTO.getLoginProviders());
+		newAuth0User.setPassword(userDTO.getPassword());
+		newAuth0User.setEmailVerified(
+				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getEmailVerified() : null);
+		newAuth0User.setProviders(userDTO.getLoginProviders());
+		
+		if (userDTO.getUserId() != null) {
+			newAuth0User.setUserId(userDTO.getUserId());
+		}else {
 			newAuth0User = authManagementService.createUser(newAuth0User);
-		} else {
-			newAuth0User = authUser;
 		}
 
 		/**
@@ -180,14 +180,15 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 */
 		Optional<UserProfileEntity> userProfile = profileRepository.findByEmail(userDTO.getEmail());
 		UserProfileEntity profile = userProfile.isPresent() ? userProfile.get() : new UserProfileEntity();
-		if (profile.getId() == null) {
+		if (!userProfile.isPresent()) {
 			profile.setId(UUID.randomUUID().toString());
+			userDTO.setStatus(ProfileStatus.ACTIVE);
 		}
 		profile.setTitle(userDTO.getTitle());
 		profile.setFirstName(newAuth0User.getFirstName());
 		profile.setMiddleName(userDTO.getMiddleName());
 		profile.setLastName(newAuth0User.getLastName());
-		profile.setAvatarUrl(newAuth0User.getPicture());
+		profile.setAvatarUrl(newAuth0User.getPicture() != null ? newAuth0User.getPicture() : userDTO.getImageUrl());
 		profile.setDateOfBirth(userDTO.getDateOfBirth());
 		profile.setGender(userDTO.getGender());
 		profile.setEmail(newAuth0User.getEmail());
@@ -195,9 +196,10 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		profile.setCreatedBy(null);
 		profile.setActiveContributor(
 				userDTO.getAdditionalDetails() == null ? null : userDTO.getAdditionalDetails().isActiveContributor());
-		profile.setCreatedOn(newAuth0User.getCreatedAt());
+		profile.setCreatedOn(newAuth0User.getCreatedAt() != null ? newAuth0User.getCreatedAt() : CommonUtils.getSystemDate());
 		profile.setDeleted(false);
-		profile.setPublicProfile(userDTO.getAdditionalDetails().isDisplayPublic());
+		profile.setPublicProfile(
+				userDTO.getAdditionalDetails() == null ? null : userDTO.getAdditionalDetails().isDisplayPublic());
 		profile.setStatus(userDTO.getStatus() == null ? null : userDTO.getStatus().name());
 		profile.setUserId(newAuth0User.getUserId());
 
@@ -228,12 +230,20 @@ public class UserInfraServiceImpl implements IUserInfraService {
 					profile.setCountry(addressDTO.getCountry());
 					break;
 				case PERMANENT:
+					profile.setPermanentAddressLine1(addressDTO.getAddressLine1());
+					profile.setPermanentAddressLine2(addressDTO.getAddressLine2());
+					profile.setPermanentAddressLine3(addressDTO.getAddressLine3());
+					profile.setPermanentHometown(addressDTO.getHometown());
+					profile.setPermanentDistrict(addressDTO.getDistrict());
+					profile.setPermanentState(addressDTO.getState());
+					profile.setPermanentCountry(addressDTO.getCountry());
 
 					break;
 				default:
-					break;
 				}
 			}
+			profile.setPresentPermanentSame(userDTO.getPresentPermanentSame());
+
 		}
 
 		if (userDTO.getPhones() != null) {
@@ -287,19 +297,19 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 		UserProfileEntity updatedProfile = new UserProfileEntity();
 		updatedProfile.setTitle(userDTO.getTitle());
-		if (userDTO.getFirstName() != null) {
+		if (userDTO.getFirstName() != null && userDTO.getLastName() != null) {
+			updatedProfile.setFirstName(userDTO.getFirstName());
+			updateAuthUser.setFirstName(userDTO.getFirstName());
+			updatedProfile.setLastName(userDTO.getLastName());
+			updateAuthUser.setLastName(userDTO.getLastName());
+			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
+					: userDTO.getName());
+		} else if (userDTO.getFirstName() != null) {
 			updatedProfile.setFirstName(userDTO.getFirstName());
 			updateAuthUser.setFirstName(userDTO.getFirstName());
 			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
 					: userDTO.getName());
 		} else if (userDTO.getLastName() != null) {
-			updatedProfile.setLastName(userDTO.getLastName());
-			updateAuthUser.setLastName(userDTO.getLastName());
-			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
-					: userDTO.getName());
-		} else if (userDTO.getFirstName() != null && userDTO.getLastName() != null) {
-			updatedProfile.setFirstName(userDTO.getFirstName());
-			updateAuthUser.setFirstName(userDTO.getFirstName());
 			updatedProfile.setLastName(userDTO.getLastName());
 			updateAuthUser.setLastName(userDTO.getLastName());
 			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
@@ -338,10 +348,11 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 * changes, or profile status to update
 		 */
 		if (userDTO.getFirstName() != null || userDTO.getLastName() != null || userDTO.getEmail() != null
-				|| userDTO.getStatus() != null || isEmailVerifiedUpdated) {
+				|| userDTO.getStatus() != null || isEmailVerifiedUpdated || userDTO.getProfileId() != null) {
 			if (userDTO.getStatus() != null) {
 				updateAuthUser.setInactive(!ProfileStatus.ACTIVE.name().equalsIgnoreCase(profile.getStatus()));
 			}
+			updateAuthUser.setProfileId(profile.getId());
 			updateAuthUser = authManagementService.updateUser(profile.getUserId(), updateAuthUser);
 		}
 		profile = profileRepository.save(profile);
@@ -384,47 +395,36 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		return roles.stream().map(m -> InfraDTOHelper.convertToRoleDTO(m)).toList();
 	}
 
+	
 	@Override
 	public void updateUserRoles(String profileId, List<RoleDTO> roles) throws Exception {
 
 		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
-		// List<UserRoleEntity> currentRoles =
-		// roleRepository.findByProfileIdAndActiveTrue(profileId);
 		List<String> currentRoles = InfraFieldHelper.stringToStringList(profile.getRoleCodes());
 		List<String> newRoles = roles.stream().map(m -> m.getCode().name()).toList();
 
-		List<String> rolesToRemove = currentRoles.stream().filter(f -> !newRoles.contains(f)).map(m -> getRoleId(m))
-				.toList();
+//		List<String> rolesToRemove = currentRoles.stream().filter(f -> !newRoles.contains(f)).map(m -> getRoleId(m))
+//				.toList();
+//		List<String> rolesToAdd = currentRoles.stream().filter(f -> newRoles.contains(f)).map(m -> getRoleId(m))
+//				.toList();
+		
+		Set<String> rolesToRemove=new HashSet<>(currentRoles);
+		rolesToRemove.removeAll(new HashSet<>(newRoles));
+		
+		Set<String> rolesToAdd=new HashSet<>(newRoles);
+		rolesToAdd.removeAll(new HashSet<>(currentRoles));
+		
+		log.debug("rolesToRemove = "+rolesToRemove+" rolesToAdd = "+rolesToAdd);
+		
 		if (!rolesToRemove.isEmpty()) {
-			authManagementService.removeRolesFromUser(profile.getUserId(), rolesToRemove);
+			authManagementService.removeRolesFromUser(profile.getUserId(), rolesToRemove.stream().map(this::getRoleId).collect(Collectors.toList()));
 		}
-		List<String> rolesToAdd = currentRoles.stream().filter(f -> newRoles.contains(f)).map(m -> getRoleId(m))
-				.toList();
+		
 		if (!rolesToAdd.isEmpty()) {
-			authManagementService.assignRolesToUser(profile.getUserId(), rolesToAdd);
+			authManagementService.assignRolesToUser(profile.getUserId(), rolesToAdd.stream().map(this::getRoleId).collect(Collectors.toList()));
 		}
-
-		/*
-		 * if (!currentRoles.isEmpty()) {
-		 * roleRepository.saveAll(currentRoles.stream().map(m -> { m.setActive(false);
-		 * m.setEndDate(CommonUtils.getSystemDate()); return m; }).toList()); }
-		 */
 
 		if (!roles.isEmpty()) {
-			/*
-			 * roleRepository.saveAll(roles.stream().map(m -> { UserRoleEntity role = new
-			 * UserRoleEntity(); role.setId(UUID.randomUUID().toString());
-			 * role.setActive(true); role.setExtRoleId(getRoleId(m.getCode().name()));
-			 * role.setProfileId(profile.getId()); role.setRoleCode(m.getCode().name());
-			 * role.setRoleDescription(m.getDescription()); //
-			 * role.setRoleGroup(InfraFieldHelper.stringListToString(m.getGroups().stream().
-			 * map(k->k.name()).toList()));
-			 * role.setRoleGroup(InfraFieldHelper.stringListToString(m.getGroups()));
-			 * role.setRoleName(m.getName());
-			 * role.setStartDate(CommonUtils.getSystemDate());
-			 * role.setUserId(profile.getUserId()); return role; }).toList());
-			 */
-
 			profile.setRoleNames(InfraFieldHelper.stringListToString(roles.stream().map(m -> m.getName()).toList()));
 			profile.setRoleCodes(
 					InfraFieldHelper.stringListToString(roles.stream().map(m -> m.getCode().name()).toList()));
@@ -434,9 +434,46 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		profileRepository.save(profile);
 	}
 
+	//@CacheEvict(cacheNames = "auth0",allEntries = true)
 	@Override
-	public void assignUsersToRole(String roleId, List<UserDTO> users) throws Exception {
+	public void assignUsersToRole(RoleDTO role, List<String> userIds) throws Exception {
+		List<String> currentUsers =getUsersByRole(List.of(role.getCode())).stream().map(m->m.getUserId()).collect(Collectors.toList());
+		List<String> newUsers = userIds;
+		Set<String> usersToRemove=new HashSet<>(currentUsers);
+		usersToRemove.removeAll(new HashSet<>(newUsers));
+		
+		Set<String> usersToAdd=new HashSet<>(newUsers);
+		usersToAdd.removeAll(new HashSet<>(currentUsers));
+		log.debug("currentUsers",currentUsers,"usersToRemove",usersToRemove+" usersToAdd = "+usersToAdd);
 
+		
+		for(String userId:usersToRemove) {
+			Optional<UserProfileEntity> profileOpt = profileRepository.findByUserId(userId);
+			if(profileOpt.isPresent()) {
+				UserProfileEntity profile = profileOpt.get();
+				authManagementService.removeRolesFromUser(userId, List.of(getRoleId(role.getCode().name())));
+				Thread.sleep(100);
+				if(profile.getRoleNames() != null && profile.getRoleCodes() != null) {
+					profile.setRoleNames(InfraFieldHelper.removeItemFromString(profile.getRoleNames() ,role.getName()));
+					profile.setRoleCodes(InfraFieldHelper.removeItemFromString(profile.getRoleCodes() ,role.getCode().name()));
+					profileRepository.save(profile);
+				}
+			}
+		}
+		
+		if(!usersToAdd.isEmpty()) {
+			authManagementService.assignUsersToRole(getRoleId(role.getCode().name()), usersToAdd.stream().collect(Collectors.toList()));
+			for(String userId:usersToAdd) {
+				Optional<UserProfileEntity> profileOpt = profileRepository.findByUserId(userId);
+				if(profileOpt.isPresent()) {
+					UserProfileEntity profile = profileOpt.get();
+					profile.setRoleNames(InfraFieldHelper.addItemToString(profile.getRoleNames() ,role.getName()));
+					profile.setRoleCodes(InfraFieldHelper.addItemToString(profile.getRoleCodes() ,role.getCode().name()));
+					profileRepository.save(profile);
+				}
+			}
+		}
+		
 	}
 
 	@Override

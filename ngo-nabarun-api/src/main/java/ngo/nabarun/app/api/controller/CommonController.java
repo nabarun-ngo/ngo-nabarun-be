@@ -91,13 +91,23 @@ public class CommonController {
 	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
 			@RequestParam(required = false) List<RefDataType> names,
 			@RequestParam(required = false) DonationType donationType,
-			@RequestParam(required = false) DonationStatus currentDonationStatus) throws Exception {
+			@RequestParam(required = false) DonationStatus currentDonationStatus,
+			@RequestParam(required = false) String countryCode,
+			@RequestParam(required = false) String stateCode,
+			@RequestParam(required = false) Map<String, String> options1
+			) throws Exception {
 		Map<String, String> options= new HashMap<>();
 		if(donationType != null) {
 			options.put("donationType", donationType.name());
 		}
 		if(currentDonationStatus != null) {
 			options.put("currentDonationStatus", currentDonationStatus.name());
+		}
+		if(countryCode != null) {
+			options.put("countryCode", countryCode);
+		}
+		if(stateCode != null) {
+			options.put("stateCode", stateCode);
 		}
 		return new SuccessResponse<Map<String, List<KeyValue>>>()
 				.payload(commonBL.getReferenceData(names,options))

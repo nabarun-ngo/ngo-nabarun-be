@@ -4,13 +4,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.annotation.MultipartConfig;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import ngo.nabarun.app.businesslogic.IPublicBL;
@@ -23,7 +28,7 @@ public class PublicController {
 
 	@Autowired
 	private IPublicBL publicBl;
-
+	
 	@GetMapping({"/","/signup","/contact","/donate"})
 	public String homePage(Model model) {
 		Map<String, Object> pageDataMap=publicBl.getPageData(List.of("profiles"));
@@ -86,9 +91,9 @@ public class PublicController {
 		return modelAndView;
 	}
 	
-	@PostMapping("/donate")
+	@PostMapping(path="/donate")
 	public ModelAndView donate(@ModelAttribute("interview") InterviewDetail interview) throws Exception {
-		
+		//System.out.println(files);
 		ModelAndView modelAndView = new ModelAndView("stages");
 		modelAndView.addObject("interview", interview);
 		try {
@@ -100,6 +105,8 @@ public class PublicController {
 			modelAndView.addObject("rules", interview.getRules());
 			modelAndView.addObject("siteKey", interview.getSiteKey());
 		} catch (BusinessException e) {
+			e.printStackTrace();
+			System.err.println(e);
 			modelAndView.addObject("stage", interview.getStage());
 			modelAndView.addObject("errorMessage", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			modelAndView.addObject("successMessage", interview.getMessage());

@@ -38,6 +38,7 @@ public class UserDTO {
 	private String userId;
 	private ProfileStatus status;
 	private List<String> loginProviders;
+	private Boolean presentPermanentSame;
 
 	private UserAdditionalDetailsDTO additionalDetails;
 

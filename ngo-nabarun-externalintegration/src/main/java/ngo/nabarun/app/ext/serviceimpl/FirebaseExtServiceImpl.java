@@ -102,7 +102,7 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 		return blob.signUrl(duration, unit);
 	}
 
-	@Cacheable("RemoteConfigs")
+	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG")
 	@Override
 	public List<RemoteConfig> getRemoteConfigs() throws ThirdPartyException {
 		List<RemoteConfig> firebaseConfig = new ArrayList<>();
@@ -148,7 +148,7 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 
 	}
 
-	@Cacheable("RemoteConfigs+configKey")
+	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key="#configKey")
 	@Override
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f -> f.getName().equalsIgnoreCase(configKey)).findFirst().get();

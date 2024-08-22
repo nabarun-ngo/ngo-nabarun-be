@@ -4,6 +4,8 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -48,6 +50,9 @@ public class InterviewDetail {
 
 	@JsonProperty("attachedToAnyOtherSocialWork")
 	private String anyOtherSocialWork;
+	
+	@JsonProperty("files")
+	private MultipartFile[] files;
 	
 	@JsonProperty("password")
 	private String password;

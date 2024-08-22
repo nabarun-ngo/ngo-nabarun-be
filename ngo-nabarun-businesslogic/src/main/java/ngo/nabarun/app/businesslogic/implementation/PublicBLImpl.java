@@ -9,11 +9,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail.UserAction;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
@@ -27,6 +29,7 @@ import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
+import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.WorkflowType;
@@ -201,6 +204,15 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 				return performWorkflowAction(t, u);
 			});
 
+			/*
+			 * 
+			 */
+			if(interview.getFiles() != null && interview.getFiles().length > 0) {
+				for(MultipartFile file:interview.getFiles()) {
+					requestDO.uploadDocument(file, requestDTO.getId(), DocumentIndexType.REQUEST);
+				}
+			}
+				
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Payment Completed");
 			interview.setMessage("Your request number is " + requestDTO.getId()

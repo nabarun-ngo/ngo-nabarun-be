@@ -94,6 +94,7 @@ public class CommonBLImpl implements ICommonBL {
 	@Override
 	public void clearSystemCache(List<String> names) {
 		if(names == null || names.size() == 0) {
+			System.out.println(cacheManager.getCacheNames());
 			cacheManager.getCacheNames().stream().forEach(name->cacheManager.getCache(name).clear());
 		}else {
 			names.stream().forEach(name->cacheManager.getCache(name).clear());
@@ -114,7 +115,16 @@ public class CommonBLImpl implements ICommonBL {
 		}
 		
 		if(names == null || names.contains(RefDataType.USER)) {
-			obj.putAll(businessHelper.getUserRefData());
+			String stateCode=null;
+			String countryCode=null;
+			if(attr != null && attr.containsKey("countryCode")) {
+				countryCode=attr.get("countryCode");
+			}
+			if(attr != null && attr.containsKey("countryCode") && attr.containsKey("stateCode")) {
+				stateCode=attr.get("stateCode");
+				countryCode=attr.get("countryCode");
+			}
+			obj.putAll(businessHelper.getUserRefData(countryCode,stateCode));
 		}
 		if(names == null || names.contains(RefDataType.ACCOUNT)) {
 			obj.putAll(businessHelper.getAccountRefData());

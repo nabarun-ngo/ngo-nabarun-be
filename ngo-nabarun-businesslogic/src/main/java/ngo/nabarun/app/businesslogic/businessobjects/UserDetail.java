@@ -84,4 +84,7 @@ public class UserDetail {
 	@JsonProperty("status")
 	private ProfileStatus status;
 	
+	private Boolean presentAndPermanentAddressSame;
+
+	
 }

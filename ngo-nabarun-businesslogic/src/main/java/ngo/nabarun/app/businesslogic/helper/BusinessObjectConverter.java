@@ -129,6 +129,7 @@ public class BusinessObjectConverter {
 
 		userDetails.setAddresses(userDTO.getAddresses() == null ? List.of()
 				: userDTO.getAddresses().stream().map(m -> toUserAddress(m)).collect(Collectors.toList()));
+		userDetails.setPresentAndPermanentAddressSame(userDTO.getPresentPermanentSame());
 		userDetails.setPhoneNumbers(toUserPhoneNumber(userDTO.getPhones()));
 		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
 		userDetails.setPrimaryNumber(userDTO.getPhoneNumber());
@@ -442,6 +443,9 @@ public class BusinessObjectConverter {
 		requesterDTO.setLastName(requester == null ? null : requester.getLastName());
 		requesterDTO.setName(requester == null ? null : requester.getFullName());
 		requesterDTO.setEmail(requester == null ? null : requester.getEmail());
+		requesterDTO.setUserId(requester == null ? null : requester.getUserId());
+		requesterDTO.setImageUrl(requester == null ? null : requester.getPicture());
+
 		return requesterDTO;
 	}
 

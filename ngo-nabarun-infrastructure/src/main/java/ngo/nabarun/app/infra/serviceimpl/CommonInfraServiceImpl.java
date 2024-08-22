@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
@@ -375,6 +376,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 				attachmentList);
 	}
 
+	@NoLogging
 	@Override
 	public Map<String, List<KeyValuePair>> getDomainRefConfigs() throws Exception {
 		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_GLOBAL_CONFIG);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
-	@Cacheable("all_auth0_users")
+	//@Cacheable(value = "auth0_users")
 	@Override
 	public List<AuthUser> getUsers() throws ThirdPartyException {
 		try {
@@ -69,7 +70,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
-	@Cacheable("Auth0User+#id")
+	@Cacheable(value = "auth0_users",key="#id")
 	@Override
 	public AuthUser getUser(String id) throws ThirdPartyException {
 		try {
@@ -79,6 +80,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
+	@CacheEvict(value = "auth0_users",key="#id")
 	@Override
 	public void deleteUser(String id) throws ThirdPartyException {
 		try {
@@ -139,7 +141,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
-	@Cacheable("Auth0Role+#userId")
+	@Cacheable(value = "auth0_user_roles",key="#userId")
 	@Override
 	public List<AuthUserRole> getRoles(String userId) throws ThirdPartyException {
 		try {
@@ -159,6 +161,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 	
+	//@CacheEvict(value = "auth0_user_roles",key="#userId")
 	@Override
 	public void removeRolesFromUser(String userId, List<String> roleIds) throws ThirdPartyException {
 		try {
@@ -177,7 +180,9 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 	
-	@Cacheable("Auth0Users+#roleId")
+	
+	
+	@Cacheable(value = "auth0_role_users",key="#roleId")
 	@Override
 	public List<AuthUser> listUsersByRole(String roleId) throws ThirdPartyException {
 		try {
@@ -213,7 +218,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 
-	@Cacheable("Auth0AllRoles")
+	@Cacheable(value = "auth0_roles")
 	@Override
 	public List<AuthUserRole> getAllAvailableRoles() throws ThirdPartyException {
 		try {
@@ -224,7 +229,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 	
-	@Cacheable("Auth0AllConn")
+	@Cacheable(value = "auth0_conn")
 	@Override
 	public List<AuthConnection> getConnections() throws ThirdPartyException {
 		try {

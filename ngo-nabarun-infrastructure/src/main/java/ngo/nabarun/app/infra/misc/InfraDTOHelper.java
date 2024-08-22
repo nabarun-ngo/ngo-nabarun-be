@@ -90,10 +90,8 @@ public class InfraDTOHelper {
 		userDTO.setEmail(profile == null ? (user == null ? null : user.getEmail()) : profile.getEmail());
 		userDTO.setFirstName(profile == null ? (user == null ? null : user.getFirstName())  :profile.getFirstName());
 		userDTO.setGender(profile == null ? null : profile.getGender());
-		if(profile != null) {
-			userDTO.setImageUrl(StringUtils.hasLength(profile.getAvatarUrl()) ? profile.getAvatarUrl()
-					: (user == null ? null : user.getPicture()));
-		}
+		userDTO.setImageUrl(StringUtils.hasLength(profile != null ? profile.getAvatarUrl():null) ? profile.getAvatarUrl()
+				: (user == null ? null : user.getPicture()));
 		
 		userDTO.setLastName(profile == null ? (user == null ? null : user.getLastName())  :profile.getLastName());
 		userDTO.setMiddleName(profile == null ? null :profile.getMiddleName());
@@ -113,7 +111,7 @@ public class InfraDTOHelper {
 		uaDTO.setCreatedBy(null);
 		uaDTO.setCreatedOn(user != null ? user.getCreatedAt() : profile.getCreatedOn());
 		uaDTO.setDisplayPublic(profile == null  ? false : profile.getPublicProfile());
-		uaDTO.setEmailVerified(user != null ? user.getEmailVerified() : false);
+		uaDTO.setEmailVerified(user != null ? user.getEmailVerified()== null ? false: user.getEmailVerified() : false);
 		uaDTO.setLastLogin(user != null ? user.getLastLogin() : null);
 		uaDTO.setLastPasswordChange(user != null ? user.getLastPasswordReset() : null);
 		uaDTO.setLoginsCount(user == null ? 0 : user.getLoginsCount());
@@ -153,7 +151,22 @@ public class InfraDTOHelper {
 				present.setCountry(profile.getCountry());
 				addresses.add(present);
 			}
+			if (profile.getPermanentAddressLine1() != null || profile.getPermanentAddressLine2() != null || profile.getPermanentAddressLine3() != null
+					|| profile.getPermanentHometown() != null || profile.getPermanentDistrict() != null || profile.getPermanentState() != null
+					|| profile.getPermanentCountry() != null) {
+				AddressDTO permanent = new AddressDTO();
+				permanent.setAddressType(AddressType.PERMANENT);
+				permanent.setAddressLine1(profile.getPermanentAddressLine1());
+				permanent.setAddressLine2(profile.getPermanentAddressLine2());
+				permanent.setAddressLine3(profile.getPermanentAddressLine3());
+				permanent.setHometown(profile.getPermanentHometown());
+				permanent.setDistrict(profile.getPermanentDistrict());
+				permanent.setState(profile.getPermanentState());
+				permanent.setCountry(profile.getPermanentCountry());
+				addresses.add(permanent);
+			}
 			userDTO.setAddresses(addresses);
+			userDTO.setPresentPermanentSame(profile.getPresentPermanentSame());
 
 			/**
 			 * phone number

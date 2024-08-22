@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
@@ -256,6 +258,10 @@ public class CommonDO {
 	public void uploadDocument(DocumentDetailUpload file,String docIndexId, DocumentIndexType docIndexType) throws Exception {
 		byte[] content = file.getContent() == null ?  Base64.decodeBase64(file.getBase64Content()) : file.getContent();
 		docInfraService.uploadDocument(file.getOriginalFileName(),file.getContentType(), docIndexId, docIndexType,content);	
+	}
+	
+	public void uploadDocument(MultipartFile file,String docIndexId, DocumentIndexType docIndexType) throws Exception {
+		docInfraService.uploadDocument(file, docIndexId, docIndexType);	
 	}
 
 	public URL getDocumentUrl(String docId) throws Exception {

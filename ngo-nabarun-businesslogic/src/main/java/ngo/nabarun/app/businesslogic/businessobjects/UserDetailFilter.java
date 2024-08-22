@@ -1,13 +1,10 @@
 package ngo.nabarun.app.businesslogic.businessobjects;
 
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
 
@@ -37,4 +34,7 @@ public class UserDetailFilter {
 	
 	@JsonProperty("roles")
 	private List<RoleCode> roles;
+	
+	@JsonProperty("userByRole")
+	private boolean userByRole;
 }
