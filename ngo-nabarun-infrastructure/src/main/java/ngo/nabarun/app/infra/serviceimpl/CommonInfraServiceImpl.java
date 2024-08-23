@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -269,8 +270,10 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	private String buildRemoteFileName(String originalFileName, DocumentIndexType docType) {
+		String extension=FilenameUtils.getExtension(originalFileName);
 		return docType.getDocFolderName() + "/"
-				+ UUID.randomUUID().toString().concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
+				+ UUID.randomUUID().toString()+"."+(extension == null ? "zip" : extension);
+		
 	}
 
 	@Override
