@@ -149,7 +149,7 @@
 		rules: {
 			firstName: {
 				required: true,
-				rangelength: [2, 20]
+				//rangelength: [2, 20]
 			},
 			email: {
 				required: true,
