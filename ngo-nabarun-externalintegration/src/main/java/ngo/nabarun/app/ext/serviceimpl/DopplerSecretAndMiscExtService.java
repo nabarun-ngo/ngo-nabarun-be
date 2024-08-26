@@ -10,7 +10,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ThirdPartySystem;
 import ngo.nabarun.app.ext.objects.RazorPayBankList;
@@ -24,7 +24,7 @@ import ngo.nabarun.app.ext.service.ISecretExtService;
 public class DopplerSecretAndMiscExtService implements ISecretExtService, IMiscExtService {
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 	@Autowired
 	private RestTemplate restTemplate;

@@ -17,7 +17,7 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 
 @Service
@@ -25,7 +25,7 @@ import ngo.nabarun.app.ext.service.IEmailExtService;
 public class SendGridEmailExtServiceImpl implements IEmailExtService {
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 
 	@Override

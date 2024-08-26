@@ -16,8 +16,8 @@ import ngo.nabarun.app.common.annotation.NoLogging;
 
 
 @Component
-public class FilterConfig implements Filter {
-    public static final String CORRELATION_ID = "X-Cloud-Trace-Context";
+public class RequestFilterConfig implements Filter {
+    public static final String CORRELATION_ID = "Correlation-Id";
 
     @NoLogging
     @Override

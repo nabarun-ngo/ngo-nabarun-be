@@ -13,13 +13,13 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 
 @Configuration
 public class RestTemplateConfig {
 	
 	@Autowired 
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
     @Bean(name = "restTemplate")
     //@DependsOn({"firebaseApp"})

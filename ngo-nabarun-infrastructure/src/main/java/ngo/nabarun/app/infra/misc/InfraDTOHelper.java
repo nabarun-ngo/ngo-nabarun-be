@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AddressType;
+import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
@@ -44,6 +45,7 @@ import ngo.nabarun.app.common.util.CryptUtil;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.infra.core.entity.AccountEntity;
+import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
@@ -57,6 +59,7 @@ import ngo.nabarun.app.infra.core.entity.WorkListEntity;
 import ngo.nabarun.app.infra.core.entity.WorkflowEntity;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AddressDTO;
+import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
@@ -126,11 +129,18 @@ public class InfraDTOHelper {
 			if (roles != null) {
 				userDTO.setRoles(roles.stream().map(m->convertToRoleDTO(m)).toList());
 			}else {
-				userDTO.setRoles(InfraFieldHelper.stringToStringList(profile.getRoleNames()).stream().map(m->{
-					RoleDTO role= new RoleDTO();
-					role.setName(m);				
-					return role;
-				}).toList());
+				List<String> roleCodes=InfraFieldHelper.stringToStringList(profile.getRoleCodes());
+				List<String> roleNames=InfraFieldHelper.stringToStringList(profile.getRoleNames());
+				List<RoleDTO> roleList = new ArrayList<RoleDTO>();
+				for(int i=0;i<roleCodes.size();i++){
+					if(StringUtils.hasLength(roleCodes.get(i))) {	
+						RoleDTO role= new RoleDTO();
+						role.setName(roleNames.size()> i ? roleNames.get(i): null);
+						role.setCode(RoleCode.valueOf(roleCodes.get(i)));
+						roleList.add(role);
+					}		;
+				}
+				userDTO.setRoles(roleList);
 			}
 
 			/**
@@ -653,6 +663,18 @@ public class InfraDTOHelper {
 		workListDTO.setWorkType(worklist.getWorkType() == null ? null : WorkType.valueOf(worklist.getWorkType()));
 		workListDTO.setFinalStep(worklist.isFinalStep());
 		return workListDTO;
+	}
+
+	public static ApiKeyDTO convertToApiKeyDTO(ApiKeyEntity apiKeyEntity) {
+		ApiKeyDTO apiKeyDTO= new ApiKeyDTO();
+		apiKeyDTO.setApiKey(apiKeyEntity.getApiKey());
+		apiKeyDTO.setCreatedOn(apiKeyEntity.getCreatedOn());
+		apiKeyDTO.setExpireable(apiKeyEntity.isExpireable());
+		apiKeyDTO.setExpiryDate(apiKeyEntity.getExpireOn()); 
+		apiKeyDTO.setId(apiKeyEntity.getId());
+		apiKeyDTO.setScopes(InfraFieldHelper.stringToStringList(apiKeyEntity.getScopes()));
+		apiKeyDTO.setStatus(ApiKeyStatus.valueOf(apiKeyEntity.getStatus()));
+		return apiKeyDTO;
 	}
 
 }

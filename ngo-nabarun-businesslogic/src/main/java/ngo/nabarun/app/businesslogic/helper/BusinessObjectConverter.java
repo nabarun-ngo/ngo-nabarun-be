@@ -2,6 +2,7 @@ package ngo.nabarun.app.businesslogic.helper;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import ngo.nabarun.app.businesslogic.businessobjects.UserAddress;
@@ -13,7 +14,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.MeetingDiscussion;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
@@ -21,7 +21,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
 import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
-import ngo.nabarun.app.common.enums.NoticeStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
@@ -33,7 +32,6 @@ import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
-import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -48,14 +46,17 @@ import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 public class BusinessObjectConverter {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-	public static UserDetail toPublicUserDetail(UserDTO userDTO) {
+	public static UserDetail toPublicUserDetail(UserDTO userDTO, Map<String, String> domainKeyValue) {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setEmail(userDTO.getEmail());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
 				: (userDetails.getInitials() == null ? null
 						: "https://i0.wp.com/cdn.auth0.com/avatars/" + userDetails.getInitials().toLowerCase()
 								+ ".png?ssl=1"));
-		String title = userDTO.getTitle() == null ? "" : userDTO.getTitle() + " ";
+		String title = userDTO.getTitle() == null ? ""
+				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
+						? domainKeyValue.get(userDTO.getTitle())+ " " 
+						: userDTO.getTitle() + " ";
 		if (userDTO.getName() != null) {
 			userDetails.setFullName(title + userDTO.getName());
 		} else {
@@ -75,8 +76,8 @@ public class BusinessObjectConverter {
 
 	}
 
-	public static UserDetail toUserDetail(UserDTO userDTO) {
-		if(userDTO == null) {
+	public static UserDetail toUserDetail(UserDTO userDTO, Map<String, String> domainKeyValue) {
+		if (userDTO == null) {
 			return null;
 		}
 		UserDetail userDetails = new UserDetail();
@@ -105,7 +106,10 @@ public class BusinessObjectConverter {
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
-		String title = userDTO.getTitle() == null ? "" : userDTO.getTitle() + " ";
+		String title = userDTO.getTitle() == null ? ""
+				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
+						? domainKeyValue.get(userDTO.getTitle())+ " " 
+						: userDTO.getTitle() + " ";
 		if (userDTO.getName() != null) {
 			userDetails.setFullName(title + userDTO.getName());
 		} else {
@@ -146,13 +150,13 @@ public class BusinessObjectConverter {
 		donationDetail.setAmount(donationDTO.getAmount());
 		donationDetail.setDonationStatus(donationDTO.getStatus());
 		donationDetail.setDonationType(donationDTO.getType());
-		donationDetail.setDonorDetails(toUserDetail(donationDTO.getDonor()));
+		donationDetail.setDonorDetails(toUserDetail(donationDTO.getDonor(),null));
 		donationDetail.setEndDate(donationDTO.getEndDate());
 		donationDetail.setEvent(eventDetail);
 		donationDetail.setId(donationDTO.getId());
 		donationDetail.setIsGuest(donationDTO.getGuest());
 		donationDetail.setPaidOn(donationDTO.getPaidOn());
-		donationDetail.setPaymentConfirmedBy(toUserDetail(donationDTO.getConfirmedBy()));
+		donationDetail.setPaymentConfirmedBy(toUserDetail(donationDTO.getConfirmedBy(),null));
 		donationDetail.setPaymentConfirmedOn(donationDTO.getConfirmedOn());
 		donationDetail.setPaymentMethod(donationDTO.getPaymentMethod());
 		donationDetail.setRaisedOn(donationDTO.getRaisedOn());
@@ -182,12 +186,12 @@ public class BusinessObjectConverter {
 						.toList());
 		request.setCreatedOn(workflow.getCreatedOn());
 		request.setDelegated(workflow.isDelegated());
-		request.setDelegatedRequester(toUserDetail(workflow.getDelegatedRequester()));
+		request.setDelegatedRequester(toUserDetail(workflow.getDelegatedRequester(),null));
 		request.setDescription(workflow.getDescription());
 		request.setId(workflow.getId());
 		request.setName(workflow.getWorkflowName());
 		request.setRemarks(workflow.getRemarks());
-		request.setRequester(toUserDetail(workflow.getRequester()));
+		request.setRequester(toUserDetail(workflow.getRequester(),null));
 		request.setResolvedOn(workflow.getResolvedOn());
 		request.setStatus(workflow.getStatus());
 		request.setType(workflow.getType());
@@ -227,7 +231,7 @@ public class BusinessObjectConverter {
 			phone.setPhoneType(m.getPhoneType());
 			phone.setPhoneCode(m.getPhoneCode());
 			phone.setPhoneNumber(m.getPhoneNumber());
-			phone.setDisplayNumber(m.getPhoneCode() + " " + m.getPhoneNumber() + " (" + phone.getPhoneType() + ")");
+			phone.setDisplayNumber(m.getPhoneCode() + " " + m.getPhoneNumber());
 			phone.setId(m.getId());
 			// phone.setDelete(m.isDelete());
 			return phone;
@@ -266,17 +270,17 @@ public class BusinessObjectConverter {
 	public static NoticeDetail toNoticeDetail(NoticeDTO noticeDTO) {
 		NoticeDetail noticeDetail = new NoticeDetail();
 
-		noticeDetail.setCreator(toUserDetail(noticeDTO.getCreatedBy()));
+		noticeDetail.setCreator(toUserDetail(noticeDTO.getCreatedBy(),null));
 		noticeDetail.setCreatorRoleCode(noticeDTO.getCreatorRole());
 		noticeDetail.setDescription(noticeDTO.getDescription());
 		noticeDetail.setId(noticeDTO.getId());
-		//noticeDetail.setMeeting(noticeDTO.getMeeting());
+		// noticeDetail.setMeeting(noticeDTO.getMeeting());
 		noticeDetail.setNoticeDate(noticeDTO.getNoticeDate());
 		// noticeDetail.setNoticeNumber(noticeDTO.getNoticeNumber());
 		noticeDetail.setPublishDate(noticeDTO.getPublishDate());
 		noticeDetail.setTitle(noticeDTO.getTitle());
 		noticeDetail.setHasMeeting(noticeDTO.getNeedMeeting());
-		if(noticeDTO.getMeeting() != null) {
+		if (noticeDTO.getMeeting() != null) {
 			noticeDetail.setMeeting(toMeetingDetail(noticeDTO.getMeeting()));
 		}
 		noticeDetail.setNoticeStatus(noticeDTO.getStatus());
@@ -290,7 +294,7 @@ public class BusinessObjectConverter {
 		meetingDetail.setExtVideoConferenceLink(meetingDTO.getVideoMeetingLink());
 		meetingDetail.setId(meetingDTO.getId());
 		meetingDetail.setMeetingAttendees(meetingDTO.getAttendees() == null ? List.of()
-				: meetingDTO.getAttendees().stream().map(m -> toUserDetail(m)).toList());
+				: meetingDTO.getAttendees().stream().map(m -> toUserDetail(m,null)).toList());
 		meetingDetail.setMeetingDescription(meetingDTO.getDescription());
 //		meetingDetail.setMeetingDiscussions(meetingDTO.getDiscussions() == null ? List.of()
 //				: meetingDTO.getDiscussions().stream()
@@ -324,8 +328,8 @@ public class BusinessObjectConverter {
 			return kv;
 		}).toList();
 	}
-	
-	public static List<KeyValue> toKeyValueList(List<KeyValuePair> keyValPair,String attrKey) {
+
+	public static List<KeyValue> toKeyValueList(List<KeyValuePair> keyValPair, String attrKey) {
 		return keyValPair == null ? List.of() : keyValPair.stream().map(m -> {
 			KeyValue kv = new KeyValue();
 			kv.setKey(m.getKey());
@@ -337,7 +341,7 @@ public class BusinessObjectConverter {
 	public static AccountDetail toAccountDetail(AccountDTO accountDTO) {
 		AccountDetail accountDetail = new AccountDetail();
 		if (accountDTO.getProfile() != null) {
-			accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile()));
+			accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile(),null));
 		}
 		accountDetail.setAccountHolderName(accountDTO.getAccountName());
 		accountDetail.setAccountStatus(accountDTO.getAccountStatus());
@@ -374,7 +378,8 @@ public class BusinessObjectConverter {
 		return upiDetail;
 	}
 
-	public static TransactionDetail toTransactionDetail(TransactionDTO transactionDTO, boolean includeFull,String accountId) {
+	public static TransactionDetail toTransactionDetail(TransactionDTO transactionDTO, boolean includeFull,
+			String accountId) {
 		TransactionDetail txnDetail = new TransactionDetail();
 
 		txnDetail.setTxnAmount(transactionDTO.getTxnAmount());
@@ -387,12 +392,13 @@ public class BusinessObjectConverter {
 
 		if (transactionDTO.getTxnType() == TransactionType.IN) {
 			txnDetail.setAccBalance(transactionDTO.getToAccBalAfterTxn());
-			txnDetail.setTxnParticulars(accountId == null ? null :"Credit");
+			txnDetail.setTxnParticulars(accountId == null ? null : "Credit");
 		} else if (transactionDTO.getTxnType() == TransactionType.OUT) {
 			txnDetail.setAccBalance(transactionDTO.getFromAccBalAfterTxn());
-			txnDetail.setTxnParticulars(accountId == null ? null :"Debit");
+			txnDetail.setTxnParticulars(accountId == null ? null : "Debit");
 		} else {
-			txnDetail.setTxnParticulars(accountId == null ? null : (transactionDTO.getToAccount().getId().equals(accountId) ? "Credit":"Debit"));
+			txnDetail.setTxnParticulars(accountId == null ? null
+					: (transactionDTO.getToAccount().getId().equals(accountId) ? "Credit" : "Debit"));
 			Double balance = transactionDTO.getToAccount().getId().equals(accountId)
 					? transactionDTO.getToAccBalAfterTxn()
 					: transactionDTO.getFromAccBalAfterTxn();
@@ -423,7 +429,7 @@ public class BusinessObjectConverter {
 		wiDetail.setWorkflowId(workitemDTO.getWorkflowId());
 		wiDetail.setWorkflowStatus(workitemDTO.getWorkflowStatus());
 		if (workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
-			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker()));
+			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker(),null));
 		} else {
 			wiDetail.setPendingWithRoles(workitemDTO.getPendingWithRoles());
 		}

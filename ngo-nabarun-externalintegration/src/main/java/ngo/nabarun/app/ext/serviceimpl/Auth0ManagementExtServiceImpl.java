@@ -17,7 +17,7 @@ import com.auth0.json.mgmt.tickets.PasswordChangeTicket;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.TokenRequest;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectConverter;
 import ngo.nabarun.app.ext.helpers.ThirdPartySystem;
@@ -30,7 +30,7 @@ import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService {
 
 	@Autowired 
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 	private static ManagementAPI managementAPI;
 	private static TokenHolder tokenHolder;

@@ -1,4 +1,4 @@
-package ngo.nabarun.app.api.config;
+package ngo.nabarun.app.api.helper;
 
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;

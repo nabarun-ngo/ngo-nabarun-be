@@ -9,14 +9,14 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 
 
 @Configuration
 public class FirebaseConfig {
 	
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 	
 	@Bean("firebaseApp")
     FirebaseApp createFireBaseApp() {

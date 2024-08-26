@@ -37,4 +37,6 @@ public interface ICommonBL {
 
 	void manageNotification(String action, Map<String, Object> payload) throws Exception;
 
+	Map<String, String> generateApiKey(List<String> scopes);
+
 }

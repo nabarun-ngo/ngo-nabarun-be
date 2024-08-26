@@ -5,12 +5,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
@@ -27,13 +26,16 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 
 	@Autowired
 	private UserDO userDO;
+	
+	@Autowired
+	private BusinessDomainHelper domainHelper;
 
 	@Override
 	public UserDetail getAuthUserFullDetails() throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
 		UserDTO user= userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, true,true);
-		return BusinessObjectConverter.toUserDetail(user);
+		return BusinessObjectConverter.toUserDetail(user,domainHelper.getDomainKeyValues());
 	}
 
 	@Override
@@ -81,7 +83,7 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 		}
 		
 		UserDTO updatedUser=userDO.updateUserDetail(userDTO.getProfileId(), updatedUserDetails, updatePicture);
-		return BusinessObjectConverter.toUserDetail(updatedUser);
+		return BusinessObjectConverter.toUserDetail(updatedUser,domainHelper.getDomainKeyValues());
 
 	}
 
@@ -89,40 +91,31 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 	public UserDetail getUserDetails(String id, IdType idType, boolean includeAuthDetails, boolean includeRole)
 			throws Exception {
 		UserDTO user= userDO.retrieveUserDetail(id, idType, includeAuthDetails, includeRole);
-		return BusinessObjectConverter.toUserDetail(user);
+		return BusinessObjectConverter.toUserDetail(user,domainHelper.getDomainKeyValues());
 
 	}
 
 	@Override
 	public Paginate<UserDetail> getAllUser(Integer page, Integer size, UserDetailFilter userDetailFilter) throws Exception {
-		return userDO.retrieveAllUsers(page, size, userDetailFilter).map(BusinessObjectConverter::toUserDetail);
-	}
-
-	@Override
-	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
-		/**
-		 * Validations
-		 */
-		if (CollectionUtils.isEmpty(roleCodes)) {
-			throw new Exception("Collection cannot be empty");
-		}
-		userDO.assignRolesToUser(id, roleCodes);
+		return userDO.retrieveAllUsers(page, size, userDetailFilter).map(m->{
+			try {
+				return BusinessObjectConverter.toUserDetail(m,domainHelper.getDomainKeyValues());
+			} catch (Exception e) {
+				e.printStackTrace();
+				return BusinessObjectConverter.toUserDetail(m,null);
+			}
+		});
 	}
 
 	@Override
 	public void allocateUsersToRole(RoleCode roleCode, List<UserDetail> users) throws Exception {
 		userDO.assignUsersToRole(roleCode, users.stream().map(m->m.getUserId()).collect(Collectors.toList()));
-
-	}
-	
-	@Override
-	public void initiatePasswordChange(String appClientId) throws Exception {
-		
 	}
 
 	@Override
-	public void initiateEmailChange(String email) throws Exception {
-		userDO.syncUsers();
+	public UserDetail updateUserDetail(String id, UserDetail detail) throws Exception {
+		UserDTO userDTO=userDO.updateUserDetailAdmin(id, detail);
+		return BusinessObjectConverter.toUserDetail(userDTO,null);
 	}
 
 }

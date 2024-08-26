@@ -106,6 +106,7 @@ public class BusinessDomainHelper {
 		return getDomainKeyValues().get(key);
 	}
 
+	@NoLogging
 	public Map<String, String> getDomainKeyValues() throws Exception {
 		if (domainKeyValue.isEmpty()) {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();

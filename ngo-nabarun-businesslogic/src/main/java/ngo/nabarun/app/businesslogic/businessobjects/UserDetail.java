@@ -2,12 +2,11 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 
 @Data
@@ -85,6 +84,9 @@ public class UserDetail {
 	private ProfileStatus status;
 	
 	private Boolean presentAndPermanentAddressSame;
+	
+	@JsonProperty("attributes")
+	private Map<String,String> attributes;
 
 	
 }

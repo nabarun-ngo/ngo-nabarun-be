@@ -20,11 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.common.annotation.NoLogging;
+import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.exception.NotFoundException;
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
@@ -36,11 +37,13 @@ import ngo.nabarun.app.ext.service.IEmailExtService;
 import ngo.nabarun.app.ext.service.IFileStorageExtService;
 import ngo.nabarun.app.ext.service.IMessageExtService;
 import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
+import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
+import ngo.nabarun.app.infra.core.repo.ApiKeyRepository;
 import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
@@ -57,6 +60,7 @@ import ngo.nabarun.app.infra.misc.ConfigTemplate;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
+import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
@@ -64,11 +68,12 @@ import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.ILogInfraService;
 import ngo.nabarun.app.infra.service.ISequenceInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
+import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 
 @Service
 public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInfraService, IDocumentInfraService,
-		IHistoryInfraService, ICorrespondenceInfraService, IGlobalDataInfraService,ILogInfraService {
+		IHistoryInfraService, ICorrespondenceInfraService, IGlobalDataInfraService,ILogInfraService,IApiKeyInfraService {
 
 	@Autowired
 	private DBSequenceRepository dbSeqRepository;
@@ -78,6 +83,9 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	
 	@Autowired
 	private LogsRepository logsRepo;
+	
+	@Autowired
+	private ApiKeyRepository apiKeyRepo;
 
 	@Autowired
 	private IFileStorageExtService fileStorageService;
@@ -92,7 +100,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	private IEmailExtService emailExtService;
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 	@Autowired
 	private IRemoteConfigExtService remoteConfigService;
@@ -501,6 +509,34 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		logsEntity=logsRepo.save(logsEntity);
 		return InfraDTOHelper.convertToLogsDTO(logsEntity);
 	}
+
+	@Override
+	public ApiKeyDTO createApiKey(ApiKeyDTO apiKeyDTO) {
+		ApiKeyEntity apiKeyEntity = new ApiKeyEntity();
+		apiKeyEntity.setApiKey("N."+UUID.randomUUID().toString()+"."+UUID.randomUUID().toString());
+		apiKeyEntity.setCreatedOn(CommonUtils.getSystemDate());
+		apiKeyEntity.setExpireable(apiKeyDTO.isExpireable());
+		apiKeyEntity.setExpireOn(apiKeyDTO.getExpiryDate());
+		apiKeyEntity.setId(UUID.randomUUID().toString());
+		apiKeyEntity.setScopes(InfraFieldHelper.stringListToString(apiKeyDTO.getScopes()));
+		apiKeyEntity.setStatus(apiKeyDTO.getStatus() == null ? null : apiKeyDTO.getStatus().name());
+		apiKeyEntity=apiKeyRepo.save(apiKeyEntity);
+		return InfraDTOHelper.convertToApiKeyDTO(apiKeyEntity);
+	}
+
+	@Override
+	public ApiKeyDTO getApiKeyDetail(String apiKey) {
+		ApiKeyEntity apiKeyEntity=apiKeyRepo.findByApiKey(apiKey).orElseThrow();
+		return InfraDTOHelper.convertToApiKeyDTO(apiKeyEntity);
+	}
+
+	@Override
+	public List<ApiKeyDTO> getApiKeys(ApiKeyStatus status) {
+		List<ApiKeyEntity> apikeys=apiKeyRepo.findByStatus(status.name());
+		return apikeys.stream().map(InfraDTOHelper::convertToApiKeyDTO).collect(Collectors.toList());
+	}
+
+	
 
 	
 

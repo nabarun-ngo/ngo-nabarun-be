@@ -1,9 +1,6 @@
 package ngo.nabarun.app.businesslogic.domain;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +11,7 @@ import org.springframework.stereotype.Component;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.UserRole;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -66,7 +64,7 @@ public class UserDO extends CommonDO {
 			userDTOFilter.setStatus(userDetailFilter.getStatus());
 			userDTOFilter.setRoles(userDetailFilter.getRoles());
 		}
-		if (userDetailFilter.isUserByRole()){
+		if (userDetailFilter.isUserByRole()) {
 			List<UserDTO> users = userInfraService.getUsersByRole(userDetailFilter.getRoles());
 			return new Paginate<UserDTO>(page, size, users.size(), users);
 		}
@@ -169,6 +167,8 @@ public class UserDO extends CommonDO {
 		updatedUserDTO.setGender(updatedUserDetails.getGender());
 		updatedUserDTO.setDateOfBirth(updatedUserDetails.getDateOfBirth());
 		updatedUserDTO.setAbout(updatedUserDetails.getAbout());
+		updatedUserDTO.setGender(updatedUserDetails.getGender());
+		updatedUserDTO.setEmail(updatedUserDetails.getEmail());/*****/
 
 		updatedUserDTO.setAddresses(updatedUserDetails.getAddresses() == null ? List.of()
 				: updatedUserDetails.getAddresses().stream().map(BusinessObjectConverter::toAddressDTO)
@@ -200,6 +200,23 @@ public class UserDO extends CommonDO {
 		userDTO = userInfraService.updateUser(id, updatedUserDTO);
 		return userDTO;
 	}
+	
+	/**
+	 * Updating admin attributes
+	 */
+	public UserDTO updateUserDetailAdmin(String id, UserDetail updatedUserDetails)
+			throws Exception {
+		UserDTO updatedUserDTO = new UserDTO();
+		updatedUserDTO.setStatus(updatedUserDetails.getStatus());
+		
+		List<UserRole> rolesToUpdate=updatedUserDetails.getRoles();
+		if(rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
+			List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(rolesToUpdate.stream().map(m->m.getRoleCode()).collect(Collectors.toList()));
+			userInfraService.updateUserRoles(id, roles);
+		}
+		UserDTO userDTO = userInfraService.updateUser(id, updatedUserDTO);
+		return userDTO;
+	}
 
 	/**
 	 * 
@@ -213,49 +230,36 @@ public class UserDO extends CommonDO {
 		return passwordPolicy;
 	}
 
-	/**
-	 * 
-	 * @param id
-	 * @param roleCodes
-	 * @throws Exception
-	 */
-	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
-		List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(roleCodes);
-		userInfraService.updateUserRoles(id, roles);
-	}
-	
+
 	public void assignUsersToRole(RoleCode roleCode, List<String> usersIds) throws Exception {
-
-		//if(!usersIds.isEmpty()) {
-			RoleDTO roleDTO= businessDomainHelper.convertToRoleDTO(roleCode);
-			userInfraService.assignUsersToRole(roleDTO, usersIds);
-		//}
+		RoleDTO roleDTO = businessDomainHelper.convertToRoleDTO(roleCode);
+		userInfraService.assignUsersToRole(roleDTO, usersIds);
 	}
 
 	/**
 	 * 
 	 * @throws Exception
 	 */
-	public void syncUsers() throws Exception {
+	public void syncUserDetail() throws Exception {
 		for (UserDTO userDTO : userInfraService.getAuthUsers()) {
 			try {
 				System.err.println(userDTO);
-				UserDTOFilter filter= new UserDTOFilter();
+				UserDTOFilter filter = new UserDTOFilter();
 				filter.setEmail(userDTO.getEmail());
-				List<UserDTO> users=userInfraService.getUsers(null, null, filter).getContent();
+				List<UserDTO> users = userInfraService.getUsers(null, null, filter).getContent();
 				System.err.println(users);
 
 				if (!users.isEmpty()) {
 					userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
-					
+
 				} else {
 					userInfraService.createUser(userDTO);
 				}
-			}catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-		//	Thread.sleep(2000);
+
+			// Thread.sleep(2000);
 		}
 	}
 
@@ -263,7 +267,5 @@ public class UserDO extends CommonDO {
 		List<UserDTO> users = userInfraService.getUsersByRole(codes);
 		return users;
 	}
-
-	
 
 }

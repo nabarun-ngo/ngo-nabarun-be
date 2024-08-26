@@ -17,7 +17,7 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.WorkFlowAction;
 import ngo.nabarun.app.common.enums.WorkflowType;
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
@@ -31,7 +31,7 @@ public class BaseBLImpl {
 	protected BusinessDomainHelper businessHelper;
 
 	@Autowired
-	protected GenericPropertyHelper propertyHelper;
+	protected PropertyHelper propertyHelper;
 	
 	@Autowired
 	protected UserDO userDO;

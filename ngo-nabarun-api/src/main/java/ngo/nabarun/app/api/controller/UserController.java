@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IUserBL;
-import ngo.nabarun.app.businesslogic.businessobjects.EmailOrPasswordUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.RoleCode;
@@ -75,12 +74,12 @@ public class UserController {
 	}
 	
 	
-	@PostMapping("/assignRolesToUsers/{id}")
-	public ResponseEntity<SuccessResponse<Void>> assignRolesToUsers(
+	@PostMapping("/updateUserDetails/{id}")
+	public ResponseEntity<SuccessResponse<UserDetail>> updateUserDetails(
 			@PathVariable String id,
-			@RequestBody List<RoleCode> roleCodes) throws Exception {
-		userBL.assignRolesToUser(id, roleCodes);
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
+			@RequestBody UserDetail detail) throws Exception {
+		UserDetail user=userBL.updateUserDetail(id, detail);
+		return new SuccessResponse<UserDetail>().payload(user).get(HttpStatus.OK);
 	}
 
 	@PostMapping("/assignUsersToRoles/{id}")
@@ -91,17 +90,6 @@ public class UserController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	
-	@PostMapping("/initiatePasswordChange")
-	public ResponseEntity<SuccessResponse<Void>> initiatePasswordChange(@RequestBody EmailOrPasswordUpdate request) throws Exception {
-		userBL.initiatePasswordChange(request.getAppClientId());
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
-	}
 	
-
-	@PostMapping("/changeEmail")
-	public ResponseEntity<SuccessResponse<Void>> changeEmail(@RequestBody EmailOrPasswordUpdate requestBody) throws Exception {
-		userBL.initiateEmailChange(null);
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
-	}
 
 }

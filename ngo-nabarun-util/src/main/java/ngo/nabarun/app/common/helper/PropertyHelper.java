@@ -13,7 +13,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 
 @Configuration
 @Getter
-public class GenericPropertyHelper {
+public class PropertyHelper {
 	
 	@Getter(AccessLevel.NONE)
 	@Autowired

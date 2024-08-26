@@ -9,7 +9,7 @@ import javax.crypto.spec.IvParameterSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.CryptUtil;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
@@ -24,7 +24,7 @@ public class BaseServiceImpl {
 	private CustomFieldRepository fieldRepository;
 	
 	@Autowired
-	protected GenericPropertyHelper propertyHelper;
+	protected PropertyHelper propertyHelper;
 	
 	protected FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
 		CustomFieldEntity existingField = fieldRepository.findBySourceAndFieldKey(fieldDTO.getFieldSource(), fieldDTO.getFieldKey().name()).orElseGet(()->new CustomFieldEntity());

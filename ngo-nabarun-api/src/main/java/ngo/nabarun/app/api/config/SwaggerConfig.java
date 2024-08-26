@@ -35,7 +35,7 @@ public class SwaggerConfig {
 		return (Operation operation, HandlerMethod handlerMethod) -> {
 
 			Parameter corelationIdHeader = new Parameter().in(ParameterIn.HEADER.toString()).schema(new StringSchema())
-					.name(FilterConfig.CORRELATION_ID).required(false);
+					.name(RequestFilterConfig.CORRELATION_ID).required(false);
 			operation.addParametersItem(corelationIdHeader);
 			return operation;
 		};

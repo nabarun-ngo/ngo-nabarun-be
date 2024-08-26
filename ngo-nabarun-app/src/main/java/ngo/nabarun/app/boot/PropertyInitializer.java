@@ -21,7 +21,7 @@ import ngo.nabarun.app.prop.PropertySource;
 public class PropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
 	private static final String PROPERTY_SOURCE_NAME = "databaseProperties";
-	private static final String COLLECTION_DB_CONFIG = "db_config_";
+//	private static final String COLLECTION_DB_CONFIG = "db_config_";
 	private static final String DOPPLER_PROJECT_NAME = "DOPPLER_PROJECT_NAME";
 	private static final String DOPPLER_SERVICE_TOKEN = "DOPPLER_SERVICE_TOKEN";
 	private static final String ENVIRONMENT = "ENVIRONMENT";
@@ -68,17 +68,17 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 	}
 
 
-	@SuppressWarnings("unused")
-	private Map<String,Object> loadFromDB() throws Exception{
-		String appSecret=System.getProperty("APP_SECRET");
-		String connURL=System.getProperty("APP_CONFIGDB_URL");
-		String env = System.getProperty("ENVIRONMENT");
-		
-		Assert.notNull(appSecret, "APP_SECRET must be set as argument");
-		Assert.notNull(connURL, "APP_CONFIGDB_URL must be set as argument");
-		Assert.notNull(env, "ENVIRONMENT must be set as argument");
-
-		PropertySource conn=PropertyFactory.connectMongo(connURL,COLLECTION_DB_CONFIG+env);
-		return conn.loadProperties(appSecret);
-	}
+//	@SuppressWarnings("unused")
+//	private Map<String,Object> loadFromDB() throws Exception{
+//		String appSecret=System.getProperty("APP_SECRET");
+//		String connURL=System.getProperty("APP_CONFIGDB_URL");
+//		String env = System.getProperty("ENVIRONMENT");
+//		
+//		Assert.notNull(appSecret, "APP_SECRET must be set as argument");
+//		Assert.notNull(connURL, "APP_CONFIGDB_URL must be set as argument");
+//		Assert.notNull(env, "ENVIRONMENT must be set as argument");
+//
+//		PropertySource conn=PropertyFactory.connectMongo(connURL,COLLECTION_DB_CONFIG+env);
+//		return conn.loadProperties(appSecret);
+//	}
 }

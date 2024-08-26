@@ -315,6 +315,10 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			updateAuthUser.setFullName(userDTO.getName() == null ? userDTO.getFirstName() + " " + profile.getLastName()
 					: userDTO.getName());
 		}
+		
+		/**
+		 * updating email and email verified
+		 */
 		boolean isEmailVerifiedUpdated = false;
 		if (userDTO.getAdditionalDetails() != null && userDTO.getAdditionalDetails().getEmailVerified() != null) {
 			updateAuthUser.setEmailVerified(
@@ -350,14 +354,19 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		if (userDTO.getFirstName() != null || userDTO.getLastName() != null || userDTO.getEmail() != null
 				|| userDTO.getStatus() != null || isEmailVerifiedUpdated || userDTO.getProfileId() != null) {
 			if (userDTO.getStatus() != null) {
-				updateAuthUser.setInactive(!ProfileStatus.ACTIVE.name().equalsIgnoreCase(profile.getStatus()));
+				updateAuthUser.setInactive(ProfileStatus.ACTIVE != userDTO.getStatus());
+				updateAuthUser.setBlocked(userDTO.getStatus() == ProfileStatus.BLOCKED);
 			}
 			updateAuthUser.setProfileId(profile.getId());
 			updateAuthUser = authManagementService.updateUser(profile.getUserId(), updateAuthUser);
 		}
+		//boolean isPasswordUpdated= false;
+		
 		profile = profileRepository.save(profile);
 		return InfraDTOHelper.convertToUserDTO(profile, updateAuthUser);
 	}
+	
+	//changePassword(String )
 
 	@Override
 	public void deleteUser(String profileId) throws Exception {
@@ -402,12 +411,6 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		UserProfileEntity profile = profileRepository.findById(profileId).orElseThrow();
 		List<String> currentRoles = InfraFieldHelper.stringToStringList(profile.getRoleCodes());
 		List<String> newRoles = roles.stream().map(m -> m.getCode().name()).toList();
-
-//		List<String> rolesToRemove = currentRoles.stream().filter(f -> !newRoles.contains(f)).map(m -> getRoleId(m))
-//				.toList();
-//		List<String> rolesToAdd = currentRoles.stream().filter(f -> newRoles.contains(f)).map(m -> getRoleId(m))
-//				.toList();
-		
 		Set<String> rolesToRemove=new HashSet<>(currentRoles);
 		rolesToRemove.removeAll(new HashSet<>(newRoles));
 		

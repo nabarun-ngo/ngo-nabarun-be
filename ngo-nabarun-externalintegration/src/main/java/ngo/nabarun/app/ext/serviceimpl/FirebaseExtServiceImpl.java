@@ -37,7 +37,7 @@ import com.google.firebase.remoteconfig.ParameterValueType;
 import com.google.firebase.remoteconfig.Template;
 import com.google.gson.Gson;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
 import ngo.nabarun.app.ext.helpers.ObjectFilter.Operator;
@@ -55,7 +55,7 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 	private static final String FIREBASE_DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media&token=%s";
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 	@Override
 	public String uploadFile(String fileName, MultipartFile multipartFile) throws ThirdPartyException {

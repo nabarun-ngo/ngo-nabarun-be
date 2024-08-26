@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +19,7 @@ import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
+import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
@@ -27,12 +27,14 @@ import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
+import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
+import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.ISequenceInfraService;
@@ -55,6 +57,9 @@ public class CommonDO {
 	
 	@Autowired
 	private IDocumentInfraService docInfraService;
+	
+	@Autowired
+	private IApiKeyInfraService apiKeyInfraService;
 	
 	/**
 	 * Generate sequential human readable number for notice
@@ -215,12 +220,12 @@ public class CommonDO {
 		}
 	}
 	
-	@Async
+	
 	public void sendEmail(String templateName,List<CorrespondentDTO> recipients, Map<String,Object> objectMap) throws Exception {
 		sendEmail(null,templateName,recipients, objectMap);
 	}
 	
-	@Async
+	
 	public void sendEmail(String senderName,String templateName,List<CorrespondentDTO> recipients, Map<String,Object> objectMap) throws Exception {
 		EmailTemplateDTO template=businessDomainHelper.findInterpolateAndConvertToEmailTemplateDTO(templateName, objectMap);
 		correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template,null);
@@ -232,7 +237,7 @@ public class CommonDO {
 		return new Paginate<>(page);
 	}
 	
-	@Async
+	
 	public void sendNotification(NotificationDTO template,List<UserDTO> recipients) throws Exception {
 		List<UserDTO> target = recipients.stream().filter(f->f.getUserId() != null).collect(Collectors.toList());
 		template.setItemClosed(false);
@@ -241,7 +246,7 @@ public class CommonDO {
 		correspondenceInfraService.createAndSendNotification(template);
 	}
 	
-	@Async
+	
 	public void sendNotification(String templateName,Map<String,Object> objectMap,List<UserDTO> recipients) throws Exception {
 		NotificationDTO template=businessDomainHelper.findInterpolateAndConvertToNotificationDTO(templateName, objectMap);
 		sendNotification(template,recipients);
@@ -255,10 +260,12 @@ public class CommonDO {
 		correspondenceInfraService.deleteNotificationTargetToken(userId,token);
 	}
 	
+	
 	public void uploadDocument(DocumentDetailUpload file,String docIndexId, DocumentIndexType docIndexType) throws Exception {
 		byte[] content = file.getContent() == null ?  Base64.decodeBase64(file.getBase64Content()) : file.getContent();
 		docInfraService.uploadDocument(file.getOriginalFileName(),file.getContentType(), docIndexId, docIndexType,content);	
 	}
+	
 	
 	public void uploadDocument(MultipartFile file,String docIndexId, DocumentIndexType docIndexType) throws Exception {
 		docInfraService.uploadDocument(file, docIndexId, docIndexType);	
@@ -269,8 +276,18 @@ public class CommonDO {
 		return docInfraService.getTempDocumentUrl(docId,Integer.parseInt(docLinkValidity),TimeUnit.SECONDS);
 	}
 
+	
 	public boolean deleteDocument(String docId) throws Exception {
 		return docInfraService.hardDeleteDocument(docId);
+	}
+	
+	public Map<String,String> generateAPIKey(List<String> scopes){
+		ApiKeyDTO apikeyDTO= new ApiKeyDTO();
+		apikeyDTO.setExpireable(false);
+		apikeyDTO.setScopes(scopes);
+		apikeyDTO.setStatus(ApiKeyStatus.ACTIVE);
+		apikeyDTO=apiKeyInfraService.createApiKey(apikeyDTO);
+		return Map.of("id",apikeyDTO.getId(),"apiKey",apikeyDTO.getApiKey());
 	}
 
 }

@@ -21,12 +21,13 @@ import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
+import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.IdType;
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.DonationDTO;
@@ -43,7 +44,10 @@ public class DonationBLImpl implements IDonationBL {
 	private UserDO userDO;
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
+	
+	@Autowired
+	private BusinessDomainHelper domainHelper;
 
 	@Override
 	public DonationDetail raiseDonation(DonationDetail donationDetail) throws Exception {
@@ -80,7 +84,7 @@ public class DonationBLImpl implements IDonationBL {
 					&& !donationDO.checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
 
 				DonationDetail donationDetail = new DonationDetail();
-				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user));
+				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,domainHelper.getDomainKeyValues()));
 				donationDetail.setEndDate(endDate);
 				donationDetail.setIsGuest(false);
 				donationDetail.setStartDate(startDate);

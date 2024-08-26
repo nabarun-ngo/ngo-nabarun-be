@@ -1,7 +1,6 @@
-package ngo.nabarun.app.api.config;
+package ngo.nabarun.app.businesslogic.helper;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
@@ -10,17 +9,11 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.util.CommonUtils;
-import ngo.nabarun.app.infra.dto.LogsDTO;
-import ngo.nabarun.app.infra.service.ILogInfraService;
 
 @Profile("!prod")
 @Aspect
@@ -59,9 +52,6 @@ public class LoggingAspect {
 	 */
 	@AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "e")
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-//		if(log.isDebugEnabled()) {
-//			e.printStackTrace();
-//		}
 		log.error("Exception in {}.{}() with cause = {} Stacktrace : {}", joinPoint.getSignature().getDeclaringTypeName(),
 				joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL",ExceptionUtils.getStackTrace(e));
 		

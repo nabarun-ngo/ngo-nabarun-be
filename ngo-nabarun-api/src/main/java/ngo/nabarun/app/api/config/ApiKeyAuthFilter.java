@@ -1,13 +1,10 @@
-package ngo.nabarun.app.security.apikey;
+package ngo.nabarun.app.api.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class ApiKeyAuthFilter extends AbstractPreAuthenticatedProcessingFilter {
-    private static final Logger LOG = LoggerFactory.getLogger(ApiKeyAuthFilter.class);
 
     private final String headerName;
 
@@ -22,11 +19,7 @@ public class ApiKeyAuthFilter extends AbstractPreAuthenticatedProcessingFilter {
 
     @Override
     protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-        // No creds when using API key
-        return request;
+        return request.getRequestURI();
     }
-    
-    
-    
     
 }

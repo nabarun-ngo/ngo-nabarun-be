@@ -14,6 +14,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>ngo.nabarun.app</groupId>
+			<artifactId>ngo-nabarun-config</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>ngo.nabarun.app</groupId>
 			<artifactId>ngo-nabarun-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
@@ -22,11 +27,7 @@
 			<artifactId>ngo-nabarun-web</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>ngo.nabarun.app</groupId>
-			<artifactId>ngo-nabarun-security</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+		<!-- platform deps-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -35,11 +36,6 @@
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>ngo.nabarun.app</groupId>
-			<artifactId>ngo-nabarun-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

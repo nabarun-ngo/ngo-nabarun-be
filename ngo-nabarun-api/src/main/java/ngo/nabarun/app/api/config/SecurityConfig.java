@@ -1,11 +1,10 @@
-package ngo.nabarun.app.security.config;
+package ngo.nabarun.app.api.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -14,45 +13,26 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
-import ngo.nabarun.app.security.apikey.ApiKeyAuthFilter;
-import ngo.nabarun.app.security.apikey.ApiKeyAuthManager;
+import ngo.nabarun.app.common.helper.PropertyHelper;
+import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-//import net.skobow.auth.apikey.autoconfigure.EnableApiKeyAuthentication;
 
 import org.springframework.security.oauth2.jwt.*;
 
-@EnableWebSecurity
-//@EnableApiKeyAuthentication
+
 @Configuration
 public class SecurityConfig {
-
-//	@Bean
-//	SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
-//		/*
-//		 * This is where we configure the security required for our endpoints and setup
-//		 * our app to serve as an OAuth2 Resource Server, using JWT validation.
-//		 */
-//		http.csrf(csrf -> csrf.disable()).cors(withDefaults()).authorizeHttpRequests(requests -> {
-//			System.out.println("1");
-//			requests.antMatchers("/api/**").authenticated().antMatchers("/**").permitAll()
-//			/*
-//			 * .and().mvcMatchers("/api/private-scoped").hasAuthority("SCOPE_read:messages")
-//			 * )
-//			 */
-//			;
-//
-//		}).oauth2ResourceServer(server -> server.jwt());
-//		return http.build();
-//	}
+	
+	@Autowired
+	private IApiKeyInfraService apiKeyInfraService;
 
 	@Bean
 	@Order(1) // Order 1 for API requests
 	SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
 		ApiKeyAuthFilter filter = new ApiKeyAuthFilter("X-API-KEY");
-		filter.setAuthenticationManager(new ApiKeyAuthManager());
+		filter.setAuthenticationManager(new ApiKeyAuthManager(apiKeyInfraService));
 		return http.antMatcher("/api/**").csrf(csrf -> csrf.disable()).cors(withDefaults()).sessionManagement(session -> {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}).addFilter(filter).authorizeHttpRequests(request -> {
@@ -69,7 +49,7 @@ public class SecurityConfig {
 	}
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 	@Bean
 	JwtDecoder jwtDecoder() {
@@ -92,5 +72,27 @@ public class SecurityConfig {
 
 		return jwtDecoder;
 	}
+	
+	
+	
+	
+//	@Bean
+//	SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
+//		/*
+//		 * This is where we configure the security required for our endpoints and setup
+//		 * our app to serve as an OAuth2 Resource Server, using JWT validation.
+//		 */
+//		http.csrf(csrf -> csrf.disable()).cors(withDefaults()).authorizeHttpRequests(requests -> {
+//			System.out.println("1");
+//			requests.antMatchers("/api/**").authenticated().antMatchers("/**").permitAll()
+//			/*
+//			 * .and().mvcMatchers("/api/private-scoped").hasAuthority("SCOPE_read:messages")
+//			 * )
+//			 */
+//			;
+//
+//		}).oauth2ResourceServer(server -> server.jwt());
+//		return http.build();
+//	}
 
 }
