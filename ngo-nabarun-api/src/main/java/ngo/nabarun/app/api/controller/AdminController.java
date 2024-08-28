@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
-import ngo.nabarun.app.businesslogic.ICommonBL;
+import ngo.nabarun.app.businesslogic.IAdminBL;
 
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/api/admin")
@@ -22,12 +22,21 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 public class AdminController {
 	
 	@Autowired
-	private ICommonBL commonBL;
+	private IAdminBL adminBL;
 	
 	@PostMapping("/generateApiKey")
 	public ResponseEntity<SuccessResponse<Map<String,String>>> generateApiKey(@RequestBody List<String> scopes)
 			throws Exception {
-		return new SuccessResponse<Map<String,String>>().payload(commonBL.generateApiKey(scopes)).get(HttpStatus.OK);
+		return new SuccessResponse<Map<String,String>>().payload(adminBL.generateApiKey(scopes)).get(HttpStatus.OK);
 	}
 
+	@PostMapping("/sync")
+	public ResponseEntity<SuccessResponse<Void>> sync(@RequestBody List<String> items)
+			throws Exception {
+		if(items.contains("SYNC_AUTH0_USERS")) {
+			adminBL.syncUsers();
+		}
+		
+		return new SuccessResponse<Void>().get(HttpStatus.OK);
+	}
 }

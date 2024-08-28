@@ -159,10 +159,7 @@ public class CommonBLImpl implements ICommonBL {
 		}
 	}
 
-	@Override
-	public Map<String, String> generateApiKey(List<String> scopes) {
-		return commonDO.generateAPIKey(scopes);
-	}
+	
 
 	
 }

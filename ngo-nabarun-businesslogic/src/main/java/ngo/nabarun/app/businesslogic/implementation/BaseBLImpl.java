@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
+import ngo.nabarun.app.businesslogic.domain.CommonDO;
 import ngo.nabarun.app.businesslogic.domain.DonationDO;
 import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
@@ -38,6 +39,9 @@ public class BaseBLImpl {
 	
 	@Autowired
 	protected DonationDO donationDO;
+	
+	@Autowired
+	protected CommonDO commonDO;
 	
 	protected RequestDTO performWorkflowAction(WorkFlowAction action, RequestDTO workflow) throws Exception {
 		switch (action) {
