@@ -3,6 +3,8 @@ package ngo.nabarun.app.infra.serviceimpl;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -423,13 +425,17 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			filter.add(new ObjectFilter("read",Operator.EQUAL,filterDTO.getRead()));
 		}
 		if(filterDTO.getTargetUserId() != null) {
-			filter.add(new ObjectFilter("userId",Operator.EQUAL,filterDTO.getTargetUserId()));
+			filter.add(new ObjectFilter("targetUserIds",Operator.ARRAY_CONTAIN,filterDTO.getTargetUserId()));
 		}
 		try {
 			List<Map<String, Object>> notificationCollection = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION, index, size, filter);
 			for(Map<String, Object> notification:notificationCollection) {
 				notifications.add(new NotificationDTO(notification));
 			}
+			notifications.sort((n1,n2)->{
+				return Long.valueOf(n2.getNotificationDate().getTime()).compareTo(Long.valueOf(n1.getNotificationDate().getTime()));
+			});
+			//Collections.sort(notifications, Collections.reverseOrder());
 		} catch (ThirdPartyException e) {
 			e.printStackTrace();
 		}
@@ -438,21 +444,24 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public NotificationDTO createAndSendNotification(NotificationDTO notificationDTO) throws Exception {
+		Map<String, Object> sourceMap=notificationDTO.toSourceMap();
 		if(notificationDTO.getTarget() != null && !notificationDTO.getTarget().isEmpty()) {
 			List<String> userIds=notificationDTO.getTarget().stream().map(m-> m.getUserId()).collect(Collectors.toList());
-			System.err.println(userIds);
+			//System.err.println(userIds);
 			for(String userId:userIds) {
 				ObjectFilter filter= new ObjectFilter("userId",Operator.EQUAL,userId);
 				List<String> tokens = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter))
 						.stream().filter(f->f.get("token") != null).map(m->m.get("token").toString()).collect(Collectors.toList());
-				System.err.println(tokens);
+				//System.err.println(tokens);
 				if(!tokens.isEmpty()) {
 					List<String> messageIds=messageExtService.sendMessage(notificationDTO.getTitle(), notificationDTO.getSummary(), notificationDTO.getImage(), tokens, notificationDTO.toMap());
 					notificationDTO.toSourceMap().put("message_ids", messageIds);
 				}
 			}
+			sourceMap.put("targetUserIds", userIds);
 		}
-		Map<String, Object> data=collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION, notificationDTO.toSourceMap());
+		System.out.println(sourceMap);
+		Map<String, Object> data=collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION, sourceMap);
 		return new NotificationDTO(data);
 	}
 

@@ -198,14 +198,16 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 					} else if (filter.getOperator() == Operator.CONTAIN) {
 						documentQuery=documentQuery.whereArrayContains(filter.getKey(), filter.getValue());
 					}else if (filter.getOperator() == Operator.IN) {
-						System.out.println(filter.getKey()+"   "+ filter.getValue());
+						//System.out.println(filter.getKey()+"   "+ filter.getValue());
 						documentQuery=documentQuery.whereIn(filter.getKey(), List.of(filter.getValue()));
+					}else if (filter.getOperator() == Operator.ARRAY_CONTAIN) {
+						documentQuery=documentQuery.whereArrayContainsAny(filter.getKey(), List.of(filter.getValue()));
 					}
 				}
 			}
 
 			if (page != null && size != null) {
-				//documentQuery = documentQuery.startAt(page * size).limit(size);
+				documentQuery = documentQuery.limit(size);
 			}
 			List<QueryDocumentSnapshot> documents = documentQuery.get().get().getDocuments();
 			for (QueryDocumentSnapshot document : documents) {

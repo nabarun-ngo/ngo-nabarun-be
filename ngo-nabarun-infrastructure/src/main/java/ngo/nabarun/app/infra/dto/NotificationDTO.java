@@ -75,7 +75,7 @@ public class NotificationDTO {
 		if (summary != null) {
 			map.put("summary", this.summary);
 		}
-		map.put("read", String.valueOf(this.read));
+		map.put("read", this.read ? "Y" : "N");
 		if (type != null) {
 			map.put("type", this.type.name());
 		}
@@ -91,7 +91,7 @@ public class NotificationDTO {
 			map.put("refItemId", refItemId);
 		}
 		map.put("date", CommonUtils.getFormattedDateString(notificationDate, dateFormat));
-		map.put("open", String.valueOf(!itemClosed));
+		map.put("open", this.itemClosed ? "N" : "Y");
 		return map;
 	}
 

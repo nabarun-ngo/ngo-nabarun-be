@@ -153,8 +153,8 @@ public class CommonBLImpl implements ICommonBL {
 		case "DELETE_TOKEN":
 			commonDO.removeNotificationToken(userId,payload.get("token").toString());
 			break;
-		case "MARK_READ":
-			//commonDO.upda(null,String.valueOf(payload.get("token")));
+		case "UPDATE_NOTIFICATION":
+			commonDO.updateNotification(payload.get("id").toString(), payload);
 			break;
 		}
 	}

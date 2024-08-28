@@ -27,6 +27,7 @@ import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
+import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
@@ -232,7 +233,10 @@ public class CommonDO {
 	}
 	
 	public Paginate<Map<String, String>> getNotifications(Integer index, Integer size) {
-		Page<Map<String, String>> page = correspondenceInfraService.getNotifications(index, size, new NotificationDTOFilter())
+		NotificationDTOFilter filter=new NotificationDTOFilter();
+		filter.setTargetUserId(SecurityUtils.getAuthUserId());
+		filter.setRead(false);
+		Page<Map<String, String>> page = correspondenceInfraService.getNotifications(index, size, filter)
 				.map(m->m.toMap());
 		return new Paginate<>(page);
 	}
@@ -259,7 +263,9 @@ public class CommonDO {
 	public void removeNotificationToken(String userId, String token) throws Exception {
 		correspondenceInfraService.deleteNotificationTargetToken(userId,token);
 	}
-	
+	public void updateNotification(String id, Map<String,Object> objectMap) throws Exception {
+		correspondenceInfraService.updateNotification(id,new NotificationDTO(objectMap));
+	}
 	
 	public void uploadDocument(DocumentDetailUpload file,String docIndexId, DocumentIndexType docIndexType) throws Exception {
 		byte[] content = file.getContent() == null ?  Base64.decodeBase64(file.getBase64Content()) : file.getContent();
