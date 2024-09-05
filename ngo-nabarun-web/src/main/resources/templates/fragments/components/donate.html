@@ -86,8 +86,8 @@
 <div class="container-xxl py-5 scroll-margin" th:fragment="completePayment" id="completepayment"
 	th:if="${stage == 'MAKE_PAYMENT'}">
 	<div class="container">
-		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
-		<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:text="${successMessage}"></p>
+		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:utext="${errorMessage}"></div>
+		<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 
 		<div class="row">
 			<div class="col-12 mt-4">
@@ -215,14 +215,14 @@
 												</div>
 
 											</div>
-											<div class="mt-1 mb-2">
+											<!--<div class="mt-1 mb-2">
 												<div class="form-floating">
 													<input type="file" class="form-control" id="file"
 														th:field="*{files}" multiple> <label for="file">Please select
 														any
 														supporting files (prefrerably UPI screenshots)</label>
 												</div>
-											</div>
+											</div>-->
 
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'CONFIRM_PAYMENT'">
@@ -308,14 +308,14 @@
 												</div>
 											</div>
 
-											<div class="mt-1 mb-2">
+											<!--<div class="mt-1 mb-2">
 												<div class="form-floating">
 													<input type="file" class="form-control" id="file"
 														th:field="*{files}" multiple> <label for="file">Please
 														select any
 														supporting files (prefrerably transaction recipt)</label>
 												</div>
-											</div>
+											</div>-->
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'CONFIRM_PAYMENT'">
 											<input type="hidden" name="paymentMethod" id="paymentMethod"
