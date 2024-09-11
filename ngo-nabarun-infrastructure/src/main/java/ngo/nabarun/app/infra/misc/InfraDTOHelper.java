@@ -119,6 +119,7 @@ public class InfraDTOHelper {
 		uaDTO.setLastPasswordChange(user != null ? user.getLastPasswordReset() : null);
 		uaDTO.setLoginsCount(user == null ? 0 : user.getLoginsCount());
 		uaDTO.setUpdatedOn(user != null ? user.getUpdatedAt() : null);
+		uaDTO.setAttributes(user != null ? user.getAttributes() : null);
 		userDTO.setAdditionalDetails(uaDTO);
 		
 		if(profile != null) {

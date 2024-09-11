@@ -86,7 +86,7 @@ public class UserDetail {
 	private Boolean presentAndPermanentAddressSame;
 	
 	@JsonProperty("attributes")
-	private Map<String,String> attributes;
+	private Map<String,Object> attributes;
 
 	
 }

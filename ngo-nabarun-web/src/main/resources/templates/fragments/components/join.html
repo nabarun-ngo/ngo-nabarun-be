@@ -105,7 +105,7 @@
 
 <div class="container-xxl py-5 scroll-margin" th:fragment="joiningrules" id="joiningrules" th:if="${stage == '1'}">
 	<div class="container">
-		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
+		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:utext="${errorMessage}"></div>
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
 			<h1 class="display-6 mb-5">Please Read Rules And Regulations
 				Carefully</h1>
@@ -150,13 +150,13 @@
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
 			<h1 class="display-6 mb-5">Set Login details</h1>
-			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:text="${successMessage}"></p>
+			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 		</div>
 		<div class="row g-4 justify-content-center">
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
 				<div class="h-100 bg-secondary p-5">
 					<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}"
-						th:text="${errorMessage}"></div>
+						th:utext="${errorMessage}"></div>
 					<!-- <div class="alert alert-success" role="alert" th:text="'Please set your login password. Your password should contain atleast 1 uppercase'"
 						></div> -->
 					<form id="passwordForm" th:action="@{/signup}" method="post" th:object="${interview}">
@@ -213,7 +213,7 @@
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
 			<h1 class="display-6 mb-5">Verify Email and Submit</h1>
-			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:text="${successMessage}"></p>
+			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 			<form th:action="@{/signup}" method="post" th:object="${interview}">
 				<input type="hidden" name="actionName" id="actionName" th:value="'RESEND_OTP'">
 				<div class="d-flex justify-content-center m-2">
@@ -231,7 +231,7 @@
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
 				<div class="h-100 bg-secondary p-5">
 					<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}"
-						th:text="${errorMessage}"></div>
+						th:utext="${errorMessage}"></div>
 					<form id="otpForm" th:action="@{/signup}" method="post" th:object="${interview}">
 						<div class="row g-3">
 							<div class="col-12">
@@ -275,9 +275,9 @@
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
 			<h1 class="display-6 mb-5" th:text="'Thank You '+${interview.getFirstName()}"></h1>
-			<div class="alert alert-success" role="alert" th:if="${successMessage != null}" th:text="${successMessage}">
+			<div class="alert alert-success" role="alert" th:if="${successMessage != null}" th:utext="${successMessage}">
 			</div>
-			<div class="alert alert-danger" role="alert" th:if="${errorMessage != null}" th:text="${errorMessage}">
+			<div class="alert alert-danger" role="alert" th:if="${errorMessage != null}" th:utext="${errorMessage}">
 			</div>
 		</div>
 		<div class="d-flex justify-content-center m-2">

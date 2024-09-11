@@ -115,7 +115,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 					ExceptionEvent.PASSWORD_NOT_COMPLIANT);
 
 			String token = requestDO.sendOTP(name, email, mobileNo, "Sign up", null);
-			interview.setMessage("One Time Password has been sent to " + email);
+			interview.setMessage("One Time Password has been sent to <b id='id'>" + email+"</b>");
 			interview.setOtpToken(token);
 			interview.setSiteKey(propertyHelper.getGoogleRecaptchaSiteKey());
 			interview.setStage("3");
@@ -159,8 +159,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Request Submitted");
-			interview.setMessage("Thank you for your interest. Your request number is " + requestDTO.getId()
-					+ ". We will connect you very shortly.");
+			interview.setMessage("Thank you for your interest. Your request number is <b id='id'>" + requestDTO.getId()
+					+ "</b>. We will connect you very shortly.");
 		}
 		
 		return interview;

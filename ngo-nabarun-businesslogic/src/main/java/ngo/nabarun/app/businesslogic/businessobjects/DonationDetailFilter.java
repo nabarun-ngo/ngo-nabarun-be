@@ -40,4 +40,7 @@ public class DonationDetailFilter {
 	@JsonProperty("paidToAccountId")
 	private String paidToAccountId;
 	
+	@JsonProperty("donorId")
+	private String donorId;
+	
 }

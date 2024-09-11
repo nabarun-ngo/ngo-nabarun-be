@@ -62,6 +62,7 @@ public class DonationDO extends AccountDO {
 			filterDTO.setToDate(filter.getToDate());
 			filterDTO.setIsGuestDonation(filter.getIsGuest());
 			filterDTO.setPaidAccountId(filter.getPaidToAccountId());
+			filterDTO.setDonorId(filter.getDonorId());	
 		}
 		Page<DonationDTO> page = donationInfraService.getDonations(index, size, filterDTO);
 		return new Paginate<DonationDTO>(page);

@@ -1,6 +1,8 @@
 package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -16,4 +18,5 @@ public class UserAdditionalDetailsDTO {
 		private Date lastLogin;
 		private Date lastPasswordChange;
 		private int loginsCount;
+		private Map<String,Object> attributes= new HashMap<>();
 }

@@ -342,7 +342,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		updatedProfile.setStatus(userDTO.getStatus() == null ? null : userDTO.getStatus().name());
 		updatedProfile.setUserId(userDTO.getUserId() == null ? null : userDTO.getUserId());
 		updatedProfile.setAvatarUrl(userDTO.getImageUrl());
-
+		
 		fillAddressMobileSocialMedia(profile, userDTO);
 
 		CommonUtils.copyNonNullProperties(updatedProfile, profile);
@@ -360,7 +360,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 			updateAuthUser.setProfileId(profile.getId());
 			updateAuthUser = authManagementService.updateUser(profile.getUserId(), updateAuthUser);
 		}
-		//boolean isPasswordUpdated= false;
+		//boolean isPasswordUpdated = false;
 		
 		profile = profileRepository.save(profile);
 		return InfraDTOHelper.convertToUserDTO(profile, updateAuthUser);
@@ -383,22 +383,17 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		return authManagementService.createPasswordResetTicket(userId, appClientId, expireInSec);
 	}
 
-	@Deprecated
+	
 	@Override
 	public List<RoleDTO> getUserRoles(String identifier, IdType type, boolean isActiveRole) throws Exception {
-		// List<UserRoleEntity> roles = new ArrayList<>();
 		List<AuthUserRole> roles = new ArrayList<>();
 		if (isActiveRole && type == IdType.ID) {
-//			roles = isActiveRole ? roleRepository.findByProfileIdAndActiveTrue(identifier)
-//					: roleRepository.findByProfileId(identifier);
 			UserProfileEntity profile = profileRepository.findById(identifier).orElseThrow();
 			roles.addAll(authManagementService.getRoles(profile.getUserId()));
 		} else if (isActiveRole && type == IdType.EMAIL) {
 			UserProfileEntity profile = profileRepository.findByEmail(identifier).orElseThrow();
 			roles.addAll(authManagementService.getRoles(profile.getUserId()));
 		} else if (isActiveRole && type == IdType.AUTH_USER_ID) {
-//			roles = isActiveRole ? roleRepository.findByUserIdAndActiveTrue(identifier)
-//					: roleRepository.findByUserId(identifier);
 			roles.addAll(authManagementService.getRoles(identifier));
 		}
 		return roles.stream().map(m -> InfraDTOHelper.convertToRoleDTO(m)).toList();
