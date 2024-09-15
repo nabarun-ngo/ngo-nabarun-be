@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ngo.nabarun.app.businesslogic.IAccountBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.domain.AccountDO;

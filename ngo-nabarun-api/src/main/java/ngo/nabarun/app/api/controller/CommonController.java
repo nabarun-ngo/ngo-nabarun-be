@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;

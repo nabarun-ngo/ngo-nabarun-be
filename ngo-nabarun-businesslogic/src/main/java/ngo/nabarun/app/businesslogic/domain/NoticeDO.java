@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.MeetingRefType;

@@ -20,7 +20,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.domain.AccountDO;
 import ngo.nabarun.app.businesslogic.domain.RequestDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;

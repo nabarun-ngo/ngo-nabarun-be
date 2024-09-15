@@ -14,7 +14,7 @@ import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IDonationBL;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import java.util.ArrayList;

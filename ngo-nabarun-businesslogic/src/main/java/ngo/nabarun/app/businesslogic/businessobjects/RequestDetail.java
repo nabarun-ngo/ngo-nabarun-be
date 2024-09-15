@@ -24,5 +24,9 @@ public class RequestDetail {
 	private String remarks;
 
 
-	
+	@Data
+	public static class RequestDetailFilter {
+		private Boolean isDelegated;
+	}
+
 }

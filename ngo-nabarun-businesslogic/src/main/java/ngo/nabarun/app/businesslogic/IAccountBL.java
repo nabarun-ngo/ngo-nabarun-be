@@ -3,7 +3,7 @@ package ngo.nabarun.app.businesslogic;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 

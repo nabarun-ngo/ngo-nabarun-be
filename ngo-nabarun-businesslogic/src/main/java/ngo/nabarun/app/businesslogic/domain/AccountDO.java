@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;

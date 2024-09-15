@@ -14,7 +14,9 @@ import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IRequestBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail.RequestDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail.WorkDetailFilter;
 
 import java.util.List;
 
@@ -36,8 +38,8 @@ public class RequestController {
 	public ResponseEntity<SuccessResponse<Paginate<RequestDetail>>> getMyRequests(
 			@RequestParam(required = false) Integer pageIndex, 
 			@RequestParam(required = false) Integer pageSize,
-			@RequestParam(required = false) boolean delegated) throws Exception {
-		Paginate<RequestDetail> requestList=requestBL.getMyRequests(pageIndex, pageSize,delegated);
+			RequestDetailFilter filter) throws Exception {
+		Paginate<RequestDetail> requestList=requestBL.getMyRequests(pageIndex, pageSize,filter);
 		return new SuccessResponse<Paginate<RequestDetail>>()
 				.payload(requestList).get(HttpStatus.OK);
 	}
@@ -66,8 +68,8 @@ public class RequestController {
 	public ResponseEntity<SuccessResponse<Paginate<WorkDetail>>> getMyWorkItems(
 			@RequestParam(required = false) Integer pageIndex, 
 			@RequestParam(required = false) Integer pageSize,
-			@RequestParam(required = false) boolean completed) throws Exception {
-		Paginate<WorkDetail> requestList=requestBL.getMyWorkList(pageIndex, pageSize,completed);
+			WorkDetailFilter filter) throws Exception {
+		Paginate<WorkDetail> requestList=requestBL.getMyWorkList(pageIndex, pageSize,filter);
 		return new SuccessResponse<Paginate<WorkDetail>>()
 				.payload(requestList).get(HttpStatus.OK);
 	}

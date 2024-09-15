@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;

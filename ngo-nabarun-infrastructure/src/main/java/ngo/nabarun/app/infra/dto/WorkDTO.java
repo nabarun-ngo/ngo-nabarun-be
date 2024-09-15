@@ -47,6 +47,10 @@ public class WorkDTO {
 		private List<RoleCode> pendingWithRoles;
 		private String decisionMakerProfileId;
 		private String workflowId;
+		private String id;
+		private Date fromDate;
+		private Date toDate;
+
 	}
 
 

@@ -15,9 +15,7 @@ import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ISocialEventBL;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
+import ngo.nabarun.app.businesslogic.businessobjects.EventDetail.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.util.CommonUtils;
 
@@ -60,7 +58,7 @@ public class EventController {
 	}
 
 	@PostMapping("/createEvent")
-	public ResponseEntity<SuccessResponse<EventDetail>> createSocialEvent(@RequestBody EventDetailCreate eventDetail)
+	public ResponseEntity<SuccessResponse<EventDetail>> createSocialEvent(@RequestBody EventDetail eventDetail)
 			throws Exception {
 		return new SuccessResponse<EventDetail>().payload(socialEventBL.createSocialEvent(eventDetail))
 				.get(HttpStatus.OK);
@@ -68,7 +66,7 @@ public class EventController {
 
 	@PatchMapping("/updateEvent/{id}")
 	public ResponseEntity<SuccessResponse<EventDetail>> updateSocialEvent(@PathVariable String id,
-			@RequestBody EventDetailUpdate eventDetail) throws Exception {
+			@RequestBody EventDetail eventDetail) throws Exception {
 		return new SuccessResponse<EventDetail>().payload(socialEventBL.updateSocialEvent(id, eventDetail))
 				.get(HttpStatus.OK);
 	}

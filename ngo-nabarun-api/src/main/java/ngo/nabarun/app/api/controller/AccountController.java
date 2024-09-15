@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAccountBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.AccountDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.common.util.SecurityUtils;

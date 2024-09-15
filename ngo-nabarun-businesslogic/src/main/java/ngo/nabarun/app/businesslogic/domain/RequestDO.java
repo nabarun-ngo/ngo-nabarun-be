@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField; 
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.RequestDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail.RequestDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail.WorkDetailFilter;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.ActionFunction;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
@@ -79,11 +80,11 @@ public class RequestDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public Paginate<RequestDTO> retrieveUserRequests(Integer index, Integer size, String userId, boolean isDelegated)
+	public Paginate<RequestDTO> retrieveUserRequests(Integer index, Integer size, String userId, RequestDetailFilter filter)
 			throws Exception {
 		RequestDTOFilter filterDTO = new RequestDTOFilter();
 		UserDTO user = userInfraService.getUser(userId, IdType.AUTH_USER_ID, false);
-		if (isDelegated) {
+		if (filter.getIsDelegated() == Boolean.TRUE) {
 			filterDTO.setDelegatedRequesterId(user.getProfileId());
 		} else {
 			filterDTO.setRequesterId(user.getProfileId());
@@ -202,18 +203,21 @@ public class RequestDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public Paginate<WorkDTO> retrieveUserWorkList(Integer index, Integer size, String userId, boolean isCompleted)
+	public Paginate<WorkDTO> retrieveUserWorkList(Integer index, Integer size, String userId, WorkDetailFilter workFilter)
 			throws Exception {
 		WorkListDTOFilter filter = new WorkListDTOFilter();
-		filter.setStepCompleted(isCompleted);
-		if (isCompleted) {
+		filter.setStepCompleted(workFilter.getCompleted() == Boolean.TRUE);
+		if (workFilter.getCompleted() == Boolean.TRUE) {
 			UserDTO tokenUser = userInfraService.getUser(userId, IdType.AUTH_USER_ID, false);
 			filter.setDecisionMakerProfileId(tokenUser.getProfileId());
 		} else {
 			filter.setPendingWithUserId(userId);
 		}
+		filter.setWorkflowId(workFilter.getRequestId());
+		filter.setId(workFilter.getWorkId());
+		filter.setFromDate(workFilter.getFromDate());
+		filter.setToDate(workFilter.getToDate());
 		Page<WorkDTO> page = workflowInfraService.getWorkList(index, size, filter);
-				//;
 		return new Paginate<WorkDTO>(page);
 
 	}

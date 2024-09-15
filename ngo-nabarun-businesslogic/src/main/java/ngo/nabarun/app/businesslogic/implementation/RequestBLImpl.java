@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import ngo.nabarun.app.businesslogic.IRequestBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.RequestDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail.RequestDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail.WorkDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.businesslogic.domain.RequestDO;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
@@ -34,10 +35,13 @@ public class RequestBLImpl extends BaseBLImpl implements IRequestBL {
 	}
 
 	@Override
-	public Paginate<RequestDetail> getMyRequests(Integer index, Integer size, boolean isDelegated) throws Exception {
+	public Paginate<RequestDetail> getMyRequests(Integer index, Integer size, RequestDetailFilter filter) throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
-		return requestDO.retrieveUserRequests(index, size, userId, isDelegated).map(BusinessObjectConverter::toRequestDetail);
+		if(filter == null) {
+			filter= new RequestDetailFilter();
+		}
+		return requestDO.retrieveUserRequests(index, size, userId, filter).map(BusinessObjectConverter::toRequestDetail);
 	}
 
 	@Override
@@ -57,10 +61,13 @@ public class RequestBLImpl extends BaseBLImpl implements IRequestBL {
 	
 	
 	@Override
-	public Paginate<WorkDetail> getMyWorkList(Integer index, Integer size, boolean isCompleted) throws Exception {
+	public Paginate<WorkDetail> getMyWorkList(Integer index, Integer size,  WorkDetailFilter filter) throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
-		return requestDO.retrieveUserWorkList(index, size, userId, isCompleted).map(m -> BusinessObjectConverter.toWorkItem(m));
+		if(filter == null) {
+			filter = new WorkDetailFilter();
+		}
+		return requestDO.retrieveUserWorkList(index, size, userId, filter).map(m -> BusinessObjectConverter.toWorkItem(m));
 
 	}
 

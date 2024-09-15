@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 

@@ -14,7 +14,7 @@ import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.businesslogic.IUserBL;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;

@@ -37,7 +37,7 @@ public class WorkDetail {
 		private String requestId;
 		
 		@JsonProperty("completed")
-		private boolean completed;
+		private Boolean completed;
 		
 		@JsonProperty("fromDate")
 		@DateTimeFormat(pattern = "yyyy-MM-dd")

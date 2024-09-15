@@ -9,4 +9,12 @@ public class DocumentDetail {
 	private String documentIndexId;
 	private boolean isImage;
 	private boolean isGeneratedDoc;
+	
+	@Data
+	public static class DocumentDetailUpload {
+		private byte[] content;
+		private String base64Content;
+		private String originalFileName;
+		private String contentType;
+	}
 }

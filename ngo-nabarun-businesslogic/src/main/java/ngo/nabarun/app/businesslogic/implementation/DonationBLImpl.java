@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.IDonationBL;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;

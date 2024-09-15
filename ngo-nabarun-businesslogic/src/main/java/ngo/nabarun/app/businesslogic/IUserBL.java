@@ -8,7 +8,7 @@ import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 
 @Service
 public interface IUserBL {

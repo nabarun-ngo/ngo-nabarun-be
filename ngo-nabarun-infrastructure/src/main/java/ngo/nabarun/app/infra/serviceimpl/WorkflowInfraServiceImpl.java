@@ -34,28 +34,29 @@ import ngo.nabarun.app.infra.service.IWorkflowInfraService;
 
 @Service
 public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkflowInfraService {
-	
+
 	@Autowired
 	private WorkflowRepository workflowRepository;
-	
+
 	@Autowired
 	private WorkListRepository worklistRepository;
 
 	@Override
 	public RequestDTO createWorkflow(RequestDTO workflowDTO) {
-		WorkflowEntity workflow= new WorkflowEntity();
+		WorkflowEntity workflow = new WorkflowEntity();
 		workflow.setId(workflowDTO.getId());
 		workflow.setCreatedBy(null);
 		workflow.setCreatedOn(CommonUtils.getSystemDate());
 		workflow.setDelegated(workflowDTO.isDelegated());
-		if(workflowDTO.getRequester() != null) {
-			UserDTO req=workflowDTO.getRequester();
+		if (workflowDTO.getRequester() != null) {
+			UserDTO req = workflowDTO.getRequester();
 			workflow.setProfileId(req.getProfileId());
 			workflow.setProfileEmail(req.getEmail());
-			String name = req.getName() == null ? String.join(" ",req.getFirstName(),req.getLastName()) : req.getName();
+			String name = req.getName() == null ? String.join(" ", req.getFirstName(), req.getLastName())
+					: req.getName();
 			workflow.setProfileName(name);
 		}
-		if(workflowDTO.getDelegatedRequester() != null) {
+		if (workflowDTO.getDelegatedRequester() != null) {
 			workflow.setDelegateProfileId(workflowDTO.getDelegatedRequester().getProfileId());
 			workflow.setDelegateProfileEmail(workflowDTO.getDelegatedRequester().getEmail());
 			workflow.setDelegateProfileName(workflowDTO.getDelegatedRequester().getName());
@@ -65,16 +66,16 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		workflow.setRemarks(workflowDTO.getRemarks());
 		workflow.setStatus(workflowDTO.getStatus().name());
 		workflow.setType(workflowDTO.getType().name());
-		workflow=workflowRepository.save(workflow);
+		workflow = workflowRepository.save(workflow);
 		if (workflowDTO.getAdditionalFields() != null) {
 			for (FieldDTO addfield : workflowDTO.getAdditionalFields()) {
 				addfield.setFieldSource(workflow.getId());
 				addOrUpdateCustomField(addfield);
 			}
 		}
-		return InfraDTOHelper.convertToWorkflowDTO(workflow,propertyHelper.getAppSecret());
+		return InfraDTOHelper.convertToWorkflowDTO(workflow, propertyHelper.getAppSecret());
 	}
-	
+
 	@Override
 	public Page<RequestDTO> getWorkflows(Integer page, Integer size, RequestDTOFilter filter) {
 		Page<WorkflowEntity> workflowPage = null;
@@ -88,7 +89,8 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			BooleanBuilder query = WhereClause.builder()
 					.optionalAnd(filter.getId() != null, () -> qWorkflow.id.eq(filter.getId()))
 					.optionalAnd(filter.getRequesterId() != null, () -> qWorkflow.profileId.eq(filter.getRequesterId()))
-					.optionalAnd(filter.getDelegatedRequesterId() != null, () -> qWorkflow.delegateProfileId.eq(filter.getDelegatedRequesterId()))
+					.optionalAnd(filter.getDelegatedRequesterId() != null,
+							() -> qWorkflow.delegateProfileId.eq(filter.getDelegatedRequesterId()))
 					.optionalAnd(filter.getWorkflowStatus() != null,
 							() -> qWorkflow.status.in(filter.getWorkflowStatus().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getType() != null,
@@ -109,49 +111,50 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		} else {
 			workflowPage = new PageImpl<>(workflowRepository.findAll(sort));
 		}
-		return workflowPage.map(m->InfraDTOHelper.convertToWorkflowDTO(m,propertyHelper.getAppSecret()));
+		return workflowPage.map(m -> InfraDTOHelper.convertToWorkflowDTO(m, propertyHelper.getAppSecret()));
 	}
 
 	@Override
 	public RequestDTO getWorkflow(String id) {
-		WorkflowEntity workflow=workflowRepository.findById(id).orElseThrow();
+		WorkflowEntity workflow = workflowRepository.findById(id).orElseThrow();
 		return InfraDTOHelper.convertToWorkflowDTO(workflow, propertyHelper.getAppSecret());
 	}
 
 	@Override
 	public RequestDTO updateWorkflow(String id, RequestDTO workflowDTO) {
-		WorkflowEntity workflowOri= workflowRepository.findById(id).orElseThrow();
-		WorkflowEntity workflow= new WorkflowEntity();
+		WorkflowEntity workflowOri = workflowRepository.findById(id).orElseThrow();
+		WorkflowEntity workflow = new WorkflowEntity();
 
-		if(workflowDTO.getRequester() != null) {
-			UserDTO req=workflowDTO.getRequester();
+		if (workflowDTO.getRequester() != null) {
+			UserDTO req = workflowDTO.getRequester();
 			workflow.setProfileId(req.getProfileId());
 			workflow.setProfileEmail(req.getEmail());
-			String name = req.getName() == null ? String.join(" ",req.getFirstName(),req.getLastName()) : req.getName();
+			String name = req.getName() == null ? String.join(" ", req.getFirstName(), req.getLastName())
+					: req.getName();
 			workflow.setProfileName(name);
 		}
-		
+
 		workflow.setRemarks(workflowDTO.getRemarks());
-		if(workflowDTO.getStatus() != null) {
+		if (workflowDTO.getStatus() != null) {
 			workflow.setStatus(workflowDTO.getStatus().name());
-			if(workflow.getStatus() != workflowDTO.getStatus().name()) {
+			if (workflow.getStatus() != workflowDTO.getStatus().name()) {
 				workflow.setLastStatus(workflow.getStatus());
 			}
 		}
 		workflow.setLastActionCompleted(workflowDTO.isLastActionCompleted());
-		
+
 		CommonUtils.copyNonNullProperties(workflow, workflowOri);
 		workflowOri.setCustomFields(null);
-		workflow=workflowRepository.save(workflowOri);
+		workflow = workflowRepository.save(workflowOri);
 		if (workflowDTO.getAdditionalFields() != null) {
 			for (FieldDTO addfield : workflowDTO.getAdditionalFields()) {
 				addfield.setFieldSource(workflow.getId());
 				addOrUpdateCustomField(addfield);
 			}
 		}
-		return InfraDTOHelper.convertToWorkflowDTO(workflow,propertyHelper.getAppSecret());
+		return InfraDTOHelper.convertToWorkflowDTO(workflow, propertyHelper.getAppSecret());
 	}
-	
+
 	@Override
 	public WorkDTO getWorkList(String id) {
 		WorkListEntity worklist = worklistRepository.findById(id).orElseThrow();
@@ -160,31 +163,35 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 
 	@Override
 	public WorkDTO createWorkList(WorkDTO worklistDTO) {
-		WorkListEntity worklist= new WorkListEntity();
+		WorkListEntity worklist = new WorkListEntity();
 		worklist.setCreatedOn(CommonUtils.getSystemDate());
-		worklist.setCurrentAction(worklistDTO.getDecision()==null ? null : worklistDTO.getDecision().name());
+		worklist.setCurrentAction(worklistDTO.getDecision() == null ? null : worklistDTO.getDecision().name());
 		worklist.setDescription(worklistDTO.getDescription());
 		worklist.setGroupWork(worklistDTO.isGroupWork());
-		worklist.setId(worklistDTO.getId() == null ?  UUID.randomUUID().toString():worklistDTO.getId());
+		worklist.setId(worklistDTO.getId() == null ? UUID.randomUUID().toString() : worklistDTO.getId());
 		worklist.setPendingWithRoleGroups(InfraFieldHelper.stringListToString(worklistDTO.getPendingWithRoleGroups()));
-		if(worklistDTO.getPendingWithRoles() != null && !worklistDTO.getPendingWithRoles().isEmpty()) {
-			worklist.setPendingWithRoles(InfraFieldHelper.stringListToString(worklistDTO.getPendingWithRoles().stream().map(m->m.name()).collect(Collectors.toList())));
+		if (worklistDTO.getPendingWithRoles() != null && !worklistDTO.getPendingWithRoles().isEmpty()) {
+			worklist.setPendingWithRoles(InfraFieldHelper.stringListToString(
+					worklistDTO.getPendingWithRoles().stream().map(m -> m.name()).collect(Collectors.toList())));
 		}
-		if(worklistDTO.getPendingWithUsers() != null && !worklistDTO.getPendingWithUsers().isEmpty()) {
-			List<String> ids=worklistDTO.getPendingWithUsers().stream().map(m->m.getUserId()).collect(Collectors.toList());
-			List<String> names=worklistDTO.getPendingWithUsers().stream().map(m->m.getName()).collect(Collectors.toList());
+		if (worklistDTO.getPendingWithUsers() != null && !worklistDTO.getPendingWithUsers().isEmpty()) {
+			List<String> ids = worklistDTO.getPendingWithUsers().stream().map(m -> m.getUserId())
+					.collect(Collectors.toList());
+			List<String> names = worklistDTO.getPendingWithUsers().stream().map(m -> m.getName())
+					.collect(Collectors.toList());
 			worklist.setPendingWithUserId(InfraFieldHelper.stringListToString(ids));
 			worklist.setPendingWithUserName(InfraFieldHelper.stringListToString(names));
 		}
-		
+
 		worklist.setSourceId(worklistDTO.getWorkSourceId());
-		worklist.setSourceStatus(worklistDTO.getWorkItemName()== null ? null : worklistDTO.getWorkItemName().name());
-		worklist.setSourceType(worklistDTO.getWorkSourceType()== null ? null : worklistDTO.getWorkSourceType().name());
-		worklist.setStepCompleted(worklistDTO.getStepCompleted() == null ?false : worklistDTO.getStepCompleted());
-		worklist.setWorkType(worklistDTO.getWorkType()== null ? null : worklistDTO.getWorkType().name());
+		worklist.setSourceStatus(worklistDTO.getWorkItemName() == null ? null : worklistDTO.getWorkItemName().name());
+		worklist.setSourceType(worklistDTO.getWorkSourceType() == null ? null : worklistDTO.getWorkSourceType().name());
+		worklist.setStepCompleted(worklistDTO.getStepCompleted() == null ? false : worklistDTO.getStepCompleted());
+		worklist.setWorkType(worklistDTO.getWorkType() == null ? null : worklistDTO.getWorkType().name());
 		worklist.setFinalStep(worklistDTO.isFinalStep());
-		worklist.setActionPerformed(worklistDTO.getActionPerformed() == null ? false : worklistDTO.getActionPerformed());
-		worklist=worklistRepository.save(worklist);
+		worklist.setActionPerformed(
+				worklistDTO.getActionPerformed() == null ? false : worklistDTO.getActionPerformed());
+		worklist = worklistRepository.save(worklist);
 		if (worklistDTO.getAdditionalFields() != null) {
 			for (FieldDTO addfield : worklistDTO.getAdditionalFields()) {
 				addfield.setFieldSource(worklist.getId());
@@ -193,18 +200,22 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		}
 		return InfraDTOHelper.convertToWorkListDTO(worklist);
 	}
-	
+
 	@Override
-	public WorkDTO updateWorkList(String id,WorkDTO worklistDTO) {
+	public WorkDTO updateWorkList(String id, WorkDTO worklistDTO) {
 		WorkListEntity worklist = worklistRepository.findById(id).orElseThrow();
 		WorkListEntity updatedWorklist = new WorkListEntity();
-		updatedWorklist.setActionPerformed(worklistDTO.getActionPerformed() == null ? false : worklistDTO.getActionPerformed());
-		updatedWorklist.setDecision(worklistDTO.getDecision()== null ? null : worklistDTO.getDecision().name());
-		updatedWorklist.setDecisionMakerId(worklistDTO.getDecisionMaker() == null ? null : worklistDTO.getDecisionMaker().getProfileId());
-		updatedWorklist.setDecisionMakerName(worklistDTO.getDecisionMaker() == null ? null : worklistDTO.getDecisionMaker().getName());
+		updatedWorklist.setActionPerformed(
+				worklistDTO.getActionPerformed() == null ? false : worklistDTO.getActionPerformed());
+		updatedWorklist.setDecision(worklistDTO.getDecision() == null ? null : worklistDTO.getDecision().name());
+		updatedWorklist.setDecisionMakerId(
+				worklistDTO.getDecisionMaker() == null ? null : worklistDTO.getDecisionMaker().getProfileId());
+		updatedWorklist.setDecisionMakerName(
+				worklistDTO.getDecisionMaker() == null ? null : worklistDTO.getDecisionMaker().getName());
 		updatedWorklist.setDecisionMakerRoleGroup(worklistDTO.getDecisionMakerRoleGroup());
 		updatedWorklist.setRemarks(worklistDTO.getRemarks());
-		updatedWorklist.setStepCompleted(worklistDTO.getStepCompleted()== null ? false : worklistDTO.getStepCompleted());
+		updatedWorklist
+				.setStepCompleted(worklistDTO.getStepCompleted() == null ? false : worklistDTO.getStepCompleted());
 		updatedWorklist.setDecisionDate(worklistDTO.getDecisionDate());
 		CommonUtils.copyNonNullProperties(updatedWorklist, worklist);
 		worklist = worklistRepository.save(worklist);
@@ -228,12 +239,18 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			 */
 			QWorkListEntity qWorklist = QWorkListEntity.workListEntity;
 			BooleanBuilder query = WhereClause.builder()
-					.optionalAnd(filter.getWorkflowId() != null, () -> qWorklist.id.eq(filter.getWorkflowId()))
-					.optionalAnd(filter.getPendingWithUserId() != null, () -> qWorklist.pendingWithUserId.contains(filter.getPendingWithUserId()))
-					.optionalAnd(filter.getPendingWithRoles() != null, () -> qWorklist.pendingWithRoles.in(filter.getPendingWithRoles().stream().map(m->m.name()).toList()))
-					.optionalAnd(filter.getDecisionMakerProfileId() != null, () -> qWorklist.decisionMakerId.eq(filter.getDecisionMakerProfileId()))
+					.optionalAnd(filter.getId() != null, () -> qWorklist.id.eq(filter.getId()))
+					.optionalAnd(filter.getWorkflowId() != null, () -> qWorklist.sourceId.eq(filter.getWorkflowId()))
+					.optionalAnd(filter.getPendingWithUserId() != null,
+							() -> qWorklist.pendingWithUserId.contains(filter.getPendingWithUserId()))
+					.optionalAnd(filter.getPendingWithRoles() != null,
+							() -> qWorklist.pendingWithRoles
+									.in(filter.getPendingWithRoles().stream().map(m -> m.name()).toList()))
+					.optionalAnd(filter.getDecisionMakerProfileId() != null,
+							() -> qWorklist.decisionMakerId.eq(filter.getDecisionMakerProfileId()))
+					.optionalAnd(filter.getFromDate() != null && filter.getToDate() != null,
+							() -> qWorklist.createdOn.between(filter.getFromDate(), filter.getToDate()))
 					.and(qWorklist.stepCompleted.eq(filter.isStepCompleted()))
-
 					.build();
 
 			if (page == null || size == null) {
@@ -248,7 +265,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		} else {
 			worklistPage = new PageImpl<>(worklistRepository.findAll(sort));
 		}
-		return worklistPage.map(m->InfraDTOHelper.convertToWorkListDTO(m));
+		return worklistPage.map(m -> InfraDTOHelper.convertToWorkListDTO(m));
 	}
 
 }

@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;

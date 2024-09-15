@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
