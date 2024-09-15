@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.enums.RoleGroup;
 
 @Getter
 @Setter
@@ -26,8 +25,8 @@ public class UserRole {
 	@JsonProperty("roleCode")
 	private RoleCode roleCode;
 
-	@JsonProperty("roleGroup")
-	private RoleGroup roleGroup;
+//	@JsonProperty("roleGroup")
+//	private RoleGroup roleGroup;
 
 	@JsonProperty("description")
 	private String description;

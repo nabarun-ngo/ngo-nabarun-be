@@ -22,7 +22,7 @@ public class MeetingDetail {
 	private MeetingType meetingType;
 	private MeetingStatus meetingStatus;
 	private List<UserDetail> meetingAttendees;
-	private List<MeetingDiscussion> meetingDiscussions;
+	//private List<MeetingDiscussion> meetingDiscussions;
 	private String meetingRemarks;
 	private MeetingRefType meetingRefType;
 	private String extAudioConferenceLink;

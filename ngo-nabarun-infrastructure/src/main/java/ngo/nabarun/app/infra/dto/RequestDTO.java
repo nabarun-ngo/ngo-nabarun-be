@@ -8,14 +8,14 @@ import java.util.Map;
 import lombok.Data;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 
 @Data
 public class RequestDTO {
 	private String id;
 	private String workflowName;
-	private WorkflowType type;
+	private RequestType type;
 	//private String typeValue;
 
 	private WorkflowStatus status;
@@ -51,8 +51,8 @@ public class RequestDTO {
 	
 	@Data
 	public static class RequestDTOFilter{
-		private String workflowId;
-		private List<WorkflowType> workflowType;
+		private String id;
+		private List<RequestType> type;
 		private List<WorkflowStatus> workflowStatus;
 		private Date fromDate;
 		private Date toDate;

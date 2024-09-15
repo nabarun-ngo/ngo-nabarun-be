@@ -68,7 +68,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		workflow=workflowRepository.save(workflow);
 		if (workflowDTO.getAdditionalFields() != null) {
 			for (FieldDTO addfield : workflowDTO.getAdditionalFields()) {
-				addfield.setFieldSource(workflowDTO.getId());
+				addfield.setFieldSource(workflow.getId());
 				addOrUpdateCustomField(addfield);
 			}
 		}
@@ -86,13 +86,13 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			 */
 			QWorkflowEntity qWorkflow = QWorkflowEntity.workflowEntity;
 			BooleanBuilder query = WhereClause.builder()
-					.optionalAnd(filter.getWorkflowId() != null, () -> qWorkflow.id.eq(filter.getWorkflowId()))
+					.optionalAnd(filter.getId() != null, () -> qWorkflow.id.eq(filter.getId()))
 					.optionalAnd(filter.getRequesterId() != null, () -> qWorkflow.profileId.eq(filter.getRequesterId()))
 					.optionalAnd(filter.getDelegatedRequesterId() != null, () -> qWorkflow.delegateProfileId.eq(filter.getDelegatedRequesterId()))
 					.optionalAnd(filter.getWorkflowStatus() != null,
 							() -> qWorkflow.status.in(filter.getWorkflowStatus().stream().map(m -> m.name()).toList()))
-					.optionalAnd(filter.getWorkflowType() != null,
-							() -> qWorkflow.type.in(filter.getWorkflowType().stream().map(m -> m.name()).toList()))
+					.optionalAnd(filter.getType() != null,
+							() -> qWorkflow.type.in(filter.getType().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getFromDate() != null && filter.getToDate() != null,
 							() -> qWorkflow.createdOn.between(filter.getFromDate(), filter.getToDate()))
 					.build();
@@ -145,7 +145,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		workflow=workflowRepository.save(workflowOri);
 		if (workflowDTO.getAdditionalFields() != null) {
 			for (FieldDTO addfield : workflowDTO.getAdditionalFields()) {
-				addfield.setFieldSource(workflowDTO.getId());
+				addfield.setFieldSource(workflow.getId());
 				addOrUpdateCustomField(addfield);
 			}
 		}
@@ -177,14 +177,20 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			worklist.setPendingWithUserName(InfraFieldHelper.stringListToString(names));
 		}
 		
-		worklist.setSourceId(worklistDTO.getWorkflowId());
-		worklist.setSourceStatus(worklistDTO.getWorkflowStatus()== null ? null : worklistDTO.getWorkflowStatus().name());
-		worklist.setSourceType(worklistDTO.getWorkflowType()== null ? null : worklistDTO.getWorkflowType().name());
+		worklist.setSourceId(worklistDTO.getWorkSourceId());
+		worklist.setSourceStatus(worklistDTO.getWorkItemName()== null ? null : worklistDTO.getWorkItemName().name());
+		worklist.setSourceType(worklistDTO.getWorkSourceType()== null ? null : worklistDTO.getWorkSourceType().name());
 		worklist.setStepCompleted(worklistDTO.getStepCompleted() == null ?false : worklistDTO.getStepCompleted());
 		worklist.setWorkType(worklistDTO.getWorkType()== null ? null : worklistDTO.getWorkType().name());
 		worklist.setFinalStep(worklistDTO.isFinalStep());
 		worklist.setActionPerformed(worklistDTO.getActionPerformed() == null ? false : worklistDTO.getActionPerformed());
 		worklist=worklistRepository.save(worklist);
+		if (worklistDTO.getAdditionalFields() != null) {
+			for (FieldDTO addfield : worklistDTO.getAdditionalFields()) {
+				addfield.setFieldSource(worklist.getId());
+				addOrUpdateCustomField(addfield);
+			}
+		}
 		return InfraDTOHelper.convertToWorkListDTO(worklist);
 	}
 	
@@ -202,6 +208,12 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		updatedWorklist.setDecisionDate(worklistDTO.getDecisionDate());
 		CommonUtils.copyNonNullProperties(updatedWorklist, worklist);
 		worklist = worklistRepository.save(worklist);
+		if (worklistDTO.getAdditionalFields() != null) {
+			for (FieldDTO addfield : worklistDTO.getAdditionalFields()) {
+				addfield.setFieldSource(worklist.getId());
+				addOrUpdateCustomField(addfield);
+			}
+		}
 		return InfraDTOHelper.convertToWorkListDTO(worklist);
 	}
 

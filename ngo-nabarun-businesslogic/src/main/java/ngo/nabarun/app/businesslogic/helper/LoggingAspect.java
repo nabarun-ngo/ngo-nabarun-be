@@ -52,6 +52,7 @@ public class LoggingAspect {
 	 */
 	@AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "e")
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
+		System.err.println(joinPoint.getSourceLocation());
 		log.error("Exception in {}.{}() with cause = {} Stacktrace : {}", joinPoint.getSignature().getDeclaringTypeName(),
 				joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL",ExceptionUtils.getStackTrace(e));
 		
@@ -79,8 +80,9 @@ public class LoggingAspect {
 			}catch (Exception e) {
 				args=Arrays.toString(joinPoint.getArgs());
 			}
+			
 			log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
-					joinPoint.getSignature().getName(),args );
+					joinPoint.getSignature().getName(),args);
 		}
 		try {
 			Object result = joinPoint.proceed();
@@ -91,11 +93,6 @@ public class LoggingAspect {
 //						value = ToStringBuilder.reflectionToString(result, ToStringStyle.MULTI_LINE_STYLE);
 						value = CommonUtils.toJSONString(result);
 					} catch (Exception e) {
-//						try {
-//							value = ToStringBuilder.reflectionToString(result, ToStringStyle.MULTI_LINE_STYLE);
-//						} catch (Exception e1) {
-//							value = String.valueOf(result);
-//						}
 						value =String.valueOf(result);
 					}
 				} else {
@@ -106,6 +103,7 @@ public class LoggingAspect {
 			}
 			return result;
 		} catch (IllegalArgumentException e) {
+			System.err.println(joinPoint.getSourceLocation());
 			log.error("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
 					joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
 			throw e;

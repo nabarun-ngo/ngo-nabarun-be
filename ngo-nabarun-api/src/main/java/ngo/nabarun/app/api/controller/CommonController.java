@@ -21,6 +21,7 @@ import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
+import ngo.nabarun.app.common.enums.RequestType;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -87,6 +88,7 @@ public class CommonController {
 		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
 	}
 
+	
 	@GetMapping(value = "/getReferenceData")
 	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
 			@RequestParam(required = false) List<RefDataType> names,
@@ -94,7 +96,7 @@ public class CommonController {
 			@RequestParam(required = false) DonationStatus currentDonationStatus,
 			@RequestParam(required = false) String countryCode,
 			@RequestParam(required = false) String stateCode,
-			@RequestParam(required = false) Map<String, String> options1
+			@RequestParam(required = false) RequestType workflowType
 			) throws Exception {
 		Map<String, String> options= new HashMap<>();
 		if(donationType != null) {
@@ -108,6 +110,9 @@ public class CommonController {
 		}
 		if(stateCode != null) {
 			options.put("stateCode", stateCode);
+		}
+		if(workflowType != null) {
+			options.put("workflowType", workflowType.name());
 		}
 		return new SuccessResponse<Map<String, List<KeyValue>>>()
 				.payload(commonBL.getReferenceData(names,options))

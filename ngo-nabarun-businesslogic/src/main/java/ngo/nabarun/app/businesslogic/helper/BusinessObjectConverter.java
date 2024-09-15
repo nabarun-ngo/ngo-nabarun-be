@@ -206,6 +206,10 @@ public class BusinessObjectConverter {
 		additionalField.setName(fieldDTO.getFieldName());
 		additionalField.setType(fieldDTO.getFieldType());
 		additionalField.setValue(fieldDTO.isHidden() ? null : fieldDTO.getFieldValue());
+		additionalField.setMandatory(fieldDTO.isMandatory());
+		additionalField.setOptions(fieldDTO.getFieldOptions());		
+		additionalField.setValueType(fieldDTO.getFieldValueType());
+
 		return additionalField;
 	}
 
@@ -419,15 +423,17 @@ public class BusinessObjectConverter {
 	public static WorkDetail toWorkItem(WorkDTO workitemDTO) {
 		WorkDetail wiDetail = new WorkDetail();
 		wiDetail.setCreatedOn(workitemDTO.getCreatedOn());
-		wiDetail.setDecision(workitemDTO.getDecision());
+		
 		wiDetail.setDecisionDate(workitemDTO.getDecisionDate());
 		wiDetail.setDescription(workitemDTO.getDescription());
 		wiDetail.setId(workitemDTO.getId());
-
-		wiDetail.setRemarks(workitemDTO.getRemarks());
+		
+//		wiDetail.setDecision(workitemDTO.getDecision());
+//		wiDetail.setRemarks(workitemDTO.getRemarks());
+		
 		wiDetail.setStepCompleted(workitemDTO.getStepCompleted());
-		wiDetail.setWorkflowId(workitemDTO.getWorkflowId());
-		wiDetail.setWorkflowStatus(workitemDTO.getWorkflowStatus());
+		wiDetail.setWorkflowId(workitemDTO.getWorkSourceId());
+		wiDetail.setWorkflowStatus(workitemDTO.getWorkItemName());
 		if (workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
 			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker(),null));
 		} else {
@@ -435,6 +441,9 @@ public class BusinessObjectConverter {
 		}
 
 		wiDetail.setWorkType(workitemDTO.getWorkType());
+		wiDetail.setAdditionalFields(workitemDTO.getAdditionalFields() == null ? List.of()
+				: workitemDTO.getAdditionalFields().stream().filter(f -> !f.isHidden()).map(m -> toAdditionalField(m))
+						.toList());
 		return wiDetail;
 	}
 

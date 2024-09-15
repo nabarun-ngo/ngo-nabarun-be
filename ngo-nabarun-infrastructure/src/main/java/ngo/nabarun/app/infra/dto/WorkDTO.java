@@ -7,20 +7,20 @@ import java.util.Map;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.enums.WorkFlowAction;
+import ngo.nabarun.app.common.enums.WorkAction;
 import ngo.nabarun.app.common.enums.WorkType;
-import ngo.nabarun.app.common.enums.WorkflowDecision;
+import ngo.nabarun.app.common.enums.WorkDecision;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 
 @Data
 public class WorkDTO {
 	private String id;
-	private String workflowId;
+	private String workSourceId;
 	private String description;
-	private WorkflowStatus workflowStatus;
-	private WorkflowType workflowType;
+	private WorkflowStatus workItemName;
+	private RequestType workSourceType;
 	private WorkType workType;
 
 	private List<UserDTO> pendingWithUsers;
@@ -28,15 +28,16 @@ public class WorkDTO {
 	private List<RoleCode> pendingWithRoles;
 	private List<String> pendingWithRoleGroups;
 	private Date createdOn;
-	private WorkflowDecision decision;
+	private WorkDecision decision;
 	private UserDTO decisionMaker;
 	private String decisionMakerRoleGroup;
 	private String remarks;
-	private WorkFlowAction currentAction;
+	private WorkAction currentAction;
 	private Boolean actionPerformed;
 	private Boolean stepCompleted;
 	private Date decisionDate;
 	private boolean finalStep;
+	private List<FieldDTO> additionalFields;
 
 
 	@Data
@@ -52,9 +53,9 @@ public class WorkDTO {
 	public Map<String, Object> toMap(Map<String, String> domainKeyValues) {
 		Map<String, Object> workItem = new HashMap<>();
 		workItem.put("id", id);
-		workItem.put("workflowId", workflowId);
-		workItem.put("workflowStatus", workflowStatus == null ? null : domainKeyValues.get(workflowStatus.name()));
-		workItem.put("workflowType", workflowType == null ? null : domainKeyValues.get(workflowType.name()));
+		workItem.put("workSourceId", workSourceId);
+		workItem.put("workItemName", workItemName == null ? null : domainKeyValues.get(workItemName.name()));
+		workItem.put("workSourceType", workSourceType == null ? null : domainKeyValues.get(workSourceType.name()));
 		workItem.put("description", description);
 		workItem.put("type", workType == null ? null : domainKeyValues.get(workType.name()));
 		workItem.put("createdOn", CommonUtils.formatDateToString(createdOn, "dd MMM yyyy", "IST"));

@@ -54,7 +54,8 @@ public class RequestBLImpl extends BaseBLImpl implements IRequestBL {
 	public RequestDetail updateRequest(String id, RequestDetail request) throws Exception {
 		return BusinessObjectConverter.toRequestDetail(requestDO.updateRequest(id, request));
 	}
-
+	
+	
 	@Override
 	public Paginate<WorkDetail> getMyWorkList(Integer index, Integer size, boolean isCompleted) throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()

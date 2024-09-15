@@ -18,19 +18,20 @@ import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.ActionFunction;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
-import ngo.nabarun.app.common.enums.AdditionalFieldSource;
+import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.IdType;
-import ngo.nabarun.app.common.enums.WorkFlowAction;
+import ngo.nabarun.app.common.enums.WorkAction;
+import ngo.nabarun.app.common.enums.WorkType;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
-import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO;
 import ngo.nabarun.app.infra.dto.WorkDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO.RequestDTOFilter;
+import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.WorkDTO.WorkListDTOFilter;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 import ngo.nabarun.app.infra.service.IWorkflowInfraService;
@@ -39,10 +40,10 @@ import ngo.nabarun.app.infra.service.IWorkflowInfraService;
 public class RequestDO extends CommonDO{
 
 	@Autowired
-	private IWorkflowInfraService workflowInfraService;
-
-	@Autowired
 	private IUserInfraService userInfraService;
+	
+	@Autowired
+	private IWorkflowInfraService workflowInfraService;
 
 	/**
 	 * 
@@ -91,44 +92,10 @@ public class RequestDO extends CommonDO{
 				/*.map(BusinessObjectConverter::toRequestDetail);*/
 		return new Paginate<RequestDTO>(page);
 	}
+	
+	
 
-	/**
-	 * 
-	 * @param index
-	 * @param size
-	 * @param userId
-	 * @param isCompleted
-	 * @return
-	 * @throws Exception
-	 */
-	public Paginate<WorkDTO> retrieveUserWorkList(Integer index, Integer size, String userId, boolean isCompleted)
-			throws Exception {
-		WorkListDTOFilter filter = new WorkListDTOFilter();
-		filter.setStepCompleted(isCompleted);
-		if (isCompleted) {
-			UserDTO tokenUser = userInfraService.getUser(userId, IdType.AUTH_USER_ID, false);
-			filter.setDecisionMakerProfileId(tokenUser.getProfileId());
-		} else {
-			filter.setPendingWithUserId(userId);
-		}
-		Page<WorkDTO> page = workflowInfraService.getWorkList(index, size, filter);
-				//;
-		return new Paginate<WorkDTO>(page);
 
-	}
-
-	/**
-	 * 
-	 * @param workflowId
-	 * @return
-	 * @throws Exception
-	 */
-	public List<WorkDTO> retrieveWorkflowWorkList(String workflowId) throws Exception {
-		WorkListDTOFilter filter = new WorkListDTOFilter();
-		filter.setWorkflowId(workflowId);
-		List<WorkDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
-		return worklist;
-	}
 
 	/**
 	 * 
@@ -139,9 +106,9 @@ public class RequestDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public RequestDTO createRequest(RequestDetail createRequest, boolean isPublicRequest,String creatorUserId,ActionFunction<WorkFlowAction, RequestDTO,RequestDTO> task)
+	public RequestDTO createRequest(RequestDetail createRequest, boolean isPublicRequest,String creatorUserId,ActionFunction<WorkAction, RequestDTO,RequestDTO> task)
 			throws Exception {
-		RequestDTO workflow = businessDomainHelper.convertToWorkflowDTO(createRequest.getType(),
+		RequestDTO workflow = businessDomainHelper.convertToRequestDTO(createRequest.getType(),
 				createRequest.getAdditionalFields());
 		/**
 		 * If it is a public request then no delegation is possible
@@ -183,13 +150,97 @@ public class RequestDO extends CommonDO{
 		return workflow;
 	}
 	
-	public WorkDTO createWorkItem(RequestDTO workflow, WorkDTO workItem,ActionFunction<WorkFlowAction, RequestDTO,RequestDTO> task) throws Exception {
+	
+
+	/**
+	 * 
+	 * @param id
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public RequestDTO updateRequest(String id, RequestDetail request) throws Exception {
+		RequestDTO workflow = new RequestDTO();
+		if (request.getAdditionalFields() != null) {
+			List<FieldDTO> addF = new ArrayList<>();
+			for (AdditionalField attr : request.getAdditionalFields()) {
+				if (attr.isUpdateField()) {
+					FieldDTO field = new FieldDTO();
+					field.setFieldValue(attr.getValue());
+					field.setFieldKey(attr.getKey());
+					field.setFieldSource(id);
+				}
+			}
+			workflow.setAdditionalFields(addF);
+		}
+		workflow.setDescription(request.getDescription());
+		workflow.setWorkflowName(request.getName());
+		if (request.getStatus() != null && request.getStatus() == WorkflowStatus.CANCELLED) {
+			workflow.setStatus(request.getStatus());
+			workflow.setRemarks(request.getRemarks());
+			WorkListDTOFilter filter = new WorkListDTOFilter();
+			filter.setWorkflowId(id);
+			List<WorkDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
+			for (WorkDTO work : worklist) {
+				work.setStepCompleted(true);
+				workflowInfraService.updateWorkList(work.getId(), work);
+			}
+		}
+		workflow = workflowInfraService.updateWorkflow(request.getId(), workflow);
+		return workflow;
+	}
+	
+	
+	
+	
+	/**
+	 * 
+	 * @param index
+	 * @param size
+	 * @param userId
+	 * @param isCompleted
+	 * @return
+	 * @throws Exception
+	 */
+	public Paginate<WorkDTO> retrieveUserWorkList(Integer index, Integer size, String userId, boolean isCompleted)
+			throws Exception {
+		WorkListDTOFilter filter = new WorkListDTOFilter();
+		filter.setStepCompleted(isCompleted);
+		if (isCompleted) {
+			UserDTO tokenUser = userInfraService.getUser(userId, IdType.AUTH_USER_ID, false);
+			filter.setDecisionMakerProfileId(tokenUser.getProfileId());
+		} else {
+			filter.setPendingWithUserId(userId);
+		}
+		Page<WorkDTO> page = workflowInfraService.getWorkList(index, size, filter);
+				//;
+		return new Paginate<WorkDTO>(page);
+
+	}
+
+	/**
+	 * 
+	 * @param workflowId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<WorkDTO> retrieveWorkflowWorkList(String workflowId) throws Exception {
+		WorkListDTOFilter filter = new WorkListDTOFilter();
+		filter.setWorkflowId(workflowId);
+		List<WorkDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
+		return worklist;
+	}
+	
+	
+	public WorkDTO createWorkItem(RequestDTO workflow, WorkDTO workItem,ActionFunction<WorkAction, RequestDTO,RequestDTO> task) throws Exception {
 		//System.err.println("Final Step1 = "+workItem.isFinalStep()); 
+		List<FieldDTO> fieldList=businessDomainHelper.findAddtlFieldDTOList("WORKITEM-"+workItem.getWorkItemName());
+		workItem.setAdditionalFields(fieldList);
 		workItem.setId(generateWorkId());
 		workItem.setPendingWithUsers(userInfraService.getUsersByRole(workItem.getPendingWithRoles()));
 		workflow=task.exec(workItem.getCurrentAction(), workflow);
 		workItem.setActionPerformed(workflow.isLastActionCompleted());
-		workItem.setWorkflowId(workflow.getId());
+		workItem.setWorkSourceId(workflow.getId());
 		//System.err.println("cash"+workItem.getPendingWithUsers());
 
 		workItem=workflowInfraService.createWorkList(workItem);
@@ -212,41 +263,7 @@ public class RequestDO extends CommonDO{
 		
 		return workItem;
 	}
-
-	/**
-	 * 
-	 * @param id
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	public RequestDTO updateRequest(String id, RequestDetail request) throws Exception {
-		RequestDTO workflow = new RequestDTO();
-		if (request.getAdditionalFields() != null) {
-			List<FieldDTO> addF = new ArrayList<>();
-			for (AdditionalField attr : request.getAdditionalFields()) {
-				if (attr.isUpdateField()) {
-					addF.add(businessDomainHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.WORKFLOW, attr));
-				}
-			}
-			workflow.setAdditionalFields(addF);
-		}
-		workflow.setDescription(request.getDescription());
-		workflow.setWorkflowName(request.getName());
-		if (request.getStatus() != null && request.getStatus() == WorkflowStatus.CANCELLED) {
-			workflow.setStatus(request.getStatus());
-			workflow.setRemarks(request.getRemarks());
-			WorkListDTOFilter filter = new WorkListDTOFilter();
-			filter.setWorkflowId(id);
-			List<WorkDTO> worklist = workflowInfraService.getWorkList(null, null, filter).getContent();
-			for (WorkDTO work : worklist) {
-				work.setStepCompleted(true);
-				workflowInfraService.updateWorkList(work.getId(), work);
-			}
-		}
-		workflow = workflowInfraService.updateWorkflow(request.getId(), workflow);
-		return workflow;
-	}
+	
 
 	/**
 	 * 
@@ -257,7 +274,7 @@ public class RequestDO extends CommonDO{
 	 * @throws Exception
 	 */
 
-	public WorkDTO updateWorkItem(String id, WorkDetail request, String loggedInUserId,ActionFunction<WorkFlowAction, RequestDTO,RequestDTO> task) throws Exception {
+	public WorkDTO updateWorkItem(String id, WorkDetail request, String loggedInUserId,ActionFunction<WorkAction, RequestDTO,RequestDTO> task) throws Exception {
 		WorkDTO workList = workflowInfraService.getWorkList(id);
 
 		businessDomainHelper.throwBusinessExceptionIf(() -> workList.getStepCompleted() == true,
@@ -279,18 +296,44 @@ public class RequestDO extends CommonDO{
 		boolean insufficientScope = decisionGroup == null;
 		businessDomainHelper.throwBusinessExceptionIf(() -> insufficientScope, ExceptionEvent.INSUFFICIENT_ACCESS);
 
-		RequestDTO workflow = workflowInfraService.getWorkflow(workList.getWorkflowId());
+		RequestDTO workflow = workflowInfraService.getWorkflow(workList.getWorkSourceId());
 
 		/**
 		 * Now update old work list
 		 */
 		WorkDTO wlDTO = new WorkDTO();
-		wlDTO.setDecision(request.getDecision());
+		if (request.getAdditionalFields() != null) {
+			List<FieldDTO> addF = new ArrayList<>();
+			for (AdditionalField attr : request.getAdditionalFields()) {
+				if (attr.isUpdateField()) {
+					FieldDTO field = new FieldDTO();
+					field.setFieldValue(attr.getValue());
+					field.setFieldKey(attr.getKey());
+					field.setFieldSource(id);
+					addF.add(field);
+				}
+			}
+			wlDTO.setAdditionalFields(addF);
+		}
+		
+		
+		
+		String decisionOrConfirmation=null;
+		if(workList.getWorkType() == WorkType.DECISION) {
+			FieldDTO decisionField=wlDTO.getAdditionalFields().stream().filter(f->f.getFieldKey() == AdditionalFieldKey.decision).findFirst().orElseThrow();
+			decisionOrConfirmation=decisionField.getFieldValue();
+		}else if(workList.getWorkType() == WorkType.CONFIRMATION) {
+			FieldDTO decisionField=wlDTO.getAdditionalFields().stream().filter(f->f.getFieldKey() == AdditionalFieldKey.confirmation).findFirst().orElseThrow();
+			decisionOrConfirmation=decisionField.getFieldValue();
+		}
+		
+		//wlDTO.setDecision(request.getDecision());	
+		//wlDTO.setRemarks(request.getRemarks());
 		wlDTO.setDecisionDate(CommonUtils.getSystemDate());
 		wlDTO.setDecisionMakerRoleGroup(decisionGroup);
 		UserDTO tokenUser = userInfraService.getUser(loggedInUserId, IdType.AUTH_USER_ID, false);
 		wlDTO.setDecisionMaker(tokenUser);
-		wlDTO.setRemarks(request.getRemarks());
+		
 		wlDTO.setStepCompleted(true);
 		wlDTO=workflowInfraService.updateWorkList(id, wlDTO);
 
@@ -310,11 +353,11 @@ public class RequestDO extends CommonDO{
 		 * next step based on decision and prepare next work list and create it
 		 */
 
-		WorkflowStatus nextStatus = businessDomainHelper.getWorkflowNextStatus(workList.getWorkflowStatus(),
-				workList.getWorkflowType(), request.getDecision());
+		WorkflowStatus nextStatus = businessDomainHelper.getWorkflowNextStatus(workList.getWorkItemName(),
+				workList.getWorkSourceType(), decisionOrConfirmation);
 		
 		
-		WorkDTO nextWorkList = businessDomainHelper.prepareWorkList(workList.getWorkflowType(), nextStatus,
+		WorkDTO nextWorkList = businessDomainHelper.prepareWorkList(workList.getWorkSourceType(), nextStatus,
 				decisionGroup);
 		//System.err.println("i=> "+nextWorkList.isFinalStep());
 		nextWorkList = createWorkItem(workflow, nextWorkList, task);
@@ -323,7 +366,7 @@ public class RequestDO extends CommonDO{
 		 * Updating next workflow status to workflow
 		 */
 		workflow.setStatus(nextStatus);
-		workflow = workflowInfraService.updateWorkflow(workList.getWorkflowId(), workflow);
+		workflow = workflowInfraService.updateWorkflow(workList.getWorkSourceId(), workflow);
 		/**
 		 * ON COMPLETION
 		 * When step = final step and action performed
@@ -345,6 +388,7 @@ public class RequestDO extends CommonDO{
 		}
 		return nextWorkList;
 	}
+
 	
 	
 }

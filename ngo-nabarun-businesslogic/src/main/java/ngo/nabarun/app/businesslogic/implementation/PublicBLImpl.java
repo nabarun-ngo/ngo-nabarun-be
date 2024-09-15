@@ -32,7 +32,7 @@ import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
@@ -144,7 +144,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			request.setDescription(
 					"I want to join NABARUN for '" + interview.getReasonForJoining() + "'. Please do needful.");
 			request.setAdditionalFields(addFieldList);
-			request.setType(WorkflowType.JOIN_REQUEST);
+			request.setType(RequestType.JOIN_REQUEST);
 			request.setDelegated(false);
 
 			UserDetail requester = new UserDetail();
@@ -201,7 +201,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please check and confirm payment.");
 			request.setAdditionalFields(addFieldList);
-			request.setType(WorkflowType.CHECK_PAYMENT);
+			request.setType(RequestType.CHECK_PAYMENT);
 			request.setDelegated(false);
 
 			UserDetail requester = new UserDetail();
@@ -241,7 +241,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please collect cash payment.");
 			request.setAdditionalFields(addFieldList);
-			request.setType(WorkflowType.COLLECT_CASH_PAYMENT);
+			request.setType(RequestType.COLLECT_CASH_PAYMENT);
 			request.setDelegated(false);
 
 			UserDetail requester = new UserDetail();

@@ -17,8 +17,9 @@ public interface IRequestBL {
 	RequestDetail createRequest(RequestDetail createRequest) throws Exception;
 	RequestDetail updateRequest(String id, RequestDetail request) throws Exception;
 	Paginate<RequestDetail> getMyRequests(Integer index, Integer size,boolean isDelegated) throws Exception;
-	Paginate<WorkDetail> getMyWorkList(Integer index, Integer size,boolean isCompleted) throws Exception;
+	Paginate<WorkDetail> getMyWorkList(Integer index, Integer size, boolean isCompleted) throws Exception;
 	List<WorkDetail> getWorkLists(String workflowId) throws Exception;
 	WorkDetail updateWorkList(String id, WorkDetail request) throws Exception;
+	
 
 }

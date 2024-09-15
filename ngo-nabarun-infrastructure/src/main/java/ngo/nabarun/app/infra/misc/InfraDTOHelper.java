@@ -20,7 +20,6 @@ import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
-import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.MeetingStatus;
 import ngo.nabarun.app.common.enums.MeetingType;
 import ngo.nabarun.app.common.enums.NoticeStatus;
@@ -35,11 +34,11 @@ import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.enums.UPIOption;
-import ngo.nabarun.app.common.enums.WorkFlowAction;
+import ngo.nabarun.app.common.enums.WorkAction;
 import ngo.nabarun.app.common.enums.WorkType;
-import ngo.nabarun.app.common.enums.WorkflowDecision;
+import ngo.nabarun.app.common.enums.WorkDecision;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.CryptUtil;
 import ngo.nabarun.app.ext.objects.AuthUser;
@@ -322,7 +321,7 @@ public class InfraDTOHelper {
 		fieldDTO.setFieldType(field.getFieldType());
 		fieldDTO.setFieldId(field.getId());
 		fieldDTO.setFieldSource(field.getSource());
-		fieldDTO.setFieldSourceType(AdditionalFieldSource.valueOf(field.getSourceType()));
+		fieldDTO.setFieldSourceType(field.getSourceType());
 
 		fieldDTO.setHidden(field.isHidden());
 		if(field.isEncrypted()) {
@@ -341,6 +340,10 @@ public class InfraDTOHelper {
 			fieldDTO.setFieldValue(field.getFieldValue());
 		}
 		fieldDTO.setEncrypted(field.isEncrypted());
+		
+		fieldDTO.setMandatory(field.isMandatory());
+		fieldDTO.setFieldOptions(InfraFieldHelper.stringToStringList(field.getFieldValueOptions()));
+		fieldDTO.setFieldValueType(field.getFieldValueType());
 		return fieldDTO;
 	}
 
@@ -615,7 +618,7 @@ public class InfraDTOHelper {
 		workFlowDTO.setWorkflowName(workflow.getName());
 		workFlowDTO.setStatus(workflow.getStatus() == null ? null : WorkflowStatus.valueOf(workflow.getStatus()));
 		workFlowDTO.setLastStatus(workflow.getLastStatus() == null ? null : WorkflowStatus.valueOf(workflow.getLastStatus()));
-		workFlowDTO.setType(WorkflowType.valueOf(workflow.getType()));
+		workFlowDTO.setType(RequestType.valueOf(workflow.getType()));
 		if(workflow.getCustomFields() != null) {
 			List<FieldDTO> list=workflow.getCustomFields().stream().map(m->{
 				return convertToFieldDTO(m,secret);
@@ -629,8 +632,8 @@ public class InfraDTOHelper {
 		WorkDTO workListDTO= new WorkDTO();
 		workListDTO.setActionPerformed(worklist.isActionPerformed());	
 		workListDTO.setCreatedOn(worklist.getCreatedOn());
-		workListDTO.setCurrentAction(worklist.getCurrentAction() == null ? null :WorkFlowAction.valueOf(worklist.getCurrentAction()));
-		workListDTO.setDecision(worklist.getDecision() == null ? null :WorkflowDecision.valueOf(worklist.getDecision()));
+		workListDTO.setCurrentAction(worklist.getCurrentAction() == null ? null :WorkAction.valueOf(worklist.getCurrentAction()));
+		workListDTO.setDecision(worklist.getDecision() == null ? null :WorkDecision.valueOf(worklist.getDecision()));
 		UserDTO dMaker = new UserDTO();
 		dMaker.setProfileId(worklist.getDecisionMakerId());	
 		dMaker.setName(worklist.getDecisionMakerName());		
@@ -657,12 +660,18 @@ public class InfraDTOHelper {
 		
 		workListDTO.setRemarks(worklist.getRemarks());
 		workListDTO.setStepCompleted(worklist.getStepCompleted());
-		workListDTO.setWorkflowId(worklist.getSourceId());
-		workListDTO.setWorkflowStatus(worklist.getSourceStatus() == null ? null : WorkflowStatus.valueOf(worklist.getSourceStatus()));
-		workListDTO.setWorkflowType(worklist.getSourceType() == null ? null : WorkflowType.valueOf(worklist.getSourceType()));
+		workListDTO.setWorkSourceId(worklist.getSourceId());
+		workListDTO.setWorkItemName(worklist.getSourceStatus() == null ? null : WorkflowStatus.valueOf(worklist.getSourceStatus()));
+		workListDTO.setWorkSourceType(worklist.getSourceType() == null ? null : RequestType.valueOf(worklist.getSourceType()));
 		workListDTO.setDecisionDate(worklist.getDecisionDate());
 		workListDTO.setWorkType(worklist.getWorkType() == null ? null : WorkType.valueOf(worklist.getWorkType()));
 		workListDTO.setFinalStep(worklist.isFinalStep());
+		if(worklist.getCustomFields() != null) {
+			List<FieldDTO> list=worklist.getCustomFields().stream().map(m->{
+				return convertToFieldDTO(m,"");
+			}).toList();
+			workListDTO.setAdditionalFields(list);
+		}
 		return workListDTO;
 	}
 

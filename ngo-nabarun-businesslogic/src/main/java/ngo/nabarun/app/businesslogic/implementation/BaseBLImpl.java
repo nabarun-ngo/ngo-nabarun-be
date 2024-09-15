@@ -16,8 +16,8 @@ import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.PaymentMethod;
-import ngo.nabarun.app.common.enums.WorkFlowAction;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.WorkAction;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.DonationDTO;
@@ -43,10 +43,10 @@ public class BaseBLImpl {
 	@Autowired
 	protected CommonDO commonDO;
 	
-	protected RequestDTO performWorkflowAction(WorkFlowAction action, RequestDTO workflow) throws Exception {
+	protected RequestDTO performWorkflowAction(WorkAction action, RequestDTO workflow) throws Exception {
 		switch (action) {
 		case ONBOARD_USER:
-			boolean emailVerified = workflow.getType() == WorkflowType.JOIN_REQUEST;
+			boolean emailVerified = workflow.getType() == RequestType.JOIN_REQUEST;
 			UserDTO memeber = onboardMember(workflow.getAdditionalFields(), emailVerified);
 			workflow.setRequester(memeber);
 			workflow.setLastActionCompleted(true);

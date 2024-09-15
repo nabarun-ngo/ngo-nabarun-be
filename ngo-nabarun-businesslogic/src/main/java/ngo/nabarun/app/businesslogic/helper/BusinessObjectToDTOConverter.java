@@ -17,9 +17,7 @@ import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetailUpdate;
 import ngo.nabarun.app.infra.dto.AddressDTO;
-import ngo.nabarun.app.infra.dto.DiscussionDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
-import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -213,12 +211,12 @@ public class BusinessObjectToDTOConverter {
 		meetingDTO.setRefType(meetingDetail.getMeetingRefType());
 		meetingDTO.setRemarks(meetingDetail.getMeetingRemarks());
 
-		List<DiscussionDTO> discussions = new ArrayList<>();
-		if (meetingDetail.getMeetingDiscussions() != null) {
-			meetingDetail.getMeetingDiscussions().forEach(disc -> {
-				discussions.add(new DiscussionDTO(disc.getId(), disc.getAgenda(), disc.getMinutes()));
-			});
-		}
+//		List<DiscussionDTO> discussions = new ArrayList<>();
+//		if (meetingDetail.getMeetingDiscussions() != null) {
+//			meetingDetail.getMeetingDiscussions().forEach(disc -> {
+//				discussions.add(new DiscussionDTO(disc.getId(), disc.getAgenda(), disc.getMinutes()));
+//			});
+//		}
 
 		//meetingDTO.setDiscussions(discussions);
 //		meetingDTO.setDraft(meetingDetail.getDraft() == null ? false : meetingDetail.getDraft());

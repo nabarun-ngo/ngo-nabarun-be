@@ -18,7 +18,7 @@ public class MeetingDetailCreate {
 	private String meetingRefId;
 	private MeetingType meetingType;
 	private List<UserDetail> meetingAttendees;
-	private List<MeetingDiscussion> meetingDiscussions;
+	//private List<MeetingDiscussion> meetingDiscussions;
 	private String meetingRemarks;
 	private MeetingRefType meetingRefType;
 

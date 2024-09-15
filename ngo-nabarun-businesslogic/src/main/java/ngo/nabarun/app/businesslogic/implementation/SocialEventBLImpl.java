@@ -14,7 +14,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.businesslogic.helper.BusinessObjectToDTOConverter;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EventType;

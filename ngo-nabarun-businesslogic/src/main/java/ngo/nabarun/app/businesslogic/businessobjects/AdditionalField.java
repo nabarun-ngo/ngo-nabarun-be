@@ -1,5 +1,7 @@
 package ngo.nabarun.app.businesslogic.businessobjects;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -13,6 +15,11 @@ public class AdditionalField {
 	private String name;
 	private String type;
 	private String value;
+	private List<String> options;
+
+	private boolean mandatory;
+	private String valueType;
+
 	
 	@JsonIgnore
 	private boolean encrypted;

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
@@ -19,7 +18,6 @@ import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
-import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -34,7 +32,6 @@ import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
-import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
@@ -93,7 +90,7 @@ public class DonationDO extends AccountDO {
 	}
 
 	public DonationDTO raiseDonation(DonationDetail donationDetail) throws Exception {
-		DonationDTO donationDTO = businessDomainHelper.convertToDonationDTO(donationDetail.getDonationType());
+		DonationDTO donationDTO = businessDomainHelper.convertToDonationDTO(donationDetail);
 		
 		UserDTO donor = new UserDTO();
 
@@ -135,17 +132,7 @@ public class DonationDO extends AccountDO {
 			donationDTO.setType(donationDetail.getDonationType());
 			donationDTO.setDonor(donor);
 		}
-		/**
-		 * Custom field
-		 */
-		if (donationDetail.getAdditionalFields() != null) {
-			List<FieldDTO> fieldDTO = new ArrayList<>();
-			for (AdditionalField addfield : donationDetail.getAdditionalFields()) {
-				fieldDTO.add(
-						businessDomainHelper.findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.DONATION, addfield));
-			}
-			donationDTO.setAdditionalFields(fieldDTO);
-		}
+		
 		donationDTO = donationInfraService.createDonation(donationDTO);
 
 		CorrespondentDTO recipient = CorrespondentDTO.builder().name(donor.getName())

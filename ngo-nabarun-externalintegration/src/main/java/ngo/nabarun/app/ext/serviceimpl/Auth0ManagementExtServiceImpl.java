@@ -15,6 +15,7 @@ import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.tickets.PasswordChangeTicket;
 import com.auth0.json.mgmt.users.User;
+import com.auth0.net.Response;
 import com.auth0.net.TokenRequest;
 
 import ngo.nabarun.app.common.helper.PropertyHelper;
@@ -98,6 +99,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		
 		try {
 			String connection = null;
+			boolean userCreated=false;
 			for(String provider:userDetails.getProviders()) {
 				switch(provider) {
 				case "PASSWORD":
@@ -112,12 +114,18 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 					userDetails.setPassword(null);
 					break;
 				}
-				initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection)).execute();
-			}		
+				Response<User> response=initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection)).execute();
+				if(response.getStatusCode() == 201) {
+					userCreated=true;
+				}
+			}	
+			if(!userCreated) {
+				throw new RuntimeException("User creation failed.");
+			}
 			/*
 			 * create for all connections and merge ids
 			 */
-			List<User> users= initManagementAPI().users().listByEmail(userDetails.getEmail(), null).execute().getBody();
+			List<User> users= initManagementAPI().users().listByEmail(userDetails.getEmail().toLowerCase(),null).execute().getBody();
 			if(users.size() >1) {
 				Map<String, Object> baseMetadata = users.get(0).getUserMetadata();
 				String primaryUserId=users.get(0).getId();

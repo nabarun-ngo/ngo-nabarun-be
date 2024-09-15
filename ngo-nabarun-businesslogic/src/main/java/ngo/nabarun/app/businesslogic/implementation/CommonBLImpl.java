@@ -21,6 +21,7 @@ import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.SecurityUtils;
 
 @Service
@@ -128,6 +129,13 @@ public class CommonBLImpl implements ICommonBL {
 		}
 		if(names == null || names.contains(RefDataType.ACCOUNT)) {
 			obj.putAll(businessHelper.getAccountRefData());
+		}
+		if(names == null || names.contains(RefDataType.WORKFLOW)) {
+			RequestType type=null;
+			if(attr != null && attr.containsKey("workflowType")) {
+				type=RequestType.valueOf(attr.get("workflowType"));
+			}
+			obj.putAll(businessHelper.getWorkflowRefData(type));
 		}
 		return obj;
 	}

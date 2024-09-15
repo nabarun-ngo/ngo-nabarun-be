@@ -5,13 +5,13 @@ import java.util.List;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.WorkflowStatus;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.RequestType;
 
 @Data
 public class RequestDetail {
 	private String id;
 	private String name;
-	private WorkflowType type;
+	private RequestType type;
 	private WorkflowStatus status;
 	private String description;
 	private Date createdOn;
