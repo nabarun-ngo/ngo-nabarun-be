@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
@@ -23,7 +23,7 @@ public interface ICommonBL {
 
 	boolean deleteDocument(String docId) throws Exception;
 
-	String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception;
+//	String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception;
 	
 	void clearSystemCache(List<String> names);
 
@@ -36,6 +36,8 @@ public interface ICommonBL {
 	Paginate<Map<String,String>> getNotifications(Integer pageIndex, Integer pageSize);
 
 	void manageNotification(String action, Map<String, Object> payload) throws Exception;
+
+	List<AdditionalField> getReferenceFields(String identifier) throws Exception;
 
 
 }

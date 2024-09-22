@@ -243,18 +243,20 @@ public class UserDO extends CommonDO {
 	public void syncUserDetail() throws Exception {
 		for (UserDTO userDTO : userInfraService.getAuthUsers()) {
 			try {
-				System.err.println(userDTO);
+				//System.err.println(userDTO);
 				UserDTOFilter filter = new UserDTOFilter();
 				filter.setEmail(userDTO.getEmail());
 				List<UserDTO> users = userInfraService.getUsers(null, null, filter).getContent();
-				System.err.println(users);
+				//System.err.println(users);
 
 				if (!users.isEmpty()) {
 					userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
 
 				} else {
+					userDTO.getAdditionalDetails().setActiveContributor(true);
 					userInfraService.createUser(userDTO);
 				}
+				Thread.sleep(2000);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

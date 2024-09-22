@@ -20,6 +20,8 @@ public class WorkDetail {
 	private WorkType workType;
 	private WorkflowStatus workflowStatus;
 	private List<RoleCode> pendingWithRoles;
+	private List<UserDetail> pendingWith;
+
 	private Date createdOn;
 	//private WorkDecision decision;
 	//private String remarks;

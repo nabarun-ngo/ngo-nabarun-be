@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -11,12 +13,13 @@ import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.ICommonBL;
-import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
+import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
@@ -75,9 +78,9 @@ public class CommonBLImpl implements ICommonBL {
 		return commonDO.deleteDocument(docId);
 	}
 
-	@Override
-	@Deprecated
-	public String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception {
+//	@Override
+//	@Deprecated
+//	public String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception {
 //		if(authDetail.getAuthRefType() == AuthRefType.MEETING) {
 //			LogsDTO meetingDTO=meetingInfraService.getMeeting(authDetail.getAuthRefId());
 //			if(meetingDTO.getAuthUrl() == null) {
@@ -89,8 +92,8 @@ public class CommonBLImpl implements ICommonBL {
 //			}
 //			return meetingDTO.getAuthUrl();
 //		}
-		return null;
-	}
+//		return null;
+//	}
 
 	@Override
 	public void clearSystemCache(List<String> names) {
@@ -143,6 +146,11 @@ public class CommonBLImpl implements ICommonBL {
 	@Override
 	public Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names) throws Exception {
 		return getReferenceData(names,null);
+	}
+	
+	@Override
+	public List<AdditionalField> getReferenceFields(String identifier) throws Exception {
+		return businessHelper.findAddtlFieldDTOList(identifier).stream().filter(f->!f.isHidden()).map(BusinessObjectConverter::toAdditionalField).collect(Collectors.toList());
 	}
 
 	@Override

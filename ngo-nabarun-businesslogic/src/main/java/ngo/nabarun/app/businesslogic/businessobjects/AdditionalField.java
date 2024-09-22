@@ -33,19 +33,19 @@ public class AdditionalField {
 	public AdditionalField() {
 	}
 	
-	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic) {
+	public AdditionalField(AdditionalFieldKey key, String value) {
 		super();
 		this.key = key;
 		this.value = value;
-		this.hidden = !isPublic;
-		this.encrypted=false;
+//		this.hidden = !isPublic;
+//		this.encrypted=false;
 	}
 	
-	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic, boolean encrypted) {
-		super();
-		this.key = key;
-		this.value = value;
-		this.hidden = !isPublic;
-		this.encrypted=encrypted;
-	}
+//	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic, boolean encrypted) {
+//		super();
+//		this.key = key;
+//		this.value = value;
+//		this.hidden = !isPublic;
+//		this.encrypted=encrypted;
+//	}
 }

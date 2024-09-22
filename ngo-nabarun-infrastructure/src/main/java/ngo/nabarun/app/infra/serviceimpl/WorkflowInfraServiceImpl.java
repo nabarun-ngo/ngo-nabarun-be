@@ -250,7 +250,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 							() -> qWorklist.decisionMakerId.eq(filter.getDecisionMakerProfileId()))
 					.optionalAnd(filter.getFromDate() != null && filter.getToDate() != null,
 							() -> qWorklist.createdOn.between(filter.getFromDate(), filter.getToDate()))
-					.and(qWorklist.stepCompleted.eq(filter.isStepCompleted()))
+					.optionalAnd(filter.getStepCompleted() != null, ()->qWorklist.stepCompleted.eq(filter.getStepCompleted()))
 					.build();
 
 			if (page == null || size == null) {

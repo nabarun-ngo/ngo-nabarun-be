@@ -7,27 +7,29 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import ngo.nabarun.app.common.util.CommonUtils;
 
 @Configuration
-@Getter
 public class PropertyHelper {
 	
-	@Getter(AccessLevel.NONE)
+	//@Getter(AccessLevel.PACKAGE)
 	@Autowired
 	private Environment systemEnv;
 	
+	@Getter
 	@Value("${ENVIRONMENT}")
 	private String environmentName;
 	
+	@Getter
 	@Value("${APP_SECRET}")
 	private String appSecret; 
 	
+	@Getter
 	@Value("${INCLUDE_ERROR_DETAILS:false}")
 	private boolean includeErrorDetails;
 	
+	@Getter
 	@Value("${RESTTIMEOUT_IN_SEC:120}")
 	private int thirdPartyRestCallTimeout;
 
@@ -44,15 +46,18 @@ public class PropertyHelper {
 		return systemEnv.getProperty("SENDGRID_SENDER_ADDRESS");
 	}
 	
+	@Getter
 	@Value("${APP_NAME:'Nabarun'}")
 	private String appName;
 	
+	@Getter
 	@Value("${SENDGRID_DEFAULT_TEMPLATE_ID}")
 	private String defaultEmailTemplateIdSendGrid;
 	
 	/**
 	 * Enable production mode in testing env. i.e. sent email to actual email even in  test environment
 	 */
+	@Getter
 	@Value("${ENABLE_PROD_MODE_FOR_TEST:false}")
 	private boolean prodModeEnabledForTest;
 	
@@ -85,15 +90,19 @@ public class PropertyHelper {
 	 * When ENABLE_TOKEN_MOCKING_FOR_TEST=true 
 	 * then Authenticated users details will be mocked as this user id
 	 */
+	@Getter
 	@Value("${MOCKED_TOKEN_USER_ID:''}")
 	private String mockedTokenUserId;
 	
+	@Getter
 	@Value("${FIREBASE_FILESTORAGE_BUCKET}")
 	private String firebaseFileStorageBucket;
 	
+	@Getter
 	@Value("${AUTH0_RESOURCE_API_AUDIENCE}")
 	private String auth0ResourceAPIAudience;
 
+	@Getter
 	@Value("${AUTH0_ISSUER_URI}")
 	private String auth0IssuerURI;
 	
@@ -102,33 +111,43 @@ public class PropertyHelper {
 		return CommonUtils.getProdProfileNames().stream().anyMatch(environmentName::equalsIgnoreCase);
 	}
 	
+	@Getter
 	@Value("${SENDGRID_API_KEY:'NO_VALUE'}")
 	private String sendGridAPIKey;
 	
+	@Getter
 	@Value("${FIREBASE_CREDENTIAL:'NO_VALUE'}")
 	private String firebaseCredential;
 	
+	@Getter
 	@Value("${AUTH0_BASE_URL:'NO_VALUE'}")
 	private String auth0BaseURL;
 
+	@Getter
 	@Value("${AUTH0_MANAGEMENT_CLIENT_ID:'NO_VALUE'}")
 	private String auth0ManagementClientId;
 
+	@Getter
 	@Value("${AUTH0_MANAGEMENT_CLIENT_SECRET:'NO_VALUE'}")
 	private String auth0ManagementClientSecret;
 
+	@Getter
 	@Value("${AUTH0_MANAGEMENT_API_AUDIENCE}")
 	private String auth0ManagementAPIAudience;
 	
+	@Getter
 	@Value("${GOOGLE_CLIENT_ID:'NO_VALUE'}")
 	private String googleClientId;
 	
+	@Getter
 	@Value("${GOOGLE_CLIENT_SECRET:'NO_VALUE'}")
 	private String googleClientSecret;
 
+	@Getter
 	@Value("${GOOGLE_RECAPTCHA_SITE_KEY:'NO_VALUE'}")
 	private String googleRecaptchaSiteKey;
 	
+	@Getter
 	@Value("${GOOGLE_RECAPTCHA_SECURITY_KEY:'NO_VALUE'}")
 	private String googleRecaptchaSecurityKey;
 	

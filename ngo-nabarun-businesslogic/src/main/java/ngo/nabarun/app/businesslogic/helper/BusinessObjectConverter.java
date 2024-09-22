@@ -200,7 +200,7 @@ public class BusinessObjectConverter {
 
 	public static AdditionalField toAdditionalField(FieldDTO fieldDTO) {
 
-		AdditionalField additionalField = new AdditionalField(null, null, fieldDTO.isHidden());
+		AdditionalField additionalField = new AdditionalField(null, null);
 		additionalField.setId(fieldDTO.getFieldId());
 		additionalField.setKey(fieldDTO.getFieldKey());
 		additionalField.setName(fieldDTO.getFieldName());
@@ -444,6 +444,8 @@ public class BusinessObjectConverter {
 		wiDetail.setAdditionalFields(workitemDTO.getAdditionalFields() == null ? List.of()
 				: workitemDTO.getAdditionalFields().stream().filter(f -> !f.isHidden()).map(m -> toAdditionalField(m))
 						.toList());
+		
+		wiDetail.setPendingWith(workitemDTO.getPendingWithUsers().stream().map(m->toUserDetail(m, null)).collect(Collectors.toList()));
 		return wiDetail;
 	}
 

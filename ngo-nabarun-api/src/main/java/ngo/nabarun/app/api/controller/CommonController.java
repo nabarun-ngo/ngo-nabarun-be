@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
@@ -82,55 +83,57 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/authorization/createAuthorizationUrl")
-	public ResponseEntity<SuccessResponse<String>> generateAuthorizationUrl(@RequestBody AuthorizationDetail authDetail)
+//	@PostMapping(value = "/authorization/createAuthorizationUrl")
+//	public ResponseEntity<SuccessResponse<String>> generateAuthorizationUrl(@RequestBody AuthorizationDetail authDetail)
+//			throws Exception {
+//		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
+//	}
+
+	@GetMapping(value = "/getReferenceField")
+	public ResponseEntity<SuccessResponse<List<AdditionalField>>> getReferenceField(@RequestParam String source)
 			throws Exception {
-		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
+		List<AdditionalField> fields = commonBL.getReferenceFields(source);
+		return new SuccessResponse<List<AdditionalField>>().payload(fields).get(HttpStatus.OK);
 	}
 
-	
 	@GetMapping(value = "/getReferenceData")
 	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
 			@RequestParam(required = false) List<RefDataType> names,
 			@RequestParam(required = false) DonationType donationType,
 			@RequestParam(required = false) DonationStatus currentDonationStatus,
-			@RequestParam(required = false) String countryCode,
-			@RequestParam(required = false) String stateCode,
-			@RequestParam(required = false) RequestType workflowType
-			) throws Exception {
-		Map<String, String> options= new HashMap<>();
-		if(donationType != null) {
+			@RequestParam(required = false) String countryCode, @RequestParam(required = false) String stateCode,
+			@RequestParam(required = false) RequestType workflowType) throws Exception {
+		Map<String, String> options = new HashMap<>();
+		if (donationType != null) {
 			options.put("donationType", donationType.name());
 		}
-		if(currentDonationStatus != null) {
+		if (currentDonationStatus != null) {
 			options.put("currentDonationStatus", currentDonationStatus.name());
 		}
-		if(countryCode != null) {
+		if (countryCode != null) {
 			options.put("countryCode", countryCode);
 		}
-		if(stateCode != null) {
+		if (stateCode != null) {
 			options.put("stateCode", stateCode);
 		}
-		if(workflowType != null) {
+		if (workflowType != null) {
 			options.put("workflowType", workflowType.name());
 		}
-		return new SuccessResponse<Map<String, List<KeyValue>>>()
-				.payload(commonBL.getReferenceData(names,options))
-				.get(HttpStatus.OK); 
-	}
-	
-	@GetMapping(value = "/getNotifications")
-	public ResponseEntity<SuccessResponse<Paginate<Map<String,String>>>> getNotification(
-			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize) throws Exception {
-		Paginate<Map<String,String>> notifications=commonBL.getNotifications(pageIndex,pageSize);
-		return new SuccessResponse<Paginate<Map<String,String>>>().payload(notifications).get(HttpStatus.OK);
+		return new SuccessResponse<Map<String, List<KeyValue>>>().payload(commonBL.getReferenceData(names, options))
+				.get(HttpStatus.OK);
 	}
 
-	
+	@GetMapping(value = "/getNotifications")
+	public ResponseEntity<SuccessResponse<Paginate<Map<String, String>>>> getNotification(
+			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
+			throws Exception {
+		Paginate<Map<String, String>> notifications = commonBL.getNotifications(pageIndex, pageSize);
+		return new SuccessResponse<Paginate<Map<String, String>>>().payload(notifications).get(HttpStatus.OK);
+	}
+
 	@PostMapping(value = "/manageNotification")
-	public ResponseEntity<SuccessResponse<Void>> manageNotification(
-			@RequestParam(required = true) String action ,
-			@RequestBody Map<String,Object>  body) throws Exception {
+	public ResponseEntity<SuccessResponse<Void>> manageNotification(@RequestParam(required = true) String action,
+			@RequestBody Map<String, Object> body) throws Exception {
 		commonBL.manageNotification(action, body);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}

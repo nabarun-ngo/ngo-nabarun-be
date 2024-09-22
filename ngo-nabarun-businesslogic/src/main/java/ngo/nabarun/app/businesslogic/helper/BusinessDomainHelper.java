@@ -103,6 +103,8 @@ public class BusinessDomainHelper {
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR = "APPLICABLE_FOR";
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_MANDATORY = "MANDATORY";
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS = "FIELD_OPTIONS";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN = "HIDDEN";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED = "ENCRYPTED";
 
 	@NoLogging
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
@@ -553,8 +555,8 @@ public class BusinessDomainHelper {
 		fieldDTO.setFieldType(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE)));
 		fieldDTO.setFieldKey(additionalField.getKey());
 		fieldDTO.setFieldValue(additionalField.getValue());
-		fieldDTO.setHidden(additionalField.isHidden());
-		fieldDTO.setEncrypted(additionalField.isEncrypted());
+		fieldDTO.setHidden(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
+		fieldDTO.setEncrypted(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
 		fieldDTO.setFieldSourceType(sourceType);
 		fieldDTO.setMandatory(
 				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_MANDATORY))));
@@ -564,14 +566,17 @@ public class BusinessDomainHelper {
 				String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE)));
 		return fieldDTO;
 	}
-
-	public List<FieldDTO> findAddtlFieldDTOList(String sourceType) throws Exception {
+	private List<KeyValuePair> getAdditionalFields(String sourceType) throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_ADDITIONAL_FIELDS);
-		List<FieldDTO> fields = kvFields.stream().filter(f -> {
+		List<KeyValuePair> fields = kvFields.stream().filter(f -> {
 			List<String> applicable_for = List.of(
 					String.valueOf(f.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR)).split(SPLITTER));
 			return applicable_for.contains(sourceType);
-		}).map(field -> {
+		}).collect(Collectors.toList());
+		return fields;
+	}
+	public List<FieldDTO> findAddtlFieldDTOList(String sourceType) throws Exception {
+		List<FieldDTO> fields=getAdditionalFields(sourceType).stream().map(field -> {
 			FieldDTO fieldDTO = new FieldDTO();
 			fieldDTO.setFieldName(field.getValue());
 			fieldDTO.setFieldType(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE)));
@@ -583,6 +588,8 @@ public class BusinessDomainHelper {
 					.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS)).split(SPLITTER)));
 			fieldDTO.setFieldValueType(
 					String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE)));
+			fieldDTO.setHidden(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
+			fieldDTO.setEncrypted(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
 			return fieldDTO;
 		}).collect(Collectors.toList());
 

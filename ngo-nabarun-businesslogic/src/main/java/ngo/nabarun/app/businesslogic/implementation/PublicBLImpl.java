@@ -128,17 +128,17 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 		} else if (interview.getActionName() == UserAction.SUBMIT_OTP) {
 			requestDO.validateOTP(interview.getOtpToken(), interview.getOnetimePassword(), "Sign up");
 			List<AdditionalField> addFieldList = new ArrayList<>();
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.firstName, interview.getFirstName(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.lastName, interview.getLastName(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.hometown, interview.getHometown(), true));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.firstName, interview.getFirstName()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.lastName, interview.getLastName()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.hometown, interview.getHometown()));
 			addFieldList.add(
-					new AdditionalField(AdditionalFieldKey.reasonForJoining, interview.getReasonForJoining(), true));
+					new AdditionalField(AdditionalFieldKey.reasonForJoining, interview.getReasonForJoining()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.howDoUKnowAboutNabarun,
-					interview.getHowDoUKnowAboutNabarun(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.password, interview.getPassword(), false, true));
+					interview.getHowDoUKnowAboutNabarun()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.password, interview.getPassword()));
 
 			RequestDetail request = new RequestDetail();
 			request.setDescription(
@@ -188,15 +188,15 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.getBreadCrumb().add("Make Payment");
 		} else if (interview.getActionName() == UserAction.CONFIRM_PAYMENT) {
 			List<AdditionalField> addFieldList = new ArrayList<>();
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.name, interview.getFirstName(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber(), true));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.name, interview.getFirstName()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber()));
 			addFieldList
-					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount()), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod(), true));
+					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount())));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod()));
 			addFieldList
-					.add(new AdditionalField(AdditionalFieldKey.paidToAccount, interview.getPaidToAccountId(), true));
+					.add(new AdditionalField(AdditionalFieldKey.paidToAccount, interview.getPaidToAccountId()));
 
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please check and confirm payment.");
@@ -230,13 +230,13 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 		} else if (interview.getActionName() == UserAction.SUBMIT_REQUEST) {
 			List<AdditionalField> addFieldList = new ArrayList<>();
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.name, interview.getFirstName(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode(), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber(), true));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.name, interview.getFirstName()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber()));
 			addFieldList
-					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount()), true));
-			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod(), true));
+					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount())));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod()));
 
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please collect cash payment.");

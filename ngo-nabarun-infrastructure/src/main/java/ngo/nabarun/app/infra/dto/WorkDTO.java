@@ -42,7 +42,7 @@ public class WorkDTO {
 
 	@Data
 	public static class WorkListDTOFilter{
-		private boolean stepCompleted;
+		private Boolean stepCompleted;
 		private String pendingWithUserId;
 		private List<RoleCode> pendingWithRoles;
 		private String decisionMakerProfileId;

@@ -37,7 +37,7 @@ public class ApiKeyAuthManager implements AuthenticationManager {
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String principal = (String) authentication.getPrincipal();
 		String credential = (String) authentication.getCredentials();
-		System.out.println(credential);
+		//System.out.println(credential);
 
 		@Nullable
 		ApiKeyDTO apiKey = this.keys.get(principal);

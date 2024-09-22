@@ -15,6 +15,7 @@ public enum AdditionalFieldKey {
 	paidToAccount,
 	decision,
 	remarks, 
-	confirmation
+	confirmation,
+	reasonForLeaving
 
 }
