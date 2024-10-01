@@ -41,6 +41,13 @@ public class AdditionalField {
 //		this.encrypted=false;
 	}
 	
+	public AdditionalField(AdditionalFieldKey key, String value,boolean updated) {
+		super();
+		this.key = key;
+		this.value = value;
+		this.updateField=updated;
+	}
+	
 //	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic, boolean encrypted) {
 //		super();
 //		this.key = key;

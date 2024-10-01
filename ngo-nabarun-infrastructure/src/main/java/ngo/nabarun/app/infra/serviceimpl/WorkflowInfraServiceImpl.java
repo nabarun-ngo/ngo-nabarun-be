@@ -26,7 +26,7 @@ import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO.RequestDTOFilter;
 import ngo.nabarun.app.infra.dto.WorkDTO;
-import ngo.nabarun.app.infra.dto.WorkDTO.WorkListDTOFilter;
+import ngo.nabarun.app.infra.dto.WorkDTO.WorkDTOFilter;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
 import ngo.nabarun.app.infra.misc.InfraFieldHelper;
 import ngo.nabarun.app.infra.misc.WhereClause;
@@ -42,8 +42,9 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	private WorkListRepository worklistRepository;
 
 	@Override
-	public RequestDTO createWorkflow(RequestDTO workflowDTO) {
+	public RequestDTO createRequest(RequestDTO workflowDTO) {
 		WorkflowEntity workflow = new WorkflowEntity();
+		workflow.setSystemGenerated(workflowDTO.isSystemGenerated());
 		workflow.setId(workflowDTO.getId());
 		workflow.setCreatedBy(null);
 		workflow.setCreatedOn(CommonUtils.getSystemDate());
@@ -61,6 +62,14 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			workflow.setDelegateProfileEmail(workflowDTO.getDelegatedRequester().getEmail());
 			workflow.setDelegateProfileName(workflowDTO.getDelegatedRequester().getName());
 		}
+		if (workflowDTO.getSystemRequestOwner() != null) {
+			UserDTO systemOwner = workflowDTO.getSystemRequestOwner();
+			workflow.setSystemRequestOwnerId(systemOwner.getUserId());
+			workflow.setSystemRequestOwnerEmail(systemOwner.getEmail());
+			String name = systemOwner.getName() == null ? String.join(" ", systemOwner.getFirstName(), systemOwner.getLastName())
+					: systemOwner.getName();
+			workflow.setSystemRequestOwnerName(name);
+		}
 		workflow.setDescription(workflowDTO.getDescription());
 		workflow.setName(workflowDTO.getWorkflowName());
 		workflow.setRemarks(workflowDTO.getRemarks());
@@ -77,7 +86,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	}
 
 	@Override
-	public Page<RequestDTO> getWorkflows(Integer page, Integer size, RequestDTOFilter filter) {
+	public Page<RequestDTO> getRequests(Integer page, Integer size, RequestDTOFilter filter) {
 		Page<WorkflowEntity> workflowPage = null;
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdOn");
 		if (filter != null) {
@@ -115,13 +124,13 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	}
 
 	@Override
-	public RequestDTO getWorkflow(String id) {
+	public RequestDTO getRequest(String id) {
 		WorkflowEntity workflow = workflowRepository.findById(id).orElseThrow();
 		return InfraDTOHelper.convertToWorkflowDTO(workflow, propertyHelper.getAppSecret());
 	}
 
 	@Override
-	public RequestDTO updateWorkflow(String id, RequestDTO workflowDTO) {
+	public RequestDTO updateRequest(String id, RequestDTO workflowDTO) {
 		WorkflowEntity workflowOri = workflowRepository.findById(id).orElseThrow();
 		WorkflowEntity workflow = new WorkflowEntity();
 
@@ -156,13 +165,13 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	}
 
 	@Override
-	public WorkDTO getWorkList(String id) {
+	public WorkDTO getWorkItem(String id) {
 		WorkListEntity worklist = worklistRepository.findById(id).orElseThrow();
 		return InfraDTOHelper.convertToWorkListDTO(worklist);
 	}
 
 	@Override
-	public WorkDTO createWorkList(WorkDTO worklistDTO) {
+	public WorkDTO createWorkItem(WorkDTO worklistDTO) {
 		WorkListEntity worklist = new WorkListEntity();
 		worklist.setCreatedOn(CommonUtils.getSystemDate());
 		worklist.setCurrentAction(worklistDTO.getDecision() == null ? null : worklistDTO.getDecision().name());
@@ -184,7 +193,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		}
 
 		worklist.setSourceId(worklistDTO.getWorkSourceId());
-		worklist.setSourceStatus(worklistDTO.getWorkItemName() == null ? null : worklistDTO.getWorkItemName().name());
+		worklist.setSourceStatus(worklistDTO.getWorkSourceStatus() == null ? null : worklistDTO.getWorkSourceStatus().name());
 		worklist.setSourceType(worklistDTO.getWorkSourceType() == null ? null : worklistDTO.getWorkSourceType().name());
 		worklist.setStepCompleted(worklistDTO.getStepCompleted() == null ? false : worklistDTO.getStepCompleted());
 		worklist.setWorkType(worklistDTO.getWorkType() == null ? null : worklistDTO.getWorkType().name());
@@ -202,7 +211,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	}
 
 	@Override
-	public WorkDTO updateWorkList(String id, WorkDTO worklistDTO) {
+	public WorkDTO updateWorkItem(String id, WorkDTO worklistDTO) {
 		WorkListEntity worklist = worklistRepository.findById(id).orElseThrow();
 		WorkListEntity updatedWorklist = new WorkListEntity();
 		updatedWorklist.setActionPerformed(
@@ -224,12 +233,14 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 				addfield.setFieldSource(worklist.getId());
 				addOrUpdateCustomField(addfield);
 			}
+			
 		}
+		//System.err.println(worklist);
 		return InfraDTOHelper.convertToWorkListDTO(worklist);
 	}
 
 	@Override
-	public Page<WorkDTO> getWorkList(Integer page, Integer size, WorkListDTOFilter filter) {
+	public Page<WorkDTO> getWorkItems(Integer page, Integer size, WorkDTOFilter filter) {
 		Page<WorkListEntity> worklistPage = null;
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdOn");
 		if (filter != null) {
@@ -241,6 +252,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			BooleanBuilder query = WhereClause.builder()
 					.optionalAnd(filter.getId() != null, () -> qWorklist.id.eq(filter.getId()))
 					.optionalAnd(filter.getWorkflowId() != null, () -> qWorklist.sourceId.eq(filter.getWorkflowId()))
+					.optionalAnd(filter.getSourceType() != null, () -> qWorklist.sourceType.eq(filter.getSourceType().name()))
 					.optionalAnd(filter.getPendingWithUserId() != null,
 							() -> qWorklist.pendingWithUserId.contains(filter.getPendingWithUserId()))
 					.optionalAnd(filter.getPendingWithRoles() != null,
@@ -265,6 +277,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		} else {
 			worklistPage = new PageImpl<>(worklistRepository.findAll(sort));
 		}
+		System.err.println(worklistPage.getContent());
 		return worklistPage.map(m -> InfraDTOHelper.convertToWorkListDTO(m));
 	}
 

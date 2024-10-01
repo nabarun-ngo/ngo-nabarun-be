@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.helper;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -433,7 +434,7 @@ public class BusinessObjectConverter {
 		
 		wiDetail.setStepCompleted(workitemDTO.getStepCompleted());
 		wiDetail.setWorkflowId(workitemDTO.getWorkSourceId());
-		wiDetail.setWorkflowStatus(workitemDTO.getWorkItemName());
+		wiDetail.setWorkflowStatus(workitemDTO.getWorkSourceStatus());
 		if (workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
 			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker(),null));
 		} else {
@@ -515,6 +516,23 @@ public class BusinessObjectConverter {
 		documentDetail.setImage(documentDTO.isImage());
 		documentDetail.setOriginalFileName(documentDTO.getOriginalFileName());
 		return documentDetail;
+	}
+
+	public static List<FieldDTO> toFieldDTO(List<AdditionalField> additionalFields) {
+		
+		return additionalFields==null ? new ArrayList<>() : additionalFields.stream()
+				.map(m->{
+					FieldDTO field= new FieldDTO();
+					field.setFieldId(m.getId());
+					field.setFieldKey(m.getKey());
+					field.setFieldName(m.getName());
+					field.setFieldOptions(m.getOptions());
+					field.setFieldType(m.getType());
+					field.setFieldValue(m.getValue());
+					field.setFieldValueType(m.getValueType());
+					return field;
+				})
+				.collect(Collectors.toList());
 	}
 
 //	public static NotificationDetail toNotificationDetail(NotificationDTO notificationDTO) {

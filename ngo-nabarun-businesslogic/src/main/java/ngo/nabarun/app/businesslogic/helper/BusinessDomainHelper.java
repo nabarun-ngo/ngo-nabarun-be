@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.exception.BusinessCondition;
@@ -30,11 +31,12 @@ import ngo.nabarun.app.common.enums.NotificationType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.WorkAction;
 import ngo.nabarun.app.common.enums.WorkType;
-import ngo.nabarun.app.common.enums.WorkflowStatus;
+import ngo.nabarun.app.common.enums.RequestStatus;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
+import ngo.nabarun.app.infra.dto.EmailTemplateDTO.EmailBodyTemplate.TableTemplate;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
@@ -105,10 +107,16 @@ public class BusinessDomainHelper {
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS = "FIELD_OPTIONS";
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN = "HIDDEN";
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED = "ENCRYPTED";
+	private static final String ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED = "SYSTEM_GENERATED";
 
 	@NoLogging
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
 		return domainInfraService.getDomainRefConfigs();
+	}
+
+	@NoLogging
+	protected Map<String, List<KeyValuePair>> getDomainLocation() throws Exception {
+		return domainInfraService.getDomainLocationData();
 	}
 
 	public String getDisplayValue(String key) throws Exception {
@@ -121,6 +129,12 @@ public class BusinessDomainHelper {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
 			for (Entry<String, List<KeyValuePair>> config : configs.entrySet()) {
 				for (KeyValuePair item : config.getValue()) {
+					domainKeyValue.put(item.getKey(), item.getValue());
+				}
+			}
+			Map<String, List<KeyValuePair>> locations = getDomainLocation();
+			for (Entry<String, List<KeyValuePair>> location : locations.entrySet()) {
+				for (KeyValuePair item : location.getValue()) {
 					domainKeyValue.put(item.getKey(), item.getValue());
 				}
 			}
@@ -190,6 +204,7 @@ public class BusinessDomainHelper {
 	public Map<String, List<KeyValue>> getUserRefData(String countryCode, String stateCode) throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		Map<String, List<KeyValuePair>> locationRef = domainInfraService.getDomainLocationData();
 		obj.put("userTitles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_TITLE)));
 		obj.put("userGenders", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_GENDER)));
 		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE).stream()
@@ -198,14 +213,17 @@ public class BusinessDomainHelper {
 				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
 		obj.put("userStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream()
 				.filter(m -> m.getAttributes().get("IS_VISIBLE") == Boolean.TRUE).collect(Collectors.toList())));
-		obj.put("countries", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_COUNTRY_LIST)));
+
+		obj.put("countries", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST)));
+		obj.put("phoneCodes", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST), "DIALCODE"));
+
 		if (countryCode != null) {
-			List<KeyValuePair> states = domainRef.get(ITEM_STATE_LIST).stream()
+			List<KeyValuePair> states = locationRef.get(ITEM_STATE_LIST).stream()
 					.filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))).collect(Collectors.toList());
 			obj.put("states", BusinessObjectConverter.toKeyValueList(states));
 		}
 		if (countryCode != null && stateCode != null) {
-			List<KeyValuePair> districts = domainRef.get(ITEM_DISTRICT_LIST).stream()
+			List<KeyValuePair> districts = locationRef.get(ITEM_DISTRICT_LIST).stream()
 					.filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))
 							&& stateCode.equals(f.getAttributes().get("STATEKEY")))
 					.collect(Collectors.toList());
@@ -291,7 +309,7 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public RequestDTO convertToRequestDTO(RequestType type, List<AdditionalField> addifields) throws Exception {
+	public RequestDTO convertToRequestDTO(RequestType type, List<FieldDTO> addifields) throws Exception {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
 		KeyValuePair wftype = domainRef.get(ITEM_WORKFLOW_TYPES).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst()
@@ -300,15 +318,19 @@ public class BusinessDomainHelper {
 		RequestDTO wf = new RequestDTO();
 		wf.setWorkflowName(wftype.getValue());
 		String status = wftype.getAttributes().get(ITEM_WORKFLOW_TYPES__ATTR_DEFAULT_STEP).toString();
-		wf.setStatus(WorkflowStatus.valueOf(status));
+		wf.setStatus(RequestStatus.valueOf(status));
+		wf.setDescription(wftype.getDescription());
 		wf.setType(type);
 		if (addifields != null) {
 			List<FieldDTO> fieldDTO = new ArrayList<>();
-			for (AdditionalField addfield : addifields) {
+			for (FieldDTO addfield : addifields) {
 				fieldDTO.add(findAddtlFieldAndConvertToFieldDTO("REQUEST-" + type.name(), addfield));
 			}
 			wf.setAdditionalFields(fieldDTO);
 		}
+		Object sysGen = wftype.getAttributes().get(ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED);
+
+		wf.setSystemGenerated(sysGen == null ? false : Boolean.valueOf(sysGen.toString()));
 		return wf;
 	}
 
@@ -320,14 +342,14 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public WorkDTO prepareWorkList(RequestType type, WorkflowStatus workItem, String decisionGroup) throws Exception {
+	public WorkDTO prepareWorkList(RequestType type, RequestStatus workItem, String decisionGroup) throws Exception {
 		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEPS).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(workItem.name())).findFirst()
 				.orElseThrow(() -> new Exception("No such workitem found."));
 		Map<String, Object> attributes = kvWfStep.getAttributes();
 
 		WorkDTO wl = new WorkDTO();
-		wl.setWorkItemName(workItem);
+		wl.setWorkSourceStatus(workItem);
 		wl.setWorkSourceType(type);
 		wl.setCreatedOn(CommonUtils.getSystemDate());
 		wl.setDescription(kvWfStep.getDescription());
@@ -357,7 +379,7 @@ public class BusinessDomainHelper {
 	}
 
 	@Deprecated
-	public WorkAction getWorkflowAction(WorkflowStatus status, RequestType type) throws Exception {
+	public WorkAction getWorkflowAction(RequestStatus status, RequestType type) throws Exception {
 		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEPS).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(status.name())).findFirst()
 				.orElseThrow(() -> new Exception("No such workflow status found."));
@@ -370,7 +392,7 @@ public class BusinessDomainHelper {
 		return actionName == null ? WorkAction.NO_ACTION : WorkAction.valueOf(actionName.toString());
 	}
 
-	public WorkflowStatus getWorkflowNextStatus(WorkflowStatus status, RequestType type, String decision)
+	public RequestStatus getWorkflowNextStatus(RequestStatus status, RequestType type, String decision)
 			throws Exception {
 		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEPS).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(status.name())).findFirst()
@@ -389,7 +411,7 @@ public class BusinessDomainHelper {
 			nextStatus = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_NEXT_STEP + "-" + type.name());
 		}
 
-		return nextStatus == null ? null : WorkflowStatus.valueOf(nextStatus.toString());
+		return nextStatus == null ? null : RequestStatus.valueOf(nextStatus.toString());
 	}
 
 	/*
@@ -455,7 +477,8 @@ public class BusinessDomainHelper {
 		 */
 		if (donationDetail.getAdditionalFields() != null) {
 			List<FieldDTO> fieldDTO = new ArrayList<>();
-			for (AdditionalField addfield : donationDetail.getAdditionalFields()) {
+			List<FieldDTO> fieldList = BusinessObjectConverter.toFieldDTO(donationDetail.getAdditionalFields());
+			for (FieldDTO addfield : fieldList) {
 				fieldDTO.add(findAddtlFieldAndConvertToFieldDTO("DONATION-" + type.name(), addfield));
 			}
 			donDTO.setAdditionalFields(fieldDTO);
@@ -541,22 +564,24 @@ public class BusinessDomainHelper {
 	 * @return returns instance of FieldDTO
 	 * @throws Exception if no value found for the key
 	 */
-	public FieldDTO findAddtlFieldAndConvertToFieldDTO(String sourceType, AdditionalField additionalField)
-			throws Exception {
+	public FieldDTO findAddtlFieldAndConvertToFieldDTO(String sourceType, FieldDTO additionalField) throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_ADDITIONAL_FIELDS);
 		KeyValuePair field = kvFields.stream().filter(f -> {
 			List<String> applicable_for = List.of(
 					String.valueOf(f.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR)).split(SPLITTER));
-			return f.getKey().equalsIgnoreCase(additionalField.getKey().name()) && applicable_for.contains(sourceType);
+			return f.getKey().equalsIgnoreCase(additionalField.getFieldKey().name())
+					&& applicable_for.contains(sourceType);
 		}).findFirst().orElseThrow(() -> new Exception("Invalid additional key"));
 		FieldDTO fieldDTO = new FieldDTO();
-		fieldDTO.setFieldId(additionalField.getId());
+		fieldDTO.setFieldId(additionalField.getFieldId());
 		fieldDTO.setFieldName(field.getValue());
 		fieldDTO.setFieldType(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE)));
-		fieldDTO.setFieldKey(additionalField.getKey());
-		fieldDTO.setFieldValue(additionalField.getValue());
-		fieldDTO.setHidden(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
-		fieldDTO.setEncrypted(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
+		fieldDTO.setFieldKey(additionalField.getFieldKey());
+		fieldDTO.setFieldValue(additionalField.getFieldValue());
+		fieldDTO.setHidden(
+				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
+		fieldDTO.setEncrypted(
+				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
 		fieldDTO.setFieldSourceType(sourceType);
 		fieldDTO.setMandatory(
 				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_MANDATORY))));
@@ -566,6 +591,7 @@ public class BusinessDomainHelper {
 				String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE)));
 		return fieldDTO;
 	}
+
 	private List<KeyValuePair> getAdditionalFields(String sourceType) throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_ADDITIONAL_FIELDS);
 		List<KeyValuePair> fields = kvFields.stream().filter(f -> {
@@ -575,8 +601,9 @@ public class BusinessDomainHelper {
 		}).collect(Collectors.toList());
 		return fields;
 	}
+
 	public List<FieldDTO> findAddtlFieldDTOList(String sourceType) throws Exception {
-		List<FieldDTO> fields=getAdditionalFields(sourceType).stream().map(field -> {
+		List<FieldDTO> fields = getAdditionalFields(sourceType).stream().map(field -> {
 			FieldDTO fieldDTO = new FieldDTO();
 			fieldDTO.setFieldName(field.getValue());
 			fieldDTO.setFieldType(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE)));
@@ -588,8 +615,10 @@ public class BusinessDomainHelper {
 					.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS)).split(SPLITTER)));
 			fieldDTO.setFieldValueType(
 					String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE)));
-			fieldDTO.setHidden(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
-			fieldDTO.setEncrypted(Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
+			fieldDTO.setHidden(
+					Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
+			fieldDTO.setEncrypted(
+					Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
 			return fieldDTO;
 		}).collect(Collectors.toList());
 
@@ -739,14 +768,52 @@ public class BusinessDomainHelper {
 
 			}
 		}
-		System.err.println(attributes);
 
 		EmailTemplateDTO emailTemplate = new EmailTemplateDTO();
 		BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(emailTemplate);
 		wrapper.setAutoGrowNestedPaths(true);
 		wrapper.setPropertyValues(attributes);
 		emailTemplate.setTemplateId(template.getValue());
+		if (emailTemplate.getBody() != null && emailTemplate.getBody().getContent() != null
+				&& emailTemplate.getBody().getContent().getTable() != null) {
+			List<TableTemplate> template_1 = new ArrayList<>();
+			for (TableTemplate table : emailTemplate.getBody().getContent().getTable()) {
+				if (table.getDataString() != null) {
+					table.setData(convertRenderedStringTo2DArray(table.getDataString()));
+					template_1.add(table);
+				}
+			}
+			emailTemplate.getBody().getContent().setTable(template_1);
+		}
 		return emailTemplate;
+	}
+
+	private static String[][] convertRenderedStringTo2DArray(String input) {
+		// Step 1: Clean up the input by removing the outer brackets
+		String cleanedInput = input.substring(1, input.length() - 1); // Remove outer [ and ]
+
+		// Step 2: Split the input into individual rows
+		String[] rows = cleanedInput.split("\\], \\[");
+
+		// Step 3: Create the 2D array to hold the result
+		String[][] result = new String[rows.length][];
+
+		// Step 4: Process each row using regex to handle commas within quotes
+		Pattern pattern = Pattern.compile("\"([^\"]*)\""); // Match text inside double quotes
+		for (int i = 0; i < rows.length; i++) {
+			// Find all matches in the row
+			Matcher matcher = pattern.matcher(rows[i]);
+			List<String> elements = new ArrayList<>();
+
+			// Extract each quoted element
+			while (matcher.find()) {
+				elements.add(matcher.group(1)); // Add matched content (without quotes)
+			}
+
+			// Convert the list of elements to an array
+			result[i] = elements.toArray(new String[0]);
+		}
+		return result;
 	}
 
 	private String interpolateText(String text, Map<String, Object> objectMap) {

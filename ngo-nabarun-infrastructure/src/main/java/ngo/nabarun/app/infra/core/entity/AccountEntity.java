@@ -42,5 +42,6 @@ public class AccountEntity {
 	private String createdByName;
 	private String createdByEmail;
 	
-	
+	private boolean deleted;
+
 }

@@ -13,4 +13,5 @@ public interface IAccountInfraService {
 	Page<AccountDTO> getAccounts(Integer page, Integer size, AccountDTOFilter filter);
 	AccountDTO createAccount(AccountDTO accountDTO);
 	AccountDTO updateAccount(String id, AccountDTO accountUpdate);
+	void deleteAccount(String id);
 }

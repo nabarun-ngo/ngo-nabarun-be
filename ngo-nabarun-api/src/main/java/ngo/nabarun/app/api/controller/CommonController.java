@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
-import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
@@ -23,6 +22,7 @@ import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
+import ngo.nabarun.app.common.enums.TriggerEvent;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -83,11 +83,12 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-//	@PostMapping(value = "/authorization/createAuthorizationUrl")
-//	public ResponseEntity<SuccessResponse<String>> generateAuthorizationUrl(@RequestBody AuthorizationDetail authDetail)
-//			throws Exception {
-//		return new SuccessResponse<String>().payload(commonBL.generateAuthorizationUrl(authDetail)).get(HttpStatus.OK);
-//	}
+	@GetMapping(value = "/cron/trigger")
+	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestParam List<TriggerEvent> trigger)
+			throws Exception {
+		commonBL.cronTrigger(trigger);
+		return new SuccessResponse<Void>().get(HttpStatus.OK);
+	}
 
 	@GetMapping(value = "/getReferenceField")
 	public ResponseEntity<SuccessResponse<List<AdditionalField>>> getReferenceField(@RequestParam String source)

@@ -32,10 +32,13 @@ public class WorkflowEntity {
 	private String profileId;
 	private String profileName;
 	private String profileEmail;
+	private String  systemRequestOwnerId;
+	private String  systemRequestOwnerEmail;
+	private String  systemRequestOwnerName;
 
-	
 
 	private boolean delegated;
+	private boolean systemGenerated;
 
 	private String delegateProfileId;
 	private String delegateProfileName;

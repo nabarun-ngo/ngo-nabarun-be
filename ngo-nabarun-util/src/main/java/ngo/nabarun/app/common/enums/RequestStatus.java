@@ -1,0 +1,21 @@
+package ngo.nabarun.app.common.enums;
+
+public enum RequestStatus {
+	AWAITING_L1_APPROVAL,
+	AWAITING_L2_APPROVAL,
+	AWAITING_L2_APPROVAL_MM,
+	APPROVED_ONBOARDING,
+	APPROVED_EXIT,
+	REJECTED, 
+	CANCELLED,
+	PAYMENT_COLLECTION_PENDING,
+	PAYMENT_CONFIRMATION_PENDING,
+	PAYMENT_COLLECTED,
+	NO_PAYMENT,
+	AWAITING_APPROVAL_MM,
+	APPROVED_DONATION_PAUSE,
+	COMPLETED,
+	AWAITING_USER_RESPONSE
+	//add flag system_request( this should come from config) in requests 
+	//and set target user as pending with 
+}

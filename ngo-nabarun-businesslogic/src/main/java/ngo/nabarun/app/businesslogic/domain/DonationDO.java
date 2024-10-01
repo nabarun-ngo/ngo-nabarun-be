@@ -1,20 +1,25 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
+import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
@@ -29,16 +34,19 @@ import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
+import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
+import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 
 @Component
+@Slf4j
 public class DonationDO extends AccountDO {
 
 	@Autowired
@@ -76,6 +84,38 @@ public class DonationDO extends AccountDO {
 		});
 		return new Paginate<DonationDTO>(donationPage);
 	}
+	
+	public void convertMemberToGuestAndCloseAccount(String id) throws Exception {
+		DonationDTOFilter filter = new DonationDTOFilter();
+		filter.setDonorId(id);
+		List<DonationDTO> donations = donationInfraService.getDonations(null, null, filter).getContent();
+		
+		Optional<DonationDTO> unResolved=donations.stream().filter(d->{
+			try {
+				return !businessDomainHelper.isResolvedDonation(d.getStatus());
+			} catch (Exception e) {}
+			return false;
+		}).findFirst();
+		businessDomainHelper.throwBusinessExceptionIf(()->unResolved.isPresent(), ExceptionEvent.UNRESOLVED_DONATION_EXISTS);
+		
+		AccountDTOFilter filterDTO= new AccountDTOFilter();
+		filterDTO.setProfileId(id);
+		List<AccountDTO> accounts = accountInfraService.getAccounts(null, null, filterDTO).getContent();
+		List<AccountDTO> accountsWithBalance = accounts.stream().filter(f->f.getCurrentBalance() != 0.0).collect(Collectors.toList());
+		businessDomainHelper.throwBusinessExceptionIf(()-> accountsWithBalance.size() > 0, ExceptionEvent.ACCOUNT_WITH_BALANCE_EXISTS);
+		
+		
+		for(DonationDTO donation:donations) {
+			DonationDTO don = new DonationDTO();
+			don.setGuest(true);
+			don.setComment("Auto converted to guest donation");
+			donationInfraService.updateDonation(donation.getId(), don);
+		}
+		
+		for(AccountDTO account:accounts) {
+			accountInfraService.deleteAccount(account.getId());
+		}
+	}
 
 	public List<DocumentDTO> retrieveDonationDocument(String donationId) {
 		return documentInfraService.getDocumentList(donationId, DocumentIndexType.DONATION);
@@ -87,6 +127,36 @@ public class DonationDO extends AccountDO {
 //			doc.setOriginalFileName(m.getOriginalFileName());
 //			return doc;
 //		}).toList();
+	}
+	
+	public void autoRaiseRegularDonation(List<UserDTO> users) throws Exception {
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(CommonUtils.getSystemDate());
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		Date startDate = cal.getTime();
+		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+		Date endDate = cal.getTime();
+
+		for (UserDTO user : users) {
+			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
+					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
+				DonationDetail donationDetail = new DonationDetail();
+				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,businessDomainHelper.getDomainKeyValues()));
+				donationDetail.setEndDate(endDate);
+				donationDetail.setIsGuest(false);
+				donationDetail.setStartDate(startDate);
+				donationDetail.setDonationType(DonationType.REGULAR);
+				try {
+					DonationDTO donation = raiseDonation(donationDetail);
+					log.info("Automatically raised donation id : " + donation.getId());
+				} catch (Exception e) {
+					log.error("Exception occured during automatic donation creation ", e);
+				}
+				Thread.sleep(2000);
+			}
+		}
+
 	}
 
 	public DonationDTO raiseDonation(DonationDetail donationDetail) throws Exception {
@@ -110,8 +180,12 @@ public class DonationDO extends AccountDO {
 
 		} else {
 			donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), IdType.ID, false);
-			if (!donor.getAdditionalDetails().isActiveContributor()) {
-				throw new BusinessException("Donor is not active");
+			UserAdditionalDetailsDTO addnlDet=donor.getAdditionalDetails();
+			if (addnlDet.getDonPauseStartDate() != null && addnlDet.getDonPauseEndDate() !=null) {
+				Date today= CommonUtils.getSystemDate();
+				if(today.after(addnlDet.getDonPauseStartDate()) && today.before(addnlDet.getDonPauseEndDate())) {
+					donationDTO.setStatus(DonationStatus.PAY_LATER);
+				}
 			}
 			donationDTO.setId(generateDonationId());
 			if(donationDetail.getAmount() != null) {
@@ -128,7 +202,6 @@ public class DonationDO extends AccountDO {
 					donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getStartDate() : null);
 			donationDTO.setEndDate(
 					donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getEndDate() : null);
-			//donationDTO.setStatus(DonationStatus.RAISED);//automatically come from configuration
 			donationDTO.setType(donationDetail.getDonationType());
 			donationDTO.setDonor(donor);
 		}
@@ -139,7 +212,7 @@ public class DonationDO extends AccountDO {
 				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
 				.build();
 		Map<String, Object> donation_vars=donationDTO.toMap(businessDomainHelper.getDomainKeyValues());
-		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),Map.of("donation",donation_vars));
+		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_REMINDER, List.of(recipient),Map.of("donation",donation_vars));
 		return donationDTO;
 	}
 
@@ -218,21 +291,7 @@ public class DonationDO extends AccountDO {
 			updatedDetail.setComment(request.getRemarks());
 
 		} else if (request.getDonationStatus() == DonationStatus.PAYMENT_FAILED) {
-			//UserDTO auth_user = userInfraService.getUser(loggedInUserId, IdType.AUTH_USER_ID, false);
-
-			//TransactionDetail newTxn = new TransactionDetail();
-//			newTxn.setTxnAmount(donation.getAmount());
-//			newTxn.setTxnDate(request.getPaidOn());
-//			newTxn.setTxnRefId(donation.getId());
-//			newTxn.setTxnRefType(TransactionRefType.DONATION);
-//			newTxn.setTxnStatus(TransactionStatus.FAILURE);
-//			newTxn.setTxnType(TransactionType.IN);
-//			newTxn.setComment(request.getPaymentFailureDetail());
-//			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-//			TransactionDTO newTxnDet = createTransaction(newTxn,auth_user);
-			//updatedDetail.setTransactionRefNumber(newTxnDet.getId());
 			updatedDetail.setPaymentFailDetail(request.getPaymentFailureDetail());
-
 		} else if (request.getDonationStatus() == DonationStatus.PAY_LATER) {
 			updatedDetail.setPayLaterReason(request.getLaterPaymentReason());
 		} else if (request.getDonationStatus() == DonationStatus.CANCELLED) {

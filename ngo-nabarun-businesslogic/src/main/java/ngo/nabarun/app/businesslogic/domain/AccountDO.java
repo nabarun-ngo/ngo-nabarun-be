@@ -41,7 +41,7 @@ public class AccountDO extends CommonDO {
 	private ITransactionInfraService transactionInfraService;
 
 	@Autowired
-	private IAccountInfraService accountInfraService;
+	protected IAccountInfraService accountInfraService;
 
 	@Autowired
 	protected IUserInfraService userInfraService;
@@ -329,4 +329,5 @@ public class AccountDO extends CommonDO {
 		return accountInfraService.updateAccount(id,accountUpdate);
 
 	}
+	
 }

@@ -1,5 +1,5 @@
 package ngo.nabarun.app.common.enums;
 
 public enum WorkType {
-	DECISION,NA,CONFIRMATION
+	DECISION,NA,CONFIRMATION,USER_INPUT
 }

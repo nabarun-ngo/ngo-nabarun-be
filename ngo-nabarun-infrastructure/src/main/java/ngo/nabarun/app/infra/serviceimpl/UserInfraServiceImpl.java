@@ -164,6 +164,8 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		newAuth0User.setPassword(userDTO.getPassword());
 		newAuth0User.setEmailVerified(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getEmailVerified() : null);
+		newAuth0User.setResetPassword(
+				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getPasswordResetRequired() : null);
 		newAuth0User.setProviders(userDTO.getLoginProviders());
 		
 		if (userDTO.getUserId() != null) {
@@ -342,6 +344,11 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		updatedProfile.setStatus(userDTO.getStatus() == null ? null : userDTO.getStatus().name());
 		updatedProfile.setUserId(userDTO.getUserId() == null ? null : userDTO.getUserId());
 		updatedProfile.setAvatarUrl(userDTO.getImageUrl());
+		
+		updatedProfile.setDonationPauseStartDate(
+				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getDonPauseStartDate() : null);
+		updatedProfile.setDonationPauseEndDate(
+				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getDonPauseEndDate() : null);
 		
 		fillAddressMobileSocialMedia(profile, userDTO);
 

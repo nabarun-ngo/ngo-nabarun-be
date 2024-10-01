@@ -13,6 +13,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
+import ngo.nabarun.app.common.enums.TriggerEvent;
 
 @Service
 public interface ICommonBL {
@@ -38,6 +39,8 @@ public interface ICommonBL {
 	void manageNotification(String action, Map<String, Object> payload) throws Exception;
 
 	List<AdditionalField> getReferenceFields(String identifier) throws Exception;
+
+	void cronTrigger(List<TriggerEvent> trigger);
 
 
 }

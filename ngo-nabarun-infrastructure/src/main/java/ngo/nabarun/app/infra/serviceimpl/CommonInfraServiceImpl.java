@@ -120,6 +120,8 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	private static final String COLLECTION_NOTIFICATION = "notifications";
 
 	private static final String COLLECTION_NOTIFICATION_TOKEN = "notification_tokens";
+
+	private static final String DOMAIN_LOCATION_DATA = "DOMAIN_LOCATION_DATA";
 	
 
 	@Override
@@ -398,6 +400,17 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		}
 		return configMap;
 	}
+	
+	@Override
+	public Map<String, List<KeyValuePair>> getDomainLocationData() throws Exception {
+		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_LOCATION_DATA);
+		ConfigTemplate[] configList = CommonUtils.jsonToPojo(config.getValue().toString(), ConfigTemplate[].class);
+		Map<String, List<KeyValuePair>> configMap = new HashMap<>();
+		for (ConfigTemplate domConfig : configList) {
+			configMap.put(domConfig.getConfigName(), domConfig.getConfigValues());
+		}
+		return configMap;
+	}
 
 	 
 	public FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
@@ -542,6 +555,8 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		List<ApiKeyEntity> apikeys=apiKeyRepo.findByStatus(status.name());
 		return apikeys.stream().map(InfraDTOHelper::convertToApiKeyDTO).collect(Collectors.toList());
 	}
+
+	
 
 	
 

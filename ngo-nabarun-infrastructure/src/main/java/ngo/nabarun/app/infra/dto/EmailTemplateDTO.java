@@ -119,9 +119,11 @@ public class EmailTemplateDTO{
 			@JsonProperty("heading")
 			private String heading;
 			
-			
 			@JsonProperty("colWidth")
 			private String colWidth;
+			
+			@JsonProperty("dataString")
+			private String dataString;
 			
 			@JsonProperty("data")
 			private String[][] data;

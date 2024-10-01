@@ -10,6 +10,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -37,7 +38,7 @@ import ngo.nabarun.app.common.enums.UPIOption;
 import ngo.nabarun.app.common.enums.WorkAction;
 import ngo.nabarun.app.common.enums.WorkType;
 import ngo.nabarun.app.common.enums.WorkDecision;
-import ngo.nabarun.app.common.enums.WorkflowStatus;
+import ngo.nabarun.app.common.enums.RequestStatus;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.CryptUtil;
@@ -86,6 +87,7 @@ public class InfraDTOHelper {
 	}
 
 	public static UserDTO convertToUserDTO(UserProfileEntity profile, AuthUser user, List<AuthUserRole> roles) {
+		
 		UserDTO userDTO = new UserDTO();
 		userDTO.setAbout(profile == null ? null : profile.getAbout());
 		userDTO.setDateOfBirth(profile == null ? null : profile.getDateOfBirth());
@@ -113,14 +115,17 @@ public class InfraDTOHelper {
 		uaDTO.setCreatedBy(null);
 		uaDTO.setCreatedOn(user != null ? user.getCreatedAt() : profile.getCreatedOn());
 		uaDTO.setDisplayPublic(profile == null  ? false : profile.getPublicProfile());
-		uaDTO.setEmailVerified(user != null ? user.getEmailVerified()== null ? false: user.getEmailVerified() : false);
+		uaDTO.setEmailVerified(user != null ? (user.getEmailVerified()== null ? false: user.getEmailVerified()) : false);
+		uaDTO.setPasswordResetRequired(user == null ? false : user.getResetPassword()== null ? false: user.getResetPassword());
 		uaDTO.setLastLogin(user != null ? user.getLastLogin() : null);
 		uaDTO.setLastPasswordChange(user != null ? user.getLastPasswordReset() : null);
 		uaDTO.setLoginsCount(user == null ? 0 : user.getLoginsCount());
 		uaDTO.setUpdatedOn(user != null ? user.getUpdatedAt() : null);
 		uaDTO.setAttributes(user != null ? user.getAttributes() : null);
+		uaDTO.setDonPauseStartDate(profile == null  ? null : profile.getDonationPauseStartDate());
+		uaDTO.setDonPauseEndDate(profile == null  ? null : profile.getDonationPauseEndDate());
 		userDTO.setAdditionalDetails(uaDTO);
-		
+
 		if(profile != null) {
 			/**
 			 * roles
@@ -314,6 +319,7 @@ public class InfraDTOHelper {
 		return convertToFieldDTO(field,"");
 	}
 	public static FieldDTO convertToFieldDTO(CustomFieldEntity field,String secret) {
+		//log.debug("Custom Field",field);
 		FieldDTO fieldDTO = new FieldDTO();
 		fieldDTO.setFieldDescription(field.getFieldDescription());
 		fieldDTO.setFieldKey(AdditionalFieldKey.valueOf(field.getFieldKey()));
@@ -595,7 +601,7 @@ public class InfraDTOHelper {
 
 	public static RequestDTO convertToWorkflowDTO(WorkflowEntity workflow,String secret) {
 		RequestDTO workFlowDTO= new RequestDTO();
-		workFlowDTO.setAdditionalFields(null);		
+		workFlowDTO.setSystemGenerated(workflow.isSystemGenerated());		
 		workFlowDTO.setCreatedBy(workflow.getCreatedBy());
 		workFlowDTO.setCreatedOn(workflow.getCreatedOn());
 		workFlowDTO.setDelegated(workflow.isDelegated());
@@ -611,13 +617,19 @@ public class InfraDTOHelper {
 		requesterDTO.setProfileId(workflow.getProfileId());
 		requesterDTO.setEmail(workflow.getProfileEmail());	
 		requesterDTO.setName(workflow.getProfileName());	
-
 		workFlowDTO.setRequester(requesterDTO);
+
+		UserDTO systemReqDTO = new UserDTO();
+		systemReqDTO.setUserId(workflow.getSystemRequestOwnerId());
+		systemReqDTO.setEmail(workflow.getSystemRequestOwnerEmail());	
+		systemReqDTO.setName(workflow.getSystemRequestOwnerName());
+		workFlowDTO.setSystemRequestOwner(systemReqDTO);
+		
 		workFlowDTO.setResolvedOn(workflow.getResolvedOn());
 		workFlowDTO.setDescription(workflow.getDescription());
 		workFlowDTO.setWorkflowName(workflow.getName());
-		workFlowDTO.setStatus(workflow.getStatus() == null ? null : WorkflowStatus.valueOf(workflow.getStatus()));
-		workFlowDTO.setLastStatus(workflow.getLastStatus() == null ? null : WorkflowStatus.valueOf(workflow.getLastStatus()));
+		workFlowDTO.setStatus(workflow.getStatus() == null ? null : RequestStatus.valueOf(workflow.getStatus()));
+		workFlowDTO.setLastStatus(workflow.getLastStatus() == null ? null : RequestStatus.valueOf(workflow.getLastStatus()));
 		workFlowDTO.setType(RequestType.valueOf(workflow.getType()));
 		if(workflow.getCustomFields() != null) {
 			List<FieldDTO> list=workflow.getCustomFields().stream().map(m->{
@@ -661,7 +673,7 @@ public class InfraDTOHelper {
 		workListDTO.setRemarks(worklist.getRemarks());
 		workListDTO.setStepCompleted(worklist.getStepCompleted());
 		workListDTO.setWorkSourceId(worklist.getSourceId());
-		workListDTO.setWorkItemName(worklist.getSourceStatus() == null ? null : WorkflowStatus.valueOf(worklist.getSourceStatus()));
+		workListDTO.setWorkSourceStatus(worklist.getSourceStatus() == null ? null : RequestStatus.valueOf(worklist.getSourceStatus()));
 		workListDTO.setWorkSourceType(worklist.getSourceType() == null ? null : RequestType.valueOf(worklist.getSourceType()));
 		workListDTO.setDecisionDate(worklist.getDecisionDate());
 		workListDTO.setWorkType(worklist.getWorkType() == null ? null : WorkType.valueOf(worklist.getWorkType()));

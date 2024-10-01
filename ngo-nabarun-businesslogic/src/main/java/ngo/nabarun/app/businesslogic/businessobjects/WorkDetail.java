@@ -8,9 +8,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.WorkType;
-import ngo.nabarun.app.common.enums.WorkflowStatus;
+import ngo.nabarun.app.common.enums.RequestStatus;
 
 @Data
 public class WorkDetail {
@@ -18,7 +19,7 @@ public class WorkDetail {
 	private String workflowId;
 	private String description;
 	private WorkType workType;
-	private WorkflowStatus workflowStatus;
+	private RequestStatus workflowStatus;
 	private List<RoleCode> pendingWithRoles;
 	private List<UserDetail> pendingWith;
 
@@ -48,6 +49,10 @@ public class WorkDetail {
 		@JsonProperty("toDate")
 		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		private Date toDate;
+		
+		@JsonProperty("sourceType")
+		private RequestType sourceType;
+
 	}
 
 }

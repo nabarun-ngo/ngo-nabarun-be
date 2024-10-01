@@ -19,4 +19,9 @@ public class UserAdditionalDetailsDTO {
 		private Date lastPasswordChange;
 		private int loginsCount;
 		private Map<String,Object> attributes= new HashMap<>();
+		private Boolean passwordResetRequired;
+		private Date donPauseStartDate;
+		private Date donPauseEndDate;
+
+
 }

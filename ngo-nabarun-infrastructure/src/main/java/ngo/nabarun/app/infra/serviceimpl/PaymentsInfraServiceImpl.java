@@ -132,6 +132,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 									.in(filter.getAccountStatus().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getAccountType() != null,
 							() -> qAccount.accountType.in(filter.getAccountType().stream().map(m -> m.name()).toList()))
+					.and(qAccount.deleted.eq(false))
 					.build();
 			if (page == null || size == null) {
 				List<AccountEntity> result = new ArrayList<>();
@@ -293,5 +294,12 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 	public TransactionDTO getTransaction(String id) {
 		TransactionEntity transaction = txnRepo.findById(id).orElseThrow();	;
 		return InfraDTOHelper.convertToTransactionDTO(transaction, null, null);
+	}
+
+	@Override
+	public void deleteAccount(String id) {
+		AccountEntity account = accRepo.findById(id).orElseThrow();
+		account.setDeleted(true);
+		accRepo.save(account);
 	}
 }

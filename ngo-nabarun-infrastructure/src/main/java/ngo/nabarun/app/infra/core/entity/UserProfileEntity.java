@@ -70,5 +70,7 @@ public class UserProfileEntity{
 	private String permanentCountry;
 	private Boolean presentPermanentSame;
 
- 
+	private Date donationPauseStartDate;
+	private Date donationPauseEndDate;
+
 }

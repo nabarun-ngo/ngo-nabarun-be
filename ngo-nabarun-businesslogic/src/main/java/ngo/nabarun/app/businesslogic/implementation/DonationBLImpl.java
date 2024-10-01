@@ -79,8 +79,7 @@ public class DonationBLImpl implements IDonationBL {
 		List<UserDTO> users = userDO.retrieveAllUsers(null, null, null).getContent();
 		for (UserDTO user : users) {
 
-			if (user.getAdditionalDetails().isActiveContributor()
-					&& !CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
+			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
 					&& !donationDO.checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
 
 				DonationDetail donationDetail = new DonationDetail();

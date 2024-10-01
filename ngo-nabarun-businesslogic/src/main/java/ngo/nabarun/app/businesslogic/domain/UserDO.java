@@ -110,11 +110,12 @@ public class UserDO extends CommonDO {
 	 * @param hometown
 	 * @param password
 	 * @param emailVerified
+	 * @param resetPassword 
 	 * @return
 	 * @throws Exception
 	 */
 	public UserDTO createUser(String firstName, String lastName, String email, String phoneCode, String phoneNumber,
-			String hometown, String password, boolean emailVerified) throws Exception {
+			String hometown, String password, boolean emailVerified, boolean resetPassword) throws Exception {
 		UserDTO userDTO = new UserDTO();
 		PhoneDTO phoneDto = new PhoneDTO();
 		AddressDTO addressDto = new AddressDTO();
@@ -135,6 +136,7 @@ public class UserDO extends CommonDO {
 		additionalDetailDto.setBlocked(false);
 		additionalDetailDto.setDisplayPublic(false);
 		additionalDetailDto.setEmailVerified(emailVerified);
+		additionalDetailDto.setPasswordResetRequired(resetPassword);
 		userDTO.setStatus(ProfileStatus.ACTIVE);
 		userDTO.setPhoneNumber(phoneDto.getPhoneCode() + phoneDto.getPhoneNumber());
 		userDTO.setPhones(List.of(phoneDto));
@@ -217,6 +219,16 @@ public class UserDO extends CommonDO {
 		UserDTO userDTO = userInfraService.updateUser(id, updatedUserDTO);
 		return userDTO;
 	}
+	
+	public UserDTO updateUserDetailAdmin(String id, UserDTO userDTO) throws Exception {
+		List<RoleDTO> rolesToUpdate=userDTO.getRoles();
+		if(rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
+			List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(rolesToUpdate.stream().map(m->m.getCode()).collect(Collectors.toList()));
+			userInfraService.updateUserRoles(id, roles);
+		}
+		userDTO = userInfraService.updateUser(id, userDTO);
+		return userDTO;
+	}
 
 	/**
 	 * 
@@ -269,5 +281,11 @@ public class UserDO extends CommonDO {
 		List<UserDTO> users = userInfraService.getUsersByRole(codes);
 		return users;
 	}
+
+	public void deleteMember(String id) throws Exception {
+		userInfraService.deleteUser(id);
+	}
+
+	
 
 }

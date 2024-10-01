@@ -9,6 +9,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
+import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.prop.PropertyFactory;
 import ngo.nabarun.app.prop.PropertySource;
 
@@ -25,6 +26,7 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 	private static final String DOPPLER_PROJECT_NAME = "DOPPLER_PROJECT_NAME";
 	private static final String DOPPLER_SERVICE_TOKEN = "DOPPLER_SERVICE_TOKEN";
 	private static final String ENVIRONMENT = "ENVIRONMENT";
+	private static final String SYSTEM_DATE = "SYSTEM_DATE";
 
 
 	private static boolean arePropertiesLoaded = false;
@@ -58,11 +60,11 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 		String projectName=System.getenv(DOPPLER_PROJECT_NAME) == null ? System.getProperty(DOPPLER_PROJECT_NAME) : System.getenv(DOPPLER_PROJECT_NAME);
 		String token=System.getenv(DOPPLER_SERVICE_TOKEN) == null ? System.getProperty(DOPPLER_SERVICE_TOKEN) : System.getenv(DOPPLER_SERVICE_TOKEN);
 		String env = System.getenv(ENVIRONMENT) == null ? System.getProperty(ENVIRONMENT) : System.getenv(ENVIRONMENT);
-		//System.out.println(projectName);
 		Assert.notNull(projectName, "DOPPLER_PROJECT_NAME must be set as argument");
 		Assert.notNull(token, "DOPPLER_SERVICE_TOKEN must be set as argument");
 		Assert.notNull(env, "ENVIRONMENT must be set as argument");
-
+		String date = System.getenv(SYSTEM_DATE) == null ? System.getProperty(SYSTEM_DATE) : System.getenv(SYSTEM_DATE);
+		CommonUtils.setSystemDate(date);
 		PropertySource conn=PropertyFactory.initDoppler(projectName, env, token);
 		return conn.loadProperties();
 	}

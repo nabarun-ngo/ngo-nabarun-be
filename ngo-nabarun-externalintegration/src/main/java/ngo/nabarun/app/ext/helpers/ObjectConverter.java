@@ -37,6 +37,9 @@ public class ObjectConverter {
 			userMetaData.put("profile_id", authUser.getProfileId());
 		}
 		userMetaData.put("active_user", !authUser.isInactive());
+		if(authUser.getResetPassword() != null) {
+			userMetaData.put("reset_password", authUser.getResetPassword());
+		}
 		user.setUserMetadata(userMetaData);
 		user.setUsername(authUser.getUsername());
 		user.setVerifyEmail(authUser.getVerifyEmail());
@@ -67,13 +70,14 @@ public class ObjectConverter {
 		//authUser.setUserMetadata(user.getUserMetadata());
 		authUser.setProviders(user.getIdentities() == null ? null : user.getIdentities().stream().map(m->m.getProvider()).toList());
 		authUser.setUsername(user.getUsername());
-		System.err.println(user.getUserMetadata());
+		//System.err.println(user.getUserMetadata());
 		if(user != null && user.getUserMetadata() != null) {
 			Object profileId=user.getUserMetadata().get("profile_id");
-			//System.err.println(profileId);
 			authUser.setProfileId(profileId == null ? null : profileId.toString());	
 			Object active_user=user.getUserMetadata().get("active_user");
 			authUser.setInactive(active_user == null ? false : !Boolean.valueOf(active_user.toString()));
+			Object reset_password=user.getUserMetadata().get("reset_password");
+			authUser.setResetPassword(reset_password == null ? false : !Boolean.valueOf(reset_password.toString()));
 		}
 
 		return authUser;

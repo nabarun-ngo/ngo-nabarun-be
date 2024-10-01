@@ -7,7 +7,7 @@ import java.util.Map;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.enums.WorkflowStatus;
+import ngo.nabarun.app.common.enums.RequestStatus;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 
@@ -18,10 +18,10 @@ public class RequestDTO {
 	private RequestType type;
 	//private String typeValue;
 
-	private WorkflowStatus status;
+	private RequestStatus status;
 	//private String statusValue;
 
-	private WorkflowStatus lastStatus;
+	private RequestStatus lastStatus;
 	private boolean lastActionCompleted;
 	private String description;
 	private String remarks;
@@ -32,7 +32,9 @@ public class RequestDTO {
 	private boolean delegated;
 	private UserDTO delegatedRequester;
 	private List<FieldDTO> additionalFields;
-	
+	private boolean systemGenerated;
+	private UserDTO systemRequestOwner;
+
 	public Map<String,Object> toMap(Map<String,String> domainMap){
 		 Map<String,Object> map= new HashMap<>();
 		 map.put("id", id);
@@ -44,6 +46,7 @@ public class RequestDTO {
 		 map.put("resolvedOn", CommonUtils.formatDateToString(createdOn, "dd MMM yyyy hh:mm:ss a", "IST"));
 		 map.put("delegatedRequester", delegated ? delegatedRequester.toMap(domainMap) :null);
 		 map.put("requester", requester != null ? requester.toMap(domainMap):null);
+		 map.put("remarks", remarks);
 
 		 return map;
 	}
@@ -53,7 +56,7 @@ public class RequestDTO {
 	public static class RequestDTOFilter{
 		private String id;
 		private List<RequestType> type;
-		private List<WorkflowStatus> workflowStatus;
+		private List<RequestStatus> workflowStatus;
 		private Date fromDate;
 		private Date toDate;
 		private String requesterId;

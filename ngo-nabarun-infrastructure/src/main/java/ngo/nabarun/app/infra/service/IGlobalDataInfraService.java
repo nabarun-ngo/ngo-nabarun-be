@@ -9,6 +9,7 @@ public interface IGlobalDataInfraService {
 	
 	
 	Map<String,  List<KeyValuePair>> getDomainRefConfigs() throws Exception;
+	Map<String,  List<KeyValuePair>> getDomainLocationData() throws Exception;
 
 	//List<KeyValue> getBankAccounts();//razorpay
 
