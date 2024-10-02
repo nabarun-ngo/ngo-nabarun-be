@@ -16,6 +16,6 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 
 	@Override
 	public void syncUsers() throws Exception {
-		userDO.syncUserDetail();
+		userDO.syncUserDetail(null);
 	}
 }

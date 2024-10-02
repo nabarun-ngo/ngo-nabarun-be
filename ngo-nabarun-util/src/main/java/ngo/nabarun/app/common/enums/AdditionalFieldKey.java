@@ -18,6 +18,9 @@ public enum AdditionalFieldKey {
 	confirmation,
 	reasonForLeaving,
 	startDate,
-	endDate
+	endDate,
+	rejoinDecision,//
+	suggession,//
+	notifications,//
 
 }

@@ -167,10 +167,9 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		newAuth0User.setResetPassword(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getPasswordResetRequired() : null);
 		newAuth0User.setProviders(userDTO.getLoginProviders());
-		
-		if (userDTO.getUserId() != null) {
-			newAuth0User.setUserId(userDTO.getUserId());
-		}else {
+		newAuth0User.setUserId(userDTO.getUserId());
+
+		if (userDTO.getUserId() == null) {
 			newAuth0User = authManagementService.createUser(newAuth0User);
 		}
 
@@ -209,7 +208,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 		profile = profileRepository.save(profile);
 		/*
-		 * Updating user metatdata
+		 * Updating user meta data
 		 */
 		AuthUser authuser = new AuthUser();
 		authuser.setInactive(false);

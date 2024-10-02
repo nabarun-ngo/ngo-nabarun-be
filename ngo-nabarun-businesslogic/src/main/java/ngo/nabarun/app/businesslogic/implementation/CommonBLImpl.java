@@ -191,7 +191,7 @@ public class CommonBLImpl implements ICommonBL {
 
 	@Async
 	@Override
-	public void cronTrigger(List<TriggerEvent> triggers) {
+	public void cronTrigger(List<TriggerEvent> triggers,Map<String,String> parameters) {
 		for(TriggerEvent trigger:triggers) {
 			try {
 				DonationDetailFilter filter;
@@ -242,6 +242,7 @@ public class CommonBLImpl implements ICommonBL {
 					break;
 				case UPDATE_DONATION:
 					filter= new DonationDetailFilter();
+					filter.setDonationType(List.of(DonationType.REGULAR));
 					filter.setDonationStatus(List.of(DonationStatus.RAISED));
 					List<DonationDTO> raisedDonations=donationDO.retrieveDonations(null, null, filter).getContent();
 					for(DonationDTO donation:raisedDonations) {
@@ -252,7 +253,7 @@ public class CommonBLImpl implements ICommonBL {
 					}
 					break;
 				case SYNC_USERS:
-					userDO.syncUserDetail();
+					userDO.syncUserDetail(parameters);
 					break;
 				case TASK_REMINDER_EMAIL:
 					WorkDetailFilter workFilter= new  WorkDetailFilter();

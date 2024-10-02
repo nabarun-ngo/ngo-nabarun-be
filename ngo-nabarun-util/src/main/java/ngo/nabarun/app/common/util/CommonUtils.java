@@ -249,8 +249,11 @@ public class CommonUtils {
 		return url.build().encode().toUriString();
 	}
 
-	public static String toJSONString(Object obj) throws JsonProcessingException {
-		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+	public static String toJSONString(Object obj,boolean pretty) throws JsonProcessingException {
+		if(pretty) {
+			return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+		}
+		return objectMapper.writeValueAsString(obj);
 	}
 
 }

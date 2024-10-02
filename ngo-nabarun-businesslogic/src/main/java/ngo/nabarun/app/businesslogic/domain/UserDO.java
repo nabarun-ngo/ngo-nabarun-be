@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -252,7 +253,7 @@ public class UserDO extends CommonDO {
 	 * 
 	 * @throws Exception
 	 */
-	public void syncUserDetail() throws Exception {
+	public void syncUserDetail(Map<String,String> attr) throws Exception {
 		for (UserDTO userDTO : userInfraService.getAuthUsers()) {
 			try {
 				//System.err.println(userDTO);

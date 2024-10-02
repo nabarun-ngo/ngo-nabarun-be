@@ -307,7 +307,7 @@ function convertNoticeRefs(sourceData) {
 	if (sourceData.createdBy) {
 		var profile = sourceDB.profiles.findOne({ userId: sourceData.createdBy })
 		sourceData.createdBy = profile.firstName + ' ' + profile.lastName
-		sourceData.createdById = profile.id
+		sourceData.createdById = profile._id
 	}
 	sourceData.publishedOn = sourceData.createdOn;
 	return sourceData;
@@ -317,169 +317,397 @@ function convertNoticeRefs(sourceData) {
 * Request ref
 */
 print("migrating request ref ...")
-
-const sourceRequestRefs = sourceDB.requests.find();
-const request_ref_mig_info = db.migration_info.findOne({ _id: "mig-request_ref-info" });
-let request_refs = [];
-while (sourceRequestRefs.hasNext()) {
-	let request_ref = sourceRequestRefs.next()
-	if (request_ref_mig_info == null || request_ref.createdOn > request_ref_mig_info.last_migration) {
-		request_refs.push(convertRequestRefs(request_ref))
+try {
+	const sourceRequestRefs = sourceDB.requests.find();
+	const request_ref_mig_info = db.migration_info.findOne({ _id: "mig-request_ref-info" });
+	let request_refs = [];
+	while (sourceRequestRefs.hasNext()) {
+		let request_ref = sourceRequestRefs.next()
+		if (request_ref_mig_info == null || request_ref.createdOn > request_ref_mig_info.last_migration) {
+			request_refs.push(convertRequestRefs(request_ref))
+		}
 	}
-}
-if (request_refs.length > 0) {
-	db.workflow.insertMany(request_refs)
-	for (let i = 0; i < request_refs.length; i++) {
-		var fields = []
-		if (request_refs[i].registration) {
-			fields.push({
-				fieldKey: "firstName",
-				fieldName: "First name",
-				fieldType: "input",
-				fieldValue: request_refs[i].registration.firstName,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "lastName",
-				fieldName: "Last name",
-				fieldType: "input",
-				fieldValue: request_refs[i].registration.lastName,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "email",
-				fieldName: "Email",
-				fieldType: "email",
-				fieldValue: request_refs[i].registration.email,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "dialCode",
-				fieldName: "Phone code",
-				fieldType: "select",
-				fieldValue: request_refs[i].registration.dialCode,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "mobileNumber",
-				fieldName: "Mobile number",
-				fieldType: "input",
-				fieldValue: request_refs[i].registration.contactNumber,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "hometown",
-				fieldName: "Home town",
-				fieldType: "input",
-				fieldValue: request_refs[i].registration.hometown,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "reasonForJoining",
-				fieldName: "Reason for joining Nabarun",
-				fieldType: "textarea",
-				fieldValue: request_refs[i].registration.reasonForJoining,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
-			fields.push({
-				fieldKey: "howDoUKnowAboutNabarun",
-				fieldName: "How do you know about Nabarun?",
-				fieldType: "textarea",
-				fieldValue: request_refs[i].registration.howDoUKnowAboutNabarun,
-				source: request_refs[i]._id,
-				sourceType: "REQUEST-JOIN_REQUEST",
-				hidden: false,
-				encrypted: false,
-				mandatory: true,
-				fieldValueOptions: "",
-				fieldValueType: "text"
-			})
+	if (request_refs.length > 0) {
+		db.workflow.insertMany(request_refs)
+		for (let i = 0; i < request_refs.length; i++) {
+			var req_addnl_fields = []
+			/**
+			 * REQUEST ADDITIONAL FIELD
+			 */
+			if (request_refs[i].registration) {
+				req_addnl_fields.push({
+					fieldKey: "firstName",
+					fieldName: "First name",
+					fieldType: "input",
+					fieldValue: request_refs[i].registration.firstName,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "lastName",
+					fieldName: "Last name",
+					fieldType: "input",
+					fieldValue: request_refs[i].registration.lastName,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "email",
+					fieldName: "Email",
+					fieldType: "email",
+					fieldValue: request_refs[i].registration.email,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "dialCode",
+					fieldName: "Phone code",
+					fieldType: "select",
+					fieldValue: request_refs[i].registration.dialCode,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "mobileNumber",
+					fieldName: "Mobile number",
+					fieldType: "input",
+					fieldValue: request_refs[i].registration.contactNumber,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "hometown",
+					fieldName: "Home town",
+					fieldType: "input",
+					fieldValue: request_refs[i].registration.hometown,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "reasonForJoining",
+					fieldName: "Reason for joining Nabarun",
+					fieldType: "textarea",
+					fieldValue: request_refs[i].registration.reasonForJoining,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+				req_addnl_fields.push({
+					fieldKey: "howDoUKnowAboutNabarun",
+					fieldName: "How do you know about Nabarun?",
+					fieldType: "textarea",
+					fieldValue: request_refs[i].registration.howDoUKnowAboutNabarun,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-JOIN_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+			}
+			if (request_refs[i].rejoinDecision) {
+				req_addnl_fields.push({
+					fieldKey: "rejoinDecision",
+					fieldName: "Would you like to rejoin Nabarun?",
+					fieldType: "select",
+					fieldValue: request_refs[i].rejoinDecision,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-TERMINATION_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+			}
+			if (request_refs[i].suggession) {
+				req_addnl_fields.push({
+					fieldKey: "suggession",
+					fieldName: "Do you have suggession for Nabarun?",
+					fieldType: "select",
+					fieldValue: request_refs[i].suggession,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-TERMINATION_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "Yes,No,Maybe",
+					fieldValueType: "text"
+				})
+			}
+			if (request_refs[i].getNotification) {
+				req_addnl_fields.push({
+					fieldKey: "notifications",
+					fieldName: "Would you like to recieve updates and notifications of Nabarun's future events?",
+					fieldType: "select",
+					fieldValue: request_refs[i].getNotification,
+					source: request_refs[i]._id,
+					sourceType: "REQUEST-TERMINATION_REQUEST",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "Yes,No",
+					fieldValueType: "text"
+				})
+			}
+			if (req_addnl_fields.length > 0) {
+				db.additional_fields.insertMany(req_addnl_fields)
+			}
+			/*
+			* CREATING WORK ITEM
+			*/
+			var req_work_items = []
+			var req_work_items_addnl_fields = []
+			if (request_refs[i].ApprovedBy1) {
+				var profile_1 = sourceDB.profiles.findOne({ userId: request_refs[i].ApprovedBy1 })
+				req_work_items.push({
+					"_id": request_refs[i]._id + "T1",
+					"sourceId": request_refs[i]._id,
+					"description": "Please do needful actions and confirm request approval.",
+					"sourceStatus": "AWAITING_L1_APPROVAL",
+					"sourceType": request_refs[i].type == 'JOIN_REQUEST' ? "JOIN_REQUEST" : "TERMINATION_REQUEST",
+					"workType": "DECISION",
+					"pendingWithUserId": request_refs[i].ApprovedBy1,
+					"pendingWithUserName": profile_1.firstName + ' ' + profile_1.lastName,
+					"groupWork": false,
+					"pendingWithRoles": "PRESIDENT,VICE_PRESIDENT,SECRETARY,ASST_SECRETARY,TECHNICAL_SPECIALIST",
+					"pendingWithRoleGroups": "ADMIN_GR1,ADMIN_GR2,ADMIN_GR3",
+					"createdOn": {
+						"$date": "2024-09-18T14:05:04.814Z"
+					},
+					"decisionMakerId": profile_1._id,
+					"decisionMakerName": profile_1.firstName + ' ' + profile_1.lastName,
+					"decisionMakerRoleGroup": "ADMIN_GR1",
+					"actionPerformed": false,
+					"stepCompleted": true,
+					"finalStep": false,
+					"decisionDate": request_refs[i].resolvedOn,
+				})
+				req_work_items_addnl_fields.push({
+					fieldKey: "decision",
+					fieldName: "Decision",
+					fieldType: "select",
+					fieldValue: "APPROVE",
+					source: request_refs[i]._id + "T1",
+					sourceType: "WORKITEM-AWAITING_L1_APPROVAL",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "APPROVE,DECLINE",
+					fieldValueType: "text"
+				})
+				req_work_items_addnl_fields.push({
+					fieldKey: "remarks",
+					fieldName: "remarks",
+					fieldType: "input",
+					fieldValue: "ok",
+					source: request_refs[i]._id + "T1",
+					sourceType: "WORKITEM-AWAITING_L1_APPROVAL",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+			}
+			if (request_refs[i].ApprovedBy2) {
+				var profile_1 = sourceDB.profiles.findOne({ userId: request_refs[i].ApprovedBy2 })
+				req_work_items.push({
+					"_id": request_refs[i]._id + "T2",
+					"sourceId": request_refs[i]._id,
+					"description": "Please do needful actions and confirm request approval.",
+					"sourceStatus": "AWAITING_L2_APPROVAL",
+					"sourceType": request_refs[i].type == 'JOIN_REQUEST' ? "JOIN_REQUEST" : "TERMINATION_REQUEST",
+					"workType": "DECISION",
+					"pendingWithUserId": request_refs[i].ApprovedBy2,
+					"pendingWithUserName": profile_1.firstName + ' ' + profile_1.lastName,
+					"groupWork": false,
+					"pendingWithRoles": "SECRETARY,ASST_SECRETARY,TECHNICAL_SPECIALIST",
+					"pendingWithRoleGroups": "ADMIN_GR2,ADMIN_GR3",
+					"createdOn": {
+						"$date": "2024-09-18T14:05:04.814Z"
+					},
+					"decisionMakerId": profile_1._id,
+					"decisionMakerName": profile_1.firstName + ' ' + profile_1.lastName,
+					"decisionMakerRoleGroup": "ADMIN_GR1",
+					"actionPerformed": false,
+					"stepCompleted": true,
+					"finalStep": false,
+					"decisionDate": request_refs[i].resolvedOn,
+				})
+				req_work_items_addnl_fields.push({
+					fieldKey: "decision",
+					fieldName: "Decision",
+					fieldType: "select",
+					fieldValue: "APPROVE",
+					source: request_refs[i]._id + "T2",
+					sourceType: "WORKITEM-AWAITING_L2_APPROVAL",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "APPROVE,DECLINE",
+					fieldValueType: "text"
+				})
+				req_work_items_addnl_fields.push({
+					fieldKey: "remarks",
+					fieldName: "remarks",
+					fieldType: "input",
+					fieldValue: "ok",
+					source: request_refs[i]._id + "T2",
+					sourceType: "WORKITEM-AWAITING_L2_APPROVAL",
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+			}
+			if (request_refs[i].rejectedBy) {
+				var profile_1 = sourceDB.profiles.findOne({ userId: request_refs[i].rejectedBy })
+				req_work_items.push({
+					"_id": request_refs[i]._id + "T3",
+					"sourceId": request_refs[i]._id,
+					"description": "Please do needful actions and confirm request approval.",
+					"sourceStatus": request_refs[i].ApprovedBy1 == null ? "AWAITING_L1_APPROVAL" : "AWAITING_L2_APPROVAL",
+					"sourceType": request_refs[i].type == 'JOIN_REQUEST' ? "JOIN_REQUEST" : "TERMINATION_REQUEST",
+					"workType": "DECISION",
+					"pendingWithUserId": request_refs[i].rejectedBy,
+					"pendingWithUserName": profile_1.firstName + ' ' + profile_1.lastName,
+					"groupWork": false,
+					"pendingWithRoles": "SECRETARY,ASST_SECRETARY,TECHNICAL_SPECIALIST",
+					"pendingWithRoleGroups": "ADMIN_GR2,ADMIN_GR3",
+					"createdOn": {
+						"$date": "2024-09-18T14:05:04.814Z"
+					},
+					"decisionMakerId": profile_1._id,
+					"decisionMakerName": profile_1.firstName + ' ' + profile_1.lastName,
+					"decisionMakerRoleGroup": "ADMIN_GR1",
+					"actionPerformed": false,
+					"stepCompleted": true,
+					"finalStep": false,
+					"decisionDate": request_refs[i].resolvedOn,
+				})
+				req_work_items_addnl_fields.push({
+					fieldKey: "decision",
+					fieldName: "Decision",
+					fieldType: "select",
+					fieldValue: "APPROVE",
+					source: request_refs[i]._id + "T3",
+					sourceType: "WORKITEM-" + (request_refs[i].ApprovedBy1 == null ? "AWAITING_L1_APPROVAL" : "AWAITING_L2_APPROVAL"),
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "APPROVE,DECLINE",
+					fieldValueType: "text"
+				})
+				req_work_items_addnl_fields.push({
+					fieldKey: "remarks",
+					fieldName: "remarks",
+					fieldType: "input",
+					fieldValue: "ok",
+					source: request_refs[i]._id + "T3",
+					sourceType: "WORKITEM-" + (request_refs[i].ApprovedBy1 == null ? "AWAITING_L1_APPROVAL" : "AWAITING_L2_APPROVAL"),
+					hidden: false,
+					encrypted: false,
+					mandatory: true,
+					fieldValueOptions: "",
+					fieldValueType: "text"
+				})
+			}
+			//console.log(req_work_items_addnl_fields)
+
+			if (req_work_items.length > 0) {
+				db.worklist.insertMany(req_work_items)
+			}
+			if (req_work_items_addnl_fields.length > 0) {
+				db.additional_fields.insertMany(req_work_items_addnl_fields)
+			}
+		}
+		print("request migration complete!! " + request_refs.length + " documents migrated.")
+		db.migration_info.updateOne(
+			{ _id: "mig-request_ref-info" },
+			{ $setOnInsert: { _id: "mig-request_ref-info", last_migration: new ISODate(), count: request_refs.length } },
+			{ upsert: true }
+		)
+	} else {
+		print("nothing to migrate!!")
+	}
+
+	function convertRequestRefs(sourceData) {
+		sourceData._id=sourceData.refNumber
+		if (sourceData.name) {
+			sourceData.requestName = sourceData.name
+		}
+		sourceData.lastActionCompleted = true;
+		sourceData.description = sourceData.requestDescription
+		sourceData.remarks = sourceData.message
+		if (sourceData.requesterUserId) {
+			var profile = sourceDB.profiles.findOne({ userId: sourceData.requesterUserId })
+			if (profile) {
+				sourceData.profileId = profile._id
+				sourceData.profileName = profile.firstName + ' ' + profile.lastName
+				sourceData.profileEmail = profile.email
+			}
 		}
 
+		if (sourceData.delegateProfile) {
+			var profile = sourceDB.profiles.findOne({ _id: sourceData.delegateProfile })
+			if (profile) {
+				sourceData.delegateProfileId = profile._id
+				sourceData.delegateProfileName = profile.firstName + ' ' + profile.lastName
+				sourceData.delegateProfileEmail = profile.email
+			}
+		}
 
-	}
-	print("migration complete!! " + request_refs.length + " documents migrated.")
-	db.migration_info.updateOne(
-		{ _id: "mig-request_ref-info" },
-		{ $setOnInsert: { _id: "mig-request_ref-info", last_migration: new ISODate(), count: request_refs.length } },
-		{ upsert: true }
-	)
-} else {
-	print("nothing to migrate!!")
-}
-
-function convertRequestRefs(sourceData) {
-	if (sourceData.name) {
-		sourceData.requestName = sourceData.name
-	}
-	sourceData.lastActionCompleted = true;
-	sourceData.description = sourceData.requestDescription
-	sourceData.remarks = sourceData.message
-	if (sourceData.requesterUserId) {
-		var profile = sourceDB.profiles.findOne({ userId: sourceData.requesterUserId })
-		sourceData.profileId = profile.id
-		sourceData.profileName = profile.firstName + ' ' + profile.lastName
-		sourceData.profileEmail = profile.email
-	}
-
-	if (sourceData.delegateProfile) {
-		var profile = sourceDB.profiles.findOne({ _id: sourceData.delegateProfile })
-		sourceData.delegateProfileId = profile.id
-		sourceData.delegateProfileName = profile.firstName + ' ' + profile.lastName
-		sourceData.delegateProfileEmail = profile.email
-	}
-
-	if (sourceData.type == 'QUIT_REQUEST') {
-		sourceData.type = 'TERMINATION_REQUEST'
-	}
-	if (sourceData.type == 'INTERMISSION_REQUEST') {
+		if (sourceData.type == 'QUIT_REQUEST') {
 			sourceData.type = 'TERMINATION_REQUEST'
 		}
+		if (sourceData.type == 'INTERMISSION_REQUEST') {
+			sourceData.type = 'TERMINATION_REQUEST'
+			sourceData.status = 'APPROVED'
+		}
 
-	return sourceData;
+		return sourceData;
+	}
+} catch (e) {
+	console.log(e)
 }
+
 print("End ...")
 
 

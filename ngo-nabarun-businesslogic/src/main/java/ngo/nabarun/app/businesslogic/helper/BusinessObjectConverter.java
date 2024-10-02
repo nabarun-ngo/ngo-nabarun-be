@@ -107,17 +107,17 @@ public class BusinessObjectConverter {
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
-		String title = userDTO.getTitle() == null ? ""
-				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
-						? domainKeyValue.get(userDTO.getTitle())+ " " 
-						: userDTO.getTitle() + " ";
+//		String title = userDTO.getTitle() == null ? ""
+//				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
+//						? domainKeyValue.get(userDTO.getTitle())+ " " 
+//						: userDTO.getTitle() + " ";
 		if (userDTO.getName() != null) {
-			userDetails.setFullName(title + userDTO.getName());
+			userDetails.setFullName(userDTO.getName());
 		} else {
 			String firstName = userDTO.getFirstName() == null ? "" : userDTO.getFirstName() + " ";
 			String middleName = userDTO.getMiddleName() == null ? "" : userDTO.getMiddleName() + " ";
 			String lastName = userDTO.getLastName() == null ? "" : userDTO.getLastName();
-			userDetails.setFullName(title + firstName + middleName + lastName);
+			userDetails.setFullName(firstName + middleName + lastName);
 		}
 		/*
 		 * Role management

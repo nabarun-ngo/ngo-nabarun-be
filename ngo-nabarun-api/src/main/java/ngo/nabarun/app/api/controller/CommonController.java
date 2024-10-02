@@ -84,9 +84,9 @@ public class CommonController {
 	}
 
 	@GetMapping(value = "/cron/trigger")
-	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestParam List<TriggerEvent> trigger)
+	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestParam List<TriggerEvent> trigger,Map<String,String> param)
 			throws Exception {
-		commonBL.cronTrigger(trigger);
+		commonBL.cronTrigger(trigger,param);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 

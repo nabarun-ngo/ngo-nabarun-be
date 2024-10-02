@@ -40,7 +40,7 @@ public interface ICommonBL {
 
 	List<AdditionalField> getReferenceFields(String identifier) throws Exception;
 
-	void cronTrigger(List<TriggerEvent> trigger);
+	void cronTrigger(List<TriggerEvent> triggers,Map<String,String> parameters);
 
 
 }
