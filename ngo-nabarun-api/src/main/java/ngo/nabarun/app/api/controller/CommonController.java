@@ -22,7 +22,7 @@ import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
-import ngo.nabarun.app.common.enums.TriggerEvent;
+import ngo.nabarun.app.common.util.SecurityUtils;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -83,13 +83,6 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/cron/trigger")
-	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestParam List<TriggerEvent> trigger,Map<String,String> param)
-			throws Exception {
-		commonBL.cronTrigger(trigger,param);
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
-	}
-
 	@GetMapping(value = "/getReferenceField")
 	public ResponseEntity<SuccessResponse<List<AdditionalField>>> getReferenceField(@RequestParam String source)
 			throws Exception {
@@ -135,7 +128,7 @@ public class CommonController {
 	@PostMapping(value = "/manageNotification")
 	public ResponseEntity<SuccessResponse<Void>> manageNotification(@RequestParam(required = true) String action,
 			@RequestBody Map<String, Object> body) throws Exception {
-		commonBL.manageNotification(action, body);
+		commonBL.manageNotification(SecurityUtils.getAuthUserId(),action, body);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 }

@@ -12,4 +12,5 @@ public interface AccountRepository extends MongoRepository<AccountEntity,String>
 	
 	List<AccountEntity> findByAccountTypeAndAccountStatus(String type,String status);
 	
+	
 }

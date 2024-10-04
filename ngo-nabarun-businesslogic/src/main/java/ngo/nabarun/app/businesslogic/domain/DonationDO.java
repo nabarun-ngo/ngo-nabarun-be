@@ -3,6 +3,7 @@ package ngo.nabarun.app.businesslogic.domain;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -162,9 +163,9 @@ public class DonationDO extends AccountDO {
 	public DonationDTO raiseDonation(DonationDetail donationDetail) throws Exception {
 		DonationDTO donationDTO = businessDomainHelper.convertToDonationDTO(donationDetail);
 		
-		UserDTO donor = new UserDTO();
-
+		UserDTO donor;
 		if (donationDetail.getIsGuest() == Boolean.TRUE) {
+			donor = new UserDTO();
 			donationDTO.setId(generateDonationId());
 			donationDTO.setAmount(donationDetail.getAmount());
 			donationDTO.setType(DonationType.ONETIME);
@@ -177,6 +178,7 @@ public class DonationDO extends AccountDO {
 					: donationDetail.getDonorDetails().getPrimaryNumber());
 			donationDTO.setDonor(donor);
 			donationDTO.setForEventId(donationDetail.getEvent() == null ? null : donationDetail.getEvent().getId());
+			donationDTO = donationInfraService.createDonation(donationDTO);
 
 		} else {
 			donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), IdType.ID, false);
@@ -204,9 +206,21 @@ public class DonationDO extends AccountDO {
 					donationDetail.getDonationType() == DonationType.REGULAR ? donationDetail.getEndDate() : null);
 			donationDTO.setType(donationDetail.getDonationType());
 			donationDTO.setDonor(donor);
+			donationDTO = donationInfraService.createDonation(donationDTO);
+			
+			updateDashboardCounts(donor.getUserId(), data->{
+				Map<String,String> map= new HashMap<>();
+				try {
+					DonationSummary pendings = retrieveDonationSummary(donor.getProfileId());
+					map.put(BusinessConstants.attr_DB_pendingDonationAmount, String.valueOf(pendings.getOutstandingAmount()));
+				} catch (Exception e) {
+					log.error("Error retrieveing donations",e);
+				}
+				return map;
+			});
+			sendDashboardCounts(donor.getUserId());
 		}
 		
-		donationDTO = donationInfraService.createDonation(donationDTO);
 
 		CorrespondentDTO recipient = CorrespondentDTO.builder().name(donor.getName())
 				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
@@ -331,6 +345,8 @@ public class DonationDO extends AccountDO {
 	public DonationDTO retrieveDonation(String id) {
 		return donationInfraService.getDonation(id);
 	}
+	
+	
 
 	
 }

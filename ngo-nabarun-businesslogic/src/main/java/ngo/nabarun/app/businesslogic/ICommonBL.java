@@ -13,7 +13,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
-import ngo.nabarun.app.common.enums.TriggerEvent;
 
 @Service
 public interface ICommonBL {
@@ -23,8 +22,6 @@ public interface ICommonBL {
 	URL getDocumentUrl(String docId) throws Exception;
 
 	boolean deleteDocument(String docId) throws Exception;
-
-//	String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception;
 	
 	void clearSystemCache(List<String> names);
 
@@ -36,11 +33,9 @@ public interface ICommonBL {
 
 	Paginate<Map<String,String>> getNotifications(Integer pageIndex, Integer pageSize);
 
-	void manageNotification(String action, Map<String, Object> payload) throws Exception;
-
 	List<AdditionalField> getReferenceFields(String identifier) throws Exception;
 
-	void cronTrigger(List<TriggerEvent> triggers,Map<String,String> parameters);
+	void manageNotification(String userId, String action, Map<String, Object> payload) throws Exception;
 
 
 }

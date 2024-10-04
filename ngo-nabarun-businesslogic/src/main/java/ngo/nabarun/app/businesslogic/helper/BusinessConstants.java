@@ -28,5 +28,14 @@ public class BusinessConstants {
 	public static final String EMAILTEMPLATE__ON_USER_ONBOARDING = "ON_USER_ONBOARDING";
 	
 	
+	public static final String attr_DB_pendingDonationAmount="pendingDonationAmount";
+	public static final String attr_DB_accountBalance="accountBalance";
+	public static final String attr_DB_memberCount="memberCount";
+	public static final String attr_DB_noticeCount = "noticeCount";
+	public static final String attr_DB_requestCount = "requestCount";
+	public static final String attr_DB_workCount="workCount";
+	public static final String attr_DB_notificationCount = "notificationCount";
+	
+	
 
 }

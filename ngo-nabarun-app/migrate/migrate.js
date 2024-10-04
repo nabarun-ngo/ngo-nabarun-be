@@ -181,6 +181,7 @@ function convertAccounts(sourceData) {
 	if (sourceData.accountType) {
 		sourceData.accountType = sourceData.accountType == 'PRI' ? 'DONATION' : 'GENERAL'
 	}
+	sourceData.deleted = false;
 	return sourceData;
 }
 
@@ -305,11 +306,16 @@ if (not_refs.length > 0) {
 
 function convertNoticeRefs(sourceData) {
 	if (sourceData.createdBy) {
-		var profile = sourceDB.profiles.findOne({ userId: sourceData.createdBy })
+		var profile = sourceDB.profiles.findOne({ _id: sourceData.createdById })
 		sourceData.createdBy = profile.firstName + ' ' + profile.lastName
 		sourceData.createdById = profile._id
 	}
+	if (!sourceData._id) {
+		sourceData._id=sourceData.noticeNumber.replace('/','')	
+	}
 	sourceData.publishedOn = sourceData.createdOn;
+	sourceData.deleted = false;
+	sourceData.status = sourceData.visibility == 'INTERNAL'?'ACTIVE':'DRAFT';
 	return sourceData;
 }
 
@@ -507,9 +513,7 @@ try {
 					"groupWork": false,
 					"pendingWithRoles": "PRESIDENT,VICE_PRESIDENT,SECRETARY,ASST_SECRETARY,TECHNICAL_SPECIALIST",
 					"pendingWithRoleGroups": "ADMIN_GR1,ADMIN_GR2,ADMIN_GR3",
-					"createdOn": {
-						"$date": "2024-09-18T14:05:04.814Z"
-					},
+					"createdOn": request_refs[i].createdOn,
 					"decisionMakerId": profile_1._id,
 					"decisionMakerName": profile_1.firstName + ' ' + profile_1.lastName,
 					"decisionMakerRoleGroup": "ADMIN_GR1",
@@ -559,9 +563,7 @@ try {
 					"groupWork": false,
 					"pendingWithRoles": "SECRETARY,ASST_SECRETARY,TECHNICAL_SPECIALIST",
 					"pendingWithRoleGroups": "ADMIN_GR2,ADMIN_GR3",
-					"createdOn": {
-						"$date": "2024-09-18T14:05:04.814Z"
-					},
+					"createdOn": request_refs[i].createdOn,
 					"decisionMakerId": profile_1._id,
 					"decisionMakerName": profile_1.firstName + ' ' + profile_1.lastName,
 					"decisionMakerRoleGroup": "ADMIN_GR1",
@@ -611,9 +613,7 @@ try {
 					"groupWork": false,
 					"pendingWithRoles": "SECRETARY,ASST_SECRETARY,TECHNICAL_SPECIALIST",
 					"pendingWithRoleGroups": "ADMIN_GR2,ADMIN_GR3",
-					"createdOn": {
-						"$date": "2024-09-18T14:05:04.814Z"
-					},
+					"createdOn": request_refs[i].createdOn,
 					"decisionMakerId": profile_1._id,
 					"decisionMakerName": profile_1.firstName + ' ' + profile_1.lastName,
 					"decisionMakerRoleGroup": "ADMIN_GR1",
@@ -626,7 +626,7 @@ try {
 					fieldKey: "decision",
 					fieldName: "Decision",
 					fieldType: "select",
-					fieldValue: "APPROVE",
+					fieldValue: "DECLINE",
 					source: request_refs[i]._id + "T3",
 					sourceType: "WORKITEM-" + (request_refs[i].ApprovedBy1 == null ? "AWAITING_L1_APPROVAL" : "AWAITING_L2_APPROVAL"),
 					hidden: false,
@@ -669,7 +669,7 @@ try {
 	}
 
 	function convertRequestRefs(sourceData) {
-		sourceData._id=sourceData.refNumber
+		sourceData._id = sourceData.refNumber
 		if (sourceData.name) {
 			sourceData.requestName = sourceData.name
 		}
@@ -696,12 +696,16 @@ try {
 
 		if (sourceData.type == 'QUIT_REQUEST') {
 			sourceData.type = 'TERMINATION_REQUEST'
+			sourceData.status = sourceData.status == 'APPROVED' ? 'APPROVED_EXIT'  : sourceData.status
+
 		}
 		if (sourceData.type == 'INTERMISSION_REQUEST') {
 			sourceData.type = 'TERMINATION_REQUEST'
-			sourceData.status = 'APPROVED'
+			sourceData.status = sourceData.status == 'APPROVED' ? 'APPROVED_EXIT': 'REJECTED'
 		}
-
+		if (sourceData.type == 'JOIN_REQUEST') {
+			sourceData.status = sourceData.status == 'APPROVED' ? 'APPROVED_ONBOARDING': sourceData.status
+		}
 		return sourceData;
 	}
 } catch (e) {

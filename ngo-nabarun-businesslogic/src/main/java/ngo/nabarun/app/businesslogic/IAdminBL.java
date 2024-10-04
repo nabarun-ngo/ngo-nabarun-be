@@ -5,8 +5,11 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import ngo.nabarun.app.common.enums.TriggerEvent;
+
 @Service
 public interface IAdminBL {
 	Map<String, String> generateApiKey(List<String> scopes);
-	void syncUsers() throws Exception;
+
+	void cronTrigger(List<TriggerEvent> trigger, Map<String, String> param);
 }

@@ -1,12 +1,14 @@
 package ngo.nabarun.app.infra.serviceimpl;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,12 +42,14 @@ import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
+import ngo.nabarun.app.infra.core.entity.DashboardCountEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 import ngo.nabarun.app.infra.core.repo.ApiKeyRepository;
 import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
+import ngo.nabarun.app.infra.core.repo.DashboardCountRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
 import ngo.nabarun.app.infra.core.repo.LogsRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
@@ -66,24 +70,28 @@ import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.ILogInfraService;
-import ngo.nabarun.app.infra.service.ISequenceInfraService;
+import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 
 @Service
-public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInfraService, IDocumentInfraService,
-		IHistoryInfraService, ICorrespondenceInfraService, IGlobalDataInfraService,ILogInfraService,IApiKeyInfraService {
+public class CommonInfraServiceImpl
+		implements ICountsInfraService, ITicketInfraService, IDocumentInfraService, IHistoryInfraService,
+		ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService, IApiKeyInfraService {
 
 	@Autowired
 	private DBSequenceRepository dbSeqRepository;
 
 	@Autowired
+	private DashboardCountRepository dbCountRepository;
+
+	@Autowired
 	private TicketRepository ticketRepo;
-	
+
 	@Autowired
 	private LogsRepository logsRepo;
-	
+
 	@Autowired
 	private ApiKeyRepository apiKeyRepo;
 
@@ -104,10 +112,10 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Autowired
 	private IRemoteConfigExtService remoteConfigService;
-	
+
 	@Autowired
 	private IMessageExtService messageExtService;
-	
+
 	@Autowired
 	private ICollectionExtService collectionExtService;
 
@@ -122,17 +130,16 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	private static final String COLLECTION_NOTIFICATION_TOKEN = "notification_tokens";
 
 	private static final String DOMAIN_LOCATION_DATA = "DOMAIN_LOCATION_DATA";
-	
 
 	@Override
-	public int getLastSequence(String seqName) {
+	public int getEntiryLastSequence(String seqName) {
 		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		return seqUpdate.getSeq();
 	}
 
 	@Override
-	public int resetSequence(String seqName) {
+	public int resetEntirySequence(String seqName) {
 		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		seqUpdate.setSeq(1);
@@ -143,7 +150,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	public Date getLastResetDate(String seqName) {
+	public Date getEntiryLastResetDate(String seqName) {
 		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase()).orElse(null);
 		return seqUpdate == null ? null : seqUpdate.getLastSeqResetOn();
 	}
@@ -160,7 +167,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	public int incrementSequence(String seqName) {
+	public int incrementEntirySequence(String seqName) {
 		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		seqUpdate.setSeq(seqUpdate.getSeq() + 1);
@@ -170,7 +177,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	public int decrementSequence(String seqName) {
+	public int decrementEntitySequence(String seqName) {
 		DBSequenceEntity seqUpdate = dbSeqRepository.findById(seqName.toUpperCase())
 				.orElse(createEntity(seqName.toUpperCase()));
 		seqUpdate.setSeq(seqUpdate.getSeq() - 1);
@@ -196,7 +203,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		}
 		ticketInfo.setCreatedBy("Company");
 		ticketInfo.setCreatedOn(CommonUtils.getSystemDate());
-		
+
 		ticketInfo.setForUserId(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getProfileId());
 		ticketInfo.setName(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getName());
 		ticketInfo.setEmail(ticket.getUserInfo() == null ? null : ticket.getUserInfo().getEmail());
@@ -206,39 +213,38 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 				CommonUtils.addSecondsToDate(CommonUtils.getSystemDate(), ticket.getExpireTicketAfterSec()));
 		ticketInfo.setRefId(ticket.getRefId());
 		if (ticket.getTicketScope() != null) {
-			ticketInfo.setScope(
-					InfraFieldHelper.stringListToString(ticket.getTicketScope()));
+			ticketInfo.setScope(InfraFieldHelper.stringListToString(ticket.getTicketScope()));
 		}
-		ticketInfo.setToken(ticket.getToken() == null ? PasswordUtils.generateRandomString(128, true):ticket.getToken());
+		ticketInfo.setToken(
+				ticket.getToken() == null ? PasswordUtils.generateRandomString(128, true) : ticket.getToken());
 		ticketInfo.setType(ticket.getTicketType().name());// otp- link
-		if(ticket.getTicketType() == TicketType.OTP) {
+		if (ticket.getTicketType() == TicketType.OTP) {
 			ticketInfo.setStatus(TicketStatus.OPEN.name());
 			ticketInfo.setIncorrectOTPCount(0);
 			ticketInfo.setOneTimePassword(PasswordUtils.generateRandomNumber(ticket.getOtpDigits()));
-		}else if(ticket.getTicketType() == TicketType.LINK)  {
+		} else if (ticket.getTicketType() == TicketType.LINK) {
 			ticketInfo.setStatus(TicketStatus.UNUSED.name());
 			ticketInfo.setBaseTicketUrl(ticket.getBaseTicketUrl());
-		}else if(ticket.getTicketType() == TicketType.DECISION_LINK)  {
+		} else if (ticket.getTicketType() == TicketType.DECISION_LINK) {
 			ticketInfo.setStatus(TicketStatus.UNUSED.name());
 			ticketInfo.setBaseTicketUrl(ticket.getBaseTicketUrl());
 			ticketInfo.setAcceptCode(PasswordUtils.generateRandomNumber(12));
 			ticketInfo.setDeclineCode(PasswordUtils.generateRandomNumber(12));
 		}
-		ticketInfo=ticketRepo.save(ticketInfo);
+		ticketInfo = ticketRepo.save(ticketInfo);
 		return InfraDTOHelper.convertToTicketDTO(ticketInfo);
 	}
 
 	@Override
 	public TicketDTO updateTicket(String id, TicketDTO updatedTicket) {
-		TicketInfoEntity tokenEntity = ticketRepo.findById(id)
-				.orElseThrow(() -> new NotFoundException("ticket", id));
-		if(updatedTicket.getTicketStatus() != null) {
+		TicketInfoEntity tokenEntity = ticketRepo.findById(id).orElseThrow(() -> new NotFoundException("ticket", id));
+		if (updatedTicket.getTicketStatus() != null) {
 			tokenEntity.setStatus(updatedTicket.getTicketStatus().name());
 		}
-		if(updatedTicket.getIncorrectOTPCount() != null) {
+		if (updatedTicket.getIncorrectOTPCount() != null) {
 			tokenEntity.setIncorrectOTPCount(updatedTicket.getIncorrectOTPCount());
 		}
-		tokenEntity=ticketRepo.save(tokenEntity);
+		tokenEntity = ticketRepo.save(tokenEntity);
 		return InfraDTOHelper.convertToTicketDTO(tokenEntity);
 	}
 
@@ -280,10 +286,10 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	private String buildRemoteFileName(String originalFileName, DocumentIndexType docType) {
-		String extension=FilenameUtils.getExtension(originalFileName);
-		return docType.getDocFolderName() + "/"
-				+ UUID.randomUUID().toString()+"."+(extension == null ? "zip" : extension);
-		
+		String extension = FilenameUtils.getExtension(originalFileName);
+		return docType.getDocFolderName() + "/" + UUID.randomUUID().toString() + "."
+				+ (extension == null ? "zip" : extension);
+
 	}
 
 	@Override
@@ -335,7 +341,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		for (DocumentDTO attachment : attachFrom) {
 			try {
 				Map<String, String> attachmentMap = new HashMap<>();
-				byte[] fileContent = CommonUtils.toByteArray(new URL(attachment.getDocumentURL()));
+				byte[] fileContent = CommonUtils.toByteArray(URI.create(attachment.getDocumentURL()).toURL());
 				attachmentMap.put("content", x.encodeAsString(fileContent));
 				attachmentMap.put("contentId", attachment.getDocId());
 				attachmentMap.put("disposition", "attachment");
@@ -363,15 +369,15 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 			recipientMap.put("recipientName", recipient.getName());
 			recipientsList.add(recipientMap);
 		}
-		
+
 		List<Map<String, String>> attachmentList = new ArrayList<>();
 
-		if(attachFrom != null) {
+		if (attachFrom != null) {
 			Base64 x = new Base64();
 			for (DocumentDTO attachment : attachFrom) {
 				try {
 					Map<String, String> attachmentMap = new HashMap<>();
-					byte[] fileContent = CommonUtils.toByteArray(new URL(attachment.getDocumentURL()));
+					byte[] fileContent = CommonUtils.toByteArray(URI.create(attachment.getDocumentURL()).toURL());
 					attachmentMap.put("content", x.encodeAsString(fileContent));
 					attachmentMap.put("contentId", attachment.getDocId());
 					attachmentMap.put("disposition", "attachment");
@@ -383,7 +389,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 				}
 			}
 		}
-		
+
 		senderName = (senderName == null) ? propertyHelper.getAppName() : senderName;
 		emailExtService.sendEmail(template.getSubject(), senderName, recipientsList, templateId, template.getBody(),
 				attachmentList);
@@ -400,7 +406,7 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		}
 		return configMap;
 	}
-	
+
 	@Override
 	public Map<String, List<KeyValuePair>> getDomainLocationData() throws Exception {
 		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_LOCATION_DATA);
@@ -412,19 +418,19 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		return configMap;
 	}
 
-	 
 	public FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
 		CustomFieldEntity entity = fieldDTO.getFieldId() == null ? new CustomFieldEntity()
 				: fieldRepository.findById(fieldDTO.getFieldId()).orElseThrow();
-		entity.setFieldDescription(fieldDTO.getFieldDescription() != null ?fieldDTO.getFieldDescription(): entity.getFieldDescription());
-		entity.setFieldKey(fieldDTO.getFieldKey() != null ?fieldDTO.getFieldKey().name(): entity.getFieldKey());
-		entity.setFieldName(fieldDTO.getFieldName() != null ?fieldDTO.getFieldName(): entity.getFieldName());
-		entity.setFieldType(fieldDTO.getFieldType() != null ?fieldDTO.getFieldType(): entity.getFieldType());
-		entity.setFieldValue(fieldDTO.getFieldValue() != null ?fieldDTO.getFieldValue(): entity.getFieldValue());
-		if(fieldDTO.getFieldId()== null) {
+		entity.setFieldDescription(
+				fieldDTO.getFieldDescription() != null ? fieldDTO.getFieldDescription() : entity.getFieldDescription());
+		entity.setFieldKey(fieldDTO.getFieldKey() != null ? fieldDTO.getFieldKey().name() : entity.getFieldKey());
+		entity.setFieldName(fieldDTO.getFieldName() != null ? fieldDTO.getFieldName() : entity.getFieldName());
+		entity.setFieldType(fieldDTO.getFieldType() != null ? fieldDTO.getFieldType() : entity.getFieldType());
+		entity.setFieldValue(fieldDTO.getFieldValue() != null ? fieldDTO.getFieldValue() : entity.getFieldValue());
+		if (fieldDTO.getFieldId() == null) {
 			entity.setSource(fieldDTO.getFieldSource());
 		}
-		return InfraDTOHelper.convertToFieldDTO(entity,propertyHelper.getAppSecret());
+		return InfraDTOHelper.convertToFieldDTO(entity, propertyHelper.getAppSecret());
 	}
 
 	@Override
@@ -432,21 +438,23 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		List<ObjectFilter> filter = new ArrayList<>();
 		List<NotificationDTO> notifications = new ArrayList<>();
 
-		if(filterDTO.getRead() != null) {
-			filter.add(new ObjectFilter("read",Operator.EQUAL,filterDTO.getRead()));
+		if (filterDTO.getRead() != null) {
+			filter.add(new ObjectFilter("read", Operator.EQUAL, filterDTO.getRead()));
 		}
-		if(filterDTO.getTargetUserId() != null) {
-			filter.add(new ObjectFilter("targetUserIds",Operator.ARRAY_CONTAIN,filterDTO.getTargetUserId()));
+		if (filterDTO.getTargetUserId() != null) {
+			filter.add(new ObjectFilter("targetUserIds", Operator.ARRAY_CONTAIN, filterDTO.getTargetUserId()));
 		}
 		try {
-			List<Map<String, Object>> notificationCollection = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION, index, size, filter);
-			for(Map<String, Object> notification:notificationCollection) {
+			List<Map<String, Object>> notificationCollection = collectionExtService
+					.getCollectionData(COLLECTION_NOTIFICATION, index, size, filter);
+			for (Map<String, Object> notification : notificationCollection) {
 				notifications.add(new NotificationDTO(notification));
 			}
-			notifications.sort((n1,n2)->{
-				return Long.valueOf(n2.getNotificationDate().getTime()).compareTo(Long.valueOf(n1.getNotificationDate().getTime()));
+			notifications.sort((n1, n2) -> {
+				return Long.valueOf(n2.getNotificationDate().getTime())
+						.compareTo(Long.valueOf(n1.getNotificationDate().getTime()));
 			});
-			//Collections.sort(notifications, Collections.reverseOrder());
+			// Collections.sort(notifications, Collections.reverseOrder());
 		} catch (ThirdPartyException e) {
 			e.printStackTrace();
 		}
@@ -455,25 +463,35 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public NotificationDTO createAndSendNotification(NotificationDTO notificationDTO) throws Exception {
-		Map<String, Object> sourceMap=notificationDTO.toSourceMap();
-		if(notificationDTO.getTarget() != null && !notificationDTO.getTarget().isEmpty()) {
-			List<String> userIds=notificationDTO.getTarget().stream().map(m-> m.getUserId()).collect(Collectors.toList());
-			//System.err.println(userIds);
-			for(String userId:userIds) {
-				ObjectFilter filter= new ObjectFilter("userId",Operator.EQUAL,userId);
-				List<String> tokens = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter))
-						.stream().filter(f->f.get("token") != null).map(m->m.get("token").toString()).collect(Collectors.toList());
-				//System.err.println(tokens);
-				if(!tokens.isEmpty()) {
-					List<String> messageIds=messageExtService.sendMessage(notificationDTO.getTitle(), notificationDTO.getSummary(), notificationDTO.getImage(), tokens, notificationDTO.toMap());
-					notificationDTO.toSourceMap().put("message_ids", messageIds);
+		Map<String, Object> sourceMap = notificationDTO.toSourceMap();
+		if (notificationDTO.getTarget() != null && !notificationDTO.getTarget().isEmpty()) {
+			List<String> userIds = notificationDTO.getTarget().stream().map(m -> m.getUserId())
+					.collect(Collectors.toList());
+			for (String userId : userIds) {
+				List<String> message_ids = sendNotificationMessage(userId, notificationDTO.getTitle(),
+						notificationDTO.getSummary(), notificationDTO.getImage(), notificationDTO.toMap());
+				if (!message_ids.isEmpty()) {
+					notificationDTO.toSourceMap().put("message_ids", message_ids);
 				}
 			}
 			sourceMap.put("targetUserIds", userIds);
 		}
-		System.out.println(sourceMap);
-		Map<String, Object> data=collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION, sourceMap);
+		Map<String, Object> data = collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION, sourceMap);
 		return new NotificationDTO(data);
+	}
+
+	@Override
+	public List<String> sendNotificationMessage(String userId, String title, String summary, String image,
+			Map<String, String> data) throws Exception {
+		ObjectFilter filter = new ObjectFilter("userId", Operator.EQUAL, userId);
+		List<String> tokens = collectionExtService
+				.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter)).stream()
+				.filter(f -> f.get("token") != null).map(m -> m.get("token").toString()).collect(Collectors.toList());
+		List<String> messageIds = new ArrayList<>();
+		if (!tokens.isEmpty()) {
+			messageIds = messageExtService.sendMessage(title, summary, image, tokens, data);
+		}
+		return messageIds;
 	}
 
 	@Override
@@ -484,11 +502,12 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 
 	@Override
 	public boolean saveNotificationToken(String userId, String token) throws Exception {
-		ObjectFilter filter= new ObjectFilter("token",Operator.EQUAL,token);
-		ObjectFilter filter2= new ObjectFilter("userId",Operator.EQUAL,userId);
-		List<Map<String, Object>> collections=collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter,filter2));
-		if(collections.isEmpty()) {
-			Map<String,Object> dataMap= new HashMap<>();
+		ObjectFilter filter = new ObjectFilter("token", Operator.EQUAL, token);
+		ObjectFilter filter2 = new ObjectFilter("userId", Operator.EQUAL, userId);
+		List<Map<String, Object>> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN,
+				null, null, List.of(filter, filter2));
+		if (collections.isEmpty()) {
+			Map<String, Object> dataMap = new HashMap<>();
 			dataMap.put("userId", userId);
 			dataMap.put("token", token);
 			dataMap.put("registration_date", CommonUtils.getSystemDate());
@@ -498,25 +517,27 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 	}
 
 	@Override
-	public boolean deleteNotificationTargetToken(String userId,String token) throws Exception {
-		ObjectFilter filter= new ObjectFilter("token",Operator.EQUAL,token);
-		ObjectFilter filter2= new ObjectFilter("userId",Operator.EQUAL,userId);
-		List<Map<String, Object>> collections=collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null, List.of(filter,filter2));
-		for(Map<String, Object> collection:collections) {
-			collectionExtService.removeCollectionData(COLLECTION_NOTIFICATION_TOKEN, String.valueOf(collection.get("id")));
+	public boolean deleteNotificationTargetToken(String userId, String token) throws Exception {
+		ObjectFilter filter = new ObjectFilter("token", Operator.EQUAL, token);
+		ObjectFilter filter2 = new ObjectFilter("userId", Operator.EQUAL, userId);
+		List<Map<String, Object>> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN,
+				null, null, List.of(filter, filter2));
+		for (Map<String, Object> collection : collections) {
+			collectionExtService.removeCollectionData(COLLECTION_NOTIFICATION_TOKEN,
+					String.valueOf(collection.get("id")));
 		}
 		return true;
 	}
 
 	@Override
 	public List<LogsDTO> getLogs(String corelationId) {
-		List<LogsEntity> logs=logsRepo.findByCorelationId(corelationId);
+		List<LogsEntity> logs = logsRepo.findByCorelationId(corelationId);
 		return logs.stream().map(InfraDTOHelper::convertToLogsDTO).toList();
 	}
 
 	@Override
 	public LogsDTO saveLog(LogsDTO logsDTO) {
-		LogsEntity logsEntity= new LogsEntity();
+		LogsEntity logsEntity = new LogsEntity();
 		logsEntity.setCorelationId(logsDTO.getCorelationId());
 		logsEntity.setEndTime(logsDTO.getEndTime());
 		logsEntity.setError(logsDTO.getError());
@@ -526,40 +547,56 @@ public class CommonInfraServiceImpl implements ISequenceInfraService, ITicketInf
 		logsEntity.setOutputs(logsDTO.getOutputs());
 		logsEntity.setStartTime(logsDTO.getStartTime());
 		logsEntity.setType(logsDTO.getType());
-		logsEntity=logsRepo.save(logsEntity);
+		logsEntity = logsRepo.save(logsEntity);
 		return InfraDTOHelper.convertToLogsDTO(logsEntity);
 	}
 
 	@Override
 	public ApiKeyDTO createApiKey(ApiKeyDTO apiKeyDTO) {
 		ApiKeyEntity apiKeyEntity = new ApiKeyEntity();
-		apiKeyEntity.setApiKey("N."+UUID.randomUUID().toString()+"."+UUID.randomUUID().toString());
+		apiKeyEntity.setApiKey("N." + UUID.randomUUID().toString() + "." + UUID.randomUUID().toString());
 		apiKeyEntity.setCreatedOn(CommonUtils.getSystemDate());
 		apiKeyEntity.setExpireable(apiKeyDTO.isExpireable());
 		apiKeyEntity.setExpireOn(apiKeyDTO.getExpiryDate());
 		apiKeyEntity.setId(UUID.randomUUID().toString());
 		apiKeyEntity.setScopes(InfraFieldHelper.stringListToString(apiKeyDTO.getScopes()));
 		apiKeyEntity.setStatus(apiKeyDTO.getStatus() == null ? null : apiKeyDTO.getStatus().name());
-		apiKeyEntity=apiKeyRepo.save(apiKeyEntity);
+		apiKeyEntity = apiKeyRepo.save(apiKeyEntity);
 		return InfraDTOHelper.convertToApiKeyDTO(apiKeyEntity);
 	}
 
 	@Override
 	public ApiKeyDTO getApiKeyDetail(String apiKey) {
-		ApiKeyEntity apiKeyEntity=apiKeyRepo.findByApiKey(apiKey).orElseThrow();
+		ApiKeyEntity apiKeyEntity = apiKeyRepo.findByApiKey(apiKey).orElseThrow();
 		return InfraDTOHelper.convertToApiKeyDTO(apiKeyEntity);
 	}
 
 	@Override
 	public List<ApiKeyDTO> getApiKeys(ApiKeyStatus status) {
-		List<ApiKeyEntity> apikeys=apiKeyRepo.findByStatus(status.name());
+		List<ApiKeyEntity> apikeys = apiKeyRepo.findByStatus(status.name());
 		return apikeys.stream().map(InfraDTOHelper::convertToApiKeyDTO).collect(Collectors.toList());
 	}
 
-	
+	@Override
+	public Map<String, String> getDashboardCounts(String userId) {
+		return dbCountRepository.findByUserIdIn(List.of(userId,"NA")).stream()
+				.collect(Collectors.toMap(m1 -> m1.getDbFieldKey(), m2 -> m2.getDbFieldValue()));
+	}
 
-	
-
-	
+	@Override
+	public Map<String, String> addOrUpdateDashboardCounts(String userId, Map<String, String> map) {
+		List<DashboardCountEntity> countsEntities = new ArrayList<>();
+		for (Entry<String, String> entity : map.entrySet()) {
+			DashboardCountEntity dbCEntity = new DashboardCountEntity();
+			dbCEntity.setId(userId + "_" + entity.getKey());
+			dbCEntity.setDbFieldKey(entity.getKey());
+			dbCEntity.setDbFieldValue(entity.getValue());
+			dbCEntity.setLastUpdatedOn(CommonUtils.getSystemDate());
+			dbCEntity.setUserId(userId);
+			countsEntities.add(dbCEntity);
+		}
+		return dbCountRepository.saveAll(countsEntities).stream()
+				.collect(Collectors.toMap(m1 -> m1.getDbFieldKey(), m2 -> m2.getDbFieldValue()));
+	}
 
 }
