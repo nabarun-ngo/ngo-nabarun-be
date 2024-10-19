@@ -33,6 +33,7 @@ public class NotificationDTO {
 	private boolean itemClosed;
 	private UserDTO itemClosedBy;
 	private Date readDate;
+	private List<String> targetUserIds;
 
 	public NotificationDTO(Map<String, Object> sourceMap) {
 		this.id = sourceMap.get("id") == null ? null : sourceMap.get("id").toString();

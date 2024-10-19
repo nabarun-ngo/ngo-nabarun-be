@@ -19,6 +19,7 @@ public class WorkListEntity {
 	@Id
 	private String id;
 	private String sourceId;
+	private String sourceRefId;
 	private String description;
 	private String sourceStatus;
 	private String sourceType;

@@ -21,6 +21,6 @@ public enum AdditionalFieldKey {
 	endDate,
 	rejoinDecision,//
 	suggession,//
-	notifications,//
+	notifications, info,//
 
 }

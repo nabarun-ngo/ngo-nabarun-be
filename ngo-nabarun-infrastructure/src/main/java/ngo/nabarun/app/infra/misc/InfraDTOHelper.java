@@ -20,6 +20,7 @@ import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
+import ngo.nabarun.app.common.enums.ExpenseRefType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.MeetingStatus;
 import ngo.nabarun.app.common.enums.MeetingType;
@@ -49,6 +50,8 @@ import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
+import ngo.nabarun.app.infra.core.entity.ExpenseEntity;
+import ngo.nabarun.app.infra.core.entity.ExpenseItemEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.NoticeEntity;
 import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
@@ -64,6 +67,8 @@ import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
@@ -87,63 +92,69 @@ public class InfraDTOHelper {
 	}
 
 	public static UserDTO convertToUserDTO(UserProfileEntity profile, AuthUser user, List<AuthUserRole> roles) {
-		
+
 		UserDTO userDTO = new UserDTO();
 		userDTO.setAbout(profile == null ? null : profile.getAbout());
 		userDTO.setDateOfBirth(profile == null ? null : profile.getDateOfBirth());
 		userDTO.setEmail(profile == null ? (user == null ? null : user.getEmail()) : profile.getEmail());
-		userDTO.setFirstName(profile == null ? (user == null ? null : user.getFirstName())  :profile.getFirstName());
+		userDTO.setFirstName(profile == null ? (user == null ? null : user.getFirstName()) : profile.getFirstName());
 		userDTO.setGender(profile == null ? null : profile.getGender());
-		userDTO.setImageUrl(StringUtils.hasLength(profile != null ? profile.getAvatarUrl():null) ? profile.getAvatarUrl()
-				: (user == null ? null : user.getPicture()));
-		
-		userDTO.setLastName(profile == null ? (user == null ? null : user.getLastName())  :profile.getLastName());
-		userDTO.setMiddleName(profile == null ? null :profile.getMiddleName());
-		userDTO.setName(profile == null ? (user == null ? null : user.getFullName()) :profile.getFirstName() + " " + profile.getLastName());
-		userDTO.setProfileId(profile == null ? (user == null ? null : user.getProfileId()) : profile.getId());
-		userDTO.setStatus(profile == null || profile.getStatus() == null ? null : ProfileStatus.valueOf(profile.getStatus()));
+		userDTO.setImageUrl(
+				StringUtils.hasLength(profile != null ? profile.getAvatarUrl() : null) ? profile.getAvatarUrl()
+						: (user == null ? null : user.getPicture()));
 
-		userDTO.setUserId(profile == null ? (user == null ? null : user.getUserId())  : profile.getUserId());
-		userDTO.setTitle(profile == null ? null :profile.getTitle());
+		userDTO.setLastName(profile == null ? (user == null ? null : user.getLastName()) : profile.getLastName());
+		userDTO.setMiddleName(profile == null ? null : profile.getMiddleName());
+		userDTO.setName(profile == null ? (user == null ? null : user.getFullName())
+				: profile.getFirstName() + " " + profile.getLastName());
+		userDTO.setProfileId(profile == null ? (user == null ? null : user.getProfileId()) : profile.getId());
+		userDTO.setStatus(
+				profile == null || profile.getStatus() == null ? null : ProfileStatus.valueOf(profile.getStatus()));
+
+		userDTO.setUserId(profile == null ? (user == null ? null : user.getUserId()) : profile.getUserId());
+		userDTO.setTitle(profile == null ? null : profile.getTitle());
 
 		/**
 		 * additional details
 		 */
 		UserAdditionalDetailsDTO uaDTO = new UserAdditionalDetailsDTO();
-		uaDTO.setActiveContributor(profile == null ? false :profile.getActiveContributor());
+		uaDTO.setActiveContributor(profile == null ? false : profile.getActiveContributor());
 		uaDTO.setBlocked(user == null ? false : user.isBlocked());
 		uaDTO.setCreatedBy(null);
 		uaDTO.setCreatedOn(user != null ? user.getCreatedAt() : profile.getCreatedOn());
-		uaDTO.setDisplayPublic(profile == null  ? false : profile.getPublicProfile());
-		uaDTO.setEmailVerified(user != null ? (user.getEmailVerified()== null ? false: user.getEmailVerified()) : false);
-		uaDTO.setPasswordResetRequired(user == null ? false : user.getResetPassword()== null ? false: user.getResetPassword());
+		uaDTO.setDisplayPublic(profile == null ? false : profile.getPublicProfile());
+		uaDTO.setEmailVerified(
+				user != null ? (user.getEmailVerified() == null ? false : user.getEmailVerified()) : false);
+		uaDTO.setPasswordResetRequired(
+				user == null ? false : user.getResetPassword() == null ? false : user.getResetPassword());
 		uaDTO.setLastLogin(user != null ? user.getLastLogin() : null);
 		uaDTO.setLastPasswordChange(user != null ? user.getLastPasswordReset() : null);
 		uaDTO.setLoginsCount(user == null ? 0 : user.getLoginsCount());
 		uaDTO.setUpdatedOn(user != null ? user.getUpdatedAt() : null);
 		uaDTO.setAttributes(user != null ? user.getAttributes() : null);
-		uaDTO.setDonPauseStartDate(profile == null  ? null : profile.getDonationPauseStartDate());
-		uaDTO.setDonPauseEndDate(profile == null  ? null : profile.getDonationPauseEndDate());
+		uaDTO.setDonPauseStartDate(profile == null ? null : profile.getDonationPauseStartDate());
+		uaDTO.setDonPauseEndDate(profile == null ? null : profile.getDonationPauseEndDate());
 		userDTO.setAdditionalDetails(uaDTO);
 
-		if(profile != null) {
+		if (profile != null) {
 			/**
 			 * roles
 			 */
 			// userDTO.setRoleNames(InfraFieldHelper.stringToStringList(profile.getRoleNames()));
 			if (roles != null) {
-				userDTO.setRoles(roles.stream().map(m->convertToRoleDTO(m)).toList());
-			}else {
-				List<String> roleCodes=InfraFieldHelper.stringToStringList(profile.getRoleCodes());
-				List<String> roleNames=InfraFieldHelper.stringToStringList(profile.getRoleNames());
+				userDTO.setRoles(roles.stream().map(m -> convertToRoleDTO(m)).toList());
+			} else {
+				List<String> roleCodes = InfraFieldHelper.stringToStringList(profile.getRoleCodes());
+				List<String> roleNames = InfraFieldHelper.stringToStringList(profile.getRoleNames());
 				List<RoleDTO> roleList = new ArrayList<RoleDTO>();
-				for(int i=0;i<roleCodes.size();i++){
-					if(StringUtils.hasLength(roleCodes.get(i))) {	
-						RoleDTO role= new RoleDTO();
-						role.setName(roleNames.size()> i ? roleNames.get(i): null);
+				for (int i = 0; i < roleCodes.size(); i++) {
+					if (StringUtils.hasLength(roleCodes.get(i))) {
+						RoleDTO role = new RoleDTO();
+						role.setName(roleNames.size() > i ? roleNames.get(i) : null);
 						role.setCode(RoleCode.valueOf(roleCodes.get(i)));
 						roleList.add(role);
-					}		;
+					}
+					;
 				}
 				userDTO.setRoles(roleList);
 			}
@@ -152,9 +163,9 @@ public class InfraDTOHelper {
 			 * address
 			 */
 			List<AddressDTO> addresses = new ArrayList<>();
-			if (profile.getAddressLine1() != null || profile.getAddressLine2() != null || profile.getAddressLine3() != null
-					|| profile.getHometown() != null || profile.getDistrict() != null || profile.getState() != null
-					|| profile.getCountry() != null) {
+			if (profile.getAddressLine1() != null || profile.getAddressLine2() != null
+					|| profile.getAddressLine3() != null || profile.getHometown() != null
+					|| profile.getDistrict() != null || profile.getState() != null || profile.getCountry() != null) {
 				AddressDTO present = new AddressDTO();
 				present.setAddressType(AddressType.PRESENT);
 				present.setAddressLine1(profile.getAddressLine1());
@@ -166,8 +177,9 @@ public class InfraDTOHelper {
 				present.setCountry(profile.getCountry());
 				addresses.add(present);
 			}
-			if (profile.getPermanentAddressLine1() != null || profile.getPermanentAddressLine2() != null || profile.getPermanentAddressLine3() != null
-					|| profile.getPermanentHometown() != null || profile.getPermanentDistrict() != null || profile.getPermanentState() != null
+			if (profile.getPermanentAddressLine1() != null || profile.getPermanentAddressLine2() != null
+					|| profile.getPermanentAddressLine3() != null || profile.getPermanentHometown() != null
+					|| profile.getPermanentDistrict() != null || profile.getPermanentState() != null
 					|| profile.getPermanentCountry() != null) {
 				AddressDTO permanent = new AddressDTO();
 				permanent.setAddressType(AddressType.PERMANENT);
@@ -257,7 +269,6 @@ public class InfraDTOHelper {
 			}
 			userDTO.setSocialMedias(socialmedias);
 		}
-		
 
 		return userDTO;
 	}
@@ -296,7 +307,7 @@ public class InfraDTOHelper {
 
 		donationDTO.setUpiName(donation.getPaidUPIName() == null ? null : UPIOption.valueOf(donation.getPaidUPIName()));
 		donationDTO.setIsPaymentNotified(donation.getIsPaymentNotified());
-		donationDTO.setPaymentNotificationDate(donation.getNotifiedOn());	
+		donationDTO.setPaymentNotificationDate(donation.getNotifiedOn());
 		AccountDTO accountDTO = new AccountDTO();
 		accountDTO.setId(donation.getAccountId());
 		accountDTO.setAccountName(donation.getAccountName());
@@ -305,9 +316,9 @@ public class InfraDTOHelper {
 		donationDTO.setCancelReason(donation.getCancelReason());
 		donationDTO.setPayLaterReason(donation.getPayLaterReason());
 		donationDTO.setPaymentFailDetail(donation.getPaymentFailDetail());
-		
-		if(donation.getCustomFields() != null) {
-			List<FieldDTO> list=donation.getCustomFields().stream().map(m->{
+
+		if (donation.getCustomFields() != null) {
+			List<FieldDTO> list = donation.getCustomFields().stream().map(m -> {
 				return convertToFieldDTO(m);
 			}).toList();
 			donationDTO.setAdditionalFields(list);
@@ -316,10 +327,11 @@ public class InfraDTOHelper {
 	}
 
 	public static FieldDTO convertToFieldDTO(CustomFieldEntity field) {
-		return convertToFieldDTO(field,"");
+		return convertToFieldDTO(field, "");
 	}
-	public static FieldDTO convertToFieldDTO(CustomFieldEntity field,String secret) {
-		//log.debug("Custom Field",field);
+
+	public static FieldDTO convertToFieldDTO(CustomFieldEntity field, String secret) {
+		// log.debug("Custom Field",field);
 		FieldDTO fieldDTO = new FieldDTO();
 		fieldDTO.setFieldDescription(field.getFieldDescription());
 		fieldDTO.setFieldKey(AdditionalFieldKey.valueOf(field.getFieldKey()));
@@ -330,7 +342,7 @@ public class InfraDTOHelper {
 		fieldDTO.setFieldSourceType(field.getSourceType());
 
 		fieldDTO.setHidden(field.isHidden());
-		if(field.isEncrypted()) {
+		if (field.isEncrypted()) {
 			IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(field.getEncryptionIV()));
 			String salt = field.getEncryptionSalt();
 			String value = field.getFieldValue();
@@ -342,11 +354,11 @@ public class InfraDTOHelper {
 				e.printStackTrace();
 			}
 
-		}else {
+		} else {
 			fieldDTO.setFieldValue(field.getFieldValue());
 		}
 		fieldDTO.setEncrypted(field.isEncrypted());
-		
+
 		fieldDTO.setMandatory(field.isMandatory());
 		fieldDTO.setFieldOptions(InfraFieldHelper.stringToStringList(field.getFieldValueOptions()));
 		fieldDTO.setFieldValueType(field.getFieldValueType());
@@ -360,6 +372,7 @@ public class InfraDTOHelper {
 		documentDTO.setFileType(docRef.getFileType());
 		documentDTO.setImage(docRef.getFileType() == null ? false : docRef.getFileType().startsWith("image"));
 		documentDTO.setOriginalFileName(docRef.getOriginalFileName());
+		documentDTO.setRemoteFileName(docRef.getRemoteFileName());
 		documentDTO.setDocId(docRef.getId());
 		documentDTO.setDocumentURL(docRef.getDownloadUrl());
 		return documentDTO;
@@ -367,12 +380,13 @@ public class InfraDTOHelper {
 
 	public static RoleDTO convertToRoleDTO(AuthUserRole userRole) {
 		RoleDTO roleDTO = new RoleDTO();
-		roleDTO.setName(userRole.getRoleDescription());
+		roleDTO.setDescription(userRole.getRoleDescription());
+		// roleDTO.setName(userRole.getRoleDescription());
 		roleDTO.setCode(RoleCode.valueOf(userRole.getRoleName()));
 		roleDTO.setAuth0Id(userRole.getRoleId());
 		return roleDTO;
 	}
-	
+
 //	public static RoleDTO convertToRoleDTO(UserRoleEntity userRole) {
 //		RoleDTO roleDTO = new RoleDTO();
 //		roleDTO.setCode(RoleCode.valueOf(userRole.getRoleCode()));
@@ -403,9 +417,9 @@ public class InfraDTOHelper {
 
 	public static NoticeDTO convertToNoticeDTO(NoticeEntity noticeEntity) {
 		NoticeDTO noticeDTO = new NoticeDTO();
-		UserDTO createdBy=new UserDTO();
+		UserDTO createdBy = new UserDTO();
 		createdBy.setName(noticeEntity.getCreatedBy());
-		createdBy.setProfileId(noticeEntity.getCreatedById());	
+		createdBy.setProfileId(noticeEntity.getCreatedById());
 		noticeDTO.setCreatedBy(createdBy);
 		noticeDTO.setCreatorRole(noticeEntity.getCreatorRole());
 		noticeDTO.setDescription(noticeEntity.getDescription());
@@ -417,47 +431,46 @@ public class InfraDTOHelper {
 		noticeDTO.setTitle(noticeEntity.getTitle());
 		noticeDTO.setStatus(noticeEntity.getStatus() == null ? null : NoticeStatus.valueOf(noticeEntity.getStatus()));
 		noticeDTO.setNeedMeeting(noticeEntity.getNeedMeeting());
-		if(noticeEntity.getNeedMeeting() != null && noticeEntity.getNeedMeeting()) {
+		if (noticeEntity.getNeedMeeting() != null && noticeEntity.getNeedMeeting()) {
 			MeetingDTO meetingDTO = new MeetingDTO();
 			meetingDTO.setAudioMeetingLink(noticeEntity.getMeetingLinkA());
 			meetingDTO.setDescription(noticeEntity.getMeetingDescription());
 
-			
-			if(noticeEntity.getAttendeeEmails() != null) {
-				List<UserDTO> attendees= new ArrayList<>();
-				List<String> attendeesEmail=InfraFieldHelper.stringToStringList(noticeEntity.getAttendeeEmails());
-				List<String> attendeesNames=InfraFieldHelper.stringToStringList(noticeEntity.getAttendeeNames());
-				
-				for(int i=0;i<attendeesEmail.size();i++) {
+			if (noticeEntity.getAttendeeEmails() != null) {
+				List<UserDTO> attendees = new ArrayList<>();
+				List<String> attendeesEmail = InfraFieldHelper.stringToStringList(noticeEntity.getAttendeeEmails());
+				List<String> attendeesNames = InfraFieldHelper.stringToStringList(noticeEntity.getAttendeeNames());
+
+				for (int i = 0; i < attendeesEmail.size(); i++) {
 					UserDTO attendee = new UserDTO();
-					attendee.setEmail(attendeesEmail.get(i));	
+					attendee.setEmail(attendeesEmail.get(i));
 					attendee.setName(attendeesNames.get(i));
 					attendees.add(attendee);
 				}
 				meetingDTO.setAttendees(attendees);
 			}
-			
-			
 
 			meetingDTO.setEndTime(noticeEntity.getMeetingEndTime());
 			meetingDTO.setExtMeetingId(noticeEntity.getExtMeetingId());
 			meetingDTO.setLocation(noticeEntity.getMeetingLocation());
 			meetingDTO.setRemarks(noticeEntity.getMeetingRemarks());
 			meetingDTO.setStartTime(noticeEntity.getMeetingStartTime());
-			meetingDTO.setStatus(noticeEntity.getMeetingStatus() == null ? null : MeetingStatus.valueOf(noticeEntity.getMeetingStatus()));
+			meetingDTO.setStatus(noticeEntity.getMeetingStatus() == null ? null
+					: MeetingStatus.valueOf(noticeEntity.getMeetingStatus()));
 			meetingDTO.setSummary(noticeEntity.getMeetingSummary());
-			meetingDTO.setType(noticeEntity.getMeetingType() == null ? null : MeetingType.valueOf(noticeEntity.getMeetingType()));
+			meetingDTO.setType(
+					noticeEntity.getMeetingType() == null ? null : MeetingType.valueOf(noticeEntity.getMeetingType()));
 			meetingDTO.setVideoMeetingLink(noticeEntity.getMeetingLinkV());
 			meetingDTO.setHtmlLink(noticeEntity.getHtmlLink());
 			meetingDTO.setExternalStatus(noticeEntity.getExtEventStatus());
-			meetingDTO.setDate(noticeEntity.getMeetingDate()); 
-			noticeDTO.setMeeting(meetingDTO);	
+			meetingDTO.setDate(noticeEntity.getMeetingDate());
+			noticeDTO.setMeeting(meetingDTO);
 		}
 		return noticeDTO;
 	}
 
 	public static LogsDTO convertToLogsDTO(LogsEntity logsEntity) {
-		LogsDTO logsDTO=new LogsDTO();
+		LogsDTO logsDTO = new LogsDTO();
 		logsDTO.setCorelationId(logsEntity.getCorelationId());
 		logsDTO.setDuration(logsEntity.getEndTime().getTime() - logsEntity.getStartTime().getTime());
 		logsDTO.setEndTime(logsEntity.getEndTime());
@@ -485,11 +498,10 @@ public class InfraDTOHelper {
 		ticketDTO.setRefId(tokenEntity.getRefId());
 		ticketDTO.setAcceptCode(tokenEntity.getAcceptCode());
 		ticketDTO.setDeclineCode(tokenEntity.getDeclineCode());
-		
+
 		if (tokenEntity.getScope() != null) {
 			ticketDTO.setTicketScope(InfraFieldHelper.stringToStringList(tokenEntity.getScope()));
 		}
-
 
 		ticketDTO.setToken(tokenEntity.getToken());
 
@@ -538,15 +550,14 @@ public class InfraDTOHelper {
 				.setTxnStatus(txnEntity.getStatus() == null ? null : TransactionStatus.valueOf(txnEntity.getStatus()));
 		transactionDTO.setTxnType(txnEntity.getTransactionType() == null ? null
 				: TransactionType.valueOf(txnEntity.getTransactionType()));
-		
+
 		UserDTO createdBy = new UserDTO();
 		createdBy.setName(txnEntity.getCreatedByName());
 		createdBy.setProfileId(txnEntity.getCreatedById());
 		createdBy.setEmail(txnEntity.getCreatedByEmail());
-		
-		
+
 		transactionDTO.setCreatedBy(createdBy);
-		
+
 		UserDTO revertedBy = new UserDTO();
 		revertedBy.setName(txnEntity.getRevertedByName());
 		revertedBy.setProfileId(txnEntity.getRevertedById());
@@ -571,7 +582,7 @@ public class InfraDTOHelper {
 		} else {
 			UserDTO userDTO = new UserDTO();
 			userDTO.setProfileId(accountInfo.getProfile());
-			userDTO.setName(accountInfo.getAccountName());		
+			userDTO.setName(accountInfo.getAccountName());
 			accountDTO.setProfile(userDTO);
 		}
 
@@ -595,45 +606,47 @@ public class InfraDTOHelper {
 		createdBy.setProfileId(accountInfo.getCreatedById());
 		createdBy.setEmail(accountInfo.getCreatedByEmail());
 		accountDTO.setCreatedBy(createdBy);
-		
+
 		return accountDTO;
 	}
 
-	public static RequestDTO convertToWorkflowDTO(WorkflowEntity workflow,String secret) {
-		RequestDTO workFlowDTO= new RequestDTO();
-		workFlowDTO.setSystemGenerated(workflow.isSystemGenerated());		
+	public static RequestDTO convertToWorkflowDTO(WorkflowEntity workflow, String secret) {
+		RequestDTO workFlowDTO = new RequestDTO();
+		workFlowDTO.setRefId(workflow.getRefId());
+		workFlowDTO.setSystemGenerated(workflow.isSystemGenerated());
 		workFlowDTO.setCreatedBy(workflow.getCreatedBy());
 		workFlowDTO.setCreatedOn(workflow.getCreatedOn());
 		workFlowDTO.setDelegated(workflow.isDelegated());
 		UserDTO delegateDTO = new UserDTO();
-		delegateDTO.setProfileId(workflow.getDelegateProfileId());	
-		delegateDTO.setEmail(workflow.getDelegateProfileEmail());		
-		delegateDTO.setName(workflow.getDelegateProfileName());		
+		delegateDTO.setProfileId(workflow.getDelegateProfileId());
+		delegateDTO.setEmail(workflow.getDelegateProfileEmail());
+		delegateDTO.setName(workflow.getDelegateProfileName());
 
 		workFlowDTO.setDelegatedRequester(delegateDTO);
 		workFlowDTO.setId(workflow.getId());
 		workFlowDTO.setRemarks(workflow.getRemarks());
 		UserDTO requesterDTO = new UserDTO();
 		requesterDTO.setProfileId(workflow.getProfileId());
-		requesterDTO.setEmail(workflow.getProfileEmail());	
-		requesterDTO.setName(workflow.getProfileName());	
+		requesterDTO.setEmail(workflow.getProfileEmail());
+		requesterDTO.setName(workflow.getProfileName());
 		workFlowDTO.setRequester(requesterDTO);
 
 		UserDTO systemReqDTO = new UserDTO();
 		systemReqDTO.setUserId(workflow.getSystemRequestOwnerId());
-		systemReqDTO.setEmail(workflow.getSystemRequestOwnerEmail());	
+		systemReqDTO.setEmail(workflow.getSystemRequestOwnerEmail());
 		systemReqDTO.setName(workflow.getSystemRequestOwnerName());
 		workFlowDTO.setSystemRequestOwner(systemReqDTO);
-		
+
 		workFlowDTO.setResolvedOn(workflow.getResolvedOn());
 		workFlowDTO.setDescription(workflow.getDescription());
 		workFlowDTO.setWorkflowName(workflow.getName());
 		workFlowDTO.setStatus(workflow.getStatus() == null ? null : RequestStatus.valueOf(workflow.getStatus()));
-		workFlowDTO.setLastStatus(workflow.getLastStatus() == null ? null : RequestStatus.valueOf(workflow.getLastStatus()));
+		workFlowDTO.setLastStatus(
+				workflow.getLastStatus() == null ? null : RequestStatus.valueOf(workflow.getLastStatus()));
 		workFlowDTO.setType(RequestType.valueOf(workflow.getType()));
-		if(workflow.getCustomFields() != null) {
-			List<FieldDTO> list=workflow.getCustomFields().stream().map(m->{
-				return convertToFieldDTO(m,secret);
+		if (workflow.getCustomFields() != null) {
+			List<FieldDTO> list = workflow.getCustomFields().stream().map(m -> {
+				return convertToFieldDTO(m, secret);
 			}).toList();
 			workFlowDTO.setAdditionalFields(list);
 		}
@@ -641,46 +654,50 @@ public class InfraDTOHelper {
 	}
 
 	public static WorkDTO convertToWorkListDTO(WorkListEntity worklist) {
-		WorkDTO workListDTO= new WorkDTO();
-		workListDTO.setActionPerformed(worklist.isActionPerformed());	
+		WorkDTO workListDTO = new WorkDTO();
+		workListDTO.setWorkSourceRefId(worklist.getSourceRefId());
+		workListDTO.setActionPerformed(worklist.isActionPerformed());
 		workListDTO.setCreatedOn(worklist.getCreatedOn());
-		workListDTO.setCurrentAction(worklist.getCurrentAction() == null ? null :WorkAction.valueOf(worklist.getCurrentAction()));
-		workListDTO.setDecision(worklist.getDecision() == null ? null :WorkDecision.valueOf(worklist.getDecision()));
+		workListDTO.setCurrentAction(
+				worklist.getCurrentAction() == null ? null : WorkAction.valueOf(worklist.getCurrentAction()));
+		workListDTO.setDecision(worklist.getDecision() == null ? null : WorkDecision.valueOf(worklist.getDecision()));
 		UserDTO dMaker = new UserDTO();
-		dMaker.setProfileId(worklist.getDecisionMakerId());	
-		dMaker.setName(worklist.getDecisionMakerName());		
+		dMaker.setProfileId(worklist.getDecisionMakerId());
+		dMaker.setName(worklist.getDecisionMakerName());
 		workListDTO.setDecisionMaker(dMaker);
 		workListDTO.setDecisionMakerRoleGroup(worklist.getDecisionMakerRoleGroup());
 		workListDTO.setDescription(worklist.getDescription());
 		workListDTO.setGroupWork(worklist.isGroupWork());
 		workListDTO.setId(worklist.getId());
 		workListDTO.setPendingWithRoleGroups(InfraFieldHelper.stringToStringList(worklist.getPendingWithRoleGroups()));
-		workListDTO.setPendingWithRoles(InfraFieldHelper.stringToStringList(worklist.getPendingWithRoles()).stream().map(m->RoleCode.valueOf(m)).collect(Collectors.toList()));	
-		
-		List<UserDTO> pendingWithUsers= new ArrayList<>();
-		List<String> pendingIds=InfraFieldHelper.stringToStringList(worklist.getPendingWithUserId());
-		List<String> pendingNames=InfraFieldHelper.stringToStringList(worklist.getPendingWithUserName());
-		
-		for(int i=0;i<pendingIds.size();i++) {
+		workListDTO.setPendingWithRoles(InfraFieldHelper.stringToStringList(worklist.getPendingWithRoles()).stream()
+				.map(m -> RoleCode.valueOf(m)).collect(Collectors.toList()));
+
+		List<UserDTO> pendingWithUsers = new ArrayList<>();
+		List<String> pendingIds = InfraFieldHelper.stringToStringList(worklist.getPendingWithUserId());
+		List<String> pendingNames = InfraFieldHelper.stringToStringList(worklist.getPendingWithUserName());
+
+		for (int i = 0; i < pendingIds.size(); i++) {
 			UserDTO pendingWithUser = new UserDTO();
-			pendingWithUser.setUserId(pendingIds.get(i));	
+			pendingWithUser.setUserId(pendingIds.get(i));
 			pendingWithUser.setName(pendingNames.get(i));
 			pendingWithUsers.add(pendingWithUser);
 		}
 		workListDTO.setPendingWithUsers(pendingWithUsers);
 
-		
 		workListDTO.setRemarks(worklist.getRemarks());
 		workListDTO.setStepCompleted(worklist.getStepCompleted());
 		workListDTO.setWorkSourceId(worklist.getSourceId());
-		workListDTO.setWorkSourceStatus(worklist.getSourceStatus() == null ? null : RequestStatus.valueOf(worklist.getSourceStatus()));
-		workListDTO.setWorkSourceType(worklist.getSourceType() == null ? null : RequestType.valueOf(worklist.getSourceType()));
+		workListDTO.setWorkSourceStatus(
+				worklist.getSourceStatus() == null ? null : RequestStatus.valueOf(worklist.getSourceStatus()));
+		workListDTO.setWorkSourceType(
+				worklist.getSourceType() == null ? null : RequestType.valueOf(worklist.getSourceType()));
 		workListDTO.setDecisionDate(worklist.getDecisionDate());
 		workListDTO.setWorkType(worklist.getWorkType() == null ? null : WorkType.valueOf(worklist.getWorkType()));
 		workListDTO.setFinalStep(worklist.isFinalStep());
-		if(worklist.getCustomFields() != null) {
-			List<FieldDTO> list=worklist.getCustomFields().stream().map(m->{
-				return convertToFieldDTO(m,"");
+		if (worklist.getCustomFields() != null) {
+			List<FieldDTO> list = worklist.getCustomFields().stream().map(m -> {
+				return convertToFieldDTO(m, "");
 			}).toList();
 			workListDTO.setAdditionalFields(list);
 		}
@@ -688,15 +705,54 @@ public class InfraDTOHelper {
 	}
 
 	public static ApiKeyDTO convertToApiKeyDTO(ApiKeyEntity apiKeyEntity) {
-		ApiKeyDTO apiKeyDTO= new ApiKeyDTO();
+		ApiKeyDTO apiKeyDTO = new ApiKeyDTO();
 		apiKeyDTO.setApiKey(apiKeyEntity.getApiKey());
 		apiKeyDTO.setCreatedOn(apiKeyEntity.getCreatedOn());
 		apiKeyDTO.setExpireable(apiKeyEntity.isExpireable());
-		apiKeyDTO.setExpiryDate(apiKeyEntity.getExpireOn()); 
+		apiKeyDTO.setExpiryDate(apiKeyEntity.getExpireOn());
 		apiKeyDTO.setId(apiKeyEntity.getId());
 		apiKeyDTO.setScopes(InfraFieldHelper.stringToStringList(apiKeyEntity.getScopes()));
 		apiKeyDTO.setStatus(ApiKeyStatus.valueOf(apiKeyEntity.getStatus()));
 		return apiKeyDTO;
+	}
+
+	public static ExpenseDTO convertToExpenseDTO(ExpenseEntity expense) {
+		ExpenseDTO expenseDTO = new ExpenseDTO();
+		expenseDTO.setApproved(expense.isApproved());
+
+		UserDTO approvedBy = new UserDTO();
+		approvedBy.setProfileId(expense.getApprovedById());
+		approvedBy.setUserId(expense.getApprovedByUserId());
+		approvedBy.setName(expense.getApprovedByName());
+		expenseDTO.setApprovedBy(approvedBy);
+
+		UserDTO createdBy = new UserDTO();
+		createdBy.setProfileId(expense.getCreatedById());
+		createdBy.setUserId(expense.getCreatedByUserId());
+		createdBy.setName(expense.getCreatedByName());
+		expenseDTO.setCreatedBy(createdBy);
+
+		expenseDTO.setCreatedOn(expense.getExpenseCreatedOn());
+		expenseDTO.setDescription(expense.getExpenseDescription());
+		AccountDTO accountDTO = new AccountDTO();
+		accountDTO.setId(expense.getExpenseAccountId());
+		accountDTO.setAccountName(expense.getExpenseAccountName());
+		expenseDTO.setExpenseAccount(accountDTO);
+		List<ExpenseItemDTO> expItems = new ArrayList<>();
+		if (expense.getExpenses() != null) {
+			for (ExpenseItemEntity exp : expense.getExpenses()) {
+				expItems.add(
+						ExpenseItemDTO.builder().amount(exp.getExpenseAmount()).description(exp.getExpenseDescription())
+								.id(exp.getId()).itemName(exp.getExpenseTitle()).build());
+			}
+		}
+		expenseDTO.setExpenseItems(expItems);
+		expenseDTO.setFinalAmount(expense.getExpenseAmount());
+		expenseDTO.setId(expense.getId());
+		expenseDTO.setName(expense.getExpenseTitle());
+		expenseDTO.setRefId(expense.getExpenseRefId());
+		expenseDTO.setRefType(expense.getExpenseRefType() == null ? null : ExpenseRefType.valueOf(expense.getExpenseRefType()));
+		return expenseDTO;
 	}
 
 }

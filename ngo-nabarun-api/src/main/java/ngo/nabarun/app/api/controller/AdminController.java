@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,8 +32,8 @@ public class AdminController {
 		return new SuccessResponse<Map<String,String>>().payload(adminBL.generateApiKey(scopes)).get(HttpStatus.OK);
 	}
 	
-	@GetMapping(value = "/cron/trigger")
-	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestParam List<TriggerEvent> trigger,Map<String,String> param)
+	@PostMapping(value = "/cron/trigger")
+	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestParam List<TriggerEvent> trigger,@RequestBody Map<String,String> param)
 			throws Exception {
 		adminBL.cronTrigger(trigger,param);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);

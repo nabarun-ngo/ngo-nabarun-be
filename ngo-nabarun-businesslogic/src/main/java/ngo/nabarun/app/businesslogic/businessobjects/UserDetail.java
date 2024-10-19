@@ -77,7 +77,7 @@ public class UserDetail {
 	private List<UserSocialMedia> socialMediaLinks;
 	
 	@JsonProperty("memberSince")
-	private String memberSince;
+	private Date memberSince;
 	
 	@JsonProperty("activeContributor")
 	private String activeContributor;

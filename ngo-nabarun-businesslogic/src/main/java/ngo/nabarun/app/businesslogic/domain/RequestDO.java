@@ -62,7 +62,7 @@ public class RequestDO extends CommonDO {
 		Page<RequestDTO> page = workflowInfraService.getRequests(index, size, filterDTO);
 		return new Paginate<RequestDTO>(page);
 	}
-	
+
 	public Paginate<WorkDTO> retrieveAllWorkItems(Integer index, Integer size, WorkDetailFilter filter) {
 		WorkDTOFilter filterDTO = null;
 		if (filter != null) {
@@ -74,6 +74,10 @@ public class RequestDO extends CommonDO {
 			filter.setToDate(filter.getToDate());
 			filter.setSourceType(filter.getSourceType());
 		}
+		return retrieveAllWorkItems(index,size,filterDTO);
+	}
+	
+	public Paginate<WorkDTO> retrieveAllWorkItems(Integer index, Integer size, WorkDTOFilter filterDTO) {
 		Page<WorkDTO> page = workflowInfraService.getWorkItems(index, size, filterDTO);
 		return new Paginate<WorkDTO>(page);
 	}
@@ -109,16 +113,16 @@ public class RequestDO extends CommonDO {
 		/* .map(BusinessObjectConverter::toRequestDetail); */
 		return new Paginate<RequestDTO>(page);
 	}
-	
+
 	public RequestDTO createRequest(RequestDetail createRequest, boolean isPublicRequest, String creatorUserId,
 			ActionFunction<WorkAction, RequestDTO, RequestDTO> task) throws Exception {
-		RequestDTO requestDTO= new RequestDTO();
+		RequestDTO requestDTO = new RequestDTO();
 		requestDTO.setType(createRequest.getType());
 		requestDTO.setDelegated(createRequest.isDelegated());
 		requestDTO.setRequester(BusinessObjectConverter.toUserDTO(createRequest.getRequester()));
 		requestDTO.setDescription(createRequest.getDescription());
 		requestDTO.setAdditionalFields(BusinessObjectConverter.toFieldDTO(createRequest.getAdditionalFields()));
-		return createRequest(requestDTO,isPublicRequest,creatorUserId,task);
+		return createRequest(requestDTO, isPublicRequest, creatorUserId, task);
 	}
 
 	/**
@@ -135,33 +139,34 @@ public class RequestDO extends CommonDO {
 
 		RequestDTO workflow = businessDomainHelper.convertToRequestDTO(createRequest.getType(),
 				createRequest.getAdditionalFields());
-		
-		if(createRequest.isSystemGenerated()) {
+		workflow.setRefId(createRequest.getRefId());
+		if (createRequest.isSystemGenerated()) {
 			workflow.setSystemRequestOwner(createRequest.getSystemRequestOwner());
-			UserDTO requester= new UserDTO();
+			UserDTO requester = new UserDTO();
 			requester.setName("System");
 			workflow.setRequester(requester);
-		}else {
-			/**
-			 * If it is a public request then no delegation is possible If it is a delegated
-			 * request then delegated_requester = token_user and requester =
-			 * UI_provided_requester else requester = token_user
-			 */
-
-			if (isPublicRequest) {
-				workflow.setDelegated(false);
-				workflow.setRequester(createRequest.getRequester());
-			} else if (createRequest.isDelegated()) {
-				workflow.setDelegated(true);
-				workflow.setRequester(createRequest.getRequester());
-				UserDTO tokenUser = userInfraService.getUser(creatorUserId, IdType.AUTH_USER_ID, false);
-				workflow.setDelegatedRequester(tokenUser);
-			} else {
-				UserDTO tokenUser = userInfraService.getUser(creatorUserId, IdType.AUTH_USER_ID, false);
-				workflow.setRequester(tokenUser);
-			}
 		}
-		if(createRequest.getDescription() != null) {
+
+		/**
+		 * If it is a public request then no delegation is possible If it is a delegated
+		 * request then delegated_requester = token_user and requester =
+		 * UI_provided_requester else requester = token_user
+		 */
+
+		if (isPublicRequest) {
+			workflow.setDelegated(false);
+			workflow.setRequester(createRequest.getRequester());
+		} else if (createRequest.isDelegated()) {
+			workflow.setDelegated(true);
+			workflow.setRequester(createRequest.getRequester());
+			UserDTO tokenUser = userInfraService.getUser(creatorUserId, IdType.AUTH_USER_ID, false);
+			workflow.setDelegatedRequester(tokenUser);
+		} else if (!createRequest.isSystemGenerated()) {
+			UserDTO tokenUser = userInfraService.getUser(creatorUserId, IdType.AUTH_USER_ID, false);
+			workflow.setRequester(tokenUser);
+		}
+
+		if (createRequest.getDescription() != null) {
 			workflow.setDescription(createRequest.getDescription());
 		}
 		workflow.setId(generateWorkflowId());
@@ -169,21 +174,24 @@ public class RequestDO extends CommonDO {
 		WorkDTO workItem = businessDomainHelper.prepareWorkList(workflow.getType(), workflow.getStatus(), null);
 
 		workItem = createWorkItem(workflow, workItem, task);
-		/**
-		 * Sending email to requester and delegated requester
-		 */
-		List<CorrespondentDTO> corrDTO = new ArrayList<>();
-		corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
-				.email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
-		Map<String, Object> workflow_vars = workflow.toMap(businessDomainHelper.getDomainKeyValues());
-		if (workflow.isDelegated()) {
-			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
-					.email(workflow.getDelegatedRequester().getEmail()).name(workflow.getDelegatedRequester().getName())
-					.build());
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
-					Map.of("request", workflow_vars));
-		} else {
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO, Map.of("request", workflow_vars));
+		if (!createRequest.isSystemGenerated()) {
+			/**
+			 * Sending email to requester and delegated requester
+			 */
+			List<CorrespondentDTO> corrDTO = new ArrayList<>();
+			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
+					.email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
+			Map<String, Object> workflow_vars = workflow.toMap(businessDomainHelper.getDomainKeyValues());
+			if (workflow.isDelegated()) {
+				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
+						.email(workflow.getDelegatedRequester().getEmail())
+						.name(workflow.getDelegatedRequester().getName()).build());
+				sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
+						Map.of("request", workflow_vars));
+			} else {
+				sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,
+						Map.of("request", workflow_vars));
+			}
 		}
 		return workflow;
 	}
@@ -271,17 +279,20 @@ public class RequestDO extends CommonDO {
 	public WorkDTO createWorkItem(RequestDTO workflow, WorkDTO workItem,
 			ActionFunction<WorkAction, RequestDTO, RequestDTO> task) throws Exception {
 		// System.err.println("Final Step1 = "+workItem.isFinalStep());
-		List<FieldDTO> fieldList = businessDomainHelper.findAddtlFieldDTOList("WORKITEM-" + workItem.getWorkSourceStatus());
+		List<FieldDTO> fieldList = businessDomainHelper
+				.findAddtlFieldDTOList("WORKITEM-" + workItem.getWorkSourceStatus());
 		workItem.setAdditionalFields(fieldList);
-		if (workflow.isSystemGenerated()) {
-			workItem.setPendingWithUsers(List.of(workflow.getSystemRequestOwner()));
-		} else {
-			workItem.setPendingWithUsers(userInfraService.getUsersByRole(workItem.getPendingWithRoles()));
+		workItem.setPendingWithUsers(new ArrayList<>());
+		if (workflow.getSystemRequestOwner() != null) {
+			workItem.getPendingWithUsers().add(workflow.getSystemRequestOwner());
+		}
+		if (workItem.getPendingWithRoles() != null) {
+			workItem.getPendingWithUsers().addAll(userInfraService.getUsersByRole(workItem.getPendingWithRoles()));
 		}
 		workflow = task.exec(workItem.getCurrentAction(), workflow);
 		workItem.setActionPerformed(workflow.isLastActionCompleted());
 		workItem.setWorkSourceId(workflow.getId());
-
+		workItem.setWorkSourceRefId(workflow.getRefId());
 		/***
 		 * We will not create any work item if Work type is NA Also not sent and email
 		 * to any user with whom the work is pending as the WORKTYPE is NA and no work
@@ -322,21 +333,21 @@ public class RequestDO extends CommonDO {
 	public WorkDTO updateWorkItem(String id, WorkDetail request, String loggedInUserId,
 			ActionFunction<WorkAction, RequestDTO, RequestDTO> task) throws Exception {
 		WorkDTO currentWorkDTO = workflowInfraService.getWorkItem(id);
-		return updateWorkItem(currentWorkDTO, request, loggedInUserId,task);
+		return updateWorkItem(currentWorkDTO, request, loggedInUserId, task);
 	}
-	
+
 	public WorkDTO updateWorkItem(WorkDTO currentWorkDTO, WorkDetail request, String loggedInUserId,
 			ActionFunction<WorkAction, RequestDTO, RequestDTO> task) throws Exception {
 
 		businessDomainHelper.throwBusinessExceptionIf(() -> currentWorkDTO.getStepCompleted() == true,
 				ExceptionEvent.GENERIC_ERROR);
-		
+
 		String decisionGroup = null;
-		if(currentWorkDTO.getWorkType() ==  WorkType.USER_INPUT) {
-			boolean hasScope = currentWorkDTO.getPendingWithUsers().stream().anyMatch(m->m.getUserId().equalsIgnoreCase(loggedInUserId));
+		if (currentWorkDTO.getWorkType() == WorkType.USER_INPUT) {
+			boolean hasScope = currentWorkDTO.getPendingWithUsers().stream()
+					.anyMatch(m -> m.getUserId().equalsIgnoreCase(loggedInUserId));
 			businessDomainHelper.throwBusinessExceptionIf(() -> !hasScope, ExceptionEvent.INSUFFICIENT_ACCESS);
-		}
-		else {
+		} else {
 			List<RoleDTO> tokenUserRoles = userInfraService.getUserRoles(loggedInUserId, IdType.AUTH_USER_ID, true);
 			/**
 			 * check if valid access
@@ -352,7 +363,7 @@ public class RequestDO extends CommonDO {
 			boolean insufficientScope = decisionGroup == null;
 			businessDomainHelper.throwBusinessExceptionIf(() -> insufficientScope, ExceptionEvent.INSUFFICIENT_ACCESS);
 		}
-		
+
 		RequestDTO workflowDTO = workflowInfraService.getRequest(currentWorkDTO.getWorkSourceId());
 
 		/**
@@ -394,8 +405,9 @@ public class RequestDO extends CommonDO {
 					.filter(f -> f.getFieldKey() == AdditionalFieldKey.confirmation).findFirst().orElseThrow();
 			decisionOrConfirmation = decisionField.getFieldValue();
 		}
-		Optional<FieldDTO> remarksField = currWorkDTOUpdate.getAdditionalFields() == null? Optional.empty(): currWorkDTOUpdate.getAdditionalFields().stream()
-				.filter(f -> f.getFieldKey() == AdditionalFieldKey.remarks).findFirst();
+		Optional<FieldDTO> remarksField = currWorkDTOUpdate.getAdditionalFields() == null ? Optional.empty()
+				: currWorkDTOUpdate.getAdditionalFields().stream()
+						.filter(f -> f.getFieldKey() == AdditionalFieldKey.remarks).findFirst();
 		remarks = remarksField.isEmpty() ? null : remarksField.get().getFieldValue();
 
 		/**
@@ -439,7 +451,7 @@ public class RequestDO extends CommonDO {
 		 * action is performed Then send 'REQUEST_CLOSURE' email to REQUESTER as no
 		 * further action to be done on this workflow re
 		 */
-		if (nextWorkDTO.getActionPerformed() && nextWorkDTO.isFinalStep()) {
+		if (!workflowDTO.isSystemGenerated() && nextWorkDTO.getActionPerformed() && nextWorkDTO.isFinalStep()) {
 			List<CorrespondentDTO> corrDTO = new ArrayList<>();
 			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
 					.email(workflowDTO.getRequester().getEmail()).name(workflowDTO.getRequester().getName()).build());

@@ -102,7 +102,8 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 					}
 					break;
 				case SYNC_USERS:
-					userDO.syncUserDetail(parameters);
+					boolean syncRole=parameters.get("sync_role") == null ? false : parameters.get("sync_role").equalsIgnoreCase("Y");
+					userDO.syncUserDetail(syncRole);
 					break;
 				case TASK_REMINDER_EMAIL:
 					WorkDetailFilter workFilter= new  WorkDetailFilter();

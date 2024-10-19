@@ -37,7 +37,7 @@ public class SecurityConfig {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}).addFilter(filter).authorizeHttpRequests(request -> {
 			request.antMatchers("/api/**").authenticated();
-		}).oauth2ResourceServer(server -> server.jwt()).build();
+		}).oauth2ResourceServer(server -> server.jwt(withDefaults())).build();
 	}
 
 	@Bean

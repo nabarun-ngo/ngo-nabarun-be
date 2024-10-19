@@ -14,6 +14,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 @Data
 public class RequestDTO {
 	private String id;
+	private String refId;
 	private String workflowName;
 	private RequestType type;
 	//private String typeValue;
@@ -56,6 +57,7 @@ public class RequestDTO {
 	public static class RequestDTOFilter{
 		private String id;
 		private List<RequestType> type;
+		private String refId;
 		private List<RequestStatus> workflowStatus;
 		private Date fromDate;
 		private Date toDate;

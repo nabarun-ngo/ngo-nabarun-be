@@ -34,7 +34,7 @@ public class TransactionDTO {
 
     @Data
     public static class TransactionDTOFilter{
-    	private String id;
+    	private String txnId;
     	private List<TransactionStatus> txnStatus;
     	private List<TransactionType> txnType;
 

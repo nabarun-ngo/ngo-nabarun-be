@@ -1,6 +1,9 @@
 package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.util.Date;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.TransactionRefType;
@@ -27,4 +30,18 @@ public class TransactionDetail {
 	private AccountDetail transferFrom;
 	private AccountDetail transferTo;
     private String comment;
+    
+    @Data
+    public static class TransactionDetailFilter{
+    	private String txnId;
+    	//private String accountId;
+    	private List<TransactionType> txnType;
+    	private List<TransactionStatus> txnStatus;
+    	private TransactionRefType txnRefType;
+    	@DateTimeFormat(pattern="yyyy-MM-dd")
+    	private Date startDate;
+    	@DateTimeFormat(pattern="yyyy-MM-dd")
+    	private Date endDate;
+
+    }
 }

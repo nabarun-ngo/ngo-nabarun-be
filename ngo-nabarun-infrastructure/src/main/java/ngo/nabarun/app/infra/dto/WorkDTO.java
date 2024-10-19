@@ -19,6 +19,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 public class WorkDTO {
 	private String id;
 	private String workSourceId;
+	private String workSourceRefId;
 	private String description;
 	private RequestStatus workSourceStatus;
 	private RequestType workSourceType;
@@ -52,6 +53,7 @@ public class WorkDTO {
 		private Date fromDate;
 		private Date toDate;
 		private RequestType sourceType;
+		private String sourceRefId;
 
 	}
 

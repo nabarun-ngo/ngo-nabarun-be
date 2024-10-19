@@ -31,4 +31,5 @@ public class TestController {
 		List<TicketInfoEntity> tickets=ticketRepository.findByEmail(email);
 		return new SuccessResponse<String>().payload(tickets.isEmpty()? null : tickets.get(tickets.size()-1).getOneTimePassword()).get(HttpStatus.OK);
 	}
+	
 }

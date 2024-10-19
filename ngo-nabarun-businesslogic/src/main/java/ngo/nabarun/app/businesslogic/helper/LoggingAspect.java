@@ -78,7 +78,7 @@ public class LoggingAspect {
 				args = Arrays.toString(joinPoint.getArgs());
 			}
 
-			log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
+			log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
 					joinPoint.getSignature().getName(), args);
 		}
 		try {
@@ -95,7 +95,7 @@ public class LoggingAspect {
 				} else {
 					value = String.valueOf(result);
 				}
-				log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(),
+				log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
 						joinPoint.getSignature().getName(), value);
 			}
 			return result;

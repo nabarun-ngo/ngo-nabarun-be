@@ -201,7 +201,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please check and confirm payment.");
 			request.setAdditionalFields(addFieldList);
-			request.setType(RequestType.CHECK_PAYMENT);
+			request.setType(RequestType.CHECK_PAYMENT_GUEST);
 			request.setDelegated(false);
 
 			UserDetail requester = new UserDetail();
@@ -225,8 +225,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 				
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Payment Completed");
-			interview.setMessage("Your request number is " + requestDTO.getId()
-					+ ". We will check and confirm about this payment soonest.");
+			interview.setMessage("Your request number is <b id='id'>" + requestDTO.getId()
+					+ "</b>. We will check and confirm about this payment soonest.");
 
 		} else if (interview.getActionName() == UserAction.SUBMIT_REQUEST) {
 			List<AdditionalField> addFieldList = new ArrayList<>();
@@ -256,8 +256,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Request Submitted");
-			interview.setMessage("Your request number is " + requestDTO.getId()
-					+ ". We will connect very shortly to collect your cash payment.");
+			interview.setMessage("Your request number is <b id='id'>" + requestDTO.getId()
+					+ "</b>. We will connect very shortly to collect your cash payment.");
 		}
 		return interview;
 	}
@@ -294,8 +294,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 		interview.setStage("POST_SUBMIT");
 		interview.getBreadCrumb().add("Request Submitted");
-		interview.setMessage("We have acknowledged your request (Request Id : " + interview.getId()
-				+ "). We will connect you shortly.");
+		interview.setMessage("We have acknowledged your request. We will connect you shortly.");
 		return interview;
 	}
 }

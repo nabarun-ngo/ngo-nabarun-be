@@ -26,4 +26,8 @@ public interface IDocumentInfraService {
 	@Async
 	DocumentDTO uploadDocument(String originalFileName, String contentType, String docIndexId,
 			DocumentIndexType docIndexType, byte[] content) throws ThirdPartyException;
+
+	DocumentDTO createDocumentIndex(DocumentDTO document);
+
+	
 }

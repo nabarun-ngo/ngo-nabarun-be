@@ -79,9 +79,9 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		if (filter != null) {
 			QUserProfileEntity qUser = QUserProfileEntity.userProfileEntity;
 			BooleanBuilder query = WhereClause.builder()
-					.optionalAnd(filter.getEmail() != null, () -> qUser.email.eq(filter.getEmail()))
-					.optionalAnd(filter.getFirstName() != null, () -> qUser.firstName.eq(filter.getFirstName()))
-					.optionalAnd(filter.getLastName() != null, () -> qUser.lastName.eq(filter.getLastName()))
+					.optionalAnd(filter.getEmail() != null, () -> qUser.email.equalsIgnoreCase(filter.getEmail()))
+					.optionalAnd(filter.getFirstName() != null, () -> qUser.firstName.containsIgnoreCase(filter.getFirstName()))
+					.optionalAnd(filter.getLastName() != null, () -> qUser.lastName.containsIgnoreCase(filter.getLastName()))
 					.optionalAnd(filter.getPhoneNumber() != null,
 							() -> qUser.phoneNumber.contains(filter.getPhoneNumber())
 									.or(qUser.altPhoneNumber.contains(filter.getPhoneNumber())))
@@ -349,6 +349,14 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		updatedProfile.setDonationPauseEndDate(
 				userDTO.getAdditionalDetails() != null ? userDTO.getAdditionalDetails().getDonPauseEndDate() : null);
 		
+		/**
+		 * Roles
+		 */
+		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+			updatedProfile.setRoleNames(InfraFieldHelper.stringListToString(userDTO.getRoles().stream().map(m -> m.getName()).toList()));
+			updatedProfile.setRoleCodes(
+					InfraFieldHelper.stringListToString(userDTO.getRoles().stream().map(m -> m.getCode().name()).toList()));
+		}
 		fillAddressMobileSocialMedia(profile, userDTO);
 
 		CommonUtils.copyNonNullProperties(updatedProfile, profile);

@@ -12,15 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
 import ngo.nabarun.app.businesslogic.domain.DonationDO;
 import ngo.nabarun.app.businesslogic.domain.RequestDO;
 import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
+import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
@@ -33,6 +36,8 @@ import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
+import ngo.nabarun.app.infra.dto.WorkDTO;
+import ngo.nabarun.app.infra.dto.WorkDTO.WorkDTOFilter;
 import ngo.nabarun.app.infra.dto.RequestDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 
@@ -71,7 +76,7 @@ public class BaseBLImpl {
 			workflow.setLastActionCompleted(true);
 			break;
 		case ENTRY_GUEST_DONATION:
-			createGuestDonation(workflow.getAdditionalFields(), workflow.getCreatedOn());
+			createGuestDonation(workflow);
 			workflow.setLastActionCompleted(true);
 			break;
 		case PAYMENY_NOT_FOUND:
@@ -156,7 +161,9 @@ public class BaseBLImpl {
 		userDO.sendEmail(BusinessConstants.EMAILTEMPLATE__ON_USER_ONBOARDING, corrDTO, Map.of("user", user));
 	}
 
-	private void createGuestDonation(List<FieldDTO> fields, Date payDate) throws Exception {
+	private void createGuestDonation(RequestDTO workflow) throws Exception {
+		List<FieldDTO> fields=workflow.getAdditionalFields();
+		Date payDate=workflow.getCreatedOn();
 		DonationDetail donation = new DonationDetail();
 		donation.setDonationType(DonationType.ONETIME);
 		donation.setIsGuest(true);
@@ -199,7 +206,8 @@ public class BaseBLImpl {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
 		donationDO.updateDonation(newDon.getId(), donation, userId);
-	}
+		donationDO.cloneDocuments(workflow.getId(), DocumentIndexType.REQUEST,newDon.getId(),DocumentIndexType.DONATION);
+	} 
 
 	private UserDTO onboardMember(List<FieldDTO> fields, boolean emailVerified, boolean resetPassword)
 			throws Exception {
@@ -243,13 +251,27 @@ public class BaseBLImpl {
 		 * Creating request for mandatory details update
 		 */
 		RequestDTO request = new RequestDTO();
-		//request.setDescription("Please update your profile details.");
 		request.setType(RequestType.PROFILE_UPDATE_REQUEST);
 		request.setSystemRequestOwner(user);
 		request.setSystemGenerated(true);
+		request.setRefId(user.getProfileId());
 		requestDO.createRequest(request, false, null, (t, u) -> {
 			return performWorkflowAction(t, u);
 		});
 		return user;
+	}
+	
+	protected void closeLinkedWorkItem(String linkId,RequestType sourceType, List<AdditionalField> addnlField) throws Exception {
+		String userId = SecurityUtils.getAuthUserId();
+		WorkDTOFilter filter= new WorkDTOFilter();
+		filter.setSourceRefId(linkId);
+		filter.setStepCompleted(false);
+		filter.setSourceType(sourceType);
+		List<WorkDTO> workItems=requestDO.retrieveAllWorkItems(null, null, filter).getContent();
+		for(WorkDTO workItem:workItems) {
+			WorkDetail workDetail=new WorkDetail();
+			workDetail.setAdditionalFields(addnlField);
+			requestDO.updateWorkItem(workItem, workDetail, userId, ((t, u) -> performWorkflowAction(t, u)));
+		}
 	}
 }

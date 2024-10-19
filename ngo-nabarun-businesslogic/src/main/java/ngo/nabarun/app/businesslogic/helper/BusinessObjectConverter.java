@@ -1,7 +1,7 @@
 package ngo.nabarun.app.businesslogic.helper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,6 +13,10 @@ import ngo.nabarun.app.businesslogic.businessobjects.BankDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.HistoryDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.HistoryDetail.ChangeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
@@ -32,7 +36,10 @@ import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -45,7 +52,8 @@ import ngo.nabarun.app.infra.dto.WorkDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 
 public class BusinessObjectConverter {
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	// private static SimpleDateFormat dateFormat = new
+	// SimpleDateFormat("dd/MM/yyyy");
 
 	public static UserDetail toPublicUserDetail(UserDTO userDTO, Map<String, String> domainKeyValue) {
 		UserDetail userDetails = new UserDetail();
@@ -56,7 +64,7 @@ public class BusinessObjectConverter {
 								+ ".png?ssl=1"));
 		String title = userDTO.getTitle() == null ? ""
 				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
-						? domainKeyValue.get(userDTO.getTitle())+ " " 
+						? domainKeyValue.get(userDTO.getTitle()) + " "
 						: userDTO.getTitle() + " ";
 		if (userDTO.getName() != null) {
 			userDetails.setFullName(title + userDTO.getName());
@@ -97,7 +105,7 @@ public class BusinessObjectConverter {
 		userDetails.setMemberSince(
 				userDTO.getAdditionalDetails() != null
 						? (userDTO.getAdditionalDetails().getCreatedOn() == null ? null
-								: dateFormat.format(userDTO.getAdditionalDetails().getCreatedOn()))
+								: userDTO.getAdditionalDetails().getCreatedOn())
 						: null);
 		userDetails.setMiddleName(userDTO.getMiddleName());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
@@ -151,13 +159,13 @@ public class BusinessObjectConverter {
 		donationDetail.setAmount(donationDTO.getAmount());
 		donationDetail.setDonationStatus(donationDTO.getStatus());
 		donationDetail.setDonationType(donationDTO.getType());
-		donationDetail.setDonorDetails(toUserDetail(donationDTO.getDonor(),null));
+		donationDetail.setDonorDetails(toUserDetail(donationDTO.getDonor(), null));
 		donationDetail.setEndDate(donationDTO.getEndDate());
 		donationDetail.setEvent(eventDetail);
 		donationDetail.setId(donationDTO.getId());
 		donationDetail.setIsGuest(donationDTO.getGuest());
 		donationDetail.setPaidOn(donationDTO.getPaidOn());
-		donationDetail.setPaymentConfirmedBy(toUserDetail(donationDTO.getConfirmedBy(),null));
+		donationDetail.setPaymentConfirmedBy(toUserDetail(donationDTO.getConfirmedBy(), null));
 		donationDetail.setPaymentConfirmedOn(donationDTO.getConfirmedOn());
 		donationDetail.setPaymentMethod(donationDTO.getPaymentMethod());
 		donationDetail.setRaisedOn(donationDTO.getRaisedOn());
@@ -187,12 +195,12 @@ public class BusinessObjectConverter {
 						.toList());
 		request.setCreatedOn(workflow.getCreatedOn());
 		request.setDelegated(workflow.isDelegated());
-		request.setDelegatedRequester(toUserDetail(workflow.getDelegatedRequester(),null));
+		request.setDelegatedRequester(toUserDetail(workflow.getDelegatedRequester(), null));
 		request.setDescription(workflow.getDescription());
 		request.setId(workflow.getId());
 		request.setName(workflow.getWorkflowName());
 		request.setRemarks(workflow.getRemarks());
-		request.setRequester(toUserDetail(workflow.getRequester(),null));
+		request.setRequester(toUserDetail(workflow.getRequester(), null));
 		request.setResolvedOn(workflow.getResolvedOn());
 		request.setStatus(workflow.getStatus());
 		request.setType(workflow.getType());
@@ -208,7 +216,7 @@ public class BusinessObjectConverter {
 		additionalField.setType(fieldDTO.getFieldType());
 		additionalField.setValue(fieldDTO.isHidden() ? null : fieldDTO.getFieldValue());
 		additionalField.setMandatory(fieldDTO.isMandatory());
-		additionalField.setOptions(fieldDTO.getFieldOptions());		
+		additionalField.setOptions(fieldDTO.getFieldOptions());
 		additionalField.setValueType(fieldDTO.getFieldValueType());
 
 		return additionalField;
@@ -275,7 +283,7 @@ public class BusinessObjectConverter {
 	public static NoticeDetail toNoticeDetail(NoticeDTO noticeDTO) {
 		NoticeDetail noticeDetail = new NoticeDetail();
 
-		noticeDetail.setCreator(toUserDetail(noticeDTO.getCreatedBy(),null));
+		noticeDetail.setCreator(toUserDetail(noticeDTO.getCreatedBy(), null));
 		noticeDetail.setCreatorRoleCode(noticeDTO.getCreatorRole());
 		noticeDetail.setDescription(noticeDTO.getDescription());
 		noticeDetail.setId(noticeDTO.getId());
@@ -299,7 +307,7 @@ public class BusinessObjectConverter {
 		meetingDetail.setExtVideoConferenceLink(meetingDTO.getVideoMeetingLink());
 		meetingDetail.setId(meetingDTO.getId());
 		meetingDetail.setMeetingAttendees(meetingDTO.getAttendees() == null ? List.of()
-				: meetingDTO.getAttendees().stream().map(m -> toUserDetail(m,null)).toList());
+				: meetingDTO.getAttendees().stream().map(m -> toUserDetail(m, null)).toList());
 		meetingDetail.setMeetingDescription(meetingDTO.getDescription());
 //		meetingDetail.setMeetingDiscussions(meetingDTO.getDiscussions() == null ? List.of()
 //				: meetingDTO.getDiscussions().stream()
@@ -346,7 +354,7 @@ public class BusinessObjectConverter {
 	public static AccountDetail toAccountDetail(AccountDTO accountDTO) {
 		AccountDetail accountDetail = new AccountDetail();
 		if (accountDTO.getProfile() != null) {
-			accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile(),null));
+			accountDetail.setAccountHolder(toUserDetail(accountDTO.getProfile(), null));
 		}
 		accountDetail.setAccountHolderName(accountDTO.getAccountName());
 		accountDetail.setAccountStatus(accountDTO.getAccountStatus());
@@ -424,19 +432,19 @@ public class BusinessObjectConverter {
 	public static WorkDetail toWorkItem(WorkDTO workitemDTO) {
 		WorkDetail wiDetail = new WorkDetail();
 		wiDetail.setCreatedOn(workitemDTO.getCreatedOn());
-		
+
 		wiDetail.setDecisionDate(workitemDTO.getDecisionDate());
 		wiDetail.setDescription(workitemDTO.getDescription());
 		wiDetail.setId(workitemDTO.getId());
-		
+
 //		wiDetail.setDecision(workitemDTO.getDecision());
 //		wiDetail.setRemarks(workitemDTO.getRemarks());
-		
+
 		wiDetail.setStepCompleted(workitemDTO.getStepCompleted());
 		wiDetail.setWorkflowId(workitemDTO.getWorkSourceId());
 		wiDetail.setWorkflowStatus(workitemDTO.getWorkSourceStatus());
 		if (workitemDTO.getStepCompleted() != null && workitemDTO.getStepCompleted()) {
-			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker(),null));
+			wiDetail.setDecisionOwner(toUserDetail(workitemDTO.getDecisionMaker(), null));
 		} else {
 			wiDetail.setPendingWithRoles(workitemDTO.getPendingWithRoles());
 		}
@@ -445,8 +453,9 @@ public class BusinessObjectConverter {
 		wiDetail.setAdditionalFields(workitemDTO.getAdditionalFields() == null ? List.of()
 				: workitemDTO.getAdditionalFields().stream().filter(f -> !f.isHidden()).map(m -> toAdditionalField(m))
 						.toList());
-		
-		wiDetail.setPendingWith(workitemDTO.getPendingWithUsers().stream().map(m->toUserDetail(m, null)).collect(Collectors.toList()));
+
+		wiDetail.setPendingWith(workitemDTO.getPendingWithUsers().stream().map(m -> toUserDetail(m, null))
+				.collect(Collectors.toList()));
 		return wiDetail;
 	}
 
@@ -519,20 +528,84 @@ public class BusinessObjectConverter {
 	}
 
 	public static List<FieldDTO> toFieldDTO(List<AdditionalField> additionalFields) {
-		
-		return additionalFields==null ? new ArrayList<>() : additionalFields.stream()
-				.map(m->{
-					FieldDTO field= new FieldDTO();
-					field.setFieldId(m.getId());
-					field.setFieldKey(m.getKey());
-					field.setFieldName(m.getName());
-					field.setFieldOptions(m.getOptions());
-					field.setFieldType(m.getType());
-					field.setFieldValue(m.getValue());
-					field.setFieldValueType(m.getValueType());
-					return field;
-				})
-				.collect(Collectors.toList());
+
+		return additionalFields == null ? new ArrayList<>() : additionalFields.stream().map(m -> {
+			FieldDTO field = new FieldDTO();
+			field.setFieldId(m.getId());
+			field.setFieldKey(m.getKey());
+			field.setFieldName(m.getName());
+			field.setFieldOptions(m.getOptions());
+			field.setFieldType(m.getType());
+			field.setFieldValue(m.getValue());
+			field.setFieldValueType(m.getValueType());
+			return field;
+		}).collect(Collectors.toList());
+	}
+
+	public static ExpenseDetail toExpenseDetail(ExpenseDTO expenseDTO) {
+		ExpenseDetail expenseDetail = new ExpenseDetail();
+		expenseDetail.setApproved(expenseDTO.isApproved());
+		expenseDetail.setApprovedBy(toUserDetail(expenseDTO.getApprovedBy(), null));
+		expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(), null));
+		expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
+		expenseDetail.setDescription(expenseDTO.getDescription());
+		expenseDetail.setExpenseAccount(toAccountDetail(expenseDTO.getExpenseAccount()));
+		expenseDetail.setExpenseItems(toExpenseItemDetail(expenseDTO.getExpenseItems()));
+		expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
+		expenseDetail.setId(expenseDTO.getId());
+		expenseDetail.setName(expenseDTO.getName());
+		return expenseDetail;
+	}
+
+	public static List<ExpenseItemDetail> toExpenseItemDetail(List<ExpenseItemDTO> itemDTO) {
+		return itemDTO.stream().map(item -> {
+			ExpenseItemDetail itemDetail = new ExpenseItemDetail();
+			itemDetail.setAmount(item.getAmount());
+			itemDetail.setDescription(item.getDescription());
+			itemDetail.setId(item.getId());
+			itemDetail.setItemName(item.getItemName());
+			return itemDetail;
+		}).collect(Collectors.toList());
+	}
+
+	public static HistoryDetail toHistoryDetail(HistoryDTO historyDTO) {
+		HistoryDetail historyDetail = new HistoryDetail();
+		historyDetail.setId(historyDTO.getId());
+		historyDetail.setTitle((historyDTO.getReferenceType()+" "+historyDTO.getAction()).toUpperCase());
+		List<ChangeDetail> changeList=historyDTO.getChanges().stream().map(changeDTO -> {
+			ChangeDetail change= new ChangeDetail();
+//			if(changeObj.from && changeObj.to){
+//			    return '<span class="font-bold capitalize">'+changeObj.fieldname+'</span> field value changed from <span class="italic">'+changeObj.from+'</span>  to <span class="italic">'+changeObj.to+'</span>.';
+//			  }
+//			  if(!changeObj.from && changeObj.to){
+//			    return '<span class="font-bold capitalize">'+changeObj.fieldname+'</span> field value set as <span class="italic">'+changeObj.to+'</span>.';
+//			  }
+//			  if(changeObj.from && !changeObj.to){
+//			    return '<span class="font-bold capitalize">'+changeObj.fieldname+'</span> field value removed. Earlier it was <span class="italic">'+changeObj.from+'</span>.';;
+//			  }
+			switch (changeDTO.getChangeType()) {
+			case "changed":
+				change.setChange(true);
+				change.setMessage("Field "+changeDTO.getFieldname()+" changed from "+changeDTO.getFrom()+" to "+changeDTO.getTo()+".");
+				break;
+			case "added":
+				change.setAdd(true);
+				change.setMessage("Field "+changeDTO.getFieldname()+" added and value set as "+changeDTO.getTo()+".");
+				break;
+			case "removed":
+				change.setRemove(true);
+				change.setMessage("Field "+changeDTO.getFieldname()+" removed. Earlier the value was "+changeDTO.getFrom()+".");
+				break;
+			}
+			change.setFieldName(changeDTO.getFieldname());
+			change.setFrom(changeDTO.getFrom());
+			change.setTo(changeDTO.getTo());
+			return change;
+		}).collect(Collectors.toList());
+		historyDetail.setChanges(changeList);
+		historyDetail.setCreatedBy(historyDTO.getCreatedByName());
+		historyDetail.setCreatedOn(new Date(historyDTO.getCreatedOn()));
+		return historyDetail;
 	}
 
 //	public static NotificationDetail toNotificationDetail(NotificationDTO notificationDTO) {

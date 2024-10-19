@@ -255,5 +255,15 @@ public class CommonUtils {
 		}
 		return objectMapper.writeValueAsString(obj);
 	}
+	
+	public static boolean areEqual(Object oldValue, Object newValue) {
+        if (oldValue == null) {
+            return newValue == null;
+        } else {
+            return oldValue.equals(newValue);
+        }
+    }
+	
+	
 
 }

@@ -24,16 +24,17 @@ import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
-import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
+import ngo.nabarun.app.common.enums.HistoryRefType;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.PaymentMethod;
 import ngo.nabarun.app.common.enums.TransactionRefType;
 import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
@@ -43,7 +44,6 @@ import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
-import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 
 @Component
@@ -52,9 +52,6 @@ public class DonationDO extends AccountDO {
 
 	@Autowired
 	private IDonationInfraService donationInfraService;
-
-	@Autowired
-	private IDocumentInfraService documentInfraService;
 
 	public Paginate<DonationDTO> retrieveDonations(Integer index, Integer size, DonationDetailFilter filter) {
 		DonationDTOFilter filterDTO = null;
@@ -74,6 +71,7 @@ public class DonationDO extends AccountDO {
 		return new Paginate<DonationDTO>(page);
 	}
 
+	@Deprecated
 	public Paginate<DonationDTO> retrieveUserDonations(Integer index, Integer size, String id, IdType idType)
 			throws Exception {
 		UserDTO userDTO = userInfraService.getUser(id, idType, false);
@@ -110,16 +108,21 @@ public class DonationDO extends AccountDO {
 			DonationDTO don = new DonationDTO();
 			don.setGuest(true);
 			don.setComment("Auto converted to guest donation");
-			donationInfraService.updateDonation(donation.getId(), don);
+			DonationDTO updatedDonation =donationInfraService.updateDonation(donation.getId(), don);
+			historyInfraService.logUpdate(HistoryRefType.DONATION, updatedDonation.getId(),SecurityUtils.getAuthUser(),
+					donation.toHistoryMap(businessDomainHelper.getDomainKeyValues()),
+					updatedDonation.toHistoryMap(businessDomainHelper.getDomainKeyValues()));
+			
 		}
 		
 		for(AccountDTO account:accounts) {
 			accountInfraService.deleteAccount(account.getId());
 		}
 	}
-
+	
 	public List<DocumentDTO> retrieveDonationDocument(String donationId) {
-		return documentInfraService.getDocumentList(donationId, DocumentIndexType.DONATION);
+		return List.of();
+				//documentInfraService.getDocumentList(donationId, DocumentIndexType.DONATION);
 //				.stream().map(m -> {
 //			DocumentDetail doc = new DocumentDetail();
 //			doc.setDocId(m.getDocId());
@@ -183,7 +186,7 @@ public class DonationDO extends AccountDO {
 		} else {
 			donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), IdType.ID, false);
 			UserAdditionalDetailsDTO addnlDet=donor.getAdditionalDetails();
-			if (addnlDet.getDonPauseStartDate() != null && addnlDet.getDonPauseEndDate() !=null) {
+			if (donationDTO.getType() == DonationType.REGULAR && addnlDet.getDonPauseStartDate() != null && addnlDet.getDonPauseEndDate() !=null) {
 				Date today= CommonUtils.getSystemDate();
 				if(today.after(addnlDet.getDonPauseStartDate()) && today.before(addnlDet.getDonPauseEndDate())) {
 					donationDTO.setStatus(DonationStatus.PAY_LATER);
@@ -207,6 +210,8 @@ public class DonationDO extends AccountDO {
 			donationDTO.setType(donationDetail.getDonationType());
 			donationDTO.setDonor(donor);
 			donationDTO = donationInfraService.createDonation(donationDTO);
+			historyInfraService.logCreation(HistoryRefType.DONATION, donationDTO.getId(),SecurityUtils.getAuthUser(),
+					donationDTO.toHistoryMap(businessDomainHelper.getDomainKeyValues()));
 			
 			updateDashboardCounts(donor.getUserId(), data->{
 				Map<String,String> map= new HashMap<>();
@@ -226,7 +231,7 @@ public class DonationDO extends AccountDO {
 				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
 				.build();
 		Map<String, Object> donation_vars=donationDTO.toMap(businessDomainHelper.getDomainKeyValues());
-		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_REMINDER, List.of(recipient),Map.of("donation",donation_vars));
+		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),Map.of("donation",donation_vars));
 		return donationDTO;
 	}
 
@@ -315,7 +320,14 @@ public class DonationDO extends AccountDO {
 			revertTransaction(id, TransactionRefType.DONATION, TransactionStatus.SUCCESS,auth_user);
 			updatedDetail.setTransactionRefNumber("");
 		}
+		if (request.isPaymentNotified()) {
+			updatedDetail.setPaymentNotificationDate(CommonUtils.getSystemDate());
+			updatedDetail.setIsPaymentNotified(request.isPaymentNotified());
+		}
 		updatedDetail = donationInfraService.updateDonation(donation.getId(), updatedDetail);
+		historyInfraService.logUpdate(HistoryRefType.DONATION, updatedDetail.getId(),SecurityUtils.getAuthUser(),
+				donation.toHistoryMap(businessDomainHelper.getDomainKeyValues()),
+				updatedDetail.toHistoryMap(businessDomainHelper.getDomainKeyValues()));
 		return updatedDetail;
 	}
 
@@ -345,6 +357,8 @@ public class DonationDO extends AccountDO {
 	public DonationDTO retrieveDonation(String id) {
 		return donationInfraService.getDonation(id);
 	}
+
+	
 	
 	
 

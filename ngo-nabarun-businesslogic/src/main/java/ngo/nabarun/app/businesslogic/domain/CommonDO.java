@@ -27,6 +27,7 @@ import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
+import ngo.nabarun.app.common.enums.HistoryRefType;
 import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.util.CommonUtils;
@@ -34,7 +35,9 @@ import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
+import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
@@ -42,6 +45,7 @@ import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
+import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 
@@ -65,6 +69,12 @@ public class CommonDO {
 
 	@Autowired
 	private IApiKeyInfraService apiKeyInfraService;
+	
+	@Autowired
+	private IDocumentInfraService documentInfraService;
+	
+	@Autowired
+	protected IHistoryInfraService historyInfraService;
 
 	/**
 	 * Generate sequential human readable number for notice
@@ -147,6 +157,14 @@ public class CommonDO {
 		String seqName = "WORK_SEQUENCE";
 		String pattern = "NWO%sR%s";
 		String ran = PasswordUtils.generateRandomNumber(2);
+		int seq = sequenceInfraService.incrementEntirySequence(seqName);
+		return String.format(pattern, ran, seq);
+	}
+	
+	public String generateExpenseId() {
+		String seqName = "EXPENSE_SEQUENCE";
+		String pattern = "NEX%sR%s";
+		String ran = PasswordUtils.generateRandomNumber(3);
 		int seq = sequenceInfraService.incrementEntirySequence(seqName);
 		return String.format(pattern, ran, seq);
 	}
@@ -361,7 +379,7 @@ public class CommonDO {
 				dataMap.put("notificationCount", notification);
 			}
 		}
-		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you.", "", "",
+		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.", "", "",
 				dataMap);
 	}
 
@@ -388,4 +406,20 @@ public class CommonDO {
 		}
 	}
 
+	public List<DocumentDTO> getDocuments(String id, DocumentIndexType type) {
+		return documentInfraService.getDocumentList(id, type);
+	}
+	
+	public void cloneDocuments(String sourceId, DocumentIndexType sourceIndexType,String destId,DocumentIndexType destIndexType) {
+		List<DocumentDTO> docDTos=documentInfraService.getDocumentList(sourceId, sourceIndexType);
+		for(DocumentDTO docDTO:docDTos) {
+			docDTO.setDocumentRefId(destId);
+			docDTO.setDocumentType(destIndexType);
+			documentInfraService.createDocumentIndex(docDTO);
+		}
+	}
+	
+	public List<HistoryDTO> retrieveHistory(String refId, HistoryRefType historyType) throws Exception {
+		return historyInfraService.getHistory(historyType, refId);
+	}
 }

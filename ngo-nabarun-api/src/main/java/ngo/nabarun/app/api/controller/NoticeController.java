@@ -11,19 +11,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.INoticeBL;
-import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail.NoticeDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE,value = "/api/notice")
@@ -34,7 +33,7 @@ public class NoticeController {
 	private INoticeBL noticeBL;
 	
 
-
+	@PreAuthorize(Authority.READ_NOTICES)
 	@GetMapping("/getNotices")
 	public ResponseEntity<SuccessResponse<Paginate<NoticeDetail>>> getAllNotice(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
@@ -49,11 +48,13 @@ public class NoticeController {
 				.payload(noticeBL.getDraftedNotice()).get(HttpStatus.OK);
 	}
 
+	@PreAuthorize(Authority.READ_NOTICE)
 	@GetMapping("/getNotice/{id}")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> getNotice(@PathVariable String id) throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.getNoticeDetail(id)).get(HttpStatus.OK);
 	}
 
+	@PreAuthorize(Authority.CREATE_NOTICE)
 	@PostMapping("/createNotice")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> createNotice(@RequestBody NoticeDetail noticeDetail)
 			throws Exception {
@@ -61,6 +62,7 @@ public class NoticeController {
 				.get(HttpStatus.OK);
 	}
 
+	@PreAuthorize(Authority.UPDATE_NOTICE)
 	@PatchMapping("/updateNotice/{id}")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> updateNotice(@PathVariable String id,
 			@RequestBody NoticeDetail noticeDetail) throws Exception {
@@ -68,13 +70,14 @@ public class NoticeController {
 				.get(HttpStatus.OK);
 	}
 
-	@GetMapping("/getNoticeDocuments/{id}")
-	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getNoticeDocuments(@PathVariable String id)
-			throws Exception {
-		return new SuccessResponse<List<DocumentDetail>>().payload(noticeBL.getNoticeDocs(id))
-				.get(HttpStatus.OK);
-	}
+//	@GetMapping("/getNoticeDocuments/{id}")
+//	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getNoticeDocuments(@PathVariable String id)
+//			throws Exception {
+//		return new SuccessResponse<List<DocumentDetail>>().payload(noticeBL.getNoticeDocs(id))
+//				.get(HttpStatus.OK);
+//	}
 	
+	@PreAuthorize(Authority.DELETE_NOTICE)
 	@DeleteMapping("/deleteNotice/{id}")
 	public ResponseEntity<SuccessResponse<Void>> deleteEvent(@PathVariable String id)
 			throws Exception {

@@ -215,14 +215,14 @@
 												</div>
 
 											</div>
-											<!--<div class="mt-1 mb-2">
+											<div class="mt-1 mb-2">
 												<div class="form-floating">
 													<input type="file" class="form-control" id="file"
-														th:field="*{files}" multiple> <label for="file">Please select
+														th:field="*{files}" multiple required> <label for="file">Please select
 														any
 														supporting files (prefrerably UPI screenshots)</label>
 												</div>
-											</div>-->
+											</div>
 
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'CONFIRM_PAYMENT'">
@@ -308,14 +308,14 @@
 												</div>
 											</div>
 
-											<!--<div class="mt-1 mb-2">
+											<div class="mt-1 mb-2">
 												<div class="form-floating">
 													<input type="file" class="form-control" id="file"
-														th:field="*{files}" multiple> <label for="file">Please
+														th:field="*{files}" multiple required> <label for="file">Please
 														select any
 														supporting files (prefrerably transaction recipt)</label>
 												</div>
-											</div>-->
+											</div>
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'CONFIRM_PAYMENT'">
 											<input type="hidden" name="paymentMethod" id="paymentMethod"
@@ -354,42 +354,3 @@
 
 
 
-<!--<form action="" class="form">
-										<div class="row">
-											<div class="col-12">
-												<div class="form__div">
-													<input type="text" class="form-control" placeholder=" ">
-													<label for="" class="form__label">Card Number</label>
-												</div>
-											</div>
-
-											<div class="col-6">
-												<div class="form__div">
-													<input type="text" class="form-control" placeholder=" ">
-													<label for="" class="form__label">MM / yy</label>
-												</div>
-											</div>
-
-											<div class="col-6">
-												<div class="form__div">
-													<input type="password" class="form-control" placeholder=" ">
-													<label for="" class="form__label">cvv code</label>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="form__div">
-													<input type="text" class="form-control" placeholder=" ">
-													<label for="" class="form__label">name on the card</label>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="form__div">
-													<input type="checkbox" class="form-control" placeholder=" ">
-													<label for="" class="form__label">name on the card</label>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="btn btn-primary w-100">Sumbit</div>
-											</div>
-										</div>
-									</form>-->

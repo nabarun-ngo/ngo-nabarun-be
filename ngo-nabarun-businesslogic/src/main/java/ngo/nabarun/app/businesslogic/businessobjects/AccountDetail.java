@@ -61,6 +61,9 @@ public class AccountDetail implements Serializable{
 		
 		@JsonProperty("includeBalance")
 		private boolean includeBalance;
+		
+		@JsonProperty("accountId")
+		private String accountId;
 	}
 	
 	@Deprecated

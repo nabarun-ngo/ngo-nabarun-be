@@ -28,9 +28,6 @@ public class RequestFilterConfig implements Filter {
         	corrId = request.getParameter(CORRELATION_ID);
         }
         MDC.put("CorrelationId", corrId);
-        //System.err.println(MDC.get(CORRELATION_ID));
-        //log.info("Intercept coming request and set MDC context information");
-        // pass the request
         chain.doFilter(request, response); 
     }
 }

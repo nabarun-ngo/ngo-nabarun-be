@@ -10,9 +10,13 @@ import org.springframework.stereotype.Component;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail.TransactionDetailFilter;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
@@ -25,6 +29,9 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseDTOFilter;
+import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UpiDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
@@ -60,6 +67,7 @@ public class AccountDO extends CommonDO {
 			filterDTO.setAccountStatus(filter.getStatus());
 			filterDTO.setAccountType(filter.getType());
 			filterDTO.setProfileId(filter.getAccountHolderId());
+			filterDTO.setAccountId(filter.getAccountId());
 		}
 
 		Page<AccountDTO> pageDetail = accountInfraService.getAccounts(page, size, filterDTO).map(acc -> {
@@ -159,12 +167,19 @@ public class AccountDO extends CommonDO {
 	 * @param id
 	 * @param index
 	 * @param size
+	 * @param filter2 
 	 * @return
 	 */
-	public Paginate<TransactionDTO> retrieveAccountTransactions(String accountId, int index, int size) {
-		TransactionDTOFilter filter = new TransactionDTOFilter();
-		filter.setAccountId(accountId);
-		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filter);
+	public Paginate<TransactionDTO> retrieveAccountTransactions(Integer index, Integer size, TransactionDetailFilter filter) {
+		TransactionDTOFilter filterDTO = new TransactionDTOFilter();
+		//filterDTO.setAccountId(filter.getAccountId());
+		filterDTO.setTxnId(filter.getTxnId());
+		filterDTO.setFromDate(filter.getStartDate());
+		filterDTO.setToDate(filter.getEndDate());
+		filterDTO.setTxnRefType(filter.getTxnRefType());
+		filterDTO.setTxnStatus(filter.getTxnStatus());
+		filterDTO.setTxnType(filter.getTxnType());
+		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filterDTO);
 		return new Paginate<TransactionDTO>(transactions);
 	}
 
@@ -328,6 +343,53 @@ public class AccountDO extends CommonDO {
 		}
 		return accountInfraService.updateAccount(id,accountUpdate);
 
+	}
+
+	public ExpenseDTO createExpense(ExpenseDetail expense) throws Exception {
+		UserDTO loggedInUser=userInfraService.getUser(SecurityUtils.getAuthUserId(), IdType.AUTH_USER_ID, false);
+		ExpenseDTO expenseDTO= new ExpenseDTO();
+		expenseDTO.setCreatedBy(loggedInUser);
+		expenseDTO.setDescription(expense.getDescription());
+		expenseDTO.setName(expense.getName());
+		expenseDTO.setRefType(expense.getExpenseRefType());
+		expenseDTO.setRefId(expense.getExpenseRefId());
+		expenseDTO.setId(generateExpenseId());
+		return accountInfraService.addOrUpdateExpense(expenseDTO);
+	}
+
+	public Paginate<ExpenseDTO> getExpenses(Integer index, Integer size, ExpenseDetailFilter filter) {
+		ExpenseDTOFilter expenseDTOFilter= new ExpenseDTOFilter();
+		Page<ExpenseDTO> expensePage=accountInfraService.getExpenses(index, size, expenseDTOFilter);
+		return new Paginate<ExpenseDTO>(expensePage);
+	}
+
+	public ExpenseDTO updateExpense(String id, ExpenseDetail expense) throws Exception {
+		ExpenseDTO expenseDTO= new ExpenseDTO();
+		expenseDTO.setId(id);
+		if(expense.isApproved()) {
+			UserDTO loggedInUser=userInfraService.getUser(SecurityUtils.getAuthUserId(), IdType.AUTH_USER_ID, false);
+			expenseDTO.setApproved(true);
+			expenseDTO.setApprovedBy(loggedInUser);
+			//expenseDTO.setFinalAmount(null);
+		}else {
+			List<ExpenseItemDTO> itemList= new ArrayList<>();
+			for(ExpenseItemDetail items:expense.getExpenseItems()) {
+				itemList.add(ExpenseItemDTO.builder().id(items.getId())
+						.amount(items.getAmount())
+						.description(items.getDescription())
+						.itemName(items.getItemName()).build());
+			}
+			expenseDTO.setExpenseItems(itemList);
+		}
+		expenseDTO.setName(expense.getName());
+		expenseDTO.setDescription(expense.getDescription());
+		if(expense.getExpenseAccount() != null) {
+			AccountDTO accountDTO= new AccountDTO();
+			accountDTO.setId(accountDTO.getId());
+			expenseDTO.setExpenseAccount(accountDTO);
+		}
+		
+		return accountInfraService.addOrUpdateExpense(expenseDTO);
 	}
 	
 }

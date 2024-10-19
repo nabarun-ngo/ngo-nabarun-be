@@ -201,6 +201,7 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
+	@NoLogging
 	public Map<String, List<KeyValue>> getUserRefData(String countryCode, String stateCode) throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
@@ -571,7 +572,7 @@ public class BusinessDomainHelper {
 					String.valueOf(f.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR)).split(SPLITTER));
 			return f.getKey().equalsIgnoreCase(additionalField.getFieldKey().name())
 					&& applicable_for.contains(sourceType);
-		}).findFirst().orElseThrow(() -> new Exception("Invalid additional key"));
+		}).findFirst().orElseThrow(() -> new Exception("Invalid additional key '"+additionalField.getFieldKey().name()));
 		FieldDTO fieldDTO = new FieldDTO();
 		fieldDTO.setFieldId(additionalField.getFieldId());
 		fieldDTO.setFieldName(field.getValue());

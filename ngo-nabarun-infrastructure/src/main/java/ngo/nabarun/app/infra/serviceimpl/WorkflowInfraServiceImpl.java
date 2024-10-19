@@ -44,6 +44,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	@Override
 	public RequestDTO createRequest(RequestDTO workflowDTO) {
 		WorkflowEntity workflow = new WorkflowEntity();
+		workflow.setRefId(workflowDTO.getRefId());
 		workflow.setSystemGenerated(workflowDTO.isSystemGenerated());
 		workflow.setId(workflowDTO.getId());
 		workflow.setCreatedBy(null);
@@ -173,6 +174,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 	@Override
 	public WorkDTO createWorkItem(WorkDTO worklistDTO) {
 		WorkListEntity worklist = new WorkListEntity();
+		worklist.setSourceRefId(worklistDTO.getWorkSourceRefId());
 		worklist.setCreatedOn(CommonUtils.getSystemDate());
 		worklist.setCurrentAction(worklistDTO.getDecision() == null ? null : worklistDTO.getDecision().name());
 		worklist.setDescription(worklistDTO.getDescription());
@@ -251,6 +253,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			QWorkListEntity qWorklist = QWorkListEntity.workListEntity;
 			BooleanBuilder query = WhereClause.builder()
 					.optionalAnd(filter.getId() != null, () -> qWorklist.id.eq(filter.getId()))
+					.optionalAnd(filter.getSourceRefId() != null, () -> qWorklist.sourceRefId.eq(filter.getSourceRefId()))
 					.optionalAnd(filter.getWorkflowId() != null, () -> qWorklist.sourceId.eq(filter.getWorkflowId()))
 					.optionalAnd(filter.getSourceType() != null, () -> qWorklist.sourceType.eq(filter.getSourceType().name()))
 					.optionalAnd(filter.getPendingWithUserId() != null,

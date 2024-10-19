@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
@@ -43,7 +44,14 @@ public class CommonController {
 
 	@Autowired
 	private ICommonBL commonBL;
-
+	
+	@GetMapping("/document/getDocuments/{id}")
+	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDocuments(@PathVariable String id,@RequestParam DocumentIndexType type)
+			throws Exception {
+		return new SuccessResponse<List<DocumentDetail>>().payload(commonBL.getDocuments(id,type))
+				.get(HttpStatus.OK);
+	}
+	
 	@PostMapping(value = "/document/uploadDocuments", consumes = "multipart/form-data")
 	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType, @RequestParam MultipartFile[] files) throws Exception {
@@ -131,4 +139,5 @@ public class CommonController {
 		commonBL.manageNotification(SecurityUtils.getAuthUserId(),action, body);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
+	
 }

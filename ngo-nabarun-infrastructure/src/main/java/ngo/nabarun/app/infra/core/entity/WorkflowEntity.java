@@ -18,6 +18,7 @@ public class WorkflowEntity {
 
 	@Id
 	private String id;
+	private String refId;
 	private String name;
 	private String type;
 	private String status;
