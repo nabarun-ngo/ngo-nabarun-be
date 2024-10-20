@@ -575,26 +575,26 @@ public class BusinessObjectConverter {
 		List<ChangeDetail> changeList=historyDTO.getChanges().stream().map(changeDTO -> {
 			ChangeDetail change= new ChangeDetail();
 //			if(changeObj.from && changeObj.to){
-//			    return '<span class="font-bold capitalize">'+changeObj.fieldname+'</span> field value changed from <span class="italic">'+changeObj.from+'</span>  to <span class="italic">'+changeObj.to+'</span>.';
+//			    return '';
 //			  }
 //			  if(!changeObj.from && changeObj.to){
-//			    return '<span class="font-bold capitalize">'+changeObj.fieldname+'</span> field value set as <span class="italic">'+changeObj.to+'</span>.';
+//			    return ';
 //			  }
 //			  if(changeObj.from && !changeObj.to){
-//			    return '<span class="font-bold capitalize">'+changeObj.fieldname+'</span> field value removed. Earlier it was <span class="italic">'+changeObj.from+'</span>.';;
+//			    return '';;
 //			  }
 			switch (changeDTO.getChangeType()) {
 			case "changed":
 				change.setChange(true);
-				change.setMessage("Field "+changeDTO.getFieldname()+" changed from "+changeDTO.getFrom()+" to "+changeDTO.getTo()+".");
+				change.setMessage("<b>"+changeDTO.getFieldname()+"</b> field value changed from <b>"+changeDTO.getFrom()+"</b>  to <b>"+changeDTO.getTo()+"</b>.");
 				break;
 			case "added":
 				change.setAdd(true);
-				change.setMessage("Field "+changeDTO.getFieldname()+" added and value set as "+changeDTO.getTo()+".");
+				change.setMessage("<b>"+changeDTO.getFieldname()+"</b> field value set as <b>"+changeDTO.getTo()+"</b>.");
 				break;
 			case "removed":
 				change.setRemove(true);
-				change.setMessage("Field "+changeDTO.getFieldname()+" removed. Earlier the value was "+changeDTO.getFrom()+".");
+				change.setMessage("<b>"+changeDTO.getFieldname()+"</b> field value removed. Earlier it was <b>"+changeDTO.getFrom()+"</b>.");
 				break;
 			}
 			change.setFieldName(changeDTO.getFieldname());

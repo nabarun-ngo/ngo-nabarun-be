@@ -32,12 +32,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/api/common")
+@RequestMapping(value = "/api/common")
 @SecurityRequirement(name = "nabarun_auth")
 @SecurityRequirement(name = "nabarun_auth_apikey")
 public class CommonController {
@@ -45,7 +46,7 @@ public class CommonController {
 	@Autowired
 	private ICommonBL commonBL;
 	
-	@GetMapping("/document/getDocuments/{id}")
+	@GetMapping(value = "/document/getDocuments/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDocuments(@PathVariable String id,@RequestParam DocumentIndexType type)
 			throws Exception {
 		return new SuccessResponse<List<DocumentDetail>>().payload(commonBL.getDocuments(id,type))
@@ -59,7 +60,7 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/document/uploadBase64Documents")
+	@PostMapping(value = "/document/uploadBase64Documents",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType, @RequestBody List<DocumentDetailUpload> files)
 			throws Exception {
@@ -67,38 +68,43 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/document/downloadDocument/{id}", produces = MediaType.ALL_VALUE)
-	public ResponseEntity<Object> downloadDocument(@PathVariable String id,
-			@RequestParam(required = false) boolean asURL) throws Exception {
-		URL url = commonBL.getDocumentUrl(id);
-		if (asURL) {
-			return new ResponseEntity<Object>(new SuccessResponse<URL>().payload(url), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<Object>(new UrlResource(url), HttpStatus.OK);
-		}
+	@GetMapping(value = "/document/viewDocument/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SuccessResponse<DocumentDetail>> viewDocument(@PathVariable String id) throws Exception {
+		DocumentDetail doc=commonBL.getDocument(id);
+		return new SuccessResponse<DocumentDetail>().payload(doc).get(HttpStatus.OK);
+
+	}
+	
+	@GetMapping(value = "/document/downloadDocument/{id}")
+	public ResponseEntity<Object> downloadDocument(@PathVariable String id) throws Exception {
+		DocumentDetail doc = commonBL.getDocument(id);
+		UrlResource resource=new UrlResource(doc.getDownloadURL());
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+				.body(resource);
 	}
 
-	@DeleteMapping(value = "/document/deleteDocument/{id}")
+	@DeleteMapping(value = "/document/deleteDocument/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> deleteDocument(@PathVariable String id) throws Exception {
 		commonBL.deleteDocument(id);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 
 	}
 
-	@PostMapping(value = "/general/clearCache")
+	@PostMapping(value = "/general/clearCache",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> clearCache(@RequestBody List<String> names) throws Exception {
 		commonBL.clearSystemCache(names);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/getReferenceField")
+	@GetMapping(value = "/getReferenceField",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<AdditionalField>>> getReferenceField(@RequestParam String source)
 			throws Exception {
 		List<AdditionalField> fields = commonBL.getReferenceFields(source);
 		return new SuccessResponse<List<AdditionalField>>().payload(fields).get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/getReferenceData")
+	@GetMapping(value = "/getReferenceData",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
 			@RequestParam(required = false) List<RefDataType> names,
 			@RequestParam(required = false) DonationType donationType,
@@ -125,7 +131,7 @@ public class CommonController {
 				.get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/getNotifications")
+	@GetMapping(value = "/getNotifications",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Paginate<Map<String, String>>>> getNotification(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
 			throws Exception {
@@ -133,7 +139,7 @@ public class CommonController {
 		return new SuccessResponse<Paginate<Map<String, String>>>().payload(notifications).get(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/manageNotification")
+	@PostMapping(value = "/manageNotification",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> manageNotification(@RequestParam(required = true) String action,
 			@RequestBody Map<String, Object> body) throws Exception {
 		commonBL.manageNotification(SecurityUtils.getAuthUserId(),action, body);

@@ -70,9 +70,11 @@ public class CommonBLImpl implements ICommonBL {
 	}
 
 	@Override
-	public URL getDocumentUrl(String docId) throws Exception {
+	public DocumentDetail getDocument(String docId) throws Exception {
 		Assert.notNull(docId,"docId must not be null !");
-		return commonDO.getDocumentUrl(docId);
+		DocumentDetail documentDetail= new DocumentDetail();
+		documentDetail.setDownloadURL(commonDO.getDocumentUrl(docId).toString());
+		return documentDetail;
 	}
 	
 	@Override

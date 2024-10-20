@@ -69,10 +69,10 @@ public class CommonDO {
 
 	@Autowired
 	private IApiKeyInfraService apiKeyInfraService;
-	
+
 	@Autowired
 	private IDocumentInfraService documentInfraService;
-	
+
 	@Autowired
 	protected IHistoryInfraService historyInfraService;
 
@@ -160,7 +160,7 @@ public class CommonDO {
 		int seq = sequenceInfraService.incrementEntirySequence(seqName);
 		return String.format(pattern, ran, seq);
 	}
-	
+
 	public String generateExpenseId() {
 		String seqName = "EXPENSE_SEQUENCE";
 		String pattern = "NEX%sR%s";
@@ -379,29 +379,29 @@ public class CommonDO {
 				dataMap.put("notificationCount", notification);
 			}
 		}
-		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.", "", "",
-				dataMap);
+		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
+				"", "", dataMap);
 	}
 
 	@Async
-	public void updateDashboardCounts(String userId, Function<Object,Map<String, String>> action) throws Exception {
+	public void updateDashboardCounts(String userId, Function<Object, Map<String, String>> action) throws Exception {
 		Map<String, String> countMap = action.apply("");
 		Map<String, String> commonCountMap = new HashMap<>();
 		Map<String, String> userCountMap = new HashMap<>();
-		List<String> commonAttr= List.of(BusinessConstants.attr_DB_memberCount,BusinessConstants.attr_DB_noticeCount); 
-		for(Entry<String, String> countM:countMap.entrySet()) {
-			if(commonAttr.contains(countM.getKey())) {
+		List<String> commonAttr = List.of(BusinessConstants.attr_DB_memberCount, BusinessConstants.attr_DB_noticeCount);
+		for (Entry<String, String> countM : countMap.entrySet()) {
+			if (commonAttr.contains(countM.getKey())) {
 				commonCountMap.put(countM.getKey(), countM.getValue());
-			}else {
+			} else {
 				userCountMap.put(countM.getKey(), countM.getValue());
 			}
 		}
-		
-		if(!commonCountMap.isEmpty()) {
+
+		if (!commonCountMap.isEmpty()) {
 			sequenceInfraService.addOrUpdateDashboardCounts("NA", commonCountMap);
 		}
-		
-		if(!userCountMap.isEmpty()) {
+
+		if (!userCountMap.isEmpty()) {
 			sequenceInfraService.addOrUpdateDashboardCounts(userId, userCountMap);
 		}
 	}
@@ -409,17 +409,20 @@ public class CommonDO {
 	public List<DocumentDTO> getDocuments(String id, DocumentIndexType type) {
 		return documentInfraService.getDocumentList(id, type);
 	}
-	
-	public void cloneDocuments(String sourceId, DocumentIndexType sourceIndexType,String destId,DocumentIndexType destIndexType) {
-		List<DocumentDTO> docDTos=documentInfraService.getDocumentList(sourceId, sourceIndexType);
-		for(DocumentDTO docDTO:docDTos) {
+
+	public void cloneDocuments(String sourceId, DocumentIndexType sourceIndexType, String destId,
+			DocumentIndexType destIndexType) {
+		List<DocumentDTO> docDTos = documentInfraService.getDocumentList(sourceId, sourceIndexType);
+		for (DocumentDTO docDTO : docDTos) {
 			docDTO.setDocumentRefId(destId);
 			docDTO.setDocumentType(destIndexType);
 			documentInfraService.createDocumentIndex(docDTO);
 		}
 	}
-	
+
 	public List<HistoryDTO> retrieveHistory(String refId, HistoryRefType historyType) throws Exception {
-		return historyInfraService.getHistory(historyType, refId);
+		return historyInfraService.getHistory(historyType, refId).stream().sorted((c1, c2) -> {
+			return Long.valueOf(c2.getCreatedOn()).compareTo(Long.valueOf(c1.getCreatedOn()));
+		}).collect(Collectors.toList());
 	}
 }

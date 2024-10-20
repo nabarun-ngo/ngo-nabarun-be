@@ -9,7 +9,8 @@ public class DocumentDetail {
 	private String documentIndexId;
 	private boolean isImage;
 	private boolean isGeneratedDoc;
-	
+	private String downloadURL;
+
 	@Data
 	public static class DocumentDetailUpload {
 		private byte[] content;

@@ -1,6 +1,5 @@
 package ngo.nabarun.app.businesslogic;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ public interface ICommonBL {
 
 	void uploadDocuments(MultipartFile[] files, String docIndexId, DocumentIndexType docIndexType) throws Exception;
 
-	URL getDocumentUrl(String docId) throws Exception;
+	DocumentDetail getDocument(String docId) throws Exception;
 
 	boolean deleteDocument(String docId) throws Exception;
 	
