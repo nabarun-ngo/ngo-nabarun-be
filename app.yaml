@@ -3,7 +3,6 @@ entrypoint: java -Dserver.port=$PORT -jar ngo-nabarun-app-0.0.3.jar
 env: standard
 instance_class: B2
 basic_scaling:
-  min_instances: 0
   max_instances: 1
   idle_timeout: 15m
 handlers:
