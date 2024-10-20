@@ -1,8 +1,12 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
 import lombok.Data;
 
 /**
@@ -15,6 +19,7 @@ public class WorkListEntity {
 	@Id
 	private String id;
 	private String sourceId;
+	private String sourceRefId;
 	private String description;
 	private String sourceStatus;
 	private String sourceType;
@@ -37,7 +42,8 @@ public class WorkListEntity {
 	private boolean finalStep;
 	private Date decisionDate;
 
-
+	@DocumentReference(lookup = "{'source':?#{#self._id} }")
+	private List<CustomFieldEntity> customFields;
 
 
 }

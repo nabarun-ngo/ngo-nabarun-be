@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
+import ngo.nabarun.app.businesslogic.businessobjects.EventDetail.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 
 @Service
@@ -16,8 +14,8 @@ public interface ISocialEventBL {
 
 	Paginate<EventDetail> getSocialEvents(Integer page, Integer size, EventDetailFilter filter);
 	EventDetail getSocialEvent(String id);
-	EventDetail createSocialEvent(EventDetailCreate eventDetail) throws Exception;
-	EventDetail updateSocialEvent(String id,EventDetailUpdate updatedEventDetail) throws Exception;
+	EventDetail createSocialEvent(EventDetail eventDetail) throws Exception;
+	EventDetail updateSocialEvent(String id,EventDetail updatedEventDetail) throws Exception;
 	List<DocumentDetail> getSocialEventDocs(String id);
 	EventDetail getDraftedEvent();
 	void deleteEvent(String id);

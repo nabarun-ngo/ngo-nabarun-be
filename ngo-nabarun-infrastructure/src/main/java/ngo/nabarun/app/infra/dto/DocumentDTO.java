@@ -8,6 +8,7 @@ public class DocumentDTO {
 	private String docId;
 	private String fileType;
 	private String originalFileName;
+	private String remoteFileName;
 	private DocumentIndexType documentType;
 	private String documentRefId;
 	private boolean isImage;

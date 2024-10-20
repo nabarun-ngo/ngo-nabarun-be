@@ -11,7 +11,9 @@ import ngo.nabarun.app.infra.dto.TransactionDTO.TransactionDTOFilter;
 public interface ITransactionInfraService {
 	TransactionDTO createTransaction(TransactionDTO transaction) throws Exception;	
 	List<TransactionDTO> getTransactions(String txnRefNumber,TransactionRefType txnRefType) throws Exception;
-	Page<TransactionDTO> getTransactionsForAccount(String id, Integer index, Integer size);
+	//Page<TransactionDTO> getTransactionsForAccount(String id, Integer index, Integer size);
 	Page<TransactionDTO> getTransactions(Integer page, Integer size, TransactionDTOFilter filter);
+	TransactionDTO updateTransaction(String id, TransactionDTO oldTxn);
+	TransactionDTO getTransaction(String id);
 
 }

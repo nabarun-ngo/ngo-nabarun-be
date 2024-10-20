@@ -4,6 +4,7 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 import lombok.Data;
 import ngo.nabarun.app.common.enums.AuthRefType;
 
+@Deprecated
 @Data
 public class AuthorizationDetail {
 

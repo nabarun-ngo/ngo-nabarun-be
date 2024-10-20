@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ngo.nabarun.app.infra.core.entity.UserRoleEntity;
 
+@Deprecated
 public interface UserRoleRepository extends MongoRepository<UserRoleEntity,String> {
 	
 	List<UserRoleEntity> findByProfileIdAndActiveTrue(String id);

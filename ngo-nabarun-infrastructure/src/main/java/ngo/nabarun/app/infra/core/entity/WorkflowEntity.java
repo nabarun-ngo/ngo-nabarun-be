@@ -18,6 +18,7 @@ public class WorkflowEntity {
 
 	@Id
 	private String id;
+	private String refId;
 	private String name;
 	private String type;
 	private String status;
@@ -32,10 +33,13 @@ public class WorkflowEntity {
 	private String profileId;
 	private String profileName;
 	private String profileEmail;
+	private String  systemRequestOwnerId;
+	private String  systemRequestOwnerEmail;
+	private String  systemRequestOwnerName;
 
-	
 
 	private boolean delegated;
+	private boolean systemGenerated;
 
 	private String delegateProfileId;
 	private String delegateProfileName;

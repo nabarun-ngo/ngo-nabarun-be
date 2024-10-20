@@ -5,22 +5,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailCreate;
-import ngo.nabarun.app.businesslogic.businessobjects.EventDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetailCreate;
-import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailCreate;
-import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetailUpdate;
-import ngo.nabarun.app.businesslogic.businessobjects.UserAddress;
-import ngo.nabarun.app.businesslogic.businessobjects.UserPhoneNumber;
-import ngo.nabarun.app.businesslogic.businessobjects.UserSocialMedia;
-import ngo.nabarun.app.common.enums.EventType;
+import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserAddress;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserPhoneNumber;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserSocialMedia;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetailUpdate;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailUpdate;
 import ngo.nabarun.app.infra.dto.AddressDTO;
-import ngo.nabarun.app.infra.dto.DiscussionDTO;
 import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
-import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.SocialMediaDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
@@ -137,61 +130,61 @@ public class BusinessObjectToDTOConverter {
 		return eventDTO;
 	}
 
-	@Deprecated
-	public static EventDTO toEventDTO(EventDetailUpdate updatedEventDetail) {
-		EventDTO eventDTO = new EventDTO();
-		eventDTO.setBudget(updatedEventDetail.getEventBudget());
-		eventDTO.setDescription(updatedEventDetail.getEventDescription());
-		if (updatedEventDetail.getPublish() != null) {
-			eventDTO.setDraft(!updatedEventDetail.getPublish());
-		}
-		eventDTO.setEventDate(updatedEventDetail.getEventDate());
-		eventDTO.setLocation(updatedEventDetail.getEventLocation());
-		eventDTO.setTitle(updatedEventDetail.getTitle());
-		eventDTO.setType(updatedEventDetail.getEventType());
-		return eventDTO;
-	}
+//	@Deprecated
+//	public static EventDTO toEventDTO(EventDetailUpdate updatedEventDetail) {
+//		EventDTO eventDTO = new EventDTO();
+//		eventDTO.setBudget(updatedEventDetail.getEventBudget());
+//		eventDTO.setDescription(updatedEventDetail.getEventDescription());
+//		if (updatedEventDetail.getPublish() != null) {
+//			eventDTO.setDraft(!updatedEventDetail.getPublish());
+//		}
+//		eventDTO.setEventDate(updatedEventDetail.getEventDate());
+//		eventDTO.setLocation(updatedEventDetail.getEventLocation());
+//		eventDTO.setTitle(updatedEventDetail.getTitle());
+//		eventDTO.setType(updatedEventDetail.getEventType());
+//		return eventDTO;
+//	}
 
-	@Deprecated
-	public static EventDTO toEventDTO(EventDetailCreate eventDetail) {
-		EventDTO eventDTO = new EventDTO();
-		eventDTO.setBudget(eventDetail.getEventBudget());
-		eventDTO.setDescription(eventDetail.getEventDescription());
-		eventDTO.setDraft(eventDetail.isDraft());
-		eventDTO.setEventDate(eventDetail.getEventDate());
-		eventDTO.setLocation(eventDetail.getEventLocation());
-		eventDTO.setTitle(eventDetail.getTitle());
-		eventDTO.setType(EventType.INTERNAL);
-		return eventDTO;
-	}
+//	@Deprecated
+//	public static EventDTO toEventDTO(EventDetailCreate eventDetail) {
+//		EventDTO eventDTO = new EventDTO();
+//		eventDTO.setBudget(eventDetail.getEventBudget());
+//		eventDTO.setDescription(eventDetail.getEventDescription());
+//		eventDTO.setDraft(eventDetail.isDraft());
+//		eventDTO.setEventDate(eventDetail.getEventDate());
+//		eventDTO.setLocation(eventDetail.getEventLocation());
+//		eventDTO.setTitle(eventDetail.getTitle());
+//		eventDTO.setType(EventType.INTERNAL);
+//		return eventDTO;
+//	}
 
-	@Deprecated
-	public static NoticeDTO toNoticeDTO(NoticeDetailCreate noticeDetail) {
-		NoticeDTO noticeDTO = new NoticeDTO();
-		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
-		noticeDTO.setDescription(noticeDetail.getDescription());
-		noticeDTO.setDraft(noticeDetail.getDraft());
-		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
-		noticeDTO.setTitle(noticeDetail.getTitle());
-		// noticeDTO.setType(noticeEntity.getVisibility());
-		return noticeDTO;
-	}
+//	@Deprecated
+//	public static NoticeDTO toNoticeDTO(NoticeDetailCreate noticeDetail) {
+//		NoticeDTO noticeDTO = new NoticeDTO();
+//		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
+//		noticeDTO.setDescription(noticeDetail.getDescription());
+//		//noticeDTO.setDraft(noticeDetail.getDraft());
+//		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
+//		noticeDTO.setTitle(noticeDetail.getTitle());
+//		// noticeDTO.setType(noticeEntity.getVisibility());
+//		return noticeDTO;
+//	}
+//
+//	@Deprecated
+//	public static NoticeDTO toNoticeDTO(NoticeDetailUpdate noticeDetail) {
+//		NoticeDTO noticeDTO = new NoticeDTO();
+//		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
+//		noticeDTO.setDescription(noticeDetail.getDescription());
+//		if (noticeDetail.getPublish() != null && noticeDetail.getPublish() == Boolean.TRUE) {
+//			//noticeDTO.setDraft(noticeDetail.getPublish());
+//		}
+//		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
+//		noticeDTO.setTitle(noticeDetail.getTitle());
+//		// noticeDTO.setType(noticeEntity.getVisibility());
+//		return noticeDTO;
+//	}
 
-	@Deprecated
-	public static NoticeDTO toNoticeDTO(NoticeDetailUpdate noticeDetail) {
-		NoticeDTO noticeDTO = new NoticeDTO();
-		noticeDTO.setCreatorRole(noticeDetail.getCreatorRoleCode());
-		noticeDTO.setDescription(noticeDetail.getDescription());
-		if (noticeDetail.getPublish() != null && noticeDetail.getPublish() == Boolean.TRUE) {
-			noticeDTO.setDraft(noticeDetail.getPublish());
-		}
-		noticeDTO.setNoticeDate(noticeDetail.getNoticeDate());
-		noticeDTO.setTitle(noticeDetail.getTitle());
-		// noticeDTO.setType(noticeEntity.getVisibility());
-		return noticeDTO;
-	}
-
-	public static MeetingDTO toMeetingDTO(MeetingDetailCreate meetingDetail) {
+	public static MeetingDTO toMeetingDTO(MeetingDetail meetingDetail) {
 		MeetingDTO meetingDTO = new MeetingDTO();
 		meetingDTO.setDescription(meetingDetail.getMeetingDescription());
 
@@ -203,7 +196,7 @@ public class BusinessObjectToDTOConverter {
 			});
 		}
 		meetingDTO.setAttendees(attendees);
-		meetingDTO.setDefaultReminder(true);
+		//meetingDTO.setDefaultReminder(true);
 		meetingDTO.setLocation(meetingDetail.getMeetingLocation());
 		meetingDTO.setStartTime(meetingDetail.getMeetingStartTime());
 		meetingDTO.setSummary(meetingDetail.getMeetingSummary());
@@ -212,21 +205,21 @@ public class BusinessObjectToDTOConverter {
 		meetingDTO.setRefType(meetingDetail.getMeetingRefType());
 		meetingDTO.setRemarks(meetingDetail.getMeetingRemarks());
 
-		List<DiscussionDTO> discussions = new ArrayList<>();
-		if (meetingDetail.getMeetingDiscussions() != null) {
-			meetingDetail.getMeetingDiscussions().forEach(disc -> {
-				discussions.add(new DiscussionDTO(disc.getId(), disc.getAgenda(), disc.getMinutes()));
-			});
-		}
+//		List<DiscussionDTO> discussions = new ArrayList<>();
+//		if (meetingDetail.getMeetingDiscussions() != null) {
+//			meetingDetail.getMeetingDiscussions().forEach(disc -> {
+//				discussions.add(new DiscussionDTO(disc.getId(), disc.getAgenda(), disc.getMinutes()));
+//			});
+//		}
 
-		meetingDTO.setDiscussions(discussions);
-		meetingDTO.setDraft(meetingDetail.getDraft() == null ? false : meetingDetail.getDraft());
-		meetingDTO.setAuthCode(meetingDetail.getAuthorization() == null ? null
-				: meetingDetail.getAuthorization().getAuthorizationCode());
-		meetingDTO.setAuthState(meetingDetail.getAuthorization() == null ? null
-				: meetingDetail.getAuthorization().getAuthorizationState());
-		meetingDTO.setAuthCallbackUrl(
-				meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getCallbackUrl());
+		//meetingDTO.setDiscussions(discussions);
+//		meetingDTO.setDraft(meetingDetail.getDraft() == null ? false : meetingDetail.getDraft());
+//		meetingDTO.setAuthCode(meetingDetail.getAuthorization() == null ? null
+//				: meetingDetail.getAuthorization().getAuthorizationCode());
+//		meetingDTO.setAuthState(meetingDetail.getAuthorization() == null ? null
+//				: meetingDetail.getAuthorization().getAuthorizationState());
+//		meetingDTO.setAuthCallbackUrl(
+//				meetingDetail.getAuthorization() == null ? null : meetingDetail.getAuthorization().getCallbackUrl());
 		return meetingDTO;
 	}
 

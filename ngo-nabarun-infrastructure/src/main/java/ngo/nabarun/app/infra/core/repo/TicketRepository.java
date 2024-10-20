@@ -1,5 +1,6 @@
 package ngo.nabarun.app.infra.core.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -12,6 +13,8 @@ public interface TicketRepository extends MongoRepository<TicketInfoEntity, Stri
 //	@Query(value = "select * from otps where identifier=:identifier", nativeQuery = true)
 	//List<TicketInfoEntity> findByIdentifier(@Param("identifier") String identifier);
 	Optional<TicketInfoEntity> findByToken(String token);
+
+	List<TicketInfoEntity> findByEmail(String email);
 
 
 //	@Modifying

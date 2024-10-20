@@ -10,7 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserRole;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -30,27 +31,29 @@ import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IUserInfraService;
 
 @Component
-public class UserDO extends CommonDO{
-	
+public class UserDO extends CommonDO {
+
 	@Autowired
 	private IUserInfraService userInfraService;
-	
+
 	@Autowired
 	private IDocumentInfraService documentInfraService;
-	
+
 	private static String passwordPolicy;
-	
+
 	/**
 	 * 
 	 * @param page
 	 * @param size
 	 * @param userDetailFilter
 	 * @return
+	 * @throws Exception
 	 */
-	public Paginate<UserDTO> retrieveAllUsers(Integer page, Integer size, UserDetailFilter userDetailFilter) {
+	public Paginate<UserDTO> retrieveAllUsers(Integer page, Integer size, UserDetailFilter userDetailFilter)
+			throws Exception {
 		UserDTOFilter userDTOFilter = null;
-		if(userDetailFilter != null) {
-			userDTOFilter= new UserDTOFilter();
+		if (userDetailFilter != null) {
+			userDTOFilter = new UserDTOFilter();
 			userDTOFilter.setFirstName(userDetailFilter.getFirstName());
 			userDTOFilter.setLastName(userDetailFilter.getLastName());
 			userDTOFilter.setEmail(userDetailFilter.getEmail());
@@ -58,11 +61,17 @@ public class UserDO extends CommonDO{
 			userDTOFilter.setUserId(userDetailFilter.getUserId());
 			userDTOFilter.setPublicProfile(userDetailFilter.getPublicFlag());
 			userDTOFilter.setDeleted(false);
+			userDTOFilter.setStatus(userDetailFilter.getStatus());
+			userDTOFilter.setRoles(userDetailFilter.getRoles());
 		}
-		Page<UserDTO> content =userInfraService.getUsers(page, size, userDTOFilter);
+		if (userDetailFilter.isUserByRole()) {
+			List<UserDTO> users = userInfraService.getUsersByRole(userDetailFilter.getRoles());
+			return new Paginate<UserDTO>(page, size, users.size(), users);
+		}
+		Page<UserDTO> content = userInfraService.getUsers(page, size, userDTOFilter);
 		return new Paginate<UserDTO>(content);
 	}
-	
+
 	/**
 	 * 
 	 * @param id
@@ -71,16 +80,16 @@ public class UserDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDTO retrieveUserDetail(String id,IdType idType,boolean fullDetail,boolean includeRole) throws Exception {
-		UserDTO userDTO = userInfraService.getUser(id ,idType, fullDetail);
-		if(includeRole) {
-			List<RoleDTO> roleDTO =userInfraService.getUserRoles(id,idType,true);  
-			userDTO.setRoles(roleDTO);
-		}
+	public UserDTO retrieveUserDetail(String id, IdType idType, boolean fullDetail)
+			throws Exception {
+		UserDTO userDTO = userInfraService.getUser(id, idType, fullDetail);
+//		if (includeRole) {
+//			List<RoleDTO> roleDTO = userInfraService.getUserRoles(id, idType, true);
+//			userDTO.setRoles(roleDTO);
+//		}
 		return userDTO;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param email
@@ -92,7 +101,7 @@ public class UserDO extends CommonDO{
 		int userCount = userInfraService.getUsers(null, null, filter).getSize();
 		return userCount > 0;
 	}
-	
+
 	/**
 	 * 
 	 * @param userdetail
@@ -101,30 +110,33 @@ public class UserDO extends CommonDO{
 	 * @param hometown
 	 * @param password
 	 * @param emailVerified
+	 * @param resetPassword 
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDTO createUser(String firstName,String lastName,String email, String phoneCode,String phoneNumber, String hometown, String password,boolean emailVerified) throws Exception {
+	public UserDTO createUser(String firstName, String lastName, String email, String phoneCode, String phoneNumber,
+			String hometown, String password, boolean emailVerified, boolean resetPassword) throws Exception {
 		UserDTO userDTO = new UserDTO();
 		PhoneDTO phoneDto = new PhoneDTO();
 		AddressDTO addressDto = new AddressDTO();
-		
+
 		UserAdditionalDetailsDTO additionalDetailDto = new UserAdditionalDetailsDTO();
 		userDTO.setFirstName(firstName);
 		userDTO.setLastName(lastName);
 		userDTO.setEmail(email);
-		
+
 		phoneDto.setPhoneCode(phoneCode);
 		phoneDto.setPhoneNumber(phoneNumber);
 		phoneDto.setPhoneType(PhoneType.PRIMARY);
 		addressDto.setHometown(hometown);
 		addressDto.setAddressType(AddressType.PRESENT);
 		userDTO.setPassword(password);
-		
+
 		additionalDetailDto.setActiveContributor(true);
 		additionalDetailDto.setBlocked(false);
 		additionalDetailDto.setDisplayPublic(false);
 		additionalDetailDto.setEmailVerified(emailVerified);
+		additionalDetailDto.setPasswordResetRequired(resetPassword);
 		userDTO.setStatus(ProfileStatus.ACTIVE);
 		userDTO.setPhoneNumber(phoneDto.getPhoneCode() + phoneDto.getPhoneNumber());
 		userDTO.setPhones(List.of(phoneDto));
@@ -138,7 +150,7 @@ public class UserDO extends CommonDO{
 		userInfraService.updateUserRoles(userDTO.getProfileId(), roles);
 		return userDTO;
 	}
-	
+
 	/**
 	 * 
 	 * @param id
@@ -147,7 +159,8 @@ public class UserDO extends CommonDO{
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDTO updateUserDetail(String id,UserDetail updatedUserDetails,boolean updateProfilePic) throws Exception {
+	public UserDTO updateUserDetail(String id, UserDetail updatedUserDetails, boolean updateProfilePic)
+			throws Exception {
 		UserDTO updatedUserDTO = new UserDTO();
 		updatedUserDTO.setTitle(updatedUserDetails.getTitle());
 		updatedUserDTO.setFirstName(updatedUserDetails.getFirstName());
@@ -156,36 +169,67 @@ public class UserDO extends CommonDO{
 		updatedUserDTO.setGender(updatedUserDetails.getGender());
 		updatedUserDTO.setDateOfBirth(updatedUserDetails.getDateOfBirth());
 		updatedUserDTO.setAbout(updatedUserDetails.getAbout());
+		updatedUserDTO.setGender(updatedUserDetails.getGender());
+		updatedUserDTO.setEmail(updatedUserDetails.getEmail());/*****/
 
 		updatedUserDTO.setAddresses(updatedUserDetails.getAddresses() == null ? List.of()
-				: updatedUserDetails.getAddresses().stream().map(BusinessObjectConverter::toAddressDTO).collect(Collectors.toList()));
+				: updatedUserDetails.getAddresses().stream().map(BusinessObjectConverter::toAddressDTO)
+						.collect(Collectors.toList()));
+		updatedUserDTO.setPresentPermanentSame(updatedUserDetails.getPresentAndPermanentAddressSame());
 		updatedUserDTO.setPhones(BusinessObjectConverter.toPhoneDTO(updatedUserDetails.getPhoneNumbers()));
-		updatedUserDTO.setSocialMedias(BusinessObjectConverter.toSocialMediaDTO(updatedUserDetails.getSocialMediaLinks()));
-		
+		updatedUserDTO
+				.setSocialMedias(BusinessObjectConverter.toSocialMediaDTO(updatedUserDetails.getSocialMediaLinks()));
+
 		/**
 		 * Updating profile picture
 		 */
-		 
+
 		UserDTO userDTO;
 		if (updateProfilePic) {
-			List<DocumentDTO> profilePics = documentInfraService.getDocumentList(id,
-					DocumentIndexType.PROFILE_PHOTO);
+			List<DocumentDTO> profilePics = documentInfraService.getDocumentList(id, DocumentIndexType.PROFILE_PHOTO);
 			for (DocumentDTO doc : profilePics) {
 				documentInfraService.hardDeleteDocument(doc.getDocId());
 			}
-			if(updatedUserDetails.getPictureBase64() != null) {
+			if (updatedUserDetails.getPictureBase64() != null) {
 				byte[] content = Base64.decodeBase64(updatedUserDetails.getPictureBase64());
-				DocumentDTO doc = documentInfraService.uploadDocument(UUID.randomUUID().toString()+".png", "image/png", id,
-						DocumentIndexType.PROFILE_PHOTO, content);
+				DocumentDTO doc = documentInfraService.uploadDocument(UUID.randomUUID().toString() + ".png",
+						"image/png", id, DocumentIndexType.PROFILE_PHOTO, content);
 				updatedUserDTO.setImageUrl(doc.getDocumentURL());
-			}else {
+			} else {
 				updatedUserDTO.setImageUrl("");
 			}
 		}
-		userDTO = userInfraService.updateUser(id,updatedUserDTO);
+		userDTO = userInfraService.updateUser(id, updatedUserDTO);
 		return userDTO;
 	}
 	
+	/**
+	 * Updating admin attributes
+	 */
+	public UserDTO updateUserDetailAdmin(String id, UserDetail updatedUserDetails)
+			throws Exception {
+		UserDTO updatedUserDTO = new UserDTO();
+		updatedUserDTO.setStatus(updatedUserDetails.getStatus());
+		
+		List<UserRole> rolesToUpdate=updatedUserDetails.getRoles();
+		if(rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
+			List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(rolesToUpdate.stream().map(m->m.getRoleCode()).collect(Collectors.toList()));
+			userInfraService.updateUserRoles(id, roles);
+		}
+		UserDTO userDTO = userInfraService.updateUser(id, updatedUserDTO);
+		return userDTO;
+	}
+	
+	public UserDTO updateUserDetailAdmin(String id, UserDTO userDTO) throws Exception {
+		List<RoleDTO> rolesToUpdate=userDTO.getRoles();
+		if(rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
+			List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(rolesToUpdate.stream().map(m->m.getCode()).collect(Collectors.toList()));
+			userInfraService.updateUserRoles(id, roles);
+		}
+		userDTO = userInfraService.updateUser(id, userDTO);
+		return userDTO;
+	}
+
 	/**
 	 * 
 	 * @return
@@ -198,28 +242,55 @@ public class UserDO extends CommonDO{
 		return passwordPolicy;
 	}
 
-	/**
-	 * 
-	 * @param id
-	 * @param roleCodes
-	 * @throws Exception
-	 */
-	public void assignRolesToUser(String id, List<RoleCode> roleCodes) throws Exception {
-		List<RoleDTO> roles=businessDomainHelper.convertToRoleDTO(roleCodes);
-		userInfraService.updateUserRoles(id, roles);
+
+	public void assignUsersToRole(RoleCode roleCode, List<String> usersIds) throws Exception {
+		RoleDTO roleDTO = businessDomainHelper.convertToRoleDTO(roleCode);
+		userInfraService.assignUsersToRole(roleDTO, usersIds);
 	}
 
 	/**
 	 * 
 	 * @throws Exception
 	 */
-	public void syncUsers() throws Exception {
-		userInfraService.auth0UserSync();
+	public void syncUserDetail(boolean syncRole) throws Exception {
+		for (UserDTO userDTO : userInfraService.getAuthUsers()) {
+			try {
+				//System.err.println(userDTO);
+				UserDTOFilter filter = new UserDTOFilter();
+				filter.setEmail(userDTO.getEmail());
+				List<UserDTO> users = userInfraService.getUsers(null, null, filter).getContent();
+				//System.err.println(users);
+				
+				if (!users.isEmpty()) {
+					if(syncRole) {
+						List<RoleDTO> roles=userInfraService.getUserRoles(users.get(0).getUserId(), IdType.AUTH_USER_ID, true);
+						List<RoleDTO> roleDTO=businessDomainHelper.convertToRoleDTO(roles.stream().map(m->m.getCode()).collect(Collectors.toList()));
+						userDTO.setRoles(roleDTO);
+					}
+					userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
+
+				} else {
+					userDTO.getAdditionalDetails().setActiveContributor(true);
+					userInfraService.createUser(userDTO);
+				}
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			// Thread.sleep(2000);
+		}
 	}
-	
+
 	public List<UserDTO> getUsers(List<RoleCode> codes) throws Exception {
-		List<UserDTO> users= userInfraService.getUsersByRole(codes);
+		List<UserDTO> users = userInfraService.getUsersByRole(codes);
 		return users;
 	}
+
+	public void deleteMember(String id) throws Exception {
+		userInfraService.deleteUser(id);
+	}
+
+	
 
 }

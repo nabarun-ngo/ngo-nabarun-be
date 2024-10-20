@@ -6,19 +6,19 @@ import org.springframework.stereotype.Service;
 import ngo.nabarun.app.infra.dto.RequestDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO.RequestDTOFilter;
 import ngo.nabarun.app.infra.dto.WorkDTO;
-import ngo.nabarun.app.infra.dto.WorkDTO.WorkListDTOFilter;
+import ngo.nabarun.app.infra.dto.WorkDTO.WorkDTOFilter;
 
 @Service
 public interface IWorkflowInfraService {
 
-	RequestDTO createWorkflow(RequestDTO workflow);
-	Page<RequestDTO> getWorkflows(Integer page, Integer size, RequestDTOFilter filter);
-	RequestDTO getWorkflow(String id);
-	RequestDTO updateWorkflow(String id, RequestDTO workflow);
-	WorkDTO createWorkList(WorkDTO worklist);
-	WorkDTO updateWorkList(String id, WorkDTO worklistDTO);
-	WorkDTO getWorkList(String id);
-	Page<WorkDTO> getWorkList(Integer page, Integer size, WorkListDTOFilter filter);
+	RequestDTO createRequest(RequestDTO workflow);
+	Page<RequestDTO> getRequests(Integer page, Integer size, RequestDTOFilter filter);
+	RequestDTO getRequest(String id);
+	RequestDTO updateRequest(String id, RequestDTO workflow);
+	WorkDTO createWorkItem(WorkDTO worklist);
+	WorkDTO updateWorkItem(String id, WorkDTO worklistDTO);
+	WorkDTO getWorkItem(String id);
+	Page<WorkDTO> getWorkItems(Integer page, Integer size, WorkDTOFilter filter);
 
 
 }

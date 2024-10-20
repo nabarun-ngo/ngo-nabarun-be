@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,25 +17,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.exception.BusinessCondition;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
+import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
-import ngo.nabarun.app.common.enums.AdditionalFieldSource;
+import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.NotificationType;
 import ngo.nabarun.app.common.enums.RoleCode;
-import ngo.nabarun.app.common.enums.WorkFlowAction;
+import ngo.nabarun.app.common.enums.WorkAction;
 import ngo.nabarun.app.common.enums.WorkType;
-import ngo.nabarun.app.common.enums.WorkflowDecision;
-import ngo.nabarun.app.common.enums.WorkflowStatus;
-import ngo.nabarun.app.common.enums.WorkflowType;
+import ngo.nabarun.app.common.enums.RequestStatus;
+import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
+import ngo.nabarun.app.infra.dto.EmailTemplateDTO.EmailBodyTemplate.TableTemplate;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
@@ -47,7 +50,7 @@ public class BusinessDomainHelper {
 
 	@Autowired
 	private IGlobalDataInfraService domainInfraService;
-	private static Map<String, List<KeyValuePair>> domainConfig = null;
+	// private static Map<String, List<KeyValuePair>> domainConfig = null;
 	private static Map<String, String> domainKeyValue = new HashMap<>();
 
 	private static final String SPLITTER = ",";
@@ -76,29 +79,52 @@ public class BusinessDomainHelper {
 	private static final String ITEM_USER_TITLE__ATTR_GENDER = "GENDER";
 	private static final String ITEM_DONATION_STATUS__ATTR_IS_FINAL_STATUS = "IS_FINAL_STATUS";
 	private static final String ITEM_DONATION_STATUS__ATTR_NEXT_STATUS = "NEXT_STATUS";
-	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE = "TYPE";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE = "FIELD_TYPE";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE = "TYPE";
 	private static final String ITEM_AVAILABLE_ROLE__ATTR_GROUPS = "GROUP";
 
-	private static final String ITEM_WORKFLOW_TYPE = "WORKFLOW_TYPES";
-	private static final String ITEM_WORKFLOW_TYPE__ATTR_DEFAULT_STEP = "DEFAULT_STEP";
+	private static final String ITEM_WORKFLOW_TYPES = "WORKFLOW_TYPES";
+	private static final String ITEM_WORKFLOW_TYPES__ATTR_DEFAULT_STEP = "DEFAULT_STEP";
+	private static final String ITEM_WORKFLOW_TYPES__ATTR_IS_VISIBLE = "IS_VISIBLE";
 
 	private static final String ITEM_ADDITIONAL_CONFIG = "ADDITIONAL_CONFIG";
-	private static final String ITEM_WORKFLOW_STEP = "WORKFLOW_STEPS";
-	private static final String ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP = "IS_FINAL_STEP";
-	private static final String ITEM_WORKFLOW_STEP__ATTR_CURRENT_ACTION = "CURRENT_ACTION";
-	private static final String ITEM_WORKFLOW_STEP__ATTR_IS_DECISION_STEP = "IS_DECISION_STEP";
-	private static final String ITEM_WORKFLOW_STEP__ATTR_NEXT_STEP = "NEXT_STEP";
-	private static final String ITEM_WORKFLOW_STEP__ATTR_DECISION_MAKER_ROLE_GROUPS = "DECISION_MAKER_ROLE_GROUPS";
+	private static final String ITEM_WORKFLOW_STEPS = "WORKFLOW_STEPS";
+	private static final String ITEM_WORKFLOW_STEPS__ATTR_IS_FINAL_STEP = "IS_FINAL_STEP";
+	private static final String ITEM_WORKFLOW_STEPS__ATTR_CURRENT_ACTION = "CURRENT_ACTION";
+	private static final String ITEM_WORKFLOW_STEPS__ATTR_STEP_TYPE = "STEP_TYPE";
+	private static final String ITEM_WORKFLOW_STEPS__ATTR_NEXT_STEP = "NEXT_STEP";
+	private static final String ITEM_WORKFLOW_STEPS__ATTR_DECISION_MAKER_ROLE_GROUPS = "DECISION_MAKER_ROLE_GROUPS";
+	private static final String ITEM_WORKFLOW_STEPS__ATTR_APPLICABLE_FOR = "APPLICABLE_FOR";
 
+	private static final String ITEM_ACCOUNT_TYPE = "ACCOUNT_TYPES";
+	private static final String ITEM_ACCOUNT_STATUS = "ACCOUNT_STATUSES";
+	private static final String ITEM_PROFILE_STATUSES = "PROFILE_STATUSES";
+	private static final String ITEM_COUNTRY_LIST = "COUNTRY_LIST";
+	private static final String ITEM_STATE_LIST = "STATE_LIST";
+	private static final String ITEM_DISTRICT_LIST = "DISTRICT_LIST";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR = "APPLICABLE_FOR";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_MANDATORY = "MANDATORY";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS = "FIELD_OPTIONS";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN = "HIDDEN";
+	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED = "ENCRYPTED";
+	private static final String ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED = "SYSTEM_GENERATED";
+
+	@NoLogging
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
-//		if (domainConfig == null) {
-//			domainConfig = domainInfraService.getDomainRefConfigs();
-//		}
-//		return domainConfig;
-		 return domainInfraService.getDomainRefConfigs();
+		return domainInfraService.getDomainRefConfigs();
+	}
+
+	@NoLogging
+	protected Map<String, List<KeyValuePair>> getDomainLocation() throws Exception {
+		return domainInfraService.getDomainLocationData();
 	}
 
 	public String getDisplayValue(String key) throws Exception {
+		return getDomainKeyValues().get(key);
+	}
+
+	@NoLogging
+	public Map<String, String> getDomainKeyValues() throws Exception {
 		if (domainKeyValue.isEmpty()) {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
 			for (Entry<String, List<KeyValuePair>> config : configs.entrySet()) {
@@ -106,8 +132,15 @@ public class BusinessDomainHelper {
 					domainKeyValue.put(item.getKey(), item.getValue());
 				}
 			}
+			Map<String, List<KeyValuePair>> locations = getDomainLocation();
+			for (Entry<String, List<KeyValuePair>> location : locations.entrySet()) {
+				for (KeyValuePair item : location.getValue()) {
+					domainKeyValue.put(item.getKey(), item.getValue());
+				}
+			}
 		}
-		return domainKeyValue.get(key);
+		// System.err.println(domainKeyValue);
+		return domainKeyValue;
 	}
 
 	protected List<KeyValuePair> getDomainConfig(String name) throws Exception {
@@ -144,9 +177,16 @@ public class BusinessDomainHelper {
 	 * @return returns true if titlre and gender is aligned
 	 * @throws Exception
 	 */
-	public boolean isTitleGenderAligned(String title, String gender) throws Exception {
-		List<KeyValuePair> kvTitle = getDomainConfig(ITEM_USER_TITLE);
-
+	public boolean isTitleGenderAligned(String title, String gender) {
+		List<KeyValuePair> kvTitle = null;
+		try {
+			kvTitle = getDomainConfig(ITEM_USER_TITLE);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (kvTitle == null) {
+			return false;
+		}
 		Optional<KeyValuePair> userTitle = kvTitle.stream().filter(f -> f.getKey().equalsIgnoreCase(title)).findFirst();
 		if (userTitle.isEmpty()) {
 			return false;
@@ -161,14 +201,35 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public Map<String, List<KeyValue>> getUserRefData() throws Exception {
+	@NoLogging
+	public Map<String, List<KeyValue>> getUserRefData(String countryCode, String stateCode) throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		Map<String, List<KeyValuePair>> locationRef = domainInfraService.getDomainLocationData();
 		obj.put("userTitles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_TITLE)));
 		obj.put("userGenders", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_GENDER)));
-		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE)));
+		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE).stream()
+				.filter(m -> m.getAttributes().get("ACTIVE") == Boolean.TRUE).collect(Collectors.toList())));
 		obj.put("availableRoleGroups",
 				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
+		obj.put("userStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream()
+				.filter(m -> m.getAttributes().get("IS_VISIBLE") == Boolean.TRUE).collect(Collectors.toList())));
+
+		obj.put("countries", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST)));
+		obj.put("phoneCodes", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST), "DIALCODE"));
+
+		if (countryCode != null) {
+			List<KeyValuePair> states = locationRef.get(ITEM_STATE_LIST).stream()
+					.filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))).collect(Collectors.toList());
+			obj.put("states", BusinessObjectConverter.toKeyValueList(states));
+		}
+		if (countryCode != null && stateCode != null) {
+			List<KeyValuePair> districts = locationRef.get(ITEM_DISTRICT_LIST).stream()
+					.filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))
+							&& stateCode.equals(f.getAttributes().get("STATEKEY")))
+					.collect(Collectors.toList());
+			obj.put("districts", BusinessObjectConverter.toKeyValueList(districts));
+		}
 		return obj;
 	}
 
@@ -194,6 +255,23 @@ public class BusinessDomainHelper {
 			}
 		}
 		return obj;
+	}
+
+	public RoleDTO convertToRoleDTO(RoleCode roleCode) throws Exception {
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		for (KeyValuePair roleObj : domainRef.get(ITEM_AVAILABLE_ROLE)) {
+			if (roleCode == RoleCode.valueOf(roleObj.getKey().trim())) {
+				RoleDTO role = new RoleDTO();
+				role.setCode(RoleCode.valueOf(roleObj.getKey()));
+				role.setDescription(roleObj.getDescription());
+				String groups = roleObj.getAttributes().get(ITEM_AVAILABLE_ROLE__ATTR_GROUPS).toString();
+				// role.setGroups(List.of(groups.split(",")).stream().map(m->RoleGroup.valueOf(m)).toList());
+				role.setGroups(List.of(groups.split(SPLITTER)));
+				role.setName(roleObj.getValue());
+				return role;
+			}
+		}
+		return null;
 	}
 
 	public List<RoleCode> getRolesFromGroup(List<String> roleGroups) throws Exception {
@@ -232,24 +310,28 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public RequestDTO convertToWorkflowDTO(WorkflowType type, List<AdditionalField> addifields) throws Exception {
+	public RequestDTO convertToRequestDTO(RequestType type, List<FieldDTO> addifields) throws Exception {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
-		KeyValuePair wftype = domainRef.get(ITEM_WORKFLOW_TYPE).stream()
+		KeyValuePair wftype = domainRef.get(ITEM_WORKFLOW_TYPES).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst()
-				.orElseThrow(() -> new Exception("No such workflow type found."));
+				.orElseThrow(() -> new Exception("No such request type found."));
 
 		RequestDTO wf = new RequestDTO();
 		wf.setWorkflowName(wftype.getValue());
-		String status = wftype.getAttributes().get(ITEM_WORKFLOW_TYPE__ATTR_DEFAULT_STEP).toString();
-		wf.setStatus(WorkflowStatus.valueOf(status));
+		String status = wftype.getAttributes().get(ITEM_WORKFLOW_TYPES__ATTR_DEFAULT_STEP).toString();
+		wf.setStatus(RequestStatus.valueOf(status));
+		wf.setDescription(wftype.getDescription());
 		wf.setType(type);
 		if (addifields != null) {
 			List<FieldDTO> fieldDTO = new ArrayList<>();
-			for (AdditionalField addfield : addifields) {
-				fieldDTO.add(findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource.WORKFLOW, addfield));
+			for (FieldDTO addfield : addifields) {
+				fieldDTO.add(findAddtlFieldAndConvertToFieldDTO("REQUEST-" + type.name(), addfield));
 			}
 			wf.setAdditionalFields(fieldDTO);
 		}
+		Object sysGen = wftype.getAttributes().get(ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED);
+
+		wf.setSystemGenerated(sysGen == null ? false : Boolean.valueOf(sysGen.toString()));
 		return wf;
 	}
 
@@ -261,20 +343,19 @@ public class BusinessDomainHelper {
 	 * @return Map of list of KeyValue objects for user
 	 * @throws Exception
 	 */
-	public WorkDTO prepareWorkList(WorkflowType type, WorkflowStatus currentStatus, String decisionGroup)
-			throws Exception {
-		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEP).stream()
-				.filter(f -> f.getKey().equalsIgnoreCase(currentStatus.name())).findFirst()
-				.orElseThrow(() -> new Exception("No such workflow status found."));
+	public WorkDTO prepareWorkList(RequestType type, RequestStatus workItem, String decisionGroup) throws Exception {
+		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEPS).stream()
+				.filter(f -> f.getKey().equalsIgnoreCase(workItem.name())).findFirst()
+				.orElseThrow(() -> new Exception("No such workitem found."));
 		Map<String, Object> attributes = kvWfStep.getAttributes();
 
 		WorkDTO wl = new WorkDTO();
-		wl.setWorkflowStatus(currentStatus);
-		wl.setWorkflowType(type);
+		wl.setWorkSourceStatus(workItem);
+		wl.setWorkSourceType(type);
 		wl.setCreatedOn(CommonUtils.getSystemDate());
 		wl.setDescription(kvWfStep.getDescription());
 		wl.setGroupWork(true);
-		Object groups = attributes.get(ITEM_WORKFLOW_STEP__ATTR_DECISION_MAKER_ROLE_GROUPS);
+		Object groups = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_DECISION_MAKER_ROLE_GROUPS);
 		List<String> groupList = new ArrayList<String>();
 		if (groups != null) {
 			for (String group : groups.toString().split(SPLITTER)) {
@@ -283,54 +364,55 @@ public class BusinessDomainHelper {
 				}
 			}
 		}
-		boolean isDecisionStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_DECISION_STEP);
-		if (isDecisionStep) {
-			wl.setWorkType(WorkType.DECISION);
+		Object stepType = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_STEP_TYPE);
+		if (stepType != null) {
+			wl.setWorkType(WorkType.valueOf(stepType.toString()));
 		}
 
 		wl.setPendingWithRoleGroups(groupList);
 		wl.setPendingWithRoles(this.getRolesFromGroup(groupList));
-		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP);
+		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEPS__ATTR_IS_FINAL_STEP);
 		wl.setFinalStep(isFinalStep);
-		Object actionName = attributes.get(ITEM_WORKFLOW_STEP__ATTR_CURRENT_ACTION + "-" + type.name());
-		wl.setCurrentAction(/* isFinalStep || */actionName == null ? WorkFlowAction.NO_ACTION
-				: WorkFlowAction.valueOf(actionName.toString()));
+		Object actionName = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_CURRENT_ACTION + "-" + type.name());
+		wl.setCurrentAction(/* isFinalStep || */actionName == null ? WorkAction.NO_ACTION
+				: WorkAction.valueOf(actionName.toString()));
 		return wl;
 	}
 
 	@Deprecated
-	public WorkFlowAction getWorkflowAction(WorkflowStatus status, WorkflowType type) throws Exception {
-		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEP).stream()
+	public WorkAction getWorkflowAction(RequestStatus status, RequestType type) throws Exception {
+		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEPS).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(status.name())).findFirst()
 				.orElseThrow(() -> new Exception("No such workflow status found."));
 		Map<String, Object> attributes = kvWfStep.getAttributes();
-		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP);
+		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEPS__ATTR_IS_FINAL_STEP);
 		if (isFinalStep) {
-			return WorkFlowAction.NO_ACTION;
+			return WorkAction.NO_ACTION;
 		}
-		Object actionName = attributes.get(ITEM_WORKFLOW_STEP__ATTR_CURRENT_ACTION + "-" + type.name());
-		return actionName == null ? WorkFlowAction.NO_ACTION : WorkFlowAction.valueOf(actionName.toString());
+		Object actionName = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_CURRENT_ACTION + "-" + type.name());
+		return actionName == null ? WorkAction.NO_ACTION : WorkAction.valueOf(actionName.toString());
 	}
 
-	public WorkflowStatus getWorkflowNextStatus(WorkflowStatus status, WorkflowType type, WorkflowDecision decision)
+	public RequestStatus getWorkflowNextStatus(RequestStatus status, RequestType type, String decision)
 			throws Exception {
-		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEP).stream()
+		KeyValuePair kvWfStep = getDomainConfig(ITEM_WORKFLOW_STEPS).stream()
 				.filter(f -> f.getKey().equalsIgnoreCase(status.name())).findFirst()
 				.orElseThrow(() -> new Exception("No such workflow status found."));
 		Map<String, Object> attributes = kvWfStep.getAttributes();
-		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_FINAL_STEP);
+		boolean isFinalStep = (boolean) attributes.get(ITEM_WORKFLOW_STEPS__ATTR_IS_FINAL_STEP);
 		if (isFinalStep) {
 			return null;
 		}
-		boolean isDecisionStep = (boolean) attributes.get(ITEM_WORKFLOW_STEP__ATTR_IS_DECISION_STEP);
+		Object stepType = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_STEP_TYPE);
 		Object nextStatus = null;
-		if (isDecisionStep) {
-			nextStatus = attributes.get(ITEM_WORKFLOW_STEP__ATTR_NEXT_STEP + "-" + type.name() + "-" + decision.name());
+		if (stepType != null && (WorkType.valueOf(stepType.toString()) == WorkType.DECISION
+				|| WorkType.valueOf(stepType.toString()) == WorkType.CONFIRMATION)) {
+			nextStatus = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_NEXT_STEP + "-" + type.name() + "-" + decision);
 		} else {
-			nextStatus = attributes.get(ITEM_WORKFLOW_STEP__ATTR_NEXT_STEP + "-" + type.name());
+			nextStatus = attributes.get(ITEM_WORKFLOW_STEPS__ATTR_NEXT_STEP + "-" + type.name());
 		}
 
-		return nextStatus == null ? null : WorkflowStatus.valueOf(nextStatus.toString());
+		return nextStatus == null ? null : RequestStatus.valueOf(nextStatus.toString());
 	}
 
 	/*
@@ -369,7 +451,8 @@ public class BusinessDomainHelper {
 		return resolvedStatus.contains(status);
 	}
 
-	public DonationDTO convertToDonationDTO(DonationType type) throws Exception {
+	public DonationDTO convertToDonationDTO(DonationDetail donationDetail) throws Exception {
+		DonationType type = donationDetail.getDonationType();
 		List<KeyValuePair> kvDType = getDomainConfig(ITEM_DONATION_TYPE);
 		KeyValuePair donationType = kvDType.stream().filter(f -> f.getKey().equalsIgnoreCase(type.name())).findFirst()
 				.orElseThrow(() -> new Exception("Invalid donation type [" + type + "]"));
@@ -388,6 +471,18 @@ public class BusinessDomainHelper {
 		Object status = donTypeAttr.get(ITEM_DONATION_TYPE__ATTR_DEFAULT_STATUS);
 		if (status != null) {
 			donDTO.setStatus(DonationStatus.valueOf(status.toString()));
+		}
+
+		/**
+		 * Custom field
+		 */
+		if (donationDetail.getAdditionalFields() != null) {
+			List<FieldDTO> fieldDTO = new ArrayList<>();
+			List<FieldDTO> fieldList = BusinessObjectConverter.toFieldDTO(donationDetail.getAdditionalFields());
+			for (FieldDTO addfield : fieldList) {
+				fieldDTO.add(findAddtlFieldAndConvertToFieldDTO("DONATION-" + type.name(), addfield));
+			}
+			donDTO.setAdditionalFields(fieldDTO);
 		}
 		return donDTO;
 
@@ -436,8 +531,10 @@ public class BusinessDomainHelper {
 			Optional<KeyValuePair> tarCurrStatus = kvStatus.stream()
 					.filter(f -> f.getKey().equalsIgnoreCase(currentStatus.name())).findFirst();
 			if (!tarCurrStatus.isEmpty()) {
-				String[] nextStatusString = String.valueOf(tarCurrStatus.get().getAttributes()
-						.get(ITEM_DONATION_STATUS__ATTR_NEXT_STATUS + donationType.name())).split(SPLITTER);
+				String[] nextStatusString = String
+						.valueOf(tarCurrStatus.get().getAttributes()
+								.get(ITEM_DONATION_STATUS__ATTR_NEXT_STATUS + "-" + donationType.name()))
+						.split(SPLITTER);
 				List<KeyValue> nextStatus = List.of(nextStatusString).stream().filter(f -> !StringUtils.isEmpty(f))
 						.map(m -> {
 							KeyValue kv = new KeyValue();
@@ -468,23 +565,65 @@ public class BusinessDomainHelper {
 	 * @return returns instance of FieldDTO
 	 * @throws Exception if no value found for the key
 	 */
-	public FieldDTO findAddtlFieldAndConvertToFieldDTO(AdditionalFieldSource sourceType,
-			AdditionalField additionalField) throws Exception {
+	public FieldDTO findAddtlFieldAndConvertToFieldDTO(String sourceType, FieldDTO additionalField) throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_ADDITIONAL_FIELDS);
-		KeyValuePair field = kvFields.stream()
-				.filter(f -> f.getKey().equalsIgnoreCase(additionalField.getKey().name())
-						&& sourceType.name().equalsIgnoreCase(f.getDescription()))
-				.findFirst().orElseThrow(() -> new Exception("Invalid additional key"));
+		KeyValuePair field = kvFields.stream().filter(f -> {
+			List<String> applicable_for = List.of(
+					String.valueOf(f.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR)).split(SPLITTER));
+			return f.getKey().equalsIgnoreCase(additionalField.getFieldKey().name())
+					&& applicable_for.contains(sourceType);
+		}).findFirst().orElseThrow(() -> new Exception("Invalid additional key '"+additionalField.getFieldKey().name()));
 		FieldDTO fieldDTO = new FieldDTO();
-		fieldDTO.setFieldId(additionalField.getId());
+		fieldDTO.setFieldId(additionalField.getFieldId());
 		fieldDTO.setFieldName(field.getValue());
 		fieldDTO.setFieldType(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE)));
-		fieldDTO.setFieldKey(additionalField.getKey());
-		fieldDTO.setFieldValue(additionalField.getValue());
-		fieldDTO.setHidden(additionalField.isHidden());
-		fieldDTO.setEncrypted(additionalField.isEncrypted());
+		fieldDTO.setFieldKey(additionalField.getFieldKey());
+		fieldDTO.setFieldValue(additionalField.getFieldValue());
+		fieldDTO.setHidden(
+				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
+		fieldDTO.setEncrypted(
+				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
 		fieldDTO.setFieldSourceType(sourceType);
+		fieldDTO.setMandatory(
+				Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_MANDATORY))));
+		fieldDTO.setFieldOptions(List.of(
+				String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS)).split(SPLITTER)));
+		fieldDTO.setFieldValueType(
+				String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE)));
 		return fieldDTO;
+	}
+
+	private List<KeyValuePair> getAdditionalFields(String sourceType) throws Exception {
+		List<KeyValuePair> kvFields = getDomainConfig(ITEM_ADDITIONAL_FIELDS);
+		List<KeyValuePair> fields = kvFields.stream().filter(f -> {
+			List<String> applicable_for = List.of(
+					String.valueOf(f.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR)).split(SPLITTER));
+			return applicable_for.contains(sourceType);
+		}).collect(Collectors.toList());
+		return fields;
+	}
+
+	public List<FieldDTO> findAddtlFieldDTOList(String sourceType) throws Exception {
+		List<FieldDTO> fields = getAdditionalFields(sourceType).stream().map(field -> {
+			FieldDTO fieldDTO = new FieldDTO();
+			fieldDTO.setFieldName(field.getValue());
+			fieldDTO.setFieldType(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_TYPE)));
+			fieldDTO.setFieldKey(AdditionalFieldKey.valueOf(field.getKey()));
+			fieldDTO.setFieldSourceType(sourceType);
+			fieldDTO.setMandatory(
+					Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_MANDATORY))));
+			fieldDTO.setFieldOptions(List.of(String
+					.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_OPTIONS)).split(SPLITTER)));
+			fieldDTO.setFieldValueType(
+					String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_FIELD_VALUE_TYPE)));
+			fieldDTO.setHidden(
+					Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN))));
+			fieldDTO.setEncrypted(
+					Boolean.valueOf(String.valueOf(field.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED))));
+			return fieldDTO;
+		}).collect(Collectors.toList());
+
+		return fields;
 	}
 
 	/*
@@ -610,6 +749,7 @@ public class BusinessDomainHelper {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_EMAIL_TEMPLATE_CONFIG);
 		KeyValuePair template = kvFields.stream().filter(f -> f.getKey().equalsIgnoreCase(name)).findFirst()
 				.orElseThrow(() -> new Exception("No template found [" + name + "]"));
+		// System.err.println(objectMap);
 		Map<String, Object> attributes = template.getAttributes();
 		for (String key : attributes.keySet()) {
 			if (attributes.get(key) != null) {
@@ -617,19 +757,64 @@ public class BusinessDomainHelper {
 				/*
 				 * String Interpolation
 				 */
-				ST st = new ST(text);
-				for (String object : objectMap.keySet()) {
-					st.add(object, objectMap.get(object));
+				try {
+					ST st = new ST(text);
+					for (String object : objectMap.keySet()) {
+						st.add(object, objectMap.get(object));
+					}
+					attributes.put(key, st.render());
+				} catch (Exception e) {
+					System.err.println(e + " " + text);
 				}
-				attributes.put(key, st.render());
+
 			}
 		}
+
 		EmailTemplateDTO emailTemplate = new EmailTemplateDTO();
 		BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(emailTemplate);
 		wrapper.setAutoGrowNestedPaths(true);
 		wrapper.setPropertyValues(attributes);
 		emailTemplate.setTemplateId(template.getValue());
+		if (emailTemplate.getBody() != null && emailTemplate.getBody().getContent() != null
+				&& emailTemplate.getBody().getContent().getTable() != null) {
+			List<TableTemplate> template_1 = new ArrayList<>();
+			for (TableTemplate table : emailTemplate.getBody().getContent().getTable()) {
+				if (table.getDataString() != null) {
+					table.setData(convertRenderedStringTo2DArray(table.getDataString()));
+					template_1.add(table);
+				}
+			}
+			emailTemplate.getBody().getContent().setTable(template_1);
+		}
 		return emailTemplate;
+	}
+
+	private static String[][] convertRenderedStringTo2DArray(String input) {
+		// Step 1: Clean up the input by removing the outer brackets
+		String cleanedInput = input.substring(1, input.length() - 1); // Remove outer [ and ]
+
+		// Step 2: Split the input into individual rows
+		String[] rows = cleanedInput.split("\\], \\[");
+
+		// Step 3: Create the 2D array to hold the result
+		String[][] result = new String[rows.length][];
+
+		// Step 4: Process each row using regex to handle commas within quotes
+		Pattern pattern = Pattern.compile("\"([^\"]*)\""); // Match text inside double quotes
+		for (int i = 0; i < rows.length; i++) {
+			// Find all matches in the row
+			Matcher matcher = pattern.matcher(rows[i]);
+			List<String> elements = new ArrayList<>();
+
+			// Extract each quoted element
+			while (matcher.find()) {
+				elements.add(matcher.group(1)); // Add matched content (without quotes)
+			}
+
+			// Convert the list of elements to an array
+			result[i] = elements.toArray(new String[0]);
+		}
+		return result;
 	}
 
 	private String interpolateText(String text, Map<String, Object> objectMap) {
@@ -666,6 +851,35 @@ public class BusinessDomainHelper {
 		notificationDTO.setType(attributes.get("TYPE") == null ? NotificationType.FYI
 				: NotificationType.valueOf(attributes.get("TYPE").toString()));
 		return notificationDTO;
+	}
+
+	public Map<String, List<KeyValue>> getAccountRefData() throws Exception {
+		Map<String, List<KeyValue>> obj = new HashMap<>();
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		obj.put("accountTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_TYPE)));
+		obj.put("accountStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_STATUS)));
+		return obj;
+	}
+
+	public Map<String, List<KeyValue>> getWorkflowRefData(RequestType workflowType) throws Exception {
+		Map<String, List<KeyValue>> obj = new HashMap<>();
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		obj.put("workflowTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_WORKFLOW_TYPES)));
+		List<KeyValuePair> visibleWFTypeKV = domainRef.get(ITEM_WORKFLOW_TYPES).stream().filter(f -> {
+			Object isVisible = f.getAttributes().get(ITEM_WORKFLOW_TYPES__ATTR_IS_VISIBLE);
+			return isVisible != null && Boolean.valueOf(isVisible.toString());
+		}).collect(Collectors.toList());
+		obj.put("visibleWorkflowTypes", BusinessObjectConverter.toKeyValueList(visibleWFTypeKV));
+		obj.put("workflowSteps", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_WORKFLOW_STEPS)));
+		if (workflowType != null) {
+			List<KeyValuePair> applicableWFStepsKV = domainRef.get(ITEM_WORKFLOW_STEPS).stream().filter(f -> {
+				Object applicable_for = f.getAttributes().get(ITEM_WORKFLOW_STEPS__ATTR_APPLICABLE_FOR);
+				return applicable_for != null && workflowType.name().equalsIgnoreCase(applicable_for.toString());
+			}).collect(Collectors.toList());
+			obj.put("applicableWorkflowSteps", BusinessObjectConverter.toKeyValueList(applicableWFStepsKV));
+		}
+
+		return obj;
 	}
 
 }

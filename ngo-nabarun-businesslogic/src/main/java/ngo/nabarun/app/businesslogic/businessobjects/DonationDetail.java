@@ -9,6 +9,8 @@ import ngo.nabarun.app.common.enums.UPIOption;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -83,4 +85,108 @@ public class DonationDetail {
 
 	@JsonProperty("additionalFields")
 	private List<AdditionalField> additionalFields;
+	
+	@Data
+	public static class DonationDetailFilter {
+		
+		@JsonProperty("isGuest")
+		private Boolean isGuest;
+		
+		@JsonProperty("fromDate")
+		@DateTimeFormat(pattern = "yyyy-MM-dd")
+		private Date fromDate;
+		
+		@JsonProperty("toDate")
+		@DateTimeFormat(pattern = "yyyy-MM-dd")
+		private Date toDate;
+		
+		@JsonProperty("donationId")
+		private String donationId;
+		
+		@JsonProperty("donationType")
+		private List<DonationType> donationType;
+		
+		@JsonProperty("donationStatus")
+		private List<DonationStatus> donationStatus;
+		
+		@JsonProperty("donorName")
+		private String donorName;
+		
+		@JsonProperty("paidToAccountId")
+		private String paidToAccountId;
+		
+		@JsonProperty("donorId")
+		private String donorId;
+		
+	}
+	
+	@Data
+	@Deprecated
+	public class DonationDetailCreate {
+		
+		@JsonProperty("isGuest")
+		private Boolean isGuest;
+		
+		@JsonProperty("amount")
+		private Double amount;
+		
+		@JsonProperty("startDate")
+		private Date startDate;
+		
+		@JsonProperty("endDate")
+		private Date endDate;
+		
+		@JsonProperty("donationType")
+		private DonationType donationType;
+		
+		@JsonProperty("donorId")
+		private String donorId;
+		
+		@JsonProperty("donorName")
+		private String donorName;
+		
+		@JsonProperty("donorEmail")
+		private String donorEmail;
+		
+		@JsonProperty("donorMobile")
+		private String donorMobile;
+		
+		@JsonProperty("eventId")
+		private String eventId;
+	}
+	
+	@Data
+	@Deprecated
+	public class DonationDetailUpdate {
+		
+		@JsonProperty("amount")
+		private Double amount;
+		
+		@JsonProperty("status")
+		private DonationStatus donationStatus;
+		
+		@JsonProperty("paidOn")
+		private Date paidOn;
+		
+		@JsonProperty("paymentMethod")
+		private PaymentMethod paymentMethod;
+			
+		@JsonProperty("paidToAccount")
+		private String accountId;
+		
+		@JsonProperty("donorName")
+		private String donorName;
+		
+		@JsonProperty("donorEmail")
+		private String donorEmail;
+		
+		@JsonProperty("donorMobile")
+		private String donorMobile;
+		
+		@JsonProperty("paidUsingUPI")
+		private UPIOption paidUPIName;
+		
+		@JsonProperty("comment")
+		private String comment;
+	}
 }

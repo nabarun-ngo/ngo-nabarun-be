@@ -32,5 +32,16 @@ public class TransactionEntity {
     private Date transactionDate;
     private Date creationDate;
     private String comment;
+    
+    
+	private String createdById;
+	private String createdByName;
+	private String createdByEmail;
+	private boolean revertedTransaction;
+	private String revertedById;
+	private String revertedByName;
+	private String revertedByEmail;
+
+	private String revertRefTxnId;
 
 }

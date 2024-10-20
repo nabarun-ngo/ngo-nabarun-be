@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 
 import ngo.nabarun.app.infra.core.entity.NoticeEntity;
 
 
-public interface NoticeRepository extends MongoRepository<NoticeEntity,String>{
+public interface NoticeRepository extends MongoRepository<NoticeEntity,String>,QuerydslPredicateExecutor<NoticeEntity>{
 
 	@Query("{createdBy: ?0, draft: true}") 
 	List<NoticeEntity> findDraftedNotice(@Param("userId") String userId);

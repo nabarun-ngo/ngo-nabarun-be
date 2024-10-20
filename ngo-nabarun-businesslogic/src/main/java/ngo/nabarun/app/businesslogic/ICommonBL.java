@@ -1,14 +1,14 @@
 package ngo.nabarun.app.businesslogic;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import ngo.nabarun.app.businesslogic.businessobjects.AuthorizationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
@@ -19,11 +19,9 @@ public interface ICommonBL {
 
 	void uploadDocuments(MultipartFile[] files, String docIndexId, DocumentIndexType docIndexType) throws Exception;
 
-	URL getDocumentUrl(String docId) throws Exception;
+	DocumentDetail getDocument(String docId) throws Exception;
 
 	boolean deleteDocument(String docId) throws Exception;
-
-	String generateAuthorizationUrl(AuthorizationDetail authDetail) throws Exception;
 	
 	void clearSystemCache(List<String> names);
 
@@ -35,6 +33,12 @@ public interface ICommonBL {
 
 	Paginate<Map<String,String>> getNotifications(Integer pageIndex, Integer pageSize);
 
-	void manageNotification(String action, Map<String, Object> payload) throws Exception;
+	List<AdditionalField> getReferenceFields(String identifier) throws Exception;
+
+	void manageNotification(String userId, String action, Map<String, Object> payload) throws Exception;
+
+	List<DocumentDetail> getDocuments(String id, DocumentIndexType type);
+
+
 
 }

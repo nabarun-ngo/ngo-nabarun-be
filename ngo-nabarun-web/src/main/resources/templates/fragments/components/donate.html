@@ -13,6 +13,7 @@
 				<div class="h-100 bg-white p-5">
 					<form id="donationForm" th:action="@{/donate}" method="post" th:object="${interview}"
 						autocomplete="off">
+						<input type="hidden" name="X-Cloud-Trace-Context" th:value="${#dates.createNow().getTime()}">
 						<div class="row g-3">
 							<div class="col-12">
 								<div class="form-floating">
@@ -85,8 +86,8 @@
 <div class="container-xxl py-5 scroll-margin" th:fragment="completePayment" id="completepayment"
 	th:if="${stage == 'MAKE_PAYMENT'}">
 	<div class="container">
-		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:text="${errorMessage}"></div>
-		<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:text="${successMessage}"></p>
+		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:utext="${errorMessage}"></div>
+		<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 
 		<div class="row">
 			<div class="col-12 mt-4">
@@ -102,8 +103,6 @@
 								data-bs-toggle="collapse" href="#collapseCash" role="button" aria-expanded="true"
 								aria-controls="collapseCash">
 								<span class="fw-bold">Cash</span>
-								<span class="fab fa-cc-paypal">
-								</span>
 							</a>
 						</p>
 						<div class="collapse p-3 pt-0" id="collapseCash" aria-labelledby="cardCashHeading"
@@ -113,7 +112,10 @@
 									<div th:replace="fragments/components/donate :: donation_summary"></div>
 								</div>
 								<div class="col-lg-7">
-									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form">
+									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form"
+										enctype="multipart/form-data">
+										<input type="hidden" name="X-Cloud-Trace-Context"
+											th:value="${#dates.createNow().getTime()}">
 										<div class="row">
 											<div class="col-12 mb-2">
 												<p class="h5 mb-2">Please submit this request. Our team will connect you
@@ -139,11 +141,7 @@
 								data-bs-toggle="collapse" href="#collapseUPI" role="button" aria-expanded="true"
 								aria-controls="collapseUPI">
 								<span class="fw-bold">UPI</span>
-								<span class="">
-									<span class="fab fa-cc-amex"></span>
-									<span class="fab fa-cc-mastercard"></span>
-									<span class="fab fa-cc-discover"></span>
-								</span>
+
 							</a>
 						</p>
 						<div class="collapse show p-3 pt-0" id="collapseUPI" aria-labelledby="cardUpiHeading"
@@ -154,7 +152,9 @@
 								</div>
 								<div class="col-lg-7">
 									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form"
-										id="donate_upi">
+										id="donate_upi" enctype="multipart/form-data">
+										<input type="hidden" name="X-Cloud-Trace-Context"
+											th:value="${#dates.createNow().getTime()}">
 										<div class="row">
 											<div class="col-12 mb-2">
 												<p class="h5 mb-2">Please scan the QR code(s) to transfer the donation
@@ -195,12 +195,14 @@
 														});
 														/*]]>*/
 													</script>
+
 													<div class="mb-1">
 														<div>
-															<input type="checkbox" id="paidToAcc1" name="paidToAccountId"
-																class="form-check-input check-item-1" th:value="${item.id}"/>
-															<label for="paidToAcc" class="form-check-label "
-																> I have
+															<input type="checkbox" id="paidToAcc1"
+																name="paidToAccountId"
+																class="form-check-input check-item-1"
+																th:value="${item.id}" />
+															<label for="paidToAcc" class="form-check-label "> I have
 																successfully paid the donation amount to
 																above UPI.</label>
 														</div>
@@ -213,7 +215,14 @@
 												</div>
 
 											</div>
-
+											<div class="mt-1 mb-2">
+												<div class="form-floating">
+													<input type="file" class="form-control" id="file"
+														th:field="*{files}" multiple required> <label for="file">Please select
+														any
+														supporting files (prefrerably UPI screenshots)</label>
+												</div>
+											</div>
 
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'CONFIRM_PAYMENT'">
@@ -236,9 +245,6 @@
 								data-bs-toggle="collapse" href="#collapseBank" role="button" aria-expanded="true"
 								aria-controls="collapseBank">
 								<span class="fw-bold">Bank Account</span>
-								<span class="">
-									<span class="fab fa-cc-amex"></span>
-								</span>
 							</a>
 						</p>
 						<div class="collapse p-3 pt-0" id="collapseBank" aria-labelledby="cardBankHeading"
@@ -249,7 +255,9 @@
 								</div>
 								<div class="col-lg-7">
 									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form"
-										id="donate_bank">
+										id="donate_bank" enctype="multipart/form-data">
+										<input type="hidden" name="X-Cloud-Trace-Context"
+											th:value="${#dates.createNow().getTime()}">
 										<div class="row">
 											<div class="col-12 mb-2">
 												<p class="h5 mb-2">Please transfer the donation amount to below
@@ -283,12 +291,13 @@
 															th:text="${item.payableBankDetails.IFSCNumber}"></span>
 													</p>
 												</div>
+
 												<div class="mb-1">
 													<div>
 														<input type="checkbox" id="paidToAcc2" name="paidToAccountId"
-															class="form-check-input check-item-2" th:value="${item.id}" />
-														<label for="paidToAcc" class="form-check-label"
-															> I have
+															class="form-check-input check-item-2"
+															th:value="${item.id}" />
+														<label for="paidToAcc" class="form-check-label"> I have
 															successfully paid the donation amount to
 															above bank account.</label>
 													</div>
@@ -299,7 +308,14 @@
 												</div>
 											</div>
 
-
+											<div class="mt-1 mb-2">
+												<div class="form-floating">
+													<input type="file" class="form-control" id="file"
+														th:field="*{files}" multiple required> <label for="file">Please
+														select any
+														supporting files (prefrerably transaction recipt)</label>
+												</div>
+											</div>
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'CONFIRM_PAYMENT'">
 											<input type="hidden" name="paymentMethod" id="paymentMethod"
@@ -338,42 +354,3 @@
 
 
 
-<!--<form action="" class="form">
-										<div class="row">
-											<div class="col-12">
-												<div class="form__div">
-													<input type="text" class="form-control" placeholder=" ">
-													<label for="" class="form__label">Card Number</label>
-												</div>
-											</div>
-
-											<div class="col-6">
-												<div class="form__div">
-													<input type="text" class="form-control" placeholder=" ">
-													<label for="" class="form__label">MM / yy</label>
-												</div>
-											</div>
-
-											<div class="col-6">
-												<div class="form__div">
-													<input type="password" class="form-control" placeholder=" ">
-													<label for="" class="form__label">cvv code</label>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="form__div">
-													<input type="text" class="form-control" placeholder=" ">
-													<label for="" class="form__label">name on the card</label>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="form__div">
-													<input type="checkbox" class="form-control" placeholder=" ">
-													<label for="" class="form__label">name on the card</label>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="btn btn-primary w-100">Sumbit</div>
-											</div>
-										</div>
-									</form>-->

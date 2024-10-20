@@ -33,6 +33,11 @@ public class CustomFieldEntity{
 
 	private boolean hidden;
 	private boolean encrypted;
+	
+	private boolean mandatory;
+	private String fieldValueOptions;
+	private String fieldValueType;
+
 
 	
 }

@@ -24,5 +24,5 @@ public class ObjectFilter {
 //		this.values=values;
 //	}
 	
-	public enum Operator{EQUAL,CONTAIN,IN}
+	public enum Operator{EQUAL,CONTAIN,IN, ARRAY_CONTAIN}
 }

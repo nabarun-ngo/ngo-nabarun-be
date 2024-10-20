@@ -36,4 +36,12 @@ public class AccountEntity {
 	private String upiPayeeName;
 	private String upiId;
 	private String upiMobileNumber;
+	
+	
+	private String createdById;
+	private String createdByName;
+	private String createdByEmail;
+	
+	private boolean deleted;
+
 }

@@ -2,6 +2,7 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -42,4 +43,63 @@ public class AccountDetail implements Serializable{
 	
 	@JsonProperty("upiDetail")
 	private UPIDetail upiDetail;
+	
+	@Data
+	public static class AccountDetailFilter {
+		
+		@JsonProperty("status")
+		private List<AccountStatus> status;
+		
+		@JsonProperty("type")
+		private List<AccountType> type;
+		
+		@JsonProperty("accountHolderId")
+		private String accountHolderId;
+		
+		@JsonProperty("includePaymentDetail")
+		private boolean includePaymentDetail;
+		
+		@JsonProperty("includeBalance")
+		private boolean includeBalance;
+		
+		@JsonProperty("accountId")
+		private String accountId;
+	}
+	
+	@Deprecated
+	@Data
+	public static class AccountDetailCreate {
+
+		@JsonProperty("openingBalance")
+		private Double openingBalance;
+		
+		@JsonProperty("accountHolderId")
+		private String accountHolderProfileId;
+		
+		@JsonProperty("accountType")
+		private AccountType accountType;
+		
+		@JsonProperty("bankDetail")
+		private BankDetail bankDetail;
+		
+		@JsonProperty("upiDetail")
+		private UPIDetail upiDetail;
+
+	}
+	
+	@Deprecated
+	@Data
+	public static class AccountDetailUpdate {
+		
+		@JsonProperty("accountType")
+		private AccountType accountType;
+		
+		@JsonProperty("bankDetail")
+		private BankDetail bankDetail;
+		
+		@JsonProperty("upiDetail")
+		private UPIDetail upiDetail;
+
+	}
+	
 }

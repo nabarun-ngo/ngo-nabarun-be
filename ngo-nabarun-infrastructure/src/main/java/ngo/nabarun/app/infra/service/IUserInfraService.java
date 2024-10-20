@@ -20,10 +20,11 @@ public interface IUserInfraService {
 	void deleteUser(String profileId) throws Exception;
 	List<RoleDTO> getUserRoles(String identifier, IdType type, boolean isActiveRole) throws Exception;
 	void updateUserRoles(String profileId, List<RoleDTO> roles) throws Exception;
-	void assignUsersToRole(String roleId, List<UserDTO> users) throws Exception;
+	void assignUsersToRole(RoleDTO role, List<String> userIds) throws Exception;
 	String initiatePasswordReset(String userId, String appClientId, int expireInSec) throws Exception;
 	String getPaswordPolicy() throws Exception;
+	List<UserDTO> getUsersByRole(List<RoleCode> roles,Boolean isActive) throws Exception;
 	List<UserDTO> getUsersByRole(List<RoleCode> roles) throws Exception;
-	void auth0UserSync() throws Exception;
+	List<UserDTO> getAuthUsers() throws Exception;
 
 }

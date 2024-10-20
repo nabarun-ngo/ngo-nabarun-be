@@ -2,7 +2,10 @@ package ngo.nabarun.app.ext.objects;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import lombok.Data;
 
 @Data
@@ -26,7 +29,7 @@ public class AuthUser implements Serializable {
 	private Date createdAt;
 	private Date updatedAt;
 	//private Map<String, Object> appMetadata;
-	//private Map<String, Object> userMetadata= new HashMap<>();
+	private Map<String, Object> attributes= new HashMap<>();
 	private String lastIp;
 	private Date lastLogin;
 	private Date lastPasswordReset;
@@ -35,6 +38,7 @@ public class AuthUser implements Serializable {
 	private String password;
 	private String profileId;
 	private boolean inactive;
+	private Boolean resetPassword;
 
 
 }

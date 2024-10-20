@@ -1,5 +1,7 @@
 package ngo.nabarun.app.businesslogic.businessobjects;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -13,6 +15,11 @@ public class AdditionalField {
 	private String name;
 	private String type;
 	private String value;
+	private List<String> options;
+
+	private boolean mandatory;
+	private String valueType;
+
 	
 	@JsonIgnore
 	private boolean encrypted;
@@ -26,19 +33,26 @@ public class AdditionalField {
 	public AdditionalField() {
 	}
 	
-	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic) {
+	public AdditionalField(AdditionalFieldKey key, String value) {
 		super();
 		this.key = key;
 		this.value = value;
-		this.hidden = !isPublic;
-		this.encrypted=false;
+//		this.hidden = !isPublic;
+//		this.encrypted=false;
 	}
 	
-	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic, boolean encrypted) {
+	public AdditionalField(AdditionalFieldKey key, String value,boolean updated) {
 		super();
 		this.key = key;
 		this.value = value;
-		this.hidden = !isPublic;
-		this.encrypted=encrypted;
+		this.updateField=updated;
 	}
+	
+//	public AdditionalField(AdditionalFieldKey key, String value, boolean isPublic, boolean encrypted) {
+//		super();
+//		this.key = key;
+//		this.value = value;
+//		this.hidden = !isPublic;
+//		this.encrypted=encrypted;
+//	}
 }

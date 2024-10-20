@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -34,19 +35,43 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommonUtils {
-	private final static ObjectMapper objectMapper =new ObjectMapper();
+	private final static ObjectMapper objectMapper = new ObjectMapper();
+	private static Date systemDate = null;
 
-	
+	/**
+	 * Utility function to convert java Date to TimeZone format
+	 * 
+	 * @param date
+	 * @param format
+	 * @param timeZone
+	 * @return
+	 */
+	public static String formatDateToString(Date date, String format, String timeZone) {
+		// null check
+		if (date == null)
+			return null;
+		// create SimpleDateFormat object with input format
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		// default system timezone if passed null or empty
+		if (timeZone == null || "".equalsIgnoreCase(timeZone.trim())) {
+			timeZone = Calendar.getInstance().getTimeZone().getID();
+		}
+		// set timezone to SimpleDateFormat
+		sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+		// return Date in required format with timezone as String
+		return sdf.format(date);
+	}
 
 	public static boolean isCurrentMonth(Date givenDate) {
 		Calendar cal1 = Calendar.getInstance();
 		Calendar cal2 = Calendar.getInstance();
 
 		cal1.setTime(givenDate);
-		cal2.setTime(new Date());
-		return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
+		cal2.setTime(getSystemDate());
+		return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+				&& cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
 	}
-	
+
 	public static List<String> getMonthsBetween(Date startDate, Date endDate, String format) {
 		List<String> list = new ArrayList<String>();
 		Calendar beginCalendar = Calendar.getInstance();
@@ -60,8 +85,6 @@ public class CommonUtils {
 		}
 		return list;
 	}
-	
-	
 
 	public static List<String> getMonthsBetween(Date startDate, Date endDate) {
 
@@ -80,7 +103,7 @@ public class CommonUtils {
 			return null;
 		}
 	}
-	
+
 	public static String getFormattedDateString(Date date, String format) {
 		if (date == null) {
 			return null;
@@ -94,15 +117,15 @@ public class CommonUtils {
 	}
 
 	public static Date addDaysToDate(Date date, int days) {
-		return addSecondsToDate(date,days*86400); // One day to 86400 seconds
+		return addSecondsToDate(date, days * 86400); // One day to 86400 seconds
 	}
-	
+
 	public static Date addSecondsToDate(Date date, int seconds) {
 		if (date == null) {
 			return date;
 		}
 		Calendar c = Calendar.getInstance();
-		c.setTime(date); 
+		c.setTime(date);
 		c.add(Calendar.SECOND, seconds);
 		return c.getTime();
 	}
@@ -115,7 +138,7 @@ public class CommonUtils {
 		}
 		return null;
 	}
-	
+
 	public static void copyNonNullProperties(Object src, Object target) {
 		BeanUtils.copyProperties(src, target, getNullPropertyNames(src));
 	}
@@ -133,14 +156,12 @@ public class CommonUtils {
 		String[] result = new String[emptyNames.size()];
 		return emptyNames.toArray(result);
 	}
-	
-	
-	public static List<String> getProdProfileNames(){
-		return List.of("PROD","PRODUCTION");
-	}
-	
 
-	public static <T> T jsonToPojo(String json, Class<T> classz){
+	public static List<String> getProdProfileNames() {
+		return List.of("PROD", "PRODUCTION");
+	}
+
+	public static <T> T jsonToPojo(String json, Class<T> classz) {
 		try {
 			return objectMapper.readValue(json, classz);
 		} catch (JsonProcessingException e) {
@@ -150,67 +171,99 @@ public class CommonUtils {
 	}
 
 	public static Date getSystemDate() {
-		return new Date();
+		Date date=(systemDate == null ? new Date() : systemDate);
+		//System.err.println("Get System date="+date);
+		return date;
 	}
-	
+
+	public static void setSystemDate(String date) throws ParseException {
+		//System.err.println("System date="+date);
+		if (date == null) {
+			systemDate = null;
+		} else {
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			systemDate = format.parse(date);
+		}
+	}
+
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-	    Set<Object> seen = ConcurrentHashMap.newKeySet();
-	    return t -> seen.add(keyExtractor.apply(t));
+		Set<Object> seen = ConcurrentHashMap.newKeySet();
+		return t -> seen.add(keyExtractor.apply(t));
 	}
-	
+
 	public static byte[] toByteArray(URL url) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		InputStream is = null;
 		try {
-		  is = url.openStream ();
-		  byte[] byteChunk = new byte[4096];
-		  int n;
+			is = url.openStream();
+			byte[] byteChunk = new byte[4096];
+			int n;
 
-		  while ( (n = is.read(byteChunk)) > 0 ) {
-		    baos.write(byteChunk, 0, n);
-		  }
-		}
-		catch (IOException e) {
-		  System.err.printf ("Failed while reading bytes from %s: %s", url.toExternalForm(), e.getMessage());
-		  e.printStackTrace ();
-		}
-		finally {
-		  if (is != null) { is.close(); }
+			while ((n = is.read(byteChunk)) > 0) {
+				baos.write(byteChunk, 0, n);
+			}
+		} catch (IOException e) {
+			System.err.printf("Failed while reading bytes from %s: %s", url.toExternalForm(), e.getMessage());
+			e.printStackTrace();
+		} finally {
+			if (is != null) {
+				is.close();
+			}
 		}
 		return baos.toByteArray();
 	}
-	
-	public static Map<String,Object> toMap(Object object){
-		return objectMapper.convertValue(object, new TypeReference<Map<String,Object>>() {});
+
+	public static Map<String, Object> toMap(Object object) {
+		return objectMapper.convertValue(object, new TypeReference<Map<String, Object>>() {
+		});
 	}
-	
-	public static <T> T convertToType(Object object,TypeReference<T> type){
+
+	public static <T> T convertToType(Object object, TypeReference<T> type) {
 		ObjectMapper objectMapper = new ObjectMapper();
-		//String jsonString = "{\"symbol\":\"ABCD\}";
+		// String jsonString = "{\"symbol\":\"ABCD\}";
 		objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		//Trade trade = objectMapper.readValue(jsonString, new TypeReference<Symbol>() {});
+		// Trade trade = objectMapper.readValue(jsonString, new TypeReference<Symbol>()
+		// {});
 		return objectMapper.convertValue(object, type);
 	}
-	
-	public static String getUPIURI(String upiId,String payeeName, Double amount, String note, String txnId, String refId) {
-		UriComponentsBuilder url= UriComponentsBuilder.fromUriString("upi://pay").queryParam("pa", upiId);
-			if(payeeName != null) {
-				url=url.queryParam("pn", payeeName);
-			}
-			if(amount != null) {
-				url=url.queryParam("am", amount);
-			}
-			if(note != null) {
-				url=url.queryParam("tn", note);
-			}
-			if(txnId != null) {
-				url=url.queryParam("tid", txnId);
-			}
-			if(refId != null) {
-				url=url.queryParam("tr", refId);
-			}
-			url=url.queryParam("cu", "INR");
+
+	public static String getUPIURI(String upiId, String payeeName, Double amount, String note, String txnId,
+			String refId) {
+		UriComponentsBuilder url = UriComponentsBuilder.fromUriString("upi://pay").queryParam("pa", upiId);
+		if (payeeName != null) {
+			url = url.queryParam("pn", payeeName);
+		}
+		if (amount != null) {
+			url = url.queryParam("am", amount);
+		}
+		if (note != null) {
+			url = url.queryParam("tn", note);
+		}
+		if (txnId != null) {
+			url = url.queryParam("tid", txnId);
+		}
+		if (refId != null) {
+			url = url.queryParam("tr", refId);
+		}
+		url = url.queryParam("cu", "INR");
 		return url.build().encode().toUriString();
 	}
+
+	public static String toJSONString(Object obj,boolean pretty) throws JsonProcessingException {
+		if(pretty) {
+			return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+		}
+		return objectMapper.writeValueAsString(obj);
+	}
 	
+	public static boolean areEqual(Object oldValue, Object newValue) {
+        if (oldValue == null) {
+            return newValue == null;
+        } else {
+            return oldValue.equals(newValue);
+        }
+    }
+	
+	
+
 }

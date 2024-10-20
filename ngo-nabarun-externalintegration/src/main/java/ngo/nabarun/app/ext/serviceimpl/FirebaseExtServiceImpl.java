@@ -37,7 +37,7 @@ import com.google.firebase.remoteconfig.ParameterValueType;
 import com.google.firebase.remoteconfig.Template;
 import com.google.gson.Gson;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
 import ngo.nabarun.app.ext.helpers.ObjectFilter.Operator;
@@ -48,14 +48,14 @@ import ngo.nabarun.app.ext.service.IFileStorageExtService;
 import ngo.nabarun.app.ext.service.IMessageExtService;
 import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 
-
 @Service
-public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileStorageExtService, IMessageExtService,ICollectionExtService {
+public class FirebaseExtServiceImpl
+		implements IRemoteConfigExtService, IFileStorageExtService, IMessageExtService, ICollectionExtService {
 
 	private static final String FIREBASE_DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media&token=%s";
 
 	@Autowired
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
 	@Override
 	public String uploadFile(String fileName, MultipartFile multipartFile) throws ThirdPartyException {
@@ -102,7 +102,7 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 		return blob.signUrl(duration, unit);
 	}
 
-	@Cacheable("RemoteConfigs")
+	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG")
 	@Override
 	public List<RemoteConfig> getRemoteConfigs() throws ThirdPartyException {
 		List<RemoteConfig> firebaseConfig = new ArrayList<>();
@@ -148,7 +148,7 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 
 	}
 
-	@Cacheable("RemoteConfigs+configKey")
+	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key = "#configKey")
 	@Override
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f -> f.getName().equalsIgnoreCase(configKey)).findFirst().get();
@@ -185,32 +185,36 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 	}
 
 	@Override
-	public List<Map<String, Object>> getCollectionData(String collectionName, Integer page, Integer size,
-			List<ObjectFilter> filters) throws ThirdPartyException {
+	public <T> List<T> getCollectionData(String collectionName, Integer page, Integer size,
+			List<ObjectFilter> filters,Class <T> valueType) throws ThirdPartyException {
 		Firestore db = FirestoreClient.getFirestore();
-		List<Map<String, Object>> collections = new ArrayList<>();
+		List<T> collections = new ArrayList<>();
 		try {
 			Query documentQuery = db.collection(collectionName);
 			if (filters != null) {
 				for (ObjectFilter filter : filters) {
 					if (filter.getOperator() == Operator.EQUAL) {
-						documentQuery=documentQuery.whereEqualTo(filter.getKey(), filter.getValue());
+						documentQuery = documentQuery.whereEqualTo(filter.getKey(), filter.getValue());
 					} else if (filter.getOperator() == Operator.CONTAIN) {
-						documentQuery=documentQuery.whereArrayContains(filter.getKey(), filter.getValue());
-					}else if (filter.getOperator() == Operator.IN) {
-						System.out.println(filter.getKey()+"   "+ filter.getValue());
-						documentQuery=documentQuery.whereIn(filter.getKey(), List.of(filter.getValue()));
+						documentQuery = documentQuery.whereArrayContains(filter.getKey(), filter.getValue());
+					} else if (filter.getOperator() == Operator.IN) {
+						// System.out.println(filter.getKey()+" "+ filter.getValue());
+						documentQuery = documentQuery.whereIn(filter.getKey(), List.of(filter.getValue()));
+					} else if (filter.getOperator() == Operator.ARRAY_CONTAIN) {
+						documentQuery = documentQuery.whereArrayContainsAny(filter.getKey(),
+								List.of(filter.getValue()));
 					}
 				}
 			}
 
 			if (page != null && size != null) {
-				//documentQuery = documentQuery.startAt(page * size).limit(size);
+				documentQuery = documentQuery.limit(size);
 			}
 			List<QueryDocumentSnapshot> documents = documentQuery.get().get().getDocuments();
 			for (QueryDocumentSnapshot document : documents) {
 				if (document.exists()) {
-					collections.add(document.getData());
+					//document.getData()
+					collections.add(document.toObject(valueType));
 				}
 			}
 
@@ -221,24 +225,22 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 	}
 
 	@Override
-	public Map<String, Object> storeCollectionData(String collectionName, Map<String, Object> item) throws ThirdPartyException{
-		
+	public <T> T storeCollectionData(String collectionName,String id, T item)
+			throws ThirdPartyException {
+
 		try {
 			Firestore db = FirestoreClient.getFirestore();
-			if(item.get("id") == null) {
-				String id =UUID.randomUUID().toString();
-				item.put("id", id);
-			}
-			//System.err.println(item.get("id"));
-			db.collection(collectionName).document(item.get("id").toString()).set(item).get();
+			db.collection(collectionName).document(id).set(item).get();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.FIREBASE);
 		}
 		return item;
 	}
 
+
 	@Override
-	public Map<String, Object> updateCollectionData(String collectionName, String id, Map<String, Object> items) throws ThirdPartyException {
+	public Map<String, Object> updateCollectionData(String collectionName, String id, Map<String, Object> items)
+			throws ThirdPartyException {
 		try {
 			Firestore db = FirestoreClient.getFirestore();
 			List<String> keysToUpdate = new ArrayList<>();
@@ -251,7 +253,7 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 		}
 		return items;
 	}
-	
+
 	@Override
 	public void removeCollectionData(String collectionName, String id) throws ThirdPartyException {
 		try {
@@ -263,11 +265,11 @@ public class FirebaseExtServiceImpl implements IRemoteConfigExtService, IFileSto
 	}
 
 	@Override
-	public List<String> sendMessage(String title,String body,String imageUrl, List<String> tokens,Map<String, String> data) throws ThirdPartyException {
-		List<String> msgIds= new ArrayList<>();
+	public List<String> sendMessage(String title, String body, String imageUrl, List<String> tokens,
+			Map<String, String> data) throws ThirdPartyException {
+		List<String> msgIds = new ArrayList<>();
 		FirebaseMessaging firebaseMessaging = FirebaseMessaging.getInstance();
-		Notification notification = Notification.builder().setTitle(title)
-				.setBody(body).setImage(imageUrl).build();
+		Notification notification = Notification.builder().setTitle(title).setBody(body).setImage(imageUrl).build();
 		for (String token : tokens) {
 			try {
 				Message message = Message.builder().setToken(token).setNotification(notification).putAllData(data)

@@ -30,6 +30,7 @@ public class UserProfileEntity{
 	private String about;
 
 	private String roleNames;
+	private String roleCodes;
 	@Indexed(unique = true)
 	private String email;
 	private String phoneNumber;
@@ -60,5 +61,16 @@ public class UserProfileEntity{
 
 	private boolean deleted;
 	
- 
+	private String permanentAddressLine1;
+	private String permanentAddressLine2;
+	private String permanentAddressLine3;
+	private String permanentHometown;
+	private String permanentDistrict;
+	private String permanentState;
+	private String permanentCountry;
+	private Boolean presentPermanentSame;
+
+	private Date donationPauseStartDate;
+	private Date donationPauseEndDate;
+
 }

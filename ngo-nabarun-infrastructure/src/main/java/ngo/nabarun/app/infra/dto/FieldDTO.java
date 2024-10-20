@@ -1,8 +1,9 @@
 package ngo.nabarun.app.infra.dto;
 
+import java.util.List;
+
 import lombok.Data;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
-import ngo.nabarun.app.common.enums.AdditionalFieldSource;
 
 @Data
 public class FieldDTO {
@@ -13,7 +14,13 @@ public class FieldDTO {
 	private String fieldValue;
 	private String fieldDescription;
 	private String fieldSource;
-	private AdditionalFieldSource fieldSourceType;
+	private String fieldSourceType;
 	private boolean hidden;
 	private boolean encrypted;
+	private boolean mandatory;
+	private List<String> fieldOptions;
+	private String fieldValueType;
+
+
+
 }

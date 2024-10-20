@@ -1,5 +1,6 @@
 package ngo.nabarun.app.businesslogic;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ public interface IPublicBL {
 
 	InterviewDetail contact(InterviewDetail interview) throws Exception;
 
-	Map<String, Object> getPageData();
-
+	Map<String, Object> getPageData(List<String> dataFilter);
+	//Map<String, Object> getPageData();
 
 }

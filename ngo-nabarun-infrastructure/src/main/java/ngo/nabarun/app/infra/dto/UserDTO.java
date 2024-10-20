@@ -1,23 +1,27 @@
 package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.ProfileStatus;
+import ngo.nabarun.app.common.enums.RoleCode;
 
 @Data
 public class UserDTO {
-	
-	//basic user details
+
+	// basic user details
 	private String title;
 	private String firstName;
 	private String middleName;
 	private String lastName;
-	//this attribute will not be stored
+	// this attribute will not be stored
 	private String name;
 
-	//more details
+	// more details
 	private String imageUrl;
 	private Date dateOfBirth;
 	private String gender;
@@ -34,12 +38,12 @@ public class UserDTO {
 	private String userId;
 	private ProfileStatus status;
 	private List<String> loginProviders;
+	private Boolean presentPermanentSame;
 
-	
 	private UserAdditionalDetailsDTO additionalDetails;
-	
-	@Data	
-	public static class UserDTOFilter{
+
+	@Data
+	public static class UserDTOFilter {
 		private String firstName;
 		private String lastName;
 		private String email;
@@ -49,8 +53,23 @@ public class UserDTO {
 		private List<ProfileStatus> status;
 		private Boolean publicProfile;
 		private Boolean deleted;
+		private List<RoleCode> roles;
 
+	}
 
+	public Map<String, Object> toMap(Map<String, String> domainKeyValues) {
+		Map<String, Object> user = new HashMap<>();
+		user.put("firstName", firstName);
+		user.put("lastName", lastName);
+		user.put("name", name);
+		user.put("email", email);
+		user.put("roles",
+				roles == null ? null
+						: roles.stream().filter(f -> f.getCode() != null)
+								.map(m -> domainKeyValues.get(m.getCode().name())).collect(Collectors.toList())
+								.toString());
+		user.put("phoneNumber", phoneNumber);
+		return user;
 	}
 
 }

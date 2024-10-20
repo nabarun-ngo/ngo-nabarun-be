@@ -21,6 +21,8 @@ public class AccountDTO {
 
 	private BankDTO bankDetail;
 	private UpiDTO upiDetail;
+	private UserDTO createdBy;
+
 	
 	@Data
 	public static class AccountDTOFilter{

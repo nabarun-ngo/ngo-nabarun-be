@@ -9,13 +9,14 @@ import javax.crypto.spec.IvParameterSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.CryptUtil;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
+import ngo.nabarun.app.infra.misc.InfraFieldHelper;
 
 @Service
 public class BaseServiceImpl {
@@ -24,7 +25,7 @@ public class BaseServiceImpl {
 	private CustomFieldRepository fieldRepository;
 	
 	@Autowired
-	protected GenericPropertyHelper propertyHelper;
+	protected PropertyHelper propertyHelper;
 	
 	protected FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
 		CustomFieldEntity existingField = fieldRepository.findBySourceAndFieldKey(fieldDTO.getFieldSource(), fieldDTO.getFieldKey().name()).orElseGet(()->new CustomFieldEntity());
@@ -35,7 +36,7 @@ public class BaseServiceImpl {
 		field.setFieldName(fieldDTO.getFieldName());
 		field.setFieldType(fieldDTO.getFieldType());
 		field.setFieldValue(fieldDTO.getFieldValue());
-		if(fieldDTO.isEncrypted()) {
+		if(fieldDTO.isEncrypted() || existingField.isEncrypted()) {
 			field.setEncrypted(true);
 			IvParameterSpec iv = CryptUtil.generateIv();
 			String salt = UUID.randomUUID().toString();
@@ -50,8 +51,11 @@ public class BaseServiceImpl {
 			}
 		}
 		field.setSource(fieldDTO.getFieldSource());
-		field.setSourceType(fieldDTO.getFieldSourceType().name());
+		field.setSourceType(fieldDTO.getFieldSourceType());
 		field.setHidden(fieldDTO.isHidden());
+		field.setMandatory(fieldDTO.isMandatory());
+		field.setFieldValueOptions(InfraFieldHelper.stringListToString(fieldDTO.getFieldOptions()));
+		field.setFieldValueType(fieldDTO.getFieldValueType());
 		if (existingField.getId() == null) {
 			field.setId(UUID.randomUUID().toString());
 		}

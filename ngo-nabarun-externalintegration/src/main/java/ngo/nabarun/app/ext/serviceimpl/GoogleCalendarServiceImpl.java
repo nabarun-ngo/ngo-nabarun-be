@@ -32,7 +32,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 
 import ngo.nabarun.app.common.enums.MeetingType;
-import ngo.nabarun.app.common.helper.GenericPropertyHelper;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectConverter;
 import ngo.nabarun.app.ext.helpers.ThirdPartySystem;
@@ -48,9 +48,9 @@ public class GoogleCalendarServiceImpl implements IGoogleCalendarExtService {
 	private static Map<String, Credential> credentialMap = new HashMap<>();
 
 	protected GoogleAuthorizationCodeFlow flow;
-	private GenericPropertyHelper propertyHelper;
+	private PropertyHelper propertyHelper;
 
-	public GoogleCalendarServiceImpl(GenericPropertyHelper propertyHelper) throws ThirdPartyException {
+	public GoogleCalendarServiceImpl(PropertyHelper propertyHelper) throws ThirdPartyException {
 		this.propertyHelper = propertyHelper;
 		try {
 			String clientId = propertyHelper.getGoogleClientId();
