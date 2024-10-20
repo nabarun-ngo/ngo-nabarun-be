@@ -35,7 +35,7 @@ jobs:
           path: app.yaml
         env:
           ENVIRONMENT: '${{ vars.APP_ENV_STAGE }}'
-          DOPPLER_PROJECT_NAME: '${{ vars.DOPPLER_PROJECT_NAME_STAGE }}'
+          DOPPLER_PROJECT_NAME: '${{ vars.DOPPLER_PROJECT_NAME }}'
           DOPPLER_SERVICE_TOKEN: '${{ secrets.DOPPLER_SERVICE_TOKEN_STAGE }}'
           LOG_LEVEL: '${{ vars.LOG_LEVEL_STAGE }}'
       - name: Deploy to Google App Engine
