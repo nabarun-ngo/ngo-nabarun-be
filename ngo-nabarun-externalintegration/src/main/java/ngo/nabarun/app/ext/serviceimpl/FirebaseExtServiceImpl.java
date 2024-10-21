@@ -148,7 +148,7 @@ public class FirebaseExtServiceImpl
 
 	}
 
-	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key = "#configKey")
+	//@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key = "#configKey")
 	@Override
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f -> f.getName().equalsIgnoreCase(configKey)).findFirst().get();
