@@ -283,12 +283,15 @@ public class RequestDO extends CommonDO {
 				.findAddtlFieldDTOList("WORKITEM-" + workItem.getWorkSourceStatus());
 		workItem.setAdditionalFields(fieldList);
 		workItem.setPendingWithUsers(new ArrayList<>());
-		if (workflow.getSystemRequestOwner() != null) {
-			workItem.getPendingWithUsers().add(workflow.getSystemRequestOwner());
-		}
+		
 		if (workItem.getPendingWithRoles() != null) {
 			workItem.getPendingWithUsers().addAll(userInfraService.getUsersByRole(workItem.getPendingWithRoles()));
 		}
+		
+		if (workflow.getSystemRequestOwner() != null) {
+			workItem.getPendingWithUsers().add(workflow.getSystemRequestOwner());
+		}
+		
 		workflow = task.exec(workItem.getCurrentAction(), workflow);
 		workItem.setActionPerformed(workflow.isLastActionCompleted());
 		workItem.setWorkSourceId(workflow.getId());
