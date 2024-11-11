@@ -19,22 +19,6 @@ public class MdcTaskDecorator implements TaskDecorator {
             }
         };
     }
-   
-    
-    
-//    @Override
-//    public <T> Callable<T> decorate(Callable<T> callable) {
-//        Map<String, String> contextMap = MDC.getCopyOfContextMap();
-//        return () -> {
-//            try {
-//                if (contextMap != null) {
-//                    MDC.setContextMap(contextMap);
-//                }
-//                return callable.call();
-//            } finally {
-//                MDC.clear();
-//            }
-//        };
-//    }
+ 
 }
 

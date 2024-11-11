@@ -37,6 +37,7 @@ import com.google.firebase.remoteconfig.ParameterValueType;
 import com.google.firebase.remoteconfig.Template;
 import com.google.gson.Gson;
 
+import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
@@ -104,6 +105,7 @@ public class FirebaseExtServiceImpl
 
 	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG")
 	@Override
+	@NoLogging
 	public List<RemoteConfig> getRemoteConfigs() throws ThirdPartyException {
 		List<RemoteConfig> firebaseConfig = new ArrayList<>();
 		try {
@@ -150,6 +152,7 @@ public class FirebaseExtServiceImpl
 
 	//@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key = "#configKey")
 	@Override
+	@NoLogging
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f -> f.getName().equalsIgnoreCase(configKey)).findFirst().get();
 	}

@@ -24,8 +24,8 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.SecurityUtils;
+import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,21 +46,21 @@ public class CommonController {
 	@Autowired
 	private ICommonBL commonBL;
 	
-	@GetMapping(value = "/document/getDocuments/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/document/list/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDocuments(@PathVariable String id,@RequestParam DocumentIndexType type)
 			throws Exception {
 		return new SuccessResponse<List<DocumentDetail>>().payload(commonBL.getDocuments(id,type))
 				.get(HttpStatus.OK);
 	}
 	
-	@PostMapping(value = "/document/uploadDocuments", consumes = "multipart/form-data")
+	@PostMapping(value = "/document/upload", consumes = "multipart/form-data")
 	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType, @RequestParam MultipartFile[] files) throws Exception {
 		commonBL.uploadDocuments(files, docIndexId, docIndexType);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/document/uploadBase64Documents",produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/document/uploadbase64",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType, @RequestBody List<DocumentDetailUpload> files)
 			throws Exception {
@@ -68,14 +68,14 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/document/viewDocument/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/document/view/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<DocumentDetail>> viewDocument(@PathVariable String id) throws Exception {
 		DocumentDetail doc=commonBL.getDocument(id);
 		return new SuccessResponse<DocumentDetail>().payload(doc).get(HttpStatus.OK);
 
 	}
 	
-	@GetMapping(value = "/document/downloadDocument/{id}")
+	@GetMapping(value = "/document/download/{id}")
 	public ResponseEntity<Object> downloadDocument(@PathVariable String id) throws Exception {
 		DocumentDetail doc = commonBL.getDocument(id);
 		UrlResource resource=new UrlResource(doc.getDownloadURL());
@@ -84,27 +84,21 @@ public class CommonController {
 				.body(resource);
 	}
 
-	@DeleteMapping(value = "/document/deleteDocument/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	@DeleteMapping(value = "/document/delete/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> deleteDocument(@PathVariable String id) throws Exception {
 		commonBL.deleteDocument(id);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 
 	}
 
-	@PostMapping(value = "/general/clearCache",produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SuccessResponse<Void>> clearCache(@RequestBody List<String> names) throws Exception {
-		commonBL.clearSystemCache(names);
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
-	}
-
-	@GetMapping(value = "/getReferenceField",produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/data/referenceFields",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<AdditionalField>>> getReferenceField(@RequestParam String source)
 			throws Exception {
 		List<AdditionalField> fields = commonBL.getReferenceFields(source);
 		return new SuccessResponse<List<AdditionalField>>().payload(fields).get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/getReferenceData",produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/data/referenceData",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
 			@RequestParam(required = false) List<RefDataType> names,
 			@RequestParam(required = false) DonationType donationType,
@@ -131,7 +125,7 @@ public class CommonController {
 				.get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/getNotifications",produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/notification/list",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Paginate<Map<String, String>>>> getNotification(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
 			throws Exception {
@@ -139,10 +133,11 @@ public class CommonController {
 		return new SuccessResponse<Paginate<Map<String, String>>>().payload(notifications).get(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/manageNotification",produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/notification/list",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> manageNotification(@RequestParam(required = true) String action,
 			@RequestBody Map<String, Object> body) throws Exception {
-		commonBL.manageNotification(SecurityUtils.getAuthUserId(),action, body);
+		AuthenticatedUser user=SecurityUtils.getAuthUser();
+		commonBL.manageNotification(user,action, body);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	

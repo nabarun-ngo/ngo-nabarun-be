@@ -69,8 +69,9 @@ public class UserProfileEntity{
 	private String permanentState;
 	private String permanentCountry;
 	private Boolean presentPermanentSame;
-
 	private Date donationPauseStartDate;
 	private Date donationPauseEndDate;
+	private String loginMethods;
+
 
 }

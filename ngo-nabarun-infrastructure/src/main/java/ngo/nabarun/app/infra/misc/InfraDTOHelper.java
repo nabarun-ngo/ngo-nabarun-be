@@ -21,6 +21,8 @@ import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.enums.ExpenseRefType;
+import ngo.nabarun.app.common.enums.ExpenseStatus;
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.MeetingStatus;
 import ngo.nabarun.app.common.enums.MeetingType;
@@ -113,7 +115,10 @@ public class InfraDTOHelper {
 
 		userDTO.setUserId(profile == null ? (user == null ? null : user.getUserId()) : profile.getUserId());
 		userDTO.setTitle(profile == null ? null : profile.getTitle());
-
+		
+		userDTO.setLoginProviders(user == null ? (profile == null ? null
+				: InfraFieldHelper.stringToStringList(profile.getLoginMethods()).stream()
+				.map(m -> LoginMethod.valueOf(m)).collect(Collectors.toList())) : user.getProviders());
 		/**
 		 * additional details
 		 */
@@ -284,6 +289,7 @@ public class InfraDTOHelper {
 		UserDTO userDTO = new UserDTO();
 		if (!donation.getIsGuest()) {
 			userDTO.setProfileId(donation.getProfile());
+			userDTO.setUserId(donation.getUserId());
 		}
 		userDTO.setName(donation.getDonorName());
 		userDTO.setEmail(donation.getDonorEmailAddress());
@@ -528,6 +534,9 @@ public class InfraDTOHelper {
 		} else {
 			AccountDTO fromAcc = new AccountDTO();
 			fromAcc.setId(txnEntity.getFromAccount());
+			UserDTO fromAccUser = new UserDTO();
+			fromAccUser.setUserId(txnEntity.getFromAccountUserId());
+			fromAcc.setProfile(fromAccUser);
 			transactionDTO.setFromAccount(fromAcc);
 		}
 
@@ -538,6 +547,9 @@ public class InfraDTOHelper {
 		} else {
 			AccountDTO toAcc = new AccountDTO();
 			toAcc.setId(txnEntity.getToAccount());
+			UserDTO toAccUser = new UserDTO();
+			toAccUser.setUserId(txnEntity.getToAccountUserId());
+			toAcc.setProfile(toAccUser);
 			transactionDTO.setToAccount(toAcc);
 		}
 
@@ -581,6 +593,7 @@ public class InfraDTOHelper {
 			accountDTO.setProfile(convertToUserDTO(userEntity, null, null));
 		} else {
 			UserDTO userDTO = new UserDTO();
+			userDTO.setUserId(accountInfo.getUserId());
 			userDTO.setProfileId(accountInfo.getProfile());
 			userDTO.setName(accountInfo.getAccountName());
 			accountDTO.setProfile(userDTO);
@@ -618,6 +631,7 @@ public class InfraDTOHelper {
 		workFlowDTO.setCreatedOn(workflow.getCreatedOn());
 		workFlowDTO.setDelegated(workflow.isDelegated());
 		UserDTO delegateDTO = new UserDTO();
+		delegateDTO.setUserId(workflow.getDelegateUserId());
 		delegateDTO.setProfileId(workflow.getDelegateProfileId());
 		delegateDTO.setEmail(workflow.getDelegateProfileEmail());
 		delegateDTO.setName(workflow.getDelegateProfileName());
@@ -627,6 +641,7 @@ public class InfraDTOHelper {
 		workFlowDTO.setRemarks(workflow.getRemarks());
 		UserDTO requesterDTO = new UserDTO();
 		requesterDTO.setProfileId(workflow.getProfileId());
+		requesterDTO.setUserId(workflow.getUserId());
 		requesterDTO.setEmail(workflow.getProfileEmail());
 		requesterDTO.setName(workflow.getProfileName());
 		workFlowDTO.setRequester(requesterDTO);
@@ -718,13 +733,13 @@ public class InfraDTOHelper {
 
 	public static ExpenseDTO convertToExpenseDTO(ExpenseEntity expense) {
 		ExpenseDTO expenseDTO = new ExpenseDTO();
-		expenseDTO.setApproved(expense.isApproved());
-
-		UserDTO approvedBy = new UserDTO();
-		approvedBy.setProfileId(expense.getApprovedById());
-		approvedBy.setUserId(expense.getApprovedByUserId());
-		approvedBy.setName(expense.getApprovedByName());
-		expenseDTO.setApprovedBy(approvedBy);
+		expenseDTO.setFinalized(expense.isFinalized());
+		expenseDTO.setFinalizedOn(expense.getFinalizedOn());
+		UserDTO finalizedBy = new UserDTO();
+		finalizedBy.setProfileId(expense.getFinalizedById());
+		finalizedBy.setUserId(expense.getFinalizedByUserId());
+		finalizedBy.setName(expense.getFinalizedByName());
+		expenseDTO.setFinalizedBy(finalizedBy);
 
 		UserDTO createdBy = new UserDTO();
 		createdBy.setProfileId(expense.getCreatedById());
@@ -734,16 +749,11 @@ public class InfraDTOHelper {
 
 		expenseDTO.setCreatedOn(expense.getExpenseCreatedOn());
 		expenseDTO.setDescription(expense.getExpenseDescription());
-		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setId(expense.getExpenseAccountId());
-		accountDTO.setAccountName(expense.getExpenseAccountName());
-		expenseDTO.setExpenseAccount(accountDTO);
+		
 		List<ExpenseItemDTO> expItems = new ArrayList<>();
 		if (expense.getExpenses() != null) {
 			for (ExpenseItemEntity exp : expense.getExpenses()) {
-				expItems.add(
-						ExpenseItemDTO.builder().amount(exp.getExpenseAmount()).description(exp.getExpenseDescription())
-								.id(exp.getId()).itemName(exp.getExpenseTitle()).build());
+				expItems.add(convertToExpenseItemDTO(exp));
 			}
 		}
 		expenseDTO.setExpenseItems(expItems);
@@ -751,8 +761,51 @@ public class InfraDTOHelper {
 		expenseDTO.setId(expense.getId());
 		expenseDTO.setName(expense.getExpenseTitle());
 		expenseDTO.setRefId(expense.getExpenseRefId());
-		expenseDTO.setRefType(expense.getExpenseRefType() == null ? null : ExpenseRefType.valueOf(expense.getExpenseRefType()));
+		expenseDTO.setRefType(
+				expense.getExpenseRefType() == null ? null : ExpenseRefType.valueOf(expense.getExpenseRefType()));
+		
+		AccountDTO accountDTO = new AccountDTO();
+		accountDTO.setId(expense.getExpenseAccountId());
+		accountDTO.setAccountName(expense.getExpenseAccountName());
+		expenseDTO.setAccount(accountDTO);
+		
+		expenseDTO.setTxnNumber(expense.getTransactionRefNumber());
+		expenseDTO.setStatus(ExpenseStatus.valueOf(expense.getExpenseStatus()));
+		expenseDTO.setExpenseDate(expense.getExpenseDate());
+
 		return expenseDTO;
+	}
+
+	public static ExpenseItemDTO convertToExpenseItemDTO(ExpenseItemEntity expenseItem) {
+		ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
+		expenseItemDTO.setId(expenseItem.getId());
+		expenseItemDTO.setCreatedOn(expenseItem.getCreatedOn());
+		expenseItemDTO.setAmount(expenseItem.getExpenseAmount());	
+		expenseItemDTO.setDate(expenseItem.getExpenseDate());
+		expenseItemDTO.setDescription(expenseItem.getExpenseDescription());
+		expenseItemDTO.setStatus(ExpenseStatus.valueOf(expenseItem.getExpenseStatus()));
+		expenseItemDTO.setItemName(expenseItem.getExpenseTitle());
+		expenseItemDTO.setTxnNumber(expenseItem.getTransactionRefNumber());
+		
+		UserDTO confirmedBy = new UserDTO();
+		confirmedBy.setProfileId(expenseItem.getPaymentConfirmedById());
+		confirmedBy.setUserId(expenseItem.getPaymentConfirmedByName());
+		confirmedBy.setName(expenseItem.getPaymentConfirmedByUserId());
+		expenseItemDTO.setConfirmedBy(confirmedBy);
+		
+		UserDTO createdBy = new UserDTO();
+		createdBy.setProfileId(expenseItem.getCreatedById());
+		createdBy.setUserId(expenseItem.getCreatedByName());
+		createdBy.setName(expenseItem.getCreatedByUserId());
+		expenseItemDTO.setCreatedBy(createdBy);
+		
+		AccountDTO accountDTO = new AccountDTO();
+		accountDTO.setId(expenseItem.getExpenseAccountId());
+		accountDTO.setAccountName(expenseItem.getExpenseAccountName());
+		expenseItemDTO.setAccount(accountDTO);
+		
+
+		return expenseItemDTO;
 	}
 
 }

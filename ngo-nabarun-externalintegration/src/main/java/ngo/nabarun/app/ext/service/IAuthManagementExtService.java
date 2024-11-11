@@ -32,4 +32,8 @@ public interface IAuthManagementExtService {
 	
 	List<AuthUserRole> getAllAvailableRoles() throws ThirdPartyException;
 	List<AuthConnection> getConnections() throws ThirdPartyException;
+
+	String loginWithUser(String email, String old_password) throws ThirdPartyException;
+
+	Void endUserSessions(String userId) throws ThirdPartyException;
 }

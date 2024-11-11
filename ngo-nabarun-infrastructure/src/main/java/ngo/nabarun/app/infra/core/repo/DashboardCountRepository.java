@@ -9,4 +9,6 @@ import ngo.nabarun.app.infra.core.entity.DashboardCountEntity;
 
 public interface DashboardCountRepository extends MongoRepository<DashboardCountEntity,String>{
 	List<DashboardCountEntity> findByUserIdIn(List<String> userId);
+
+	//List<DashboardCountEntity> findByUserIdOrProfileId(String userId,String profileId);
 }

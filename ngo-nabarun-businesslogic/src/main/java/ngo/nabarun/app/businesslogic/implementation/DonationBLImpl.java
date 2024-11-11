@@ -28,6 +28,7 @@ import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
+import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.HistoryRefType;
@@ -128,7 +129,7 @@ public class DonationBLImpl extends BaseBLImpl implements IDonationBL {
 
 	@Override
 	public List<DocumentDetail> getDonationDocument(String donationId) {
-		return donationDO.retrieveDonationDocument(donationId).stream().map(BusinessObjectConverter::toDocumentDetail)
+		return donationDO.getDocuments(donationId,DocumentIndexType.DONATION).stream().map(BusinessObjectConverter::toDocumentDetail)
 				.collect(Collectors.toList());
 	}
 

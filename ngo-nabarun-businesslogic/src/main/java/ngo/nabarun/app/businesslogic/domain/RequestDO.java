@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,9 +75,9 @@ public class RequestDO extends CommonDO {
 			filter.setToDate(filter.getToDate());
 			filter.setSourceType(filter.getSourceType());
 		}
-		return retrieveAllWorkItems(index,size,filterDTO);
+		return retrieveAllWorkItems(index, size, filterDTO);
 	}
-	
+
 	public Paginate<WorkDTO> retrieveAllWorkItems(Integer index, Integer size, WorkDTOFilter filterDTO) {
 		Page<WorkDTO> page = workflowInfraService.getWorkItems(index, size, filterDTO);
 		return new Paginate<WorkDTO>(page);
@@ -172,6 +173,21 @@ public class RequestDO extends CommonDO {
 		workflow.setId(generateWorkflowId());
 		workflow = workflowInfraService.createRequest(workflow);
 		WorkDTO workItem = businessDomainHelper.prepareWorkList(workflow.getType(), workflow.getStatus(), null);
+		/*
+		 * Update dash board count
+		 */
+		if (workflow.getRequester() != null && workflow.getRequester().getUserId() != null) {
+			String requesterUserId = workflow.getRequester().getUserId();
+			updateAndSendDashboardCounts(requesterUserId, data -> {
+				Map<String, String> map = new HashMap<>();
+				RequestDTOFilter filterDTO = new RequestDTOFilter();
+				filterDTO.setRequesterUserId(requesterUserId);
+				filterDTO.setResolved(false);
+				Page<RequestDTO> page = workflowInfraService.getRequests(null, null, filterDTO);
+				map.put(BusinessConstants.attr_DB_requestCount, String.valueOf(page.getNumberOfElements()));
+				return map;
+			});
+		}
 
 		workItem = createWorkItem(workflow, workItem, task);
 		if (!createRequest.isSystemGenerated()) {
@@ -222,6 +238,7 @@ public class RequestDO extends CommonDO {
 		if (request.getStatus() != null && request.getStatus() == RequestStatus.CANCELLED) {
 			workflow.setStatus(request.getStatus());
 			workflow.setRemarks(request.getRemarks());
+			workflow.setResolvedOn(CommonUtils.getSystemDate());
 			WorkDTOFilter filter = new WorkDTOFilter();
 			filter.setWorkflowId(id);
 			List<WorkDTO> worklist = workflowInfraService.getWorkItems(null, null, filter).getContent();
@@ -231,6 +248,19 @@ public class RequestDO extends CommonDO {
 			}
 		}
 		workflow = workflowInfraService.updateRequest(id, workflow);
+		if (workflow.getResolvedOn() != null && workflow.getRequester() != null
+				&& workflow.getRequester().getUserId() != null) {
+			String requesterUserId = workflow.getRequester().getUserId();
+			updateAndSendDashboardCounts(requesterUserId, data -> {
+				Map<String, String> map = new HashMap<>();
+				RequestDTOFilter filterDTO = new RequestDTOFilter();
+				filterDTO.setRequesterUserId(requesterUserId);
+				filterDTO.setResolved(false);
+				Page<RequestDTO> page = workflowInfraService.getRequests(null, null, filterDTO);
+				map.put(BusinessConstants.attr_DB_requestCount, String.valueOf(page.getNumberOfElements()));
+				return map;
+			});
+		}
 		return workflow;
 	}
 
@@ -283,15 +313,15 @@ public class RequestDO extends CommonDO {
 				.findAddtlFieldDTOList("WORKITEM-" + workItem.getWorkSourceStatus());
 		workItem.setAdditionalFields(fieldList);
 		workItem.setPendingWithUsers(new ArrayList<>());
-		
+
 		if (workItem.getPendingWithRoles() != null) {
 			workItem.getPendingWithUsers().addAll(userInfraService.getUsersByRole(workItem.getPendingWithRoles()));
 		}
-		
+
 		if (workflow.getSystemRequestOwner() != null) {
 			workItem.getPendingWithUsers().add(workflow.getSystemRequestOwner());
 		}
-		
+
 		workflow = task.exec(workItem.getCurrentAction(), workflow);
 		workItem.setActionPerformed(workflow.isLastActionCompleted());
 		workItem.setWorkSourceId(workflow.getId());
@@ -304,7 +334,22 @@ public class RequestDO extends CommonDO {
 		if (workItem.getWorkType() != WorkType.NA) {
 			workItem.setId(generateWorkId());
 			workItem = workflowInfraService.createWorkItem(workItem);
-
+			/**
+			 * Update Dashboard count
+			 */
+			if (workItem.getPendingWithUsers() != null) {
+				for (UserDTO pendingUser : workItem.getPendingWithUsers()) {
+					updateAndSendDashboardCounts(pendingUser.getUserId(), data -> {
+						Map<String, String> map = new HashMap<>();
+						WorkDTOFilter filterDTO = new WorkDTOFilter();
+						filterDTO.setPendingWithUserId(pendingUser.getUserId());
+						filterDTO.setStepCompleted(false);
+						Page<WorkDTO> page = workflowInfraService.getWorkItems(null, null, filterDTO);
+						map.put(BusinessConstants.attr_DB_workCount, String.valueOf(page.getNumberOfElements()));
+						return map;
+					});
+				}
+			}
 			/**
 			 * Sending email and notification to concerned persons
 			 */
@@ -432,7 +477,23 @@ public class RequestDO extends CommonDO {
 		 */
 		currWorkDTOUpdate.setStepCompleted(true);
 		currWorkDTOUpdate = workflowInfraService.updateWorkItem(currentWorkDTO.getId(), currWorkDTOUpdate);
-
+		/**
+		 * Update Dashboard count
+		 */
+		if (currWorkDTOUpdate.getPendingWithUsers() != null) {
+			for (UserDTO pendingUser : currWorkDTOUpdate.getPendingWithUsers()) {
+				updateAndSendDashboardCounts(pendingUser.getUserId(), data -> {
+					Map<String, String> map = new HashMap<>();
+					WorkDTOFilter filterDTO = new WorkDTOFilter();
+					filterDTO.setPendingWithUserId(pendingUser.getUserId());
+					filterDTO.setStepCompleted(false);
+					Page<WorkDTO> page = workflowInfraService.getWorkItems(null, null, filterDTO);
+					map.put(BusinessConstants.attr_DB_workCount, String.valueOf(page.getNumberOfElements()));
+					return map;
+				});
+			}
+		}
+		
 		List<UserDTO> notifyUser = new ArrayList<>();
 		notifyUser.add(workflowDTO.getRequester());
 		if (workflowDTO.isDelegated()) {
@@ -447,6 +508,9 @@ public class RequestDO extends CommonDO {
 		 */
 		workflowDTO.setStatus(nextStatus);
 		workflowDTO.setRemarks(remarks);
+		if (nextWorkDTO.isFinalStep()) {
+			workflowDTO.setResolvedOn(CommonUtils.getSystemDate());
+		}
 		workflowDTO = workflowInfraService.updateRequest(currentWorkDTO.getWorkSourceId(), workflowDTO);
 
 		/**

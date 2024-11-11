@@ -14,7 +14,7 @@ import lombok.ToString;
  * MongoDB
  * DAO for storing expense_items info in DB
  */
-@Document("expense_item")
+@Document("expense_items")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,8 +27,24 @@ public class ExpenseItemEntity {
 	private String expenseDescription;
 	private Double expenseAmount;
 	private Date createdOn;
-	private Date date;
-	
+
 	private String expenseId;
+	
+	
+	private Date expenseDate;
+	private String transactionRefNumber;
+	private String expenseStatus;
+	
+	private String paymentConfirmedById;
+	private String paymentConfirmedByUserId;
+	private String paymentConfirmedByName;
+	
+	private String createdById;
+	private String createdByUserId;
+	private String createdByName;
+	
+	
+	private String expenseAccountId;
+	private String expenseAccountName;
 	
 }

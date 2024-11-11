@@ -18,7 +18,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
@@ -38,7 +37,6 @@ import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
-import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
@@ -71,7 +69,7 @@ public class DonationDO extends AccountDO {
 		return new Paginate<DonationDTO>(page);
 	}
 
-	@Deprecated
+	
 	public Paginate<DonationDTO> retrieveUserDonations(Integer index, Integer size, String id, IdType idType)
 			throws Exception {
 		UserDTO userDTO = userInfraService.getUser(id, idType, false);
@@ -120,18 +118,6 @@ public class DonationDO extends AccountDO {
 		}
 	}
 	
-	public List<DocumentDTO> retrieveDonationDocument(String donationId) {
-		return List.of();
-				//documentInfraService.getDocumentList(donationId, DocumentIndexType.DONATION);
-//				.stream().map(m -> {
-//			DocumentDetail doc = new DocumentDetail();
-//			doc.setDocId(m.getDocId());
-//			doc.setDocumentIndexId(donationId);
-//			doc.setImage(m.isImage());
-//			doc.setOriginalFileName(m.getOriginalFileName());
-//			return doc;
-//		}).toList();
-	}
 	
 	public void autoRaiseRegularDonation(List<UserDTO> users) throws Exception {
 
@@ -185,6 +171,7 @@ public class DonationDO extends AccountDO {
 
 		} else {
 			donor = userInfraService.getUser(donationDetail.getDonorDetails().getId(), IdType.ID, false);
+			//donor = donationDetail.getDonorDetails();
 			UserAdditionalDetailsDTO addnlDet=donor.getAdditionalDetails();
 			if (donationDTO.getType() == DonationType.REGULAR && addnlDet.getDonPauseStartDate() != null && addnlDet.getDonPauseEndDate() !=null) {
 				Date today= CommonUtils.getSystemDate();
@@ -213,7 +200,7 @@ public class DonationDO extends AccountDO {
 			historyInfraService.logCreation(HistoryRefType.DONATION, donationDTO.getId(),SecurityUtils.getAuthUser(),
 					donationDTO.toHistoryMap(businessDomainHelper.getDomainKeyValues()));
 			
-			updateDashboardCounts(donor.getUserId(), data->{
+			updateAndSendDashboardCounts(donor.getUserId(), data->{
 				Map<String,String> map= new HashMap<>();
 				try {
 					DonationSummary pendings = retrieveDonationSummary(donor.getProfileId());
@@ -223,7 +210,6 @@ public class DonationDO extends AccountDO {
 				}
 				return map;
 			});
-			sendDashboardCounts(donor.getUserId());
 		}
 		
 
@@ -290,8 +276,8 @@ public class DonationDO extends AccountDO {
 			updatedDetail.setConfirmedBy(auth_user);
 			updatedDetail.setConfirmedOn(CommonUtils.getSystemDate());
 
-			TransactionDetail newTxn = new TransactionDetail();
-			newTxn.setTransferTo(BusinessObjectConverter.toAccountDetail(paidTo));
+			TransactionDTO newTxn = new TransactionDTO();
+			newTxn.setToAccount(paidTo);
 			newTxn.setTxnAmount(donation.getAmount());
 			newTxn.setTxnDate(request.getPaidOn() == null ? donation.getPaidOn(): request.getPaidOn());
 			newTxn.setTxnRefId(donation.getId());
@@ -299,7 +285,7 @@ public class DonationDO extends AccountDO {
 			newTxn.setTxnStatus(TransactionStatus.SUCCESS);
 			newTxn.setTxnType(TransactionType.IN);
 			newTxn.setTxnDescription("Donation amount for id " + donation.getId());
-			TransactionDTO newTxnDet = generateNewTransaction(newTxn,auth_user);
+			TransactionDTO newTxnDet = createTransaction(newTxn,auth_user);
 
 			updatedDetail.setTransactionRefNumber(newTxnDet.getId());
 
@@ -328,6 +314,20 @@ public class DonationDO extends AccountDO {
 		historyInfraService.logUpdate(HistoryRefType.DONATION, updatedDetail.getId(),SecurityUtils.getAuthUser(),
 				donation.toHistoryMap(businessDomainHelper.getDomainKeyValues()),
 				updatedDetail.toHistoryMap(businessDomainHelper.getDomainKeyValues()));
+		boolean isResolved = businessDomainHelper.isResolvedDonation(updatedDetail.getStatus());
+		UserDTO user=updatedDetail.getDonor();
+		if(user != null && user.getUserId() != null && (isResolved || updatedDetail.getStatus() == DonationStatus.UPDATE_MISTAKE)) {
+			updateAndSendDashboardCounts(user.getUserId(), data->{
+				Map<String,String> map= new HashMap<>();
+				try {
+					DonationSummary pendings = retrieveDonationSummary(user.getProfileId());
+					map.put(BusinessConstants.attr_DB_pendingDonationAmount, String.valueOf(pendings.getOutstandingAmount()));
+				} catch (Exception e) {
+					log.error("Error retrieveing donations",e);
+				}
+				return map;
+			});
+		}
 		return updatedDetail;
 	}
 

@@ -19,7 +19,8 @@ public class AccountEntity {
 	private Double currentBalance;
 	private Double openingBalance;
 	private String profile;
-	
+	private String userId;
+
 	private String accountStatus;
 	private String accountType;
 	private String accountName;
@@ -39,6 +40,7 @@ public class AccountEntity {
 	
 	
 	private String createdById;
+	private String createdByUserId;
 	private String createdByName;
 	private String createdByEmail;
 	

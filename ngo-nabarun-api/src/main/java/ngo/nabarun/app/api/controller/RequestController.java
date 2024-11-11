@@ -36,7 +36,7 @@ public class RequestController {
 	@Autowired
 	private IRequestBL requestBL;
 
-	@GetMapping("/getMyRequests")
+	@GetMapping("/list/self")
 	public ResponseEntity<SuccessResponse<Paginate<RequestDetail>>> getMyRequests(
 			@RequestParam(required = false) Integer pageIndex, 
 			@RequestParam(required = false) Integer pageSize,
@@ -47,28 +47,28 @@ public class RequestController {
 	}
 	
 	@PreAuthorize(Authority.READ_REQUEST)
-	@GetMapping("/getRequest/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<RequestDetail>> getRequestDetail(@PathVariable String id) throws Exception {
 		return new SuccessResponse<RequestDetail>()
 				.payload(requestBL.getRequest(id)).get(HttpStatus.OK); 
 	}
 	
 	@PreAuthorize(Authority.CREATE_REQUEST)
-	@PostMapping("/createRequest")
+	@PostMapping("/create")
 	public ResponseEntity<SuccessResponse<RequestDetail>> createRequest(@RequestBody RequestDetail createRequest) throws Exception {
 		return new SuccessResponse<RequestDetail>()
 				.payload(requestBL.createRequest(createRequest)).get(HttpStatus.OK); 
 	}
 	
 	@PreAuthorize(Authority.UPDATE_REQUEST)
-	@PatchMapping("/updateRequest/{id}")
+	@PatchMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<RequestDetail>> updateRequest(@PathVariable String id,@RequestBody RequestDetail request) throws Exception {
 		RequestDetail worklist=requestBL.updateRequest(id, request);
 		return new SuccessResponse<RequestDetail>()
 				.payload(worklist).get(HttpStatus.OK);
 	} 
 	
-	@GetMapping("/getMyWorkItems")
+	@GetMapping("/workitem/list/self")
 	public ResponseEntity<SuccessResponse<Paginate<WorkDetail>>> getMyWorkItems(
 			@RequestParam(required = false) Integer pageIndex, 
 			@RequestParam(required = false) Integer pageSize,
@@ -79,7 +79,7 @@ public class RequestController {
 	}
 	
 	@PreAuthorize(Authority.READ_WORK)
-	@GetMapping("/{id}/getWorkItems")
+	@GetMapping("/{id}/workitems")
 	public ResponseEntity<SuccessResponse<List<WorkDetail>>> getWorkItems(
 			@PathVariable String id) throws Exception {
 		List<WorkDetail> requestList=requestBL.getWorkLists(id);
@@ -88,7 +88,7 @@ public class RequestController {
 	}
 	
 	@PreAuthorize(Authority.UPDATE_WORK)
-	@PatchMapping("/updateWorkItem/{id}")
+	@PatchMapping("/workitem/{id}/update")
 	public ResponseEntity<SuccessResponse<WorkDetail>> updateWorkItem(@PathVariable String id,@RequestBody WorkDetail request) throws Exception {
 		WorkDetail worklist=requestBL.updateWorkList(id, request);
 		return new SuccessResponse<WorkDetail>()

@@ -16,7 +16,7 @@ public class DashboardCountEntity {
 	@Id
 	private String id;
 	private String userId;
-	private String profileId;
+	//private String profileId;
 	private String dbFieldKey;
 	private String dbFieldValue;
 	private Date lastUpdatedOn;

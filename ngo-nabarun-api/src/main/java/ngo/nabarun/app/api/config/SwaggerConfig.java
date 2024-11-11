@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 @SecuritySchemes({
 		@SecurityScheme(name = "nabarun_auth", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER),
 		@SecurityScheme(name = "nabarun_auth_apikey", scheme = "apikey", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER, paramName = "X-Api-Key") })
+
 public class SwaggerConfig {
 
 	@Bean
@@ -33,7 +34,7 @@ public class SwaggerConfig {
 	OperationCustomizer customGlobalHeaders() {
 
 		return (Operation operation, HandlerMethod handlerMethod) -> {
-
+			
 			Parameter corelationIdHeader = new Parameter().in(ParameterIn.HEADER.toString()).schema(new StringSchema())
 					.name(RequestFilterConfig.CORRELATION_ID).required(false);
 			operation.addParametersItem(corelationIdHeader);

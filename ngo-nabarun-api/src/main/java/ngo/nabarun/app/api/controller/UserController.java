@@ -36,19 +36,19 @@ public class UserController {
 	@Autowired
 	private IUserBL userBL;
 
-	@GetMapping("/getLoggedInUserDetails")
+	@GetMapping("/self")
 	public ResponseEntity<SuccessResponse<UserDetail>> getLoggedInUserDetails() throws Exception {
 		return new SuccessResponse<UserDetail>().payload(userBL.getAuthUserFullDetails()).get(HttpStatus.OK);
 	}
 
-	@PatchMapping("/updateLoggedInUserDetails")
+	@PatchMapping("/update/self")
 	public ResponseEntity<SuccessResponse<UserDetail>> updateLoggedInUserDetails(@RequestBody UserDetail requestBody,
 			@RequestParam(required = false) boolean updatePicture) throws Exception {
 		return new SuccessResponse<UserDetail>().payload(userBL.updateAuthUserDetails(requestBody, updatePicture))
 				.get(HttpStatus.OK);
 	}
 
-	@GetMapping("/getUsers")
+	@GetMapping("/list")
 	@PreAuthorize(Authority.READ_USERS)
 	public ResponseEntity<SuccessResponse<Paginate<UserDetail>>> getUsers(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
@@ -58,27 +58,21 @@ public class UserController {
 	}
 
 	@PreAuthorize(Authority.READ_USER)
-	@GetMapping("/getUserDetails/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<UserDetail>> getUserDetails(@PathVariable String id,
 			@RequestParam(defaultValue = "ID") IdType idType) throws Exception {
 		return new SuccessResponse<UserDetail>().payload(userBL.getUserDetails(id, idType, false, false))
 				.get(HttpStatus.OK);
 	}
 
-//	@PreAuthorize(Authority.READ_PROFILE)
-//	@GetMapping("/getUserFullDetails/{id}")
-//	public ResponseEntity<SuccessResponse<UserDetail>> getUserFullDetails(@PathVariable String id,@RequestParam(defaultValue = "ID") IdType idType) throws Exception {
-//		return new SuccessResponse<UserDetail>().payload(userBL.getUserDetails(id,idType,true,true)).get(HttpStatus.OK);
-//	}
-
 	@PreAuthorize(Authority.READ_USER)
-	@GetMapping("/getUserRoleHistory/{id}")
+	@GetMapping("/{id}/history")
 	public ResponseEntity<SuccessResponse<String>> getUserRoleHistory(@PathVariable String id) {
 		return new SuccessResponse<String>().payload("Hi").get(HttpStatus.OK);
 	}
 
 	@PreAuthorize(Authority.UPDATE_USER)
-	@PostMapping("/updateUserDetails/{id}")
+	@PostMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<UserDetail>> updateUserDetails(@PathVariable String id,
 			@RequestBody UserDetail detail) throws Exception {
 		UserDetail user = userBL.updateUserDetail(id, detail);
@@ -86,7 +80,7 @@ public class UserController {
 	}
 
 	@PreAuthorize(Authority.UPDATE_USER)
-	@PostMapping("/assignUsersToRoles/{id}")
+	@PostMapping("/roles/{id}/assignUsersToRole")
 	public ResponseEntity<SuccessResponse<Void>> assignUsersToRoles(@PathVariable RoleCode id,
 			@RequestBody List<UserDetail> users) throws Exception {
 		userBL.allocateUsersToRole(id, users);

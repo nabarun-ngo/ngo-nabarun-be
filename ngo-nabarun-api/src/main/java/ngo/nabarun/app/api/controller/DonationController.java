@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IDonationBL;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail.DonationDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary;
@@ -35,25 +36,50 @@ public class DonationController {
 	@Autowired
 	private IDonationBL donationBL;
 
+	@PreAuthorize(Authority.CREATE_DONATION)
+	@PostMapping("/create")
+	public ResponseEntity<SuccessResponse<DonationDetail>> raiseDonation(@RequestBody DonationDetail request)
+			throws Exception {
+		return new SuccessResponse<DonationDetail>().payload(donationBL.raiseDonation(request)).get(HttpStatus.OK);
+	}
+	
+	@PostMapping("/{id}/payment")
+	public ResponseEntity<SuccessResponse<DonationDetail>> payments(
+			@PathVariable String id,
+			@RequestParam String action,
+			@RequestBody DonationDetail paymentOptions) throws Exception {
+		return new SuccessResponse<DonationDetail>().payload(donationBL.updatePaymentInfo(id, paymentOptions)).get(HttpStatus.OK);
+	}
+	
 	@PreAuthorize(Authority.READ_DONATIONS)
-	@GetMapping("/getDonations")
+	@GetMapping("/list")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getDonations(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			DonationDetailFilter filter) {
 		return new SuccessResponse<Paginate<DonationDetail>>()
 				.payload(donationBL.getDonations(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
-
-	@GetMapping("/getLoggedInUserDonation")
+	
+	@GetMapping("/list/self")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getLoggedInUserDonations(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
 			throws Exception {
 		return new SuccessResponse<Paginate<DonationDetail>>()
 				.payload(donationBL.getLoggedInUserDonations(pageIndex, pageSize)).get(HttpStatus.OK);
 	}
+	
+	@PreAuthorize(Authority.READ_DONATIONS_GUEST)
+	@GetMapping("/list/guest")
+	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getGuestDonations(
+			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
+			DonationDetailFilter filter) {
+		filter.setIsGuest(true);
+		return new SuccessResponse<Paginate<DonationDetail>>()
+				.payload(donationBL.getDonations(pageIndex, pageSize, filter)).get(HttpStatus.OK);
+	}
 
 	@PreAuthorize(Authority.READ_USER_DONATIONS)
-	@GetMapping("/getUserDonation/{id}")
+	@GetMapping("/donor/{id}/list")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getUserDonations(@PathVariable String id,
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
 			throws Exception {
@@ -61,7 +87,7 @@ public class DonationController {
 				.payload(donationBL.getUserDonations(id, pageIndex, pageSize)).get(HttpStatus.OK);
 	}
 
-	@GetMapping("/getDonationSummary")
+	@GetMapping("/summary")
 	public ResponseEntity<SuccessResponse<DonationSummary>> getDonationSummary(
 			@RequestParam(required = false) String id, 
 			@RequestParam(required = false) boolean includePayableAccount,
@@ -80,41 +106,25 @@ public class DonationController {
 				.get(HttpStatus.OK);
 	}
 
-//	@Deprecated
-//	@GetMapping("/getDonationDocuments/{id}")
-//	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDonationDocuments(@PathVariable String id)
-//			throws Exception {
-//		return new SuccessResponse<List<DocumentDetail>>().payload(donationBL.getDonationDocument(id))
-//				.get(HttpStatus.OK);
-//	}
-
-	@PreAuthorize(Authority.CREATE_DONATION)
-	@PostMapping("/raiseDonation")
-	public ResponseEntity<SuccessResponse<DonationDetail>> raiseDonation(@RequestBody DonationDetail request)
+	@GetMapping("/{id}/documents")
+	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDonationDocuments(@PathVariable String id)
 			throws Exception {
-		return new SuccessResponse<DonationDetail>().payload(donationBL.raiseDonation(request)).get(HttpStatus.OK);
-	}
-
-	@PostMapping("/payments/{id}")
-	public ResponseEntity<SuccessResponse<DonationDetail>> payments(
-			@PathVariable String id,
-			@RequestParam String action,
-			@RequestBody DonationDetail paymentOptions) throws Exception {
-		return new SuccessResponse<DonationDetail>().payload(donationBL.updatePaymentInfo(id, paymentOptions)).get(HttpStatus.OK);
-	}
-
-	@PreAuthorize(Authority.UPDATE_DONATION)
-	@PatchMapping("/updateDonation/{id}")
-	public ResponseEntity<SuccessResponse<DonationDetail>> updateDonation(@PathVariable String id,
-			@RequestBody DonationDetail request) throws Exception {
-		return new SuccessResponse<DonationDetail>().payload(donationBL.updateDonation(id, request)).get(HttpStatus.OK);
+		return new SuccessResponse<List<DocumentDetail>>().payload(donationBL.getDonationDocument(id))
+				.get(HttpStatus.OK);
 	}
 	
-	@GetMapping("/getHistories/{id}")
+	@GetMapping("/{id}/histories")
 	public ResponseEntity<SuccessResponse<List<HistoryDetail>>> getHistories(@PathVariable String id)
 			throws Exception {
 		return new SuccessResponse<List<HistoryDetail>>().payload(donationBL.getHistories(id))
 				.get(HttpStatus.OK);
 	}
 
+	@PreAuthorize(Authority.UPDATE_DONATION)
+	@PatchMapping("/{id}/update")
+	public ResponseEntity<SuccessResponse<DonationDetail>> updateDonation(@PathVariable String id,
+			@RequestBody DonationDetail request) throws Exception {
+		return new SuccessResponse<DonationDetail>().payload(donationBL.updateDonation(id, request)).get(HttpStatus.OK);
+	}
+	
 }

@@ -8,10 +8,12 @@ import java.util.Map;
 
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.roles.Role;
+import com.auth0.json.mgmt.users.Identity;
 import com.auth0.json.mgmt.users.User;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.MeetingType;
 import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
@@ -68,7 +70,28 @@ public class ObjectConverter {
 		authUser.setUpdatedAt(user.getUpdatedAt());
 		authUser.setUserId(user.getId());
 		//authUser.setUserMetadata(user.getUserMetadata());
-		authUser.setProviders(user.getIdentities() == null ? null : user.getIdentities().stream().map(m->m.getProvider()).toList());
+		
+		if(user != null && user.getIdentities() != null) {
+			List<Identity> identities=user.getIdentities();
+			List<LoginMethod> loginMethods= new ArrayList<>();
+			for(Identity identity:identities) {
+				//System.err.println(provider);
+				switch(identity.getProvider()) {
+				case "auth0":
+					if("Username-Password-Authentication".equalsIgnoreCase(identity.getConnection())) {
+						loginMethods.add(LoginMethod.PASSWORD);
+					}
+					break;
+				case "email":
+					loginMethods.add(LoginMethod.EMAIL);
+					break;
+				case "sms":
+					loginMethods.add(LoginMethod.SMS);
+					break;
+				}
+			}
+			authUser.setProviders(loginMethods);
+		}
 		authUser.setUsername(user.getUsername());
 		//System.err.println(user.getUserMetadata());
 		if(user != null && user.getUserMetadata() != null) {

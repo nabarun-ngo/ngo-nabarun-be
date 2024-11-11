@@ -13,7 +13,7 @@ public interface ICountsInfraService {
 	int decrementEntitySequence(String seqName); 
 	int resetEntirySequence(String seqName); 
 	
-	Map<String,String> getDashboardCounts(String userId);
 	Map<String, String> addOrUpdateDashboardCounts(String userId, Map<String, String> map);
+	Map<String, String> getDashboardCounts(String userId);
 
 }

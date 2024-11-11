@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.Data;
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
 
@@ -37,7 +38,7 @@ public class UserDTO {
 	private String profileId;
 	private String userId;
 	private ProfileStatus status;
-	private List<String> loginProviders;
+	private List<LoginMethod> loginProviders;
 	private Boolean presentPermanentSame;
 
 	private UserAdditionalDetailsDTO additionalDetails;

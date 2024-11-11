@@ -52,6 +52,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		workflow.setDelegated(workflowDTO.isDelegated());
 		if (workflowDTO.getRequester() != null) {
 			UserDTO req = workflowDTO.getRequester();
+			workflow.setUserId(req.getUserId());
 			workflow.setProfileId(req.getProfileId());
 			workflow.setProfileEmail(req.getEmail());
 			String name = req.getName() == null ? String.join(" ", req.getFirstName(), req.getLastName())
@@ -59,6 +60,7 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			workflow.setProfileName(name);
 		}
 		if (workflowDTO.getDelegatedRequester() != null) {
+			workflow.setDelegateUserId(workflowDTO.getDelegatedRequester().getUserId());
 			workflow.setDelegateProfileId(workflowDTO.getDelegatedRequester().getProfileId());
 			workflow.setDelegateProfileEmail(workflowDTO.getDelegatedRequester().getEmail());
 			workflow.setDelegateProfileName(workflowDTO.getDelegatedRequester().getName());
@@ -98,9 +100,11 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 			QWorkflowEntity qWorkflow = QWorkflowEntity.workflowEntity;
 			BooleanBuilder query = WhereClause.builder()
 					.optionalAnd(filter.getId() != null, () -> qWorkflow.id.eq(filter.getId()))
+					.optionalAnd(filter.getRequesterUserId() != null, () -> qWorkflow.userId.eq(filter.getRequesterUserId()))
 					.optionalAnd(filter.getRequesterId() != null, () -> qWorkflow.profileId.eq(filter.getRequesterId()))
 					.optionalAnd(filter.getDelegatedRequesterId() != null,
 							() -> qWorkflow.delegateProfileId.eq(filter.getDelegatedRequesterId()))
+					.optionalAnd(filter.getResolved() != null, () -> qWorkflow.resolved.eq(filter.getResolved()))
 					.optionalAnd(filter.getWorkflowStatus() != null,
 							() -> qWorkflow.status.in(filter.getWorkflowStatus().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getType() != null,
@@ -145,6 +149,10 @@ public class WorkflowInfraServiceImpl extends BaseServiceImpl implements IWorkfl
 		}
 
 		workflow.setRemarks(workflowDTO.getRemarks());
+		workflow.setResolvedOn(workflowDTO.getResolvedOn());
+		if(workflowDTO.getResolvedOn() != null) {
+			workflow.setResolved(true);
+		}
 		if (workflowDTO.getStatus() != null) {
 			workflow.setStatus(workflowDTO.getStatus().name());
 			if (workflow.getStatus() != workflowDTO.getStatus().name()) {

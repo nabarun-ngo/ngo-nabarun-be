@@ -86,24 +86,29 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 				destAccount = accRepo.save(destAccount);
 				txn.setToAccBalAfterTxn(destAccount.getCurrentBalance());
 				txn.setToAccount(transactionDTO.getToAccount().getId());
+				txn.setToAccountUserId(destAccount.getUserId());
 			} else if (transactionDTO.getTxnType() == TransactionType.OUT) {
 				srcAccount = accRepo.findById(transactionDTO.getFromAccount().getId()).orElseThrow();
 				srcAccount.setCurrentBalance(srcAccount.getCurrentBalance() - transactionDTO.getTxnAmount());
 				srcAccount = accRepo.save(srcAccount);
 				txn.setFromAccBalAfterTxn(srcAccount.getCurrentBalance());
 				txn.setFromAccount(transactionDTO.getFromAccount().getId());
+				txn.setFromAccountUserId(srcAccount.getUserId());
 			} else if (transactionDTO.getTxnType() == TransactionType.TRANSFER) {
 				srcAccount = accRepo.findById(transactionDTO.getFromAccount().getId()).orElseThrow();
 				srcAccount.setCurrentBalance(srcAccount.getCurrentBalance() - transactionDTO.getTxnAmount());
 				srcAccount = accRepo.save(srcAccount);
 				txn.setFromAccBalAfterTxn(srcAccount.getCurrentBalance());
 				txn.setFromAccount(transactionDTO.getFromAccount().getId());
+				txn.setFromAccountUserId(srcAccount.getUserId());
 
 				destAccount = accRepo.findById(transactionDTO.getToAccount().getId()).orElseThrow();
 				destAccount.setCurrentBalance(destAccount.getCurrentBalance() + transactionDTO.getTxnAmount());
 				destAccount = accRepo.save(destAccount);
 				txn.setToAccBalAfterTxn(destAccount.getCurrentBalance());
 				txn.setToAccount(transactionDTO.getToAccount().getId());
+				txn.setToAccountUserId(destAccount.getUserId());
+
 			}
 		}
 
@@ -174,6 +179,8 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 		entity.setOpeningBalance(accountDTO.getOpeningBalance());
 		entity.setCurrentBalance(0.0);
 		entity.setProfile(accountDTO.getProfile().getProfileId());
+		entity.setUserId(accountDTO.getProfile().getUserId());
+
 		if (accountDTO.getBankDetail() != null) {
 			BankDTO bankDetail = accountDTO.getBankDetail();
 			entity.setBankAccountHolderName(bankDetail.getAccountHolderName());
@@ -192,6 +199,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 		}
 
 		if (accountDTO.getCreatedBy() != null) {
+			entity.setCreatedByUserId(accountDTO.getCreatedBy().getUserId());
 			entity.setCreatedById(accountDTO.getCreatedBy().getProfileId());
 			entity.setCreatedByName(accountDTO.getCreatedBy().getName());
 			entity.setCreatedByEmail(accountDTO.getCreatedBy().getEmail());
@@ -308,12 +316,12 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 		ExpenseEntity expense = expenseDTO.getId() == null ? new ExpenseEntity()
 				: expRepo.findById(expenseDTO.getId()).orElse(new ExpenseEntity());
 		ExpenseEntity expenseUpdate= new ExpenseEntity();
-		expenseUpdate.setApproved(expenseDTO.isApproved());
+		expenseUpdate.setFinalized(expenseDTO.isFinalized());
 		expense.setId(expenseDTO.getId());		
-		if(expenseDTO.getApprovedBy() != null) {
-			expenseUpdate.setApprovedById(expenseDTO.getApprovedBy().getProfileId());
-			expenseUpdate.setApprovedByName(expenseDTO.getApprovedBy().getName());
-			expenseUpdate.setApprovedByUserId(expenseDTO.getApprovedBy().getUserId());
+		if(expenseDTO.getFinalizedBy() != null) {
+			expenseUpdate.setFinalizedById(expenseDTO.getFinalizedBy().getProfileId());
+			expenseUpdate.setFinalizedByName(expenseDTO.getFinalizedBy().getName());
+			expenseUpdate.setFinalizedByUserId(expenseDTO.getFinalizedBy().getUserId());
 		}
 		
 		if(expenseDTO.getCreatedBy() != null) {
@@ -321,45 +329,75 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 			expenseUpdate.setCreatedByName(expenseDTO.getCreatedBy().getName());
 			expenseUpdate.setCreatedByUserId(expenseDTO.getCreatedBy().getUserId());
 		}
-		
-//		expenseUpdate.setDeleted(false);
-		if(expenseDTO.getExpenseAccount() != null) {
-			expenseUpdate.setExpenseAccountId(expenseDTO.getExpenseAccount().getId());
-			expenseUpdate.setExpenseAccountName(expenseDTO.getExpenseAccount().getAccountName());
-		}
-			
+		expenseUpdate.setDeleted(false);
+	
 		expenseUpdate.setExpenseAmount(expenseDTO.getFinalAmount());
 		expenseUpdate.setExpenseCreatedOn(expenseDTO.getCreatedOn());
-		expenseUpdate.setExpenseDate(expenseDTO.getExpenseDate());
+		expenseUpdate.setFinalizedOn(expenseDTO.getFinalizedOn());
 		expenseUpdate.setExpenseDescription(expenseDTO.getDescription());
 		expenseUpdate.setExpenseRefId(expenseDTO.getRefId());
 		expenseUpdate.setExpenseRefType(expenseDTO.getRefType() == null ? null :expenseDTO.getRefType().name());
 		expenseUpdate.setExpenseTitle(expenseDTO.getName());
-		expenseUpdate.setTransactionRefNumber(expenseDTO.getTxnNumber());		
+		
+		if(expenseDTO.getAccount() != null) {
+			expenseUpdate.setExpenseAccountId(expenseDTO.getAccount().getId());
+			expenseUpdate.setExpenseAccountName(expenseDTO.getAccount().getAccountName());
+		}
+		expenseUpdate.setTransactionRefNumber(expenseDTO.getTxnNumber());
+		expenseUpdate.setExpenseStatus(expenseDTO.getStatus() == null ? null : expenseDTO.getStatus().name());
+		expenseUpdate.setExpenseDate(expenseDTO.getExpenseDate());
+
 		CommonUtils.copyNonNullProperties(expenseUpdate, expense);
 		expense=expRepo.save(expense);
-		if(expenseDTO.getExpenseItems()!= null) {
-			for(ExpenseItemDTO expenseItemDTO:expenseDTO.getExpenseItems()) {
-				if(expenseItemDTO.isRemove()) {
-					expItemRepo.deleteById(expenseItemDTO.getId());
-				}else {
-					ExpenseItemEntity expenseItem = expenseItemDTO.getId() == null ? new ExpenseItemEntity()
-							: expItemRepo.findById(expenseItemDTO.getId()).orElse(new ExpenseItemEntity());
-					ExpenseItemEntity expenseItemUpdate=new ExpenseItemEntity();
-					//expenseItemUpdate.setCreatedOn(expenseItemDTO.get);
-					expenseItemUpdate.setExpenseAmount(expenseItemDTO.getAmount());
-					expenseItemUpdate.setExpenseDescription(expenseItemDTO.getDescription());
-					expenseItemUpdate.setExpenseTitle(expenseItemDTO.getItemName());
-					expenseItemUpdate.setExpenseId(expense.getId());
-					CommonUtils.copyNonNullProperties(expenseItemUpdate, expenseItem);
-					if(expenseItem.getId() == null) {
-						expenseItem.setId(UUID.randomUUID().toString());
-					}
-					expenseItem=expItemRepo.save(expenseItem);
-				}
-			}
-		}
 		return InfraDTOHelper.convertToExpenseDTO(expense);
+	}
+	
+	@Override
+	public ExpenseItemDTO addOrUpdateExpenseItem(String expenseId,ExpenseItemDTO expenseItemDTO) {
+		
+		if(expenseItemDTO.isRemove()) {
+			expItemRepo.deleteById(expenseItemDTO.getId());
+			return expenseItemDTO;
+		}else {
+			ExpenseItemEntity expenseItem = expenseItemDTO.getId() == null ? new ExpenseItemEntity()
+					: expItemRepo.findById(expenseItemDTO.getId()).orElse(new ExpenseItemEntity());
+			ExpenseItemEntity expenseItemUpdate=new ExpenseItemEntity();
+
+			expenseItemUpdate.setExpenseTitle(expenseItemDTO.getItemName());
+			expenseItemUpdate.setExpenseDescription(expenseItemDTO.getDescription());
+			expenseItemUpdate.setExpenseAmount(expenseItemDTO.getAmount());
+			expenseItemUpdate.setCreatedOn(expenseItemDTO.getCreatedOn());
+			expenseItemUpdate.setExpenseId(expenseId);
+			expenseItemUpdate.setExpenseDate(expenseItemDTO.getDate());
+			expenseItemUpdate.setTransactionRefNumber(expenseItemDTO.getTxnNumber());
+			expenseItemUpdate.setExpenseStatus(expenseItemDTO.getStatus() == null ? null : expenseItemDTO.getStatus().name());
+			
+			
+			if(expenseItemDTO.getCreatedBy() != null) {
+				expenseItemUpdate.setCreatedById(expenseItemDTO.getCreatedBy().getProfileId());
+				expenseItemUpdate.setCreatedByName(expenseItemDTO.getCreatedBy().getName());
+				expenseItemUpdate.setCreatedByUserId(expenseItemDTO.getCreatedBy().getUserId());
+			}
+			
+			if(expenseItemDTO.getConfirmedBy() != null) {
+				expenseItemUpdate.setPaymentConfirmedById(expenseItemDTO.getConfirmedBy().getProfileId());
+				expenseItemUpdate.setPaymentConfirmedByName(expenseItemDTO.getConfirmedBy().getName());
+				expenseItemUpdate.setPaymentConfirmedByUserId(expenseItemDTO.getConfirmedBy().getUserId());
+			}
+			
+			if(expenseItemDTO.getAccount() != null) {
+				expenseItemUpdate.setExpenseAccountId(expenseItemDTO.getAccount().getId());
+				expenseItemUpdate.setExpenseAccountName(expenseItemDTO.getAccount().getAccountName());
+			}
+			
+			CommonUtils.copyNonNullProperties(expenseItemUpdate, expenseItem);
+			if(expenseItem.getId() == null) {
+				expenseItem.setId(UUID.randomUUID().toString());
+			}
+			expenseItem=expItemRepo.save(expenseItem);
+			return InfraDTOHelper.convertToExpenseItemDTO(expenseItem);
+
+		}
 	}
 
 	@Override
@@ -374,11 +412,11 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 			QExpenseEntity qExp = QExpenseEntity.expenseEntity;
 			BooleanBuilder query = WhereClause.builder()
 					.optionalAnd(filter.getExpId() != null, () -> qExp.id.eq(filter.getExpId()))
-					.optionalAnd(filter.getApproved() != null, () -> qExp.approved.eq(filter.getApproved()))
+					.optionalAnd(filter.getFinalized() != null, () -> qExp.finalized.eq(filter.getFinalized()))
 					.optionalAnd(filter.getRefId() != null, () -> qExp.expenseRefId.eq(filter.getRefId()))
 					.optionalAnd(filter.getRefType() != null, () -> qExp.expenseRefType.eq(filter.getRefType().name()))
 					.optionalAnd(filter.getStartDate() != null && filter.getEndDate() != null,
-							() -> qExp.expenseDate.between(filter.getStartDate(), filter.getEndDate()))
+							() -> qExp.expenseCreatedOn.between(filter.getStartDate(), filter.getEndDate()))
 					.build();
 			if (page == null || size == null) {
 				List<ExpenseEntity> result = new ArrayList<>();
@@ -392,7 +430,13 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 		} else {
 			expenses = new PageImpl<>(expRepo.findAll(sort));
 		}
-		System.err.println(expenses.getContent());
+		//System.err.println(expenses.getContent());
 		return expenses.map(m -> InfraDTOHelper.convertToExpenseDTO(m));
+	}
+
+	@Override
+	public ExpenseDTO getExpense(String id) {
+		ExpenseEntity expense =expRepo.findById(id).orElseThrow();
+		return InfraDTOHelper.convertToExpenseDTO(expense);
 	}
 }

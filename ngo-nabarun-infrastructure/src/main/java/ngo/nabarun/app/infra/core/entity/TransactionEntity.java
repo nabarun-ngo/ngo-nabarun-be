@@ -25,8 +25,11 @@ public class TransactionEntity {
 	private String transactionRefType;
 
 	private String fromAccount;
+	private String fromAccountUserId;
+
 	private String toAccount;
-    
+	private String toAccountUserId;
+
 	private Double fromAccBalAfterTxn;
 	private Double toAccBalAfterTxn;
     private Date transactionDate;

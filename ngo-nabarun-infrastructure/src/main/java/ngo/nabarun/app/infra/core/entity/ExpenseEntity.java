@@ -14,7 +14,7 @@ import lombok.Data;
  * MongoDB
  * DAO for storing expense info in DB
  */
-@Document("expense")
+@Document("expenses")
 @Data
 public class ExpenseEntity {
 
@@ -25,14 +25,14 @@ public class ExpenseEntity {
 	private String expenseTitle;
 	private String expenseDescription;
 	private Double expenseAmount;
-	private Date expenseCreatedOn;
 	private Date expenseDate;
+	private Date expenseCreatedOn;
+	private Date finalizedOn;
 	private boolean deleted;
-	private boolean approved;
-	private String transactionRefNumber;
-	private String approvedById;
-	private String approvedByUserId;
-	private String approvedByName;
+	private boolean finalized;
+	private String finalizedById;
+	private String finalizedByUserId;
+	private String finalizedByName;
 
 	private String createdById;
 	private String createdByUserId;
@@ -40,6 +40,10 @@ public class ExpenseEntity {
 	
 	private String expenseAccountId;
 	private String expenseAccountName;
+	
+	private String transactionRefNumber;
+	private String expenseStatus;
+
 	
 	@ReadOnlyProperty
 	@DocumentReference(lookup = "{'expenseId':?#{#self._id} }")
