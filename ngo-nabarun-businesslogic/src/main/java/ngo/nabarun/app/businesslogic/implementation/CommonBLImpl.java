@@ -1,13 +1,11 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -28,13 +26,13 @@ import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
+import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 
 
 @Service
 public class CommonBLImpl implements ICommonBL {
 	
-	@Autowired
-	private CacheManager cacheManager;
+	
 	
 	@Autowired
 	private BusinessDomainHelper businessHelper;
@@ -83,15 +81,7 @@ public class CommonBLImpl implements ICommonBL {
 		return commonDO.deleteDocument(docId);
 	}
 
-	@Override
-	public void clearSystemCache(List<String> names) {
-		if(names == null || names.size() == 0) {
-			System.out.println(cacheManager.getCacheNames());
-			cacheManager.getCacheNames().stream().forEach(name->cacheManager.getCache(name).clear());
-		}else {
-			names.stream().forEach(name->cacheManager.getCache(name).clear());
-		}
-	}
+	
 	@NoLogging
 	@Override
 	public Map<String,List<KeyValue>> getReferenceData(List<RefDataType> names,Map<String,String> attr) throws Exception {
@@ -128,6 +118,9 @@ public class CommonBLImpl implements ICommonBL {
 			}
 			obj.putAll(businessHelper.getWorkflowRefData(type));
 		}
+		if(names == null || names.contains(RefDataType.ADMIN)) {
+			obj.putAll(businessHelper.getAdminRefData());
+		}
 		return obj;
 	}
 	
@@ -150,14 +143,14 @@ public class CommonBLImpl implements ICommonBL {
 
 	@Async
 	@Override
-	public void manageNotification(String userId,String action,Map<String, Object> payload) throws Exception {
+	public void manageNotification(AuthenticatedUser user,String action,Map<String, Object> payload) throws Exception {
 		switch(action.toUpperCase()) {
 		case "SAVE_TOKEN_AND_GET_COUNTS":
-			commonDO.saveNotificationToken(userId, payload.get("token").toString());
-			commonDO.sendDashboardCounts(userId);
+			commonDO.saveNotificationToken(user.getUserId(), payload.get("token").toString());
+			commonDO.sendDashboardCounts(user.getUserId());
 			break;
 		case "DELETE_TOKEN":
-			commonDO.removeNotificationToken(userId,payload.get("token").toString());
+			commonDO.removeNotificationToken(user.getUserId(),payload.get("token").toString());
 			break;
 		case "UPDATE_NOTIFICATION":
 			commonDO.updateNotification(payload.get("id").toString(), payload);

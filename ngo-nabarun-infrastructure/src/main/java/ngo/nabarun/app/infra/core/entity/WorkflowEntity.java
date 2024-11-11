@@ -29,8 +29,10 @@ public class WorkflowEntity {
 	private Date createdOn;
 	private String createdBy;
 	private Date resolvedOn;
+	private boolean resolved;
 
 	private String profileId;
+	private String userId;
 	private String profileName;
 	private String profileEmail;
 	private String  systemRequestOwnerId;
@@ -42,6 +44,7 @@ public class WorkflowEntity {
 	private boolean systemGenerated;
 
 	private String delegateProfileId;
+	private String delegateUserId;
 	private String delegateProfileName;
 	private String delegateProfileEmail;
 

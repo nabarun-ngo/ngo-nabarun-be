@@ -1,6 +1,5 @@
 package ngo.nabarun.app.api.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +33,7 @@ public class NoticeController {
 	
 
 	@PreAuthorize(Authority.READ_NOTICES)
-	@GetMapping("/getNotices")
+	@GetMapping("/list")
 	public ResponseEntity<SuccessResponse<Paginate<NoticeDetail>>> getAllNotice(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			NoticeDetailFilter filter) throws Exception {
@@ -49,13 +48,13 @@ public class NoticeController {
 	}
 
 	@PreAuthorize(Authority.READ_NOTICE)
-	@GetMapping("/getNotice/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> getNotice(@PathVariable String id) throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.getNoticeDetail(id)).get(HttpStatus.OK);
 	}
 
 	@PreAuthorize(Authority.CREATE_NOTICE)
-	@PostMapping("/createNotice")
+	@PostMapping("/create")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> createNotice(@RequestBody NoticeDetail noticeDetail)
 			throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.createNotice(noticeDetail))
@@ -63,7 +62,7 @@ public class NoticeController {
 	}
 
 	@PreAuthorize(Authority.UPDATE_NOTICE)
-	@PatchMapping("/updateNotice/{id}")
+	@PatchMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> updateNotice(@PathVariable String id,
 			@RequestBody NoticeDetail noticeDetail) throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.updateNotice(id, noticeDetail))
@@ -77,12 +76,12 @@ public class NoticeController {
 //				.get(HttpStatus.OK);
 //	}
 	
-	@PreAuthorize(Authority.DELETE_NOTICE)
-	@DeleteMapping("/deleteNotice/{id}")
-	public ResponseEntity<SuccessResponse<Void>> deleteEvent(@PathVariable String id)
-			throws Exception {
-		noticeBL.deleteNotice(id);
-		return new SuccessResponse<Void>()
-				.get(HttpStatus.OK);
-	}
+//	@PreAuthorize(Authority.DELETE_NOTICE)
+//	@DeleteMapping("/{id}/delete")
+//	public ResponseEntity<SuccessResponse<Void>> deleteEvent(@PathVariable String id)
+//			throws Exception {
+//		noticeBL.deleteNotice(id);
+//		return new SuccessResponse<Void>()
+//				.get(HttpStatus.OK);
+//	}
 }

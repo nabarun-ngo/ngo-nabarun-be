@@ -27,9 +27,11 @@ import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.NotificationType;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.common.enums.WorkAction;
+import ngo.nabarun.app.common.enums.WorkDecision;
 import ngo.nabarun.app.common.enums.WorkType;
 import ngo.nabarun.app.common.enums.RequestStatus;
 import ngo.nabarun.app.common.enums.RequestType;
@@ -108,6 +110,9 @@ public class BusinessDomainHelper {
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_HIDDEN = "HIDDEN";
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED = "ENCRYPTED";
 	private static final String ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED = "SYSTEM_GENERATED";
+	private static final String ITEM_USER_CONNECTIONS = "USER_CONNECTIONS";
+	private static final String ITEM_USER_CONNECTIONS__ATTR_ACTIVE = "ACTIVE";
+	private static final String ITEM_IMPORTANT_LINKS = "IMPORTANT_LINKS";
 
 	@NoLogging
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
@@ -215,21 +220,28 @@ public class BusinessDomainHelper {
 		obj.put("userStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream()
 				.filter(m -> m.getAttributes().get("IS_VISIBLE") == Boolean.TRUE).collect(Collectors.toList())));
 
+		List<KeyValuePair> states = locationRef.get(ITEM_STATE_LIST);
+		if (countryCode != null) {
+			states = states.stream().filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY")))
+					.collect(Collectors.toList());
+		}
+		List<KeyValuePair> districts = locationRef.get(ITEM_DISTRICT_LIST);
+		if (countryCode != null && stateCode != null) {
+			districts = districts.stream().filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))
+					&& stateCode.equals(f.getAttributes().get("STATEKEY"))).collect(Collectors.toList());
+		}
+
+		List<KeyValuePair> connections = domainRef.get(ITEM_USER_CONNECTIONS).stream().filter(f -> {
+			Object isActive = f.getAttributes().get(ITEM_USER_CONNECTIONS__ATTR_ACTIVE);
+			return isActive != null && Boolean.valueOf(isActive.toString());
+		}).collect(Collectors.toList());
+
 		obj.put("countries", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST)));
 		obj.put("phoneCodes", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST), "DIALCODE"));
+		obj.put("districts", BusinessObjectConverter.toKeyValueList(districts));
+		obj.put("states", BusinessObjectConverter.toKeyValueList(states));
+		obj.put("loginMethods", BusinessObjectConverter.toKeyValueList(connections));
 
-		if (countryCode != null) {
-			List<KeyValuePair> states = locationRef.get(ITEM_STATE_LIST).stream()
-					.filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))).collect(Collectors.toList());
-			obj.put("states", BusinessObjectConverter.toKeyValueList(states));
-		}
-		if (countryCode != null && stateCode != null) {
-			List<KeyValuePair> districts = locationRef.get(ITEM_DISTRICT_LIST).stream()
-					.filter(f -> countryCode.equals(f.getAttributes().get("COUNTRYKEY"))
-							&& stateCode.equals(f.getAttributes().get("STATEKEY")))
-					.collect(Collectors.toList());
-			obj.put("districts", BusinessObjectConverter.toKeyValueList(districts));
-		}
 		return obj;
 	}
 
@@ -572,7 +584,8 @@ public class BusinessDomainHelper {
 					String.valueOf(f.getAttributes().get(ITEM_ADDITIONAL_FIELDS__ATTR_APPLICABLE_FOR)).split(SPLITTER));
 			return f.getKey().equalsIgnoreCase(additionalField.getFieldKey().name())
 					&& applicable_for.contains(sourceType);
-		}).findFirst().orElseThrow(() -> new Exception("Invalid additional key '"+additionalField.getFieldKey().name()));
+		}).findFirst()
+				.orElseThrow(() -> new Exception("Invalid additional key '" + additionalField.getFieldKey().name()));
 		FieldDTO fieldDTO = new FieldDTO();
 		fieldDTO.setFieldId(additionalField.getFieldId());
 		fieldDTO.setFieldName(field.getValue());
@@ -860,6 +873,13 @@ public class BusinessDomainHelper {
 		obj.put("accountStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_STATUS)));
 		return obj;
 	}
+	
+	public Map<String, List<KeyValue>> getAdminRefData() throws Exception {
+		Map<String, List<KeyValue>> obj = new HashMap<>();
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		obj.put("importantLinks", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_IMPORTANT_LINKS)));
+		return obj;
+	}
 
 	public Map<String, List<KeyValue>> getWorkflowRefData(RequestType workflowType) throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
@@ -878,8 +898,30 @@ public class BusinessDomainHelper {
 			}).collect(Collectors.toList());
 			obj.put("applicableWorkflowSteps", BusinessObjectConverter.toKeyValueList(applicableWFStepsKV));
 		}
-
+		List<KeyValue> workType = new ArrayList<>();
+		for (WorkType type : WorkType.values()) {
+			KeyValue kv = new KeyValue();
+			kv.setKey(type.name());
+			kv.setValue(type.getName());
+			workType.add(kv);
+		}
+		List<KeyValue> workDecision = new ArrayList<>();
+		for (WorkDecision type : WorkDecision.values()) {
+			KeyValue kv = new KeyValue();
+			kv.setKey(type.name());
+			kv.setValue(type.getValue());
+			workType.add(kv);
+		}
+		obj.put("workType", workType);
+		obj.put("workDecision", workDecision);
 		return obj;
 	}
 
+	public List<LoginMethod> getAvailableLoginMethods() throws Exception {
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		return domainRef.get(ITEM_USER_CONNECTIONS).stream().filter(f -> {
+			Object isVisible = f.getAttributes().get(ITEM_USER_CONNECTIONS__ATTR_ACTIVE);
+			return isVisible != null && Boolean.valueOf(isVisible.toString());
+		}).map(m -> LoginMethod.valueOf(m.getKey())).collect(Collectors.toList());
+	}
 }

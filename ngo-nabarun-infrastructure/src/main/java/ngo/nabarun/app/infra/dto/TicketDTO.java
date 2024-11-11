@@ -51,6 +51,7 @@ public class TicketDTO {
 	public Map<String, Object> toMap(Map<String, String> domainKeyValues) {
 		Map<String, Object> ticket = new HashMap<>();
 		ticket.put("otp", oneTimePassword);
+		ticket.put("ticketUserName", userInfo.getName());
 		ticket.put("ticketUser", userInfo);
 		ticket.put("ticketScope", ticketScope);
 		ticket.put("expireOn", CommonUtils.formatDateToString(expireOn, "dd MMM yyyy", "IST"));

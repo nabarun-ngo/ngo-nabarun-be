@@ -18,6 +18,7 @@ import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Response;
 import com.auth0.net.TokenRequest;
 
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectConverter;
@@ -100,16 +101,16 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		try {
 			String connection = null;
 			boolean userCreated=false;
-			for(String provider:userDetails.getProviders()) {
+			for(LoginMethod provider:userDetails.getProviders()) {
 				switch(provider) {
-				case "PASSWORD":
+				case PASSWORD:
 					connection="Username-Password-Authentication";
 					break;
-				case "EMAIL":
+				case EMAIL:
 					connection="email";
 					userDetails.setPassword(null);
 					break;
-				case "SMS":
+				case SMS:
 					connection="sms";
 					userDetails.setPassword(null);
 					break;
@@ -144,6 +145,15 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 				return ObjectConverter.toAuthUser(updatedUser);
 			}
 			return ObjectConverter.toAuthUser(users.get(0));
+		} catch (Auth0Exception e) {
+			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
+		}
+	}
+	
+	@Override
+	public Void endUserSessions(String userId) throws ThirdPartyException {
+		try {
+			return initManagementAPI().users().invalidateRememberedBrowsers(userId).execute().getBody();
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}
@@ -242,6 +252,21 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 	public List<AuthConnection> getConnections() throws ThirdPartyException {
 		try {
 			return initManagementAPI().connections().listAll(null).execute().getBody().getItems().stream().map(m->ObjectConverter.toAuthConnection(m)).toList();
+		} catch (Auth0Exception e) {
+			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
+		}
+	}
+
+	@Override
+	public String loginWithUser(String email, String old_password) throws ThirdPartyException {
+		String domain=propertyHelper.getAuth0BaseURL();
+		String clientId=propertyHelper.getAuth0ManagementClientId();
+		String clientSecret=propertyHelper.getAuth0ManagementClientSecret();
+		try {
+			AuthAPI authAPI = AuthAPI.newBuilder(domain, clientId,clientSecret).build();
+			TokenHolder token=authAPI.login(email, old_password.toCharArray()).execute()
+	        .getBody();
+			return token.getAccessToken();
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}

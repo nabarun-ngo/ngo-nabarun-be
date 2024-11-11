@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ngo.nabarun.app.common.enums.AddressType;
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
@@ -90,6 +91,9 @@ public class UserDetail {
 	
 	@JsonProperty("status")
 	private ProfileStatus status;
+	
+	@JsonProperty("loginMethod")
+	private List<LoginMethod> loginMethod;
 	
 	private Boolean presentAndPermanentAddressSame;
 	

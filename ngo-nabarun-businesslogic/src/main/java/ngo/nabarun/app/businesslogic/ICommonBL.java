@@ -13,6 +13,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.RefDataType;
+import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 
 @Service
 public interface ICommonBL {
@@ -23,8 +24,6 @@ public interface ICommonBL {
 
 	boolean deleteDocument(String docId) throws Exception;
 	
-	void clearSystemCache(List<String> names);
-
 	void uploadDocuments(List<DocumentDetailUpload> files,String docIndexId, DocumentIndexType docIndexType) throws Exception;
 
 	Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names, Map<String, String> attr) throws Exception;
@@ -35,9 +34,9 @@ public interface ICommonBL {
 
 	List<AdditionalField> getReferenceFields(String identifier) throws Exception;
 
-	void manageNotification(String userId, String action, Map<String, Object> payload) throws Exception;
-
 	List<DocumentDetail> getDocuments(String id, DocumentIndexType type);
+
+	void manageNotification(AuthenticatedUser user,String action,Map<String, Object> payload) throws Exception;
 
 
 

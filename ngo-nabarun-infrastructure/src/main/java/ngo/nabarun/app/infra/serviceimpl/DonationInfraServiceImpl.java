@@ -86,6 +86,7 @@ public class DonationInfraServiceImpl extends BaseServiceImpl implements IDonati
 		donation.setRaisedOn(CommonUtils.getSystemDate());
 		if (donationDTO.getGuest() != Boolean.TRUE) {
 			donation.setProfile(donationDTO.getDonor().getProfileId());
+			donation.setUserId(donationDTO.getDonor().getUserId());
 		}
 
 		donation.setDonorContactNumber(donationDTO.getDonor().getPhoneNumber());

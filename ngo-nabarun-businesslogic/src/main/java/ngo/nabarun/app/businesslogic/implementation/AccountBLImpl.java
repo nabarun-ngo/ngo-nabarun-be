@@ -8,6 +8,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseDetailFilter;
+import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail.TransactionDetailFilter;
@@ -18,6 +19,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 
 @Service
@@ -54,13 +56,13 @@ public class AccountBLImpl implements IAccountBL {
 	public Paginate<TransactionDetail> getMyTransactions(String id,Integer index, Integer size,TransactionDetailFilter filter) throws Exception{
 		List<AccountDTO> myaccounts= accountDO.retrieveMyAccounts(null, null, new AccountDetailFilter()).getContent();
 		myaccounts.stream().filter(f->f.getId().equalsIgnoreCase(id)).findFirst().orElseThrow(()-> new Exception("Invalid account selected"));
-		return accountDO.retrieveAccountTransactions(index, size,filter)
+		return accountDO.retrieveAccountTransactions(id,index, size,filter)
 				.map(m -> BusinessObjectConverter.toTransactionDetail(m, true,id));
 	} 
 	
 	@Override
 	public Paginate<TransactionDetail> getTransactions(String id,Integer index, Integer size,TransactionDetailFilter filter) {
-		return accountDO.retrieveAccountTransactions(index, size,filter)
+		return accountDO.retrieveAccountTransactions(id,index, size,filter)
 				.map(m -> BusinessObjectConverter.toTransactionDetail(m, true,id));
 	}
 	
@@ -102,6 +104,12 @@ public class AccountBLImpl implements IAccountBL {
 	public ExpenseDetail updateExpenseGroup(String id, ExpenseDetail expense) throws Exception {
 		ExpenseDTO expenseDTO = accountDO.updateExpense(id,expense);
 		return BusinessObjectConverter.toExpenseDetail(expenseDTO);
+	}
+
+	@Override
+	public ExpenseItemDetail createExpenseItem(String id,ExpenseItemDetail expenseItem) throws Exception {
+		ExpenseItemDTO expenseItemDTO = accountDO.createExpenseItem(id,expenseItem);
+		return BusinessObjectConverter.toExpenseItemDetail(expenseItemDTO);
 	}
 
 }

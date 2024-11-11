@@ -62,8 +62,10 @@ public class RequestDTO {
 		private Date fromDate;
 		private Date toDate;
 		private String requesterId;
+		private String requesterUserId;
 		private String delegatedRequesterId;
 		private List<RoleCode> pendingWithRoles;
+		private Boolean resolved;
 
 	}
 	

@@ -65,6 +65,7 @@ public class DonationEntity {
 	private String accountName;
 
 	private String profile;
+	private String userId;
     
    	private String eventId;
    	

@@ -17,4 +17,7 @@ public class KeyValue implements Serializable{
 	
 	@JsonProperty("displayValue")
 	private String value;
+	
+	@JsonProperty("description")
+	private String description;
 }

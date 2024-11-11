@@ -598,7 +598,8 @@ public class CommonInfraServiceImpl
 
 	@Override
 	public Map<String, String> getDashboardCounts(String userId) {
-		return dbCountRepository.findByUserIdIn(List.of(userId, "NA")).stream()
+		List<DashboardCountEntity> counts= dbCountRepository.findByUserIdIn(List.of(userId));
+		return counts.stream()
 				.collect(Collectors.toMap(m1 -> m1.getDbFieldKey(), m2 -> m2.getDbFieldValue()));
 	}
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
+import ngo.nabarun.app.common.enums.LoginMethod;
 
 @Data
 public class AuthUser implements Serializable {
@@ -18,7 +19,7 @@ public class AuthUser implements Serializable {
 	private String lastName;
 	private String fullName;
 	private String username;
-	private List<String> providers;
+	private List<LoginMethod> providers;
 	private String email;
 	private Boolean emailVerified;
 	private Boolean verifyEmail;

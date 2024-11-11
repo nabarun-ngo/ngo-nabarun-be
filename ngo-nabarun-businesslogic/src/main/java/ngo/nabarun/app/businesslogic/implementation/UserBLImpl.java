@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
-import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.businesslogic.IUserBL;
@@ -39,7 +38,7 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 	public UserDetail getAuthUserFullDetails() throws Exception {
 		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
 				: SecurityUtils.getAuthUserId();
-		UserDTO user= userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, false);
+		UserDTO user= userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, true);
 		return BusinessObjectConverter.toUserDetail(user,domainHelper.getDomainKeyValues());
 	}
 
@@ -84,7 +83,7 @@ public class UserBLImpl extends BaseBLImpl implements IUserBL {
 		 * profile status is anything other than ACTIVE
 		 */
 		if (userDTO.getStatus() != ProfileStatus.ACTIVE) {
-			throw new BusinessException(BusinessExceptionMessage.INVALID_STATE.getMessage());
+			throw new BusinessException("Profile status is not active.");
 		}
 		
 		UserDTO updatedUser=userDO.updateUserDetail(userDTO.getProfileId(), updatedUserDetails, updatePicture);

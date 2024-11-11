@@ -296,6 +296,7 @@ public class CommonDO {
 		correspondenceInfraService.updateNotification(id, new NotificationDTO(objectMap));
 	}
 
+	@Async
 	public void uploadDocument(DocumentDetailUpload file, String docIndexId, DocumentIndexType docIndexType)
 			throws Exception {
 		byte[] content = file.getContent() == null ? Base64.decodeBase64(file.getBase64Content()) : file.getContent();
@@ -303,6 +304,7 @@ public class CommonDO {
 				content);
 	}
 
+	@Async
 	public void uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType) throws Exception {
 		docInfraService.uploadDocument(file, docIndexId, docIndexType);
 	}
@@ -328,6 +330,12 @@ public class CommonDO {
 	@Async
 	public void sendDashboardCounts(String userId) throws Exception {
 		Map<String, String> countMap = sequenceInfraService.getDashboardCounts(userId);
+		Map<String, String> dataMap = prepareDataMap(countMap);
+		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
+				"", "", dataMap);
+	}
+
+	private Map<String, String> prepareDataMap(Map<String, String> countMap) {
 		Map<String, String> dataMap = new HashMap<>();
 		if (countMap.containsKey(BusinessConstants.attr_DB_pendingDonationAmount)) {
 			String donation = countMap.get(BusinessConstants.attr_DB_pendingDonationAmount);
@@ -379,30 +387,22 @@ public class CommonDO {
 				dataMap.put("notificationCount", notification);
 			}
 		}
-		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
-				"", "", dataMap);
+		return dataMap;
 	}
 
 	@Async
-	public void updateDashboardCounts(String userId, Function<Object, Map<String, String>> action) throws Exception {
+	public void updateAndSendDashboardCounts(String userId,Function<Object, Map<String, String>> action) throws Exception {
 		Map<String, String> countMap = action.apply("");
-		Map<String, String> commonCountMap = new HashMap<>();
 		Map<String, String> userCountMap = new HashMap<>();
-		List<String> commonAttr = List.of(BusinessConstants.attr_DB_memberCount, BusinessConstants.attr_DB_noticeCount);
 		for (Entry<String, String> countM : countMap.entrySet()) {
-			if (commonAttr.contains(countM.getKey())) {
-				commonCountMap.put(countM.getKey(), countM.getValue());
-			} else {
-				userCountMap.put(countM.getKey(), countM.getValue());
-			}
-		}
-
-		if (!commonCountMap.isEmpty()) {
-			sequenceInfraService.addOrUpdateDashboardCounts("NA", commonCountMap);
+			userCountMap.put(countM.getKey(), countM.getValue());
 		}
 
 		if (!userCountMap.isEmpty()) {
-			sequenceInfraService.addOrUpdateDashboardCounts(userId, userCountMap);
+			Map<String, String> updateCountMap = sequenceInfraService.addOrUpdateDashboardCounts(userId, userCountMap);
+			Map<String, String> dataMap = prepareDataMap(updateCountMap);
+			correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
+					"", "", dataMap);
 		}
 	}
 

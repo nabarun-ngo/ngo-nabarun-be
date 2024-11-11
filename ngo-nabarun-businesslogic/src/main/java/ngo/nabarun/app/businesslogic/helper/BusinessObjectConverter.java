@@ -115,6 +115,7 @@ public class BusinessObjectConverter {
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
+		userDetails.setLoginMethod(userDTO.getLoginProviders());
 //		String title = userDTO.getTitle() == null ? ""
 //				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
 //						? domainKeyValue.get(userDTO.getTitle())+ " " 
@@ -338,6 +339,7 @@ public class BusinessObjectConverter {
 			KeyValue kv = new KeyValue();
 			kv.setKey(m.getKey());
 			kv.setValue(m.getValue());
+			kv.setDescription(m.getDescription());
 			return kv;
 		}).toList();
 	}
@@ -347,6 +349,7 @@ public class BusinessObjectConverter {
 			KeyValue kv = new KeyValue();
 			kv.setKey(m.getKey());
 			kv.setValue(m.getAttributes().get(attrKey) == null ? null : m.getAttributes().get(attrKey).toString());
+			kv.setDescription(m.getDescription());
 			return kv;
 		}).toList();
 	}
@@ -544,28 +547,35 @@ public class BusinessObjectConverter {
 
 	public static ExpenseDetail toExpenseDetail(ExpenseDTO expenseDTO) {
 		ExpenseDetail expenseDetail = new ExpenseDetail();
-		expenseDetail.setApproved(expenseDTO.isApproved());
-		expenseDetail.setApprovedBy(toUserDetail(expenseDTO.getApprovedBy(), null));
+		expenseDetail.setFinalized(expenseDTO.isFinalized());
+		expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(), null));
 		expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(), null));
 		expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
+		expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
 		expenseDetail.setDescription(expenseDTO.getDescription());
-		expenseDetail.setExpenseAccount(toAccountDetail(expenseDTO.getExpenseAccount()));
-		expenseDetail.setExpenseItems(toExpenseItemDetail(expenseDTO.getExpenseItems()));
+		
+		expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream().map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
 		expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
 		expenseDetail.setId(expenseDTO.getId());
 		expenseDetail.setName(expenseDTO.getName());
+		
+		expenseDetail.setAccount(toAccountDetail(expenseDTO.getAccount()));
+		expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
+		expenseDetail.setStatus(expenseDTO.getStatus());
+
 		return expenseDetail;
 	}
 
-	public static List<ExpenseItemDetail> toExpenseItemDetail(List<ExpenseItemDTO> itemDTO) {
-		return itemDTO.stream().map(item -> {
-			ExpenseItemDetail itemDetail = new ExpenseItemDetail();
-			itemDetail.setAmount(item.getAmount());
-			itemDetail.setDescription(item.getDescription());
-			itemDetail.setId(item.getId());
-			itemDetail.setItemName(item.getItemName());
-			return itemDetail;
-		}).collect(Collectors.toList());
+	public static ExpenseItemDetail toExpenseItemDetail(ExpenseItemDTO itemDTO) {
+		ExpenseItemDetail itemDetail = new ExpenseItemDetail();
+		itemDetail.setAmount(itemDTO.getAmount());
+		itemDetail.setDescription(itemDTO.getDescription());
+		itemDetail.setId(itemDTO.getId());
+		itemDetail.setItemName(itemDTO.getItemName());
+		//expenseDetail.setExpenseAccount(toAccountDetail(expenseDTO.getExpenseAccount()));
+
+		return itemDetail;
+		
 	}
 
 	public static HistoryDetail toHistoryDetail(HistoryDTO historyDTO) {

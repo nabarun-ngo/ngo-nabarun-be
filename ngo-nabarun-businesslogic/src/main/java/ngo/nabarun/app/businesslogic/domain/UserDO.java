@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -12,11 +13,13 @@ import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserRole;
+import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.AddressType;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.IdType;
+import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.PhoneType;
 import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
@@ -80,8 +83,7 @@ public class UserDO extends CommonDO {
 	 * @return
 	 * @throws Exception
 	 */
-	public UserDTO retrieveUserDetail(String id, IdType idType, boolean fullDetail)
-			throws Exception {
+	public UserDTO retrieveUserDetail(String id, IdType idType, boolean fullDetail) throws Exception {
 		UserDTO userDTO = userInfraService.getUser(id, idType, fullDetail);
 //		if (includeRole) {
 //			List<RoleDTO> roleDTO = userInfraService.getUserRoles(id, idType, true);
@@ -110,7 +112,7 @@ public class UserDO extends CommonDO {
 	 * @param hometown
 	 * @param password
 	 * @param emailVerified
-	 * @param resetPassword 
+	 * @param resetPassword
 	 * @return
 	 * @throws Exception
 	 */
@@ -142,14 +144,16 @@ public class UserDO extends CommonDO {
 		userDTO.setPhones(List.of(phoneDto));
 		userDTO.setAddresses(List.of(addressDto));
 		userDTO.setAdditionalDetails(additionalDetailDto);
-		String[] loginMethods = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.LOGIN_METHODS).split(",");
+		List<LoginMethod> loginMethods = businessDomainHelper.getAvailableLoginMethods();
 		String defaultRoleCode = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DEFAULT_ROLE_CODE);
-		userDTO.setLoginProviders(List.of(loginMethods));
-		userDTO = userInfraService.createUser(userDTO);
+		userDTO.setLoginProviders(loginMethods);
+		userDTO = userInfraService.createUser(userDTO,true);
 		List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(List.of(RoleCode.valueOf(defaultRoleCode)));
 		userInfraService.updateUserRoles(userDTO.getProfileId(), roles);
 		return userDTO;
 	}
+	
+	
 
 	/**
 	 * 
@@ -180,6 +184,21 @@ public class UserDO extends CommonDO {
 		updatedUserDTO
 				.setSocialMedias(BusinessObjectConverter.toSocialMediaDTO(updatedUserDetails.getSocialMediaLinks()));
 
+//		if (updatedUserDetails.getLoginMethod() != null) {
+//			updatedUserDTO.setLoginProviders(updatedUserDetails.getLoginMethod());
+//		}
+		Map<String, Object> userAttr=updatedUserDetails.getAttributes();
+		if ( userAttr!= null && userAttr.get("new_password") != null
+				&& userAttr.get("old_password") != null) {
+			String old_password = new String(java.util.Base64.getDecoder().decode(userAttr.get("old_password").toString()));
+			String new_password = new String(java.util.Base64.getDecoder().decode(userAttr.get("new_password").toString()));
+			try {
+				userInfraService.validatePassword(id, old_password);
+			}catch (Exception e) {
+				throw new BusinessException("Current Password is incorrect.",e);
+			}
+			updatedUserDTO.setPassword(new_password);
+		}
 		/**
 		 * Updating profile picture
 		 */
@@ -202,28 +221,34 @@ public class UserDO extends CommonDO {
 		userDTO = userInfraService.updateUser(id, updatedUserDTO);
 		return userDTO;
 	}
-	
+
 	/**
 	 * Updating admin attributes
 	 */
-	public UserDTO updateUserDetailAdmin(String id, UserDetail updatedUserDetails)
-			throws Exception {
+	public UserDTO updateUserDetailAdmin(String id, UserDetail updatedUserDetails) throws Exception {
 		UserDTO updatedUserDTO = new UserDTO();
 		updatedUserDTO.setStatus(updatedUserDetails.getStatus());
-		
-		List<UserRole> rolesToUpdate=updatedUserDetails.getRoles();
-		if(rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
-			List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(rolesToUpdate.stream().map(m->m.getRoleCode()).collect(Collectors.toList()));
+
+		List<UserRole> rolesToUpdate = updatedUserDetails.getRoles();
+		if (rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
+			List<RoleDTO> roles = businessDomainHelper
+					.convertToRoleDTO(rolesToUpdate.stream().map(m -> m.getRoleCode()).collect(Collectors.toList()));
 			userInfraService.updateUserRoles(id, roles);
 		}
+		
 		UserDTO userDTO = userInfraService.updateUser(id, updatedUserDTO);
+		if(updatedUserDetails.getLoginMethod() != null && !updatedUserDetails.getLoginMethod().isEmpty()) {
+			userDTO.setLoginProviders(updatedUserDetails.getLoginMethod());
+			userInfraService.createUser(userDTO,true);
+		}
 		return userDTO;
 	}
-	
+
 	public UserDTO updateUserDetailAdmin(String id, UserDTO userDTO) throws Exception {
-		List<RoleDTO> rolesToUpdate=userDTO.getRoles();
-		if(rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
-			List<RoleDTO> roles = businessDomainHelper.convertToRoleDTO(rolesToUpdate.stream().map(m->m.getCode()).collect(Collectors.toList()));
+		List<RoleDTO> rolesToUpdate = userDTO.getRoles();
+		if (rolesToUpdate != null && !rolesToUpdate.isEmpty()) {
+			List<RoleDTO> roles = businessDomainHelper
+					.convertToRoleDTO(rolesToUpdate.stream().map(m -> m.getCode()).collect(Collectors.toList()));
 			userInfraService.updateUserRoles(id, roles);
 		}
 		userDTO = userInfraService.updateUser(id, userDTO);
@@ -242,7 +267,6 @@ public class UserDO extends CommonDO {
 		return passwordPolicy;
 	}
 
-
 	public void assignUsersToRole(RoleCode roleCode, List<String> usersIds) throws Exception {
 		RoleDTO roleDTO = businessDomainHelper.convertToRoleDTO(roleCode);
 		userInfraService.assignUsersToRole(roleDTO, usersIds);
@@ -250,28 +274,36 @@ public class UserDO extends CommonDO {
 
 	/**
 	 * 
+	 * @param user_email 
+	 * @param user_id 
 	 * @throws Exception
 	 */
-	public void syncUserDetail(boolean syncRole) throws Exception {
-		for (UserDTO userDTO : userInfraService.getAuthUsers()) {
+	public void syncUserDetail(boolean syncRole, String user_id, String user_email) throws Exception {
+		UserDTOFilter filterDTO = new UserDTOFilter();
+		filterDTO.setUserId(user_id);
+		filterDTO.setEmail(user_email);
+		List<UserDTO> usersDTOs=userInfraService.getAuthUsers(filterDTO);
+		for (UserDTO userDTO : usersDTOs) {
 			try {
-				//System.err.println(userDTO);
+				// System.err.println(userDTO);
 				UserDTOFilter filter = new UserDTOFilter();
 				filter.setEmail(userDTO.getEmail());
 				List<UserDTO> users = userInfraService.getUsers(null, null, filter).getContent();
-				//System.err.println(users);
-				
+				// System.err.println(users);
+
 				if (!users.isEmpty()) {
-					if(syncRole) {
-						List<RoleDTO> roles=userInfraService.getUserRoles(users.get(0).getUserId(), IdType.AUTH_USER_ID, true);
-						List<RoleDTO> roleDTO=businessDomainHelper.convertToRoleDTO(roles.stream().map(m->m.getCode()).collect(Collectors.toList()));
+					if (syncRole) {
+						List<RoleDTO> roles = userInfraService.getUserRoles(users.get(0).getUserId(),
+								IdType.AUTH_USER_ID, true);
+						List<RoleDTO> roleDTO = businessDomainHelper
+								.convertToRoleDTO(roles.stream().map(m -> m.getCode()).collect(Collectors.toList()));
 						userDTO.setRoles(roleDTO);
 					}
 					userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
 
 				} else {
 					userDTO.getAdditionalDetails().setActiveContributor(true);
-					userInfraService.createUser(userDTO);
+					userInfraService.createUser(userDTO,false);
 				}
 				Thread.sleep(2000);
 			} catch (Exception e) {
@@ -290,7 +322,5 @@ public class UserDO extends CommonDO {
 	public void deleteMember(String id) throws Exception {
 		userInfraService.deleteUser(id);
 	}
-
-	
 
 }

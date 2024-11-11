@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import ngo.nabarun.app.common.enums.ExpenseRefType;
+import ngo.nabarun.app.common.enums.ExpenseStatus;
 
 @Data
 public class ExpenseDetail implements Serializable{
@@ -30,17 +31,17 @@ public class ExpenseDetail implements Serializable{
 	@JsonProperty("createdBy")
 	private UserDetail createdBy;
 	
+	@JsonProperty("expenseDate")
+	private Date expenseDate;
+	
 	@JsonProperty("createdOn")
 	private Date createdOn;
 	
-	@JsonProperty("approvedBy")
-	private UserDetail approvedBy;
+	@JsonProperty("finalizedBy")
+	private UserDetail finalizedBy;
 	
-	@JsonProperty("approved")
-	private boolean approved;
-	
-	@JsonProperty("expenseAccount")
-	private AccountDetail expenseAccount;
+	@JsonProperty("finalized")
+	private boolean finalized;
 	
 	@JsonProperty("expenseItems")
 	private List<ExpenseItemDetail> expenseItems;
@@ -53,6 +54,18 @@ public class ExpenseDetail implements Serializable{
 	
 	@JsonProperty("expenseRefId")
 	private String expenseRefId;
+	
+	@JsonProperty("status")
+	private ExpenseStatus status;
+	
+	@JsonProperty("txnNumber")
+	private String txnNumber;
+	
+	@JsonProperty("account")
+	private AccountDetail account;
+	
+//	@JsonProperty("expenseItem")
+//	private ExpenseItemDetail expenseItem;
 	
 	@Data
 	public static class ExpenseDetailFilter {
@@ -76,8 +89,21 @@ public class ExpenseDetail implements Serializable{
 		@JsonProperty("description")
 		private String description;
 		
+		@JsonProperty("expenseDate")
+		private Date expenseDate;
+		
 		@JsonProperty("amount")
 		private Double amount;
+		
+		@JsonProperty("expenseAccount")
+		private AccountDetail expenseAccount;
+		
+		@JsonProperty("remove")
+		private boolean remove;
+		
+		@JsonProperty("status")
+		private ExpenseStatus status;
+
 	}
 
 
