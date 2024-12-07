@@ -97,7 +97,6 @@ jobs:
       # Get the generated JAR file path
       - name: Set variables
         run: |
-          echo "GCP_SA_KEY=${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}" >> $GITHUB_ENV
           echo "GCP_PROJECT_ID=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}" >> $GITHUB_ENV
           echo "GCP_PROJECT_ID: ${GCP_PROJECT_ID}"
           
@@ -105,7 +104,7 @@ jobs:
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ env.GCP_SA_KEY }}
+          credentials_json: ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
 
       # Set up Google Cloud SDK
       - name: Set up Google Cloud SDK
