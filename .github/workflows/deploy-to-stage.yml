@@ -14,7 +14,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
      # Determine the branch based on the environment
       - name: Setup branch
@@ -48,48 +47,55 @@ jobs:
           restore-keys: |
             maven-
 
-      # Retrieve previous version and increment it
-      - name: Get and increment version
-        id: versioning
-        run: |
-          VERSION_FILE=".version"
-          if [ -f "$VERSION_FILE" ]; then
-            PREV_VERSION=$(cat $VERSION_FILE)
-            IFS='.' read -r MAJOR MINOR <<< "$PREV_VERSION"
-            MINOR=$((MINOR + 1))
-            VERSION="${MAJOR}.${MINOR}"
-          else
-            VERSION="1.0" # Default version if file doesn't exist
-          fi
-          echo $VERSION > $VERSION_FILE
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "Generated version: ${VERSION}"
-
-      # Save the updated version as an artifact for future runs
-      - name: Upload version file
-        uses: actions/upload-artifact@v3
-        with:
-          name: version-file
-          path: .version
-
-      # Build the project using Maven and apply the version
+      # Build the project using Maven
       - name: Build with Maven
-        run: mvn clean package -Drevision=${{ env.VERSION }}
+        run: mvn clean package
 
-      # Rename the JAR file with the generated version
-      - name: Rename JAR File
-        id: rename-jar
+      # Get the generated JAR file path
+      - name: Get JAR file path
+        id: get-jar-path
         run: |
-          ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-          NEW_JAR="ngo-nabarun-app/target/app-${{ env.VERSION }}.jar"
-          mv "${ORIGINAL_JAR}" "${NEW_JAR}"
-          echo "NEW_JAR=${NEW_JAR}" >> $GITHUB_ENV
-          echo "Renamed JAR file: ${NEW_JAR}"
+          JAR_PATH=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
+          echo "Generated JAR file path: ${JAR_PATH}"
 
       # Upload artifact for the deploy job
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-jar
-          path: ${{ env.NEW_JAR }}
+          path: ${{ env.JAR_PATH }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Download the JAR artifact from the build job
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-jar
+
+      # Authenticate with Google Cloud
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
+
+      # Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
+      
+      - name: Set Env Var
+        uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
+        with:
+          path: app.yaml
+        env:
+          ENVIRONMENT: '${{ vars.APP_ENV_STAGE }}'
+          DOPPLER_PROJECT_NAME: '${{ vars.DOPPLER_PROJECT_NAME }}'
+          DOPPLER_SERVICE_TOKEN: '${{ secrets.DOPPLER_SERVICE_TOKEN_STAGE }}'
+          LOG_LEVEL: '${{ vars.LOG_LEVEL_STAGE }}'
       
