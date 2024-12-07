@@ -81,7 +81,7 @@ jobs:
         id: rename-jar
         run: |
           ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-          NEW_JAR="target/app-${{ env.VERSION }}.jar"
+          NEW_JAR="ngo-nabarun-app/target/app-${{ env.VERSION }}.jar"
           mv "${ORIGINAL_JAR}" "${NEW_JAR}"
           echo "NEW_JAR=${NEW_JAR}" >> $GITHUB_ENV
           echo "Renamed JAR file: ${NEW_JAR}"
