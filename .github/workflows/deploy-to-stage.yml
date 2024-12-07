@@ -120,5 +120,5 @@ jobs:
       - name: Deploy to App Engine
         run: |
           # Deploy the JAR file with the current version
-          gcloud app deploy app-${{ github.event.inputs.environment }}.jar --quiet --promote --project=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
+          gcloud app deploy app-${{ github.event.inputs.environment }}.jar --appyaml=app.yaml --quiet --promote --project=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
       
