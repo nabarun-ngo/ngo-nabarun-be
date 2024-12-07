@@ -16,8 +16,9 @@ on:
         default: "patch"
         type: choice
         options:
-          - staging
-          - production
+          - patch
+          - minor
+          - major
           
 jobs:
   build:
