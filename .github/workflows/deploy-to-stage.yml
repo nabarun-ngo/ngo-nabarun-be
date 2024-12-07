@@ -24,6 +24,9 @@ jobs:
   build:
     name: Build Artifacts
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.set_output.outputs.new_version }}
+      JAR_FILE: ${{ steps.set_output.outputs.JAR_FILE }}
     steps:
      # Determine the branch based on the environment
       - name: Setup branch
@@ -74,7 +77,7 @@ jobs:
 
           new_version="${branch_name}-${major}.${minor}.${patch}"
           echo "new_version=$new_version" >> $GITHUB_ENV
-          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "::set-output name=new_version::$new_version"
 
        # Set up Java (e.g., JDK 17)
       - name: Set up Java
@@ -109,7 +112,7 @@ jobs:
           echo "Renamed JAR file path: ${JAR_PATH}"
           JAR_FILE="app-${{ env.new_version }}.jar"
           echo "JAR_FILE=${JAR_FILE}" >> $GITHUB_ENV
-          echo "JAR_FILE=${JAR_FILE}" >> $GITHUB_OUTPUT
+          echo "::set-output name=JAR_FILE::$JAR_FILE"
 
       # Upload artifact for the deploy job
       - name: Upload JAR artifact
