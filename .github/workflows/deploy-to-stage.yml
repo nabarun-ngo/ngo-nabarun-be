@@ -55,9 +55,14 @@ jobs:
       - name: Get JAR file path
         id: get-jar-path
         run: |
-          JAR_PATH=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          JAR_PATH="ngo-nabarun-app/target/app-${{ github.event.inputs.environment }}.jar"
+          mv "${ORIGINAL_JAR}" "${JAR_PATH}"
           echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
-          echo "Generated JAR file path: ${JAR_PATH}"
+          echo "Renamed JAR file path: ${JAR_PATH}"
+          JAR_FILE="app-${{ github.event.inputs.environment }}.jar"
+          echo "JAR_FILE=${JAR_FILE}" >> $GITHUB_ENV
+          echo "JAR file: ${JAR_FILE}"
 
       # Upload artifact for the deploy job
       - name: Upload JAR artifact
@@ -88,20 +93,28 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: app-yaml
+
+      # Get the generated JAR file path
+      - name: Set variables
+        run: |
+          echo "GCP_SA_KEY=${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID: ${GCP_PROJECT_ID}"
           
       # Authenticate with Google Cloud
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
+          credentials_json: ${{ env.GCP_SA_KEY }}
 
       # Set up Google Cloud SDK
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
-      
-      - name: Set Env Var
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      # Replace Env Var
+      - name: Replace GCP Env Var
         uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
         with:
           path: app.yaml
@@ -110,4 +123,9 @@ jobs:
           DOPPLER_PROJECT_NAME: '${{ vars.DOPPLER_PROJECT_NAME }}'
           DOPPLER_SERVICE_TOKEN: '${{ secrets.DOPPLER_SERVICE_TOKEN_STAGE }}'
           LOG_LEVEL: '${{ vars.LOG_LEVEL_STAGE }}'
+
+      - name: Deploy to App Engine
+        run: |
+          # Deploy the JAR file with the current version
+          gcloud app deploy ${{ env.JAR_FILE }} --quiet --promote --project=${{ env.GCP_PROJECT_ID }}
       
