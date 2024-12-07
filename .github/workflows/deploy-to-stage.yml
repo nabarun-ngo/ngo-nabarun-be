@@ -72,7 +72,7 @@ jobs:
             patch=$((patch + 1))
           fi
 
-          new_version="${major}.${minor}.${patch}-${branch_name}"
+          new_version="${branch_name}-${major}.${minor}.${patch}"
           echo "new_version=$new_version" >> $GITHUB_ENV
 
        # Set up Java (e.g., JDK 17)
@@ -102,16 +102,16 @@ jobs:
         id: get-jar-path
         run: |
           ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-          JAR_PATH="ngo-nabarun-app/target/app-${{ env.BRANCH }}-${{ env.new_version }}.jar"
+          JAR_PATH="ngo-nabarun-app/target/app-${{ env.new_version }}.jar"
           mv "${ORIGINAL_JAR}" "${JAR_PATH}"
           echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
           echo "Renamed JAR file path: ${JAR_PATH}"
-          JAR_FILE="app-${{ env.BRANCH }}-${{ env.new_version }}.jar"
+          JAR_FILE="app-${{ env.new_version }}.jar"
           echo "JAR_FILE=${JAR_FILE}" >> $GITHUB_ENV
           
       # Upload artifact for the deploy job
       - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4  
+        uses: actions/upload-artifact@v3  
         with:
           name: app-jar
           path: ${{ env.JAR_PATH }}
