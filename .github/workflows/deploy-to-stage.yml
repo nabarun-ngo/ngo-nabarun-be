@@ -6,6 +6,10 @@ on:
         description: 'Branch to run the workflow'
         default: 'stage'
         required: true
+      appname:
+        description: 'App Name'
+        default: 'ngo-nabarun-app'
+        required: true
 
 jobs:
   build:
@@ -42,6 +46,6 @@ jobs:
       - name: Get JAR file path
         id: get-jar-path
         run: |
-          JAR_PATH=$(find target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          JAR_PATH=$(find ${{ github.event.inputs.appname }}/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
           echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
           echo "Generated JAR file path: ${JAR_PATH}"
