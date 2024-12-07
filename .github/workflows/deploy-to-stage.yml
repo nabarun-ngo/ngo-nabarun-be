@@ -65,7 +65,13 @@ jobs:
         with:
           name: app-jar
           path: ${{ env.JAR_PATH }}
-
+          
+      # Upload app.yaml for the deploy job
+      - name: Upload app.yaml artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-yaml
+          path: app.yaml
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -76,7 +82,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: app-jar
-
+          
+      # Download the JAR artifact from the build job
+      - name: Download app.yaml artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-yaml
+          
       # Authenticate with Google Cloud
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
