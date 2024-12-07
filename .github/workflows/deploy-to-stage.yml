@@ -1,26 +1,41 @@
-name: Deploy to GCP - STAGE
+name: Deploy to GCP
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to run the workflow'
-        default: 'stage'
+      environment:
+        description: 'Select the environment'
         required: true
-      appname:
-        description: 'App Name'
-        default: 'ngo-nabarun-app'
-        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
+     # Determine the branch based on the environment
+      - name: Setup branch
+        id: set-branch
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "staging" ]; then
+            echo "BRANCH=stage" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            echo "BRANCH=master" >> $GITHUB_ENV
+          fi
+
+      # Checkout code from the determined branch
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH }}
       # Check out the code from the specified branch
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: stage
 
       # Set up Java (e.g., JDK 17)
       - name: Set up Java
@@ -29,23 +44,33 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # Cache Maven dependencies for faster builds
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-
-
-      # Build the project using Maven
-      - name: Build with Maven
-        run: mvn clean package
-
-      # Find the generated JAR file path
-      - name: Get JAR file path
-        id: get-jar-path
+      # Generate a unique version for the JAR file
+      - name: Generate Version
+        id: version
         run: |
-          JAR_PATH=$(find ${{ github.event.inputs.appname }}/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-          echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
-          echo "Generated JAR file path: ${JAR_PATH}"
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          VERSION="${{ github.event.inputs.environment }}-${TIMESTAMP}-${COMMIT_HASH}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Generated version: ${VERSION}"
+
+      # Build the project using Maven and apply the version
+      - name: Build with Maven
+        run: mvn clean package -Drevision=${{ env.VERSION }}
+
+      # Rename the JAR file with the generated version
+      - name: Rename JAR File
+        id: rename-jar
+        run: |
+          ORIGINAL_JAR=$(find target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          NEW_JAR="target/${{ env.VERSION }}.jar"
+          mv "${ORIGINAL_JAR}" "${NEW_JAR}"
+          echo "NEW_JAR=${NEW_JAR}" >> $GITHUB_ENV
+          echo "Renamed JAR file: ${NEW_JAR}"
+
+      # Upload artifact for the deploy job
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-jar
+          path: ${{ env.NEW_JAR }}
