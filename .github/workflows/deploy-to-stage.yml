@@ -93,13 +93,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: app-yaml
-
-      # Get the generated JAR file path
-      - name: Set variables
-        run: |
-          echo "GCP_PROJECT_ID=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}" >> $GITHUB_ENV
-          echo "GCP_PROJECT_ID: ${GCP_PROJECT_ID}"
-          
+   
       # Authenticate with Google Cloud
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
@@ -110,7 +104,7 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+          project_id: ${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
 
       # Replace Env Var
       - name: Replace GCP Env Var
@@ -126,5 +120,5 @@ jobs:
       - name: Deploy to App Engine
         run: |
           # Deploy the JAR file with the current version
-          gcloud app deploy ${{ env.JAR_FILE }} --quiet --promote --project=${{ env.GCP_PROJECT_ID }}
+          gcloud app deploy app-${{ github.event.inputs.environment }}.jar --quiet --promote --project=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
       
