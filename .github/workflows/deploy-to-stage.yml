@@ -1,0 +1,47 @@
+name: Deploy to GCP - STAGE
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow'
+        default: 'stage'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the code from the specified branch
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      # Set up Java (e.g., JDK 17)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Cache Maven dependencies for faster builds
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+
+      # Build the project using Maven
+      - name: Build with Maven
+        run: mvn clean package
+
+      # Find the generated JAR file path
+      - name: Get JAR file path
+        id: get-jar-path
+        run: |
+          JAR_PATH=$(find target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
+          echo "Generated JAR file path: ${JAR_PATH}"
