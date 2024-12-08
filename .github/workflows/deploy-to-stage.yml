@@ -118,19 +118,13 @@ jobs:
           mv "${ORIGINAL_JAR}" "${JAR_PATH}"
           echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
           echo "Renamed JAR file path: ${JAR_PATH}"  
-
-      # Set GCP Variables
-      - name: Set GCP Variables
-        run: |
-          echo "project_id=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}" >> $GITHUB_ENV
-          echo "project_credentials=${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}" >> $GITHUB_ENV
       
       # Set up Google Cloud SDK
       - name: Setup Google Cloud CLI
         uses: google-github-actions/auth@v2
         with:
-          project_id: ${{ env.project_id }}
-          credentials_json: ${{ env.project_credentials }}
+          project_id: ${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
+          credentials_json: ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
           export_default_credentials: true
 
       # Setup application level env variables
@@ -148,8 +142,8 @@ jobs:
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
         with:
-          project_id: ${{ env.project_id }}
-          credentials:  ${{ env.project_credentials }}
+          project_id: ${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
+          credentials:  ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
           export_default_credentials: true
           promote: true
           version: ${{ env.new_version }}
