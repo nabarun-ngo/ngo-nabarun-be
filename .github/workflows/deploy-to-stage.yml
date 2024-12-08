@@ -32,7 +32,7 @@ on:
 
 jobs:
   build_and_deploy:
-    name: Build Artifacts
+    name: Build Artifacts and Deploy to GCP
     runs-on: ubuntu-latest
     
     steps:
@@ -108,21 +108,22 @@ jobs:
           mvn versions:set -DnewVersion=${{ env.new_version }}
           mvn clean package
 
-      - name: Set Pipeline Variables
-        run: |
-          echo "TARGET_FOLDER='ngo-nabarun-app/target'" >> $GITHUB_ENV
-          echo "project_id=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}" >> $GITHUB_ENV
-          echo "project_credentials=${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}" >> $GITHUB_ENV
-
+      
       # Get the generated JAR file path
       - name: Get JAR file path
         id: get-jar-path
         run: |
-          ORIGINAL_JAR=$(find ${{ env.TARGET_FOLDER }} -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-          JAR_PATH="${{ env.TARGET_FOLDER }}/app-${{ env.new_version }}.jar"
+          ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
+          JAR_PATH="ngo-nabarun-app/target/app-${{ env.new_version }}.jar"
           mv "${ORIGINAL_JAR}" "${JAR_PATH}"
           echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
-          echo "Renamed JAR file path: ${JAR_PATH}"   
+          echo "Renamed JAR file path: ${JAR_PATH}"  
+
+      # Set GCP Variables
+      - name: Set GCP Variables
+        run: |
+          echo "project_id=${{ github.event.inputs.environment == 'production' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}" >> $GITHUB_ENV
+          echo "project_credentials=${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}" >> $GITHUB_ENV
       
       # Set up Google Cloud SDK
       - name: Setup Google Cloud CLI
