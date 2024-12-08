@@ -148,7 +148,7 @@ jobs:
           credentials:  ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
           export_default_credentials: true
           promote: true
-          version: ${{ env.new_version }}
+          version: '1.0'
           deliverables: '${{ env.JAR_PATH }}'
           flags: '--appyaml=app.yaml'
   
