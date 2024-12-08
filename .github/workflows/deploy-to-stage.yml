@@ -147,7 +147,7 @@ jobs:
           export_default_credentials: true
           promote: true
           version: ${{ env.new_version }}
-          deliverables: '${{ env.JAR_FILE }}'
+          deliverables: '${{ env.JAR_PATH }}'
           flags: '--appyaml=app.yaml'
   
   # release_tag:
