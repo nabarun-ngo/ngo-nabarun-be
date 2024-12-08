@@ -119,7 +119,7 @@ jobs:
           echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
           echo "Renamed JAR file path: ${JAR_PATH}"
           JAR_FILE="app-${{ env.new_version }}.jar"
-          echo "JAR_FILE=${JAR_FILE}" >> .env
+          echo "JAR_FILE=${JAR_FILE}" >> ngo-nabarun-app/target/.env
 
       # Upload artifact for the deploy job
       - name: Upload JAR artifact
@@ -139,7 +139,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: shared-data
-          path: .env
+          path: ngo-nabarun-app/target/.env
   deploy:
     name: Deploy to GCP
     needs: build
