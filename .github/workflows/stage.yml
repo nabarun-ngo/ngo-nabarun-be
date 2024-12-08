@@ -101,6 +101,56 @@ jobs:
           project_id: '${{ vars.GCP_PROJECT_ID_STAGE }}'
           credentials: '${{ secrets.GCP_SA_KEY_STAGE }}'
           promote: true
-          version: auto
           deliverables: app.jar
           flags: '--appyaml=app.yaml'
+  clean:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        version: 'latest'
+        service_account_key: ${{ secrets.GCP_SA_KEY_STAGE }}
+        project_id: ${{ vars.GCP_PROJECT_ID_STAGE }}
+
+    - name: Authenticate with gcloud
+      run: |
+        gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY_STAGE }}
+
+    - name: Get all App Engine versions except the latest
+      id: get-app-engine-versions
+      run: |
+        APP_ENGINE_SERVICE=default
+        gcloud app versions list \
+          --service=$APP_ENGINE_SERVICE \
+          --format="value(version.id)" \
+          --sort-by="~createTime" | tail -n +2 > versions_to_delete.txt
+
+    - name: Delete old App Engine versions
+      if: success()
+      run: |
+        while read -r version; do
+          echo "Deleting App Engine version: $version"
+          gcloud app versions delete $version --service=default --quiet
+        done < versions_to_delete.txt
+
+    - name: Get all objects from Cloud Storage except the latest
+      id: get-storage-objects
+      run: |
+        BUCKET=staging.ngonabarun-stage.appspot.com
+        gcloud storage objects list \
+          --bucket=$BUCKET \
+          --format="value(name)" \
+          --sort-by="~timeCreated" | tail -n +2 > objects_to_delete.txt
+
+    - name: Delete old objects from Cloud Storage
+      if: success()
+      run: |
+        BUCKET=staging.ngonabarun-stage.appspot.com
+        while read -r object; do
+          echo "Deleting Cloud Storage object: $object"
+          gcloud storage objects delete gs://$BUCKET/$object --quiet
+        done < objects_to_delete.txt
+
