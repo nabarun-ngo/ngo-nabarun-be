@@ -113,7 +113,7 @@ jobs:
       - name: Get JAR file path & tag name
         id: get-jar-path
         run: |
-          echo "TAG_NAME=${{ env.BRANCH }}-${{ env.new_version }}"
+          TAG_NAME="${{ env.new_version }}-${{ env.BRANCH }}"
           echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
           ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
           JAR_PATH="ngo-nabarun-app/target/app-${TAG_NAME}.jar"
@@ -148,7 +148,7 @@ jobs:
           credentials:  ${{ github.event.inputs.environment == 'production' && secrets.GCP_SA_KEY || secrets.GCP_SA_KEY_STAGE }}
           export_default_credentials: true
           promote: true
-          version: '1.0'
+          version: auto
           deliverables: '${{ env.JAR_PATH }}'
           flags: '--appyaml=app.yaml'
   
