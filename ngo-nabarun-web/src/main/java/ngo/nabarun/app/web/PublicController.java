@@ -4,23 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.annotation.MultipartConfig;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 
 @Controller
 @SessionAttributes(names = { "interview"})
@@ -29,6 +25,9 @@ public class PublicController {
 	@Autowired
 	private IPublicBL publicBl;
 	
+	@Autowired
+	private PropertyHelper prop;
+	
 	@GetMapping({"/","/signup","/contact","/donate"})
 	public String homePage(Model model) {
 		Map<String, Object> pageDataMap=publicBl.getPageData(List.of("profiles"));
@@ -36,6 +35,7 @@ public class PublicController {
 			model.addAttribute(data.getKey(), data.getValue());
 		}
 		model.addAttribute("interview", new InterviewDetail());
+		model.addAttribute("LOGIN_URL", prop.getAppLoginURL()); 
 		return "index";
 	}
 

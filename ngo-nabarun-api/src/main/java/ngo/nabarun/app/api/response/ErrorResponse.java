@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -22,6 +23,9 @@ public class ErrorResponse {
 
 	@JsonProperty("timestamp")
 	private Date timestamp = new Date();
+	
+	@JsonProperty("traceId")
+	private final String traceId= MDC.get("CorrelationId");
 
 	@JsonProperty("status")
 	private int status;

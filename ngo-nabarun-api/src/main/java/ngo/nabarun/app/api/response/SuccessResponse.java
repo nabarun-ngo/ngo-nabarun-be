@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.MDC;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ import lombok.Getter;
 		
 		@JsonProperty("timestamp")
 		private Date timestamp=new Date();
+		
+		@JsonProperty("traceId")
+		private final String traceId= MDC.get("CorrelationId");
 		
 		@JsonProperty("status")
 		private int status;
