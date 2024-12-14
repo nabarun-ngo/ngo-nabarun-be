@@ -19,74 +19,29 @@ on:
           required: true
 
 jobs:
-    find-and-create-tag:
-      runs-on: ubuntu-latest
-  
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
-          with:
-            ref: ${{ inputs.environment == 'production' && 'master' || 'stage' }}
-  
-        - name: Fetch all tags
-          run: git fetch --tags
-  
-        - name: Find latest tag and calculate new tag
-          id: calculate_new_tag
-          run: |
-            if [ "${{ inputs.environment }}" == "staging" ]; then
-              latest_tag=$(git tag --list '*-stage' | sort -V | tail -n 1)
-              if [ -z "$latest_tag" ]; then
-                latest_tag="0.0.0-stage"
-              fi
-              base_tag=${latest_tag%-stage}
-            else
-              latest_tag=$(git tag --list | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-              if [ -z "$latest_tag" ]; then
-                latest_tag="0.0.0"
-              fi
-              base_tag=$latest_tag
-            fi
-  
-            IFS='.' read -r -a version_parts <<< "$base_tag"
-            major=${version_parts[0]}
-            minor=${version_parts[1]}
-            patch=${version_parts[2]}
-  
-            if [ "${{ inputs.release_type }}" == "major" ]; then
-              major=$((major + 1))
-              minor=0
-              patch=0
-            elif [ "${{ inputs.release_type }}" == "minor" ]; then
-              minor=$((minor + 1))
-              patch=0
-            else
-              patch=$((patch + 1))
-            fi
-  
-            if [ "${{ inputs.environment }}" == "staging" ]; then
-              new_tag="$major.$minor.$patch-stage"
-            else
-              new_tag="$major.$minor.$patch"
-            fi
-  
-            echo "new_tag=$new_tag" >> $GITHUB_ENV
-            echo "New tag to create: $new_tag"
-  
-        - name: Create and push new tag
-          run: |
-            git tag ${{ env.new_tag }}
-            git push origin ${{ env.new_tag }}
-  
-        - name: Output the result
-          run: |
-            echo "Environment: ${{ inputs.environment }}"
-            echo "Release Type: ${{ inputs.release_type }}"
-            echo "New Tag: ${{ env.new_tag }}"
-            echo "::set-output name=new_tag::${{ env.new_tag }}"
+  release:
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
+      - name: Release to GitHub
+        uses: cycjimmy/semantic-release-action@v2.5.4
+        with:
+          semantic_version: 18.0.0
+          extra_plugins: |
+            @semantic-release/changelog@5.0.1
+            @semantic-release/git
+          branches: |
+            ['main']
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
