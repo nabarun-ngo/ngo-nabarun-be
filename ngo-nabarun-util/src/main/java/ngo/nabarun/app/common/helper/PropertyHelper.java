@@ -162,4 +162,9 @@ public class PropertyHelper {
 	public String getDopplerConfigName() {
 		return systemEnv.getProperty("ENVIRONMENT").toLowerCase() ;
 	}
+	
+	@Getter
+	@Value("${APP_LOGIN_URL}")
+	private String appLoginURL;
+
 }

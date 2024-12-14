@@ -1,14 +1,13 @@
 runtime: java17
-entrypoint: java -Dserver.port=$PORT -jar ngo-nabarun-app-0.0.3.jar
-env: standard
-instance_class: B2
-basic_scaling:
+instance_class: F2
+automatic_scaling:
+  min_instances: 0
   max_instances: 1
-  idle_timeout: 15m
-handlers:
-  - url: /.*
-    script: this field is required, but ignored
+  max_idle_instances: 0
+  target_cpu_utilization: 0.65
+  target_throughput_utilization: 0.75
 env_variables:
+  JAVA_OPTS: "-Xms256m -Xmx256m"
   ENVIRONMENT: $ENVIRONMENT
   DOPPLER_PROJECT_NAME: $DOPPLER_PROJECT_NAME
   DOPPLER_SERVICE_TOKEN: $DOPPLER_SERVICE_TOKEN
