@@ -1,22 +1,7 @@
 name: Release
 on:
     workflow_dispatch:
-      inputs:
-        environment:
-          type: choice
-          description: "Select the environment"
-          options:
-            - production
-            - staging
-          required: true
-        release_type:
-          type: choice
-          description: "Select the release type"
-          options:
-            - major
-            - minor
-            - patch
-          required: true
+      
 
 jobs:
   release:
@@ -39,7 +24,7 @@ jobs:
             @semantic-release/changelog@5.0.1
             @semantic-release/git
           branches: |
-            ['main']
+            ['master']
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
