@@ -1,16 +1,27 @@
 name: Deploy Application to STAGE
 on:
-  push:
-    branches:
-      - stage
+   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Enter Tag name
+        required: true
+      log_level:
+        type: choice
+        description: Enter Log Level
+        required: true
+        options:
+        - DEBUG
+        - INFO
+        - ERROR
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository | tag ${{ github.event.inputs.tag_name }}
         uses: actions/checkout@v3
         with:
-          ref: stage
+          ref: ${{ github.event.inputs.tag_name }}
         
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -82,8 +93,9 @@ jobs:
           ENVIRONMENT: '${{ vars.APP_ENV_STAGE }}'
           DOPPLER_PROJECT_NAME: '${{ vars.DOPPLER_PROJECT_NAME }}'
           DOPPLER_SERVICE_TOKEN: '${{ secrets.DOPPLER_SERVICE_TOKEN_STAGE }}'
-          LOG_LEVEL: '${{ vars.LOG_LEVEL_STAGE }}'
-      
+          LOG_LEVEL: '${{ github.event.inputs.log_level }}'
+          VERSION: '${{ github.event.inputs.tag_name }}'
+     
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
         with:
