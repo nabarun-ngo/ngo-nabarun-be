@@ -1,25 +1,17 @@
-name: Deploy Application to PROD
+name: Deploy Application to PROD | ${{ github.event.inputs.tag_name }}
 on: 
-  workflow_dispatch
-  
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Enter Tag name
 jobs:
   build:
-    # This job runs on push events, specifically after PRs are merged into main
-    # needs: test
-    #if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch Latest Tag
-        id: get_tag
-        run: |
-          git fetch --tags
-          latest_tag=$(git describe --tags --abbrev=0 || echo "0.0.0")
-          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-      
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ env.latest_tag }}
+          ref: ${{ github.event.inputs.tag_name }}
 
       - name: Set up Java
         uses: actions/setup-java@v2
