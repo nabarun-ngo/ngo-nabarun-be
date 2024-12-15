@@ -82,7 +82,8 @@ jobs:
          ENVIRONMENT: ${{ vars.APP_ENV }} 
          DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
-         LOG_LEVEL: ${{ vars.LOG_LEVEL }} 
+         LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+         VERSION: ${{github.event.inputs.tag_name}}
          
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
@@ -90,6 +91,5 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT_ID }}
           credentials: ${{ secrets.GCP_SA_KEY }}
           promote: true
-          version: auto # Automatically generate a version ID
           deliverables: app.jar
           flags: '--appyaml=app.yaml'
