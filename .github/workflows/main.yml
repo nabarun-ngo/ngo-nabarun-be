@@ -1,4 +1,4 @@
-name: Deploy Application to PROD | ${{ github.event.inputs.tag_name }}
+name: Deploy Application to PROD
 on: 
   workflow_dispatch:
     inputs:
