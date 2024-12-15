@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
-import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
@@ -39,7 +38,6 @@ public interface ICommonBL {
 
 	void manageNotification(AuthenticatedUser user,String action,Map<String, Object> payload) throws Exception;
 
-	void cronTrigger(List<ServiceDetail> triggerDetail);
 
 
 }

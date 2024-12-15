@@ -1,12 +1,10 @@
 package ngo.nabarun.app.businesslogic.domain;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -534,27 +532,6 @@ public class RequestDO extends CommonDO {
 
 		}
 		return nextWorkDTO;
-	}
-	
-	public void sendTaskReminderEmail() throws Exception {
-		WorkDetailFilter workFilter= new  WorkDetailFilter();
-		workFilter.setCompleted(false);
-	     Map<UserDTO, List<WorkDTO>> groupedByPendingWithUsers = retrieveAllWorkItems(null, null, workFilter).getContent().stream()
-	             .filter(work -> work.getPendingWithUsers() != null) // Handle null pendingWithUsers lists
-	             .flatMap(work -> work.getPendingWithUsers().stream()
-	                 .map(user -> new AbstractMap.SimpleEntry<>(user, work))) // Create pairs of UserDTO and WorkDTO
-	             .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
-
-		for(Entry<UserDTO, List<WorkDTO>> workitem:groupedByPendingWithUsers.entrySet()) {
-			List<Map<String, Object>> task_vars=workitem.getValue().stream().map(m->{
-				try {
-					return m.toMap(businessDomainHelper.getDomainKeyValues());
-				} catch (Exception e) {}
-				return null;
-			}).collect(Collectors.toList());
-			CorrespondentDTO recipient= CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(workitem.getKey().getEmail()).name(workitem.getKey().getName()).build();
-			Map<String, Object> user_vars=workitem.getKey().toMap(businessDomainHelper.getDomainKeyValues());
-			sendEmail(BusinessConstants.EMAILTEMPLATE__WORKITEM_REMINDER, List.of(recipient),Map.of("workItems",task_vars,"user",user_vars,"currentDate",CommonUtils.formatDateToString(CommonUtils.getSystemDate(), "dd MMM yyyy", "IST")));}
 	}
 
 }

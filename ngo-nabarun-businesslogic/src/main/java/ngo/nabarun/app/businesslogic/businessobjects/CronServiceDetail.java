@@ -6,7 +6,7 @@ import lombok.Data;
 import ngo.nabarun.app.common.enums.TriggerEvent;
 
 @Data
-public class ServiceDetail {
-	private TriggerEvent name;
+public class CronServiceDetail {
+	private TriggerEvent triggerName;
 	private Map<String,String> parameters;
 }
