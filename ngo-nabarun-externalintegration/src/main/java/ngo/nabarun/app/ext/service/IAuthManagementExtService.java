@@ -36,4 +36,6 @@ public interface IAuthManagementExtService {
 	String loginWithUser(String email, String old_password) throws ThirdPartyException;
 
 	Void endUserSessions(String userId) throws ThirdPartyException;
+
+	int updateEmailProvider(boolean enabled,String sender,String apikey_sg) throws ThirdPartyException;
 }
