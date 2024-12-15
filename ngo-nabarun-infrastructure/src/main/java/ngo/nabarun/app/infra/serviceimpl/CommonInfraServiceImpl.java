@@ -37,6 +37,7 @@ import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
 import ngo.nabarun.app.ext.helpers.ObjectFilter.Operator;
 import ngo.nabarun.app.ext.objects.RemoteConfig;
+import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 import ngo.nabarun.app.ext.service.ICollectionExtService;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 import ngo.nabarun.app.ext.service.IFileStorageExtService;
@@ -76,6 +77,7 @@ import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.ILogInfraService;
+import ngo.nabarun.app.infra.service.ISystemInfraService;
 import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
@@ -84,7 +86,7 @@ import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 @Service
 public class CommonInfraServiceImpl
 		implements ICountsInfraService, ITicketInfraService, IDocumentInfraService, IHistoryInfraService,
-		ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService, IApiKeyInfraService {
+		ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService, IApiKeyInfraService,ISystemInfraService {
 
 	@Autowired
 	private DBSequenceRepository dbSeqRepository;
@@ -124,6 +126,9 @@ public class CommonInfraServiceImpl
 
 	@Autowired
 	private ICollectionExtService collectionExtService;
+	
+	@Autowired
+	private IAuthManagementExtService authManagementService;
 
 	/**
 	 * Constants THIS SHOULD BE SAME AS REMOTE CONFIG
@@ -691,6 +696,12 @@ public class CommonInfraServiceImpl
 		List<HistoryDTO> notificationCollection = collectionExtService
 				.getCollectionData(historyCollectionMap.get(type), null, null, List.of(filter),HistoryDTO.class);
 		return notificationCollection;
+	}
+
+	@NoLogging
+	@Override
+	public int configureAuthEmailProvider(String sender,String apikey_sg) throws Exception {
+		return authManagementService.updateEmailProvider(true,sender,apikey_sg);
 	}
 
 }

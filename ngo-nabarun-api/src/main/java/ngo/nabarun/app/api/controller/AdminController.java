@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAdminBL;
-import ngo.nabarun.app.businesslogic.businessobjects.CronServiceDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/api/admin")
@@ -54,19 +54,11 @@ public class AdminController {
 		return new SuccessResponse<Map<String, String>>().payload(adminBL.updateApiKey(id,scopes,revoke)).get(HttpStatus.OK);
 	}
 
-	@Operation(summary = "Triggers a cron event in background.", description = "<table><thead><tr><th>Trigger Name</th><th>Parameters</th></tr></thead><tbody><tr><td>SYNC_USER</td><td>sync_role - Y/N (Sync roles with auth0)<br>user_id - &lt;user id &gt; (Sync specific user by id)<br>user_email - &lt;user email&gt; (Sync specific user by email)</td></tr></tbody></table>")
-	@SecurityRequirement(name = "nabarun_auth_apikey")
-	@PostMapping(value = "/cron/trigger")
-	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestBody List<CronServiceDetail> triggerDetail)
-			throws Exception {
-		adminBL.cronTrigger(triggerDetail);
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
-	}
 	
 	@Operation(summary = "Runs a admin service.", description = "<table><thead><tr><th>Trigger Name</th><th>Parameters</th></tr></thead><tbody><tr><td>SYNC_USER</td><td>sync_role - Y/N (Sync roles with auth0)<br>user_id - &lt;user id &gt; (Sync specific user by id)<br>user_email - &lt;user email&gt; (Sync specific user by email)</td></tr></tbody></table>")
 	@PreAuthorize(Authority.CREATE_SERVICERUN)
 	@PostMapping(value = "/service/run")
-	public ResponseEntity<SuccessResponse<Void>> runService(@RequestBody CronServiceDetail triggerDetail)
+	public ResponseEntity<SuccessResponse<Void>> runService(@RequestBody ServiceDetail triggerDetail)
 			throws Exception {
 		adminBL.adminServices(triggerDetail);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
