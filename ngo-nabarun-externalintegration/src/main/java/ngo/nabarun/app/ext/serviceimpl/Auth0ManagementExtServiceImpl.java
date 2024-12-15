@@ -13,14 +13,11 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
-import com.auth0.json.mgmt.emailproviders.EmailProvider;
-import com.auth0.json.mgmt.emailproviders.EmailProviderCredentials;
 import com.auth0.json.mgmt.tickets.PasswordChangeTicket;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Response;
 import com.auth0.net.TokenRequest;
 
-import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
@@ -270,21 +267,6 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 			TokenHolder token=authAPI.login(email, old_password.toCharArray()).execute()
 	        .getBody();
 			return token.getAccessToken();
-		} catch (Auth0Exception e) {
-			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
-		}
-	}
-
-	@NoLogging
-	@Override
-	public int updateEmailProvider(boolean enabled,String sender,String apikey_sg) throws ThirdPartyException {
-		try {
-			EmailProvider ep= new EmailProvider("sendgrid");
-			ep.setDefaultFromAddress(sender);
-			ep.setEnabled(enabled);
-			ep.setCredentials(new EmailProviderCredentials(apikey_sg));
-			Response<EmailProvider> response=initManagementAPI().emailProvider().update(ep).execute();
-			return response.getStatusCode();
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}

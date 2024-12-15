@@ -17,13 +17,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
-import ngo.nabarun.app.businesslogic.implementation.CommonBLImpl;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
@@ -32,7 +30,6 @@ import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.HistoryRefType;
 import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
-import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
@@ -49,11 +46,9 @@ import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
-import ngo.nabarun.app.infra.service.ISystemInfraService;
 import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 
-@Slf4j
 @Component
 public class CommonDO {
 
@@ -70,6 +65,9 @@ public class CommonDO {
 	protected BusinessDomainHelper businessDomainHelper;
 
 	@Autowired
+	private IDocumentInfraService docInfraService;
+
+	@Autowired
 	private IApiKeyInfraService apiKeyInfraService;
 
 	@Autowired
@@ -77,12 +75,6 @@ public class CommonDO {
 
 	@Autowired
 	protected IHistoryInfraService historyInfraService;
-	
-	@Autowired
-	protected PropertyHelper propertyHelper;
-	
-	@Autowired
-	protected ISystemInfraService systemInfraService;
 
 	/**
 	 * Generate sequential human readable number for notice
@@ -308,22 +300,22 @@ public class CommonDO {
 	public void uploadDocument(DocumentDetailUpload file, String docIndexId, DocumentIndexType docIndexType)
 			throws Exception {
 		byte[] content = file.getContent() == null ? Base64.decodeBase64(file.getBase64Content()) : file.getContent();
-		documentInfraService.uploadDocument(file.getOriginalFileName(), file.getContentType(), docIndexId, docIndexType,
+		docInfraService.uploadDocument(file.getOriginalFileName(), file.getContentType(), docIndexId, docIndexType,
 				content);
 	}
 
 	@Async
 	public void uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType) throws Exception {
-		documentInfraService.uploadDocument(file, docIndexId, docIndexType);
+		docInfraService.uploadDocument(file, docIndexId, docIndexType);
 	}
 
 	public URL getDocumentUrl(String docId) throws Exception {
 		String docLinkValidity = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DOCUMENT_LINK_VALIDITY);
-		return documentInfraService.getTempDocumentUrl(docId, Integer.parseInt(docLinkValidity), TimeUnit.SECONDS);
+		return docInfraService.getTempDocumentUrl(docId, Integer.parseInt(docLinkValidity), TimeUnit.SECONDS);
 	}
 
 	public boolean deleteDocument(String docId) throws Exception {
-		return documentInfraService.hardDeleteDocument(docId);
+		return docInfraService.hardDeleteDocument(docId);
 	}
 
 	public Map<String, String> generateAPIKey(List<String> scopes) {
@@ -432,15 +424,5 @@ public class CommonDO {
 		return historyInfraService.getHistory(historyType, refId).stream().sorted((c1, c2) -> {
 			return Long.valueOf(c2.getCreatedOn()).compareTo(Long.valueOf(c1.getCreatedOn()));
 		}).collect(Collectors.toList());
-	}
-
-	public void syncSystems() throws Exception {
-		log.info("Starting System Sync");
-		String apikey_sg=propertyHelper.getSendGridAPIKey();
-		String sender=propertyHelper.getDefaultEmailSender();
-		log.info("Auth email provider update ==> Sender ="+sender+" Apikey=<apiKey>");
-		int code =systemInfraService.configureAuthEmailProvider(sender,apikey_sg);
-		log.info("Auth email provider update ==> StatusCode ="+code);
-		log.info("Ending System Sync");
 	}
 }

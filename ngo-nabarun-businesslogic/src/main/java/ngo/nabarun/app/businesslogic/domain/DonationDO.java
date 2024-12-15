@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -359,63 +358,7 @@ public class DonationDO extends AccountDO {
 		return donationInfraService.getDonation(id);
 	}
 
-	public void convertToPendingDonation() throws Exception {
-		DonationDetailFilter filter = new DonationDetailFilter();
-		filter.setDonationType(List.of(DonationType.REGULAR));
-		filter.setDonationStatus(List.of(DonationStatus.RAISED));
-		List<DonationDTO> raisedDonations=retrieveDonations(null, null, filter).getContent();
-		for(DonationDTO donation:raisedDonations) {
-			DonationDetail updates= new DonationDetail();
-			updates.setDonationStatus(DonationStatus.PENDING);
-			updateDonation(donation.getId(), updates, null);
-			Thread.sleep(1000);
-		}
-	}
-
-	public void sendDonationReminderEmail() throws Exception {
-		DonationDetailFilter filter = new DonationDetailFilter();
-		filter.setDonationStatus(List.of(DonationStatus.PENDING));
-		Map<UserDTO, List<DonationDTO>> pendingDonations=retrieveDonations(null, null, filter).getContent().stream().filter(f->f.getGuest() == Boolean.FALSE).collect(Collectors.groupingBy(g->g.getDonor()));
-		for(Entry<UserDTO, List<DonationDTO>> donations:pendingDonations.entrySet()) {
-			CorrespondentDTO recipient= CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(donations.getKey().getEmail()).name(donations.getKey().getName()).build();
-			List<Map<String, Object>> donation_vars=donations.getValue().stream().map(m->{
-				try {
-					return m.toMap(businessDomainHelper.getDomainKeyValues());
-				} catch (Exception e) {}
-				return null;
-			}).collect(Collectors.toList());
-			Map<String, Object> user_vars=donations.getKey().toMap(businessDomainHelper.getDomainKeyValues());
-			sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_REMINDER, List.of(recipient),Map.of("donations",donation_vars,"user",user_vars));
-		}
-	}
-
-	public void createBulkMonthlyDonation(List<UserDTO> users) throws Exception {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(CommonUtils.getSystemDate());
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		Date startDate = cal.getTime();
-		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-		Date endDate = cal.getTime();
-
-		for (UserDTO user : users) {
-			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
-					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
-				DonationDetail donationDetail = new DonationDetail();
-				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,businessDomainHelper.getDomainKeyValues()));
-				donationDetail.setEndDate(endDate);
-				donationDetail.setIsGuest(false);
-				donationDetail.setStartDate(startDate);
-				donationDetail.setDonationType(DonationType.REGULAR);
-				try {
-					DonationDTO donation = raiseDonation(donationDetail);
-					log.info("Automatically raised donation id : " + donation.getId());
-				} catch (Exception e) {
-					log.error("Exception occured during automatic donation creation ", e);
-				}
-				Thread.sleep(2000);
-			}
-		}
-	}
+	
 	
 	
 
