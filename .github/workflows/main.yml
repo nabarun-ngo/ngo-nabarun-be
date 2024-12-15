@@ -4,11 +4,12 @@ on:
     inputs:
       tag_name:
         description: Enter Tag name
+        required: true
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository | tag ${{ github.event.inputs.tag_name }}
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.tag_name }}
@@ -26,7 +27,11 @@ jobs:
           key: maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             maven-   
-
+        
+      - name: Build with Maven
+        run: |
+          mvn clean package
+          
       - name: Get JAR file path
         id: get-jar-path
         run: |
