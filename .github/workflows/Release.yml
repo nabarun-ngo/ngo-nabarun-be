@@ -79,7 +79,7 @@ jobs:
          DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-         VERSION: ${{github.event.inputs.tag_name}}
+         VERSION: ${{ steps.tag_version.outputs.new_tag }}
          
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
@@ -144,7 +144,7 @@ jobs:
          DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-         VERSION: ${{github.event.inputs.tag_name}}
+         VERSION: ${{ steps.tag_version.outputs.new_tag }}
          
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
