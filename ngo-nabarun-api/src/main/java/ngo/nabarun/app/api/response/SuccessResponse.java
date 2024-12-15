@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
+import ngo.nabarun.app.common.util.CommonUtils;
 
 
 @Getter
@@ -33,6 +34,9 @@ import lombok.Getter;
 
 		@JsonProperty("messages")
 		private List<String> messages = new ArrayList<String>();
+		
+		@JsonProperty("version")
+		private final String version= CommonUtils.getAppVersion();
 		
 		@JsonInclude(JsonInclude.Include.NON_NULL) 
 		@JsonProperty("responsePayload")

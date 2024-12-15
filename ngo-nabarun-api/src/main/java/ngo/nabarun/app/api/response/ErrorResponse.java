@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
+import ngo.nabarun.app.common.util.CommonUtils;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -41,6 +42,9 @@ public class ErrorResponse {
 
 	@JsonProperty("stackTrace")
 	private String stackTrace;
+	
+	@JsonProperty("version")
+	private final String version= CommonUtils.getAppVersion();
 
 	public ErrorResponse(Exception e,boolean includeStacktrace) {
 		messages.add(e.getMessage());

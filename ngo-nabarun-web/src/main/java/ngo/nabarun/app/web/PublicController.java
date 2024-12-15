@@ -17,6 +17,7 @@ import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.common.helper.PropertyHelper;
+import ngo.nabarun.app.common.util.CommonUtils;
 
 @Controller
 @SessionAttributes(names = { "interview"})
@@ -36,6 +37,7 @@ public class PublicController {
 		}
 		model.addAttribute("interview", new InterviewDetail());
 		model.addAttribute("LOGIN_URL", prop.getAppLoginURL()); 
+		model.addAttribute("VERSION", CommonUtils.getAppVersion()); 
 		return "index";
 	}
 
