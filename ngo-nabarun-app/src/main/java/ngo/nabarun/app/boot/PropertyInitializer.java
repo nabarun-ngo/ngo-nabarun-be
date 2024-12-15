@@ -69,7 +69,6 @@ public class PropertyInitializer implements ApplicationContextInitializer<Config
 		return conn.loadProperties();
 	}
 
-
 //	@SuppressWarnings("unused")
 //	private Map<String,Object> loadFromDB() throws Exception{
 //		String appSecret=System.getProperty("APP_SECRET");

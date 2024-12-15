@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommonUtils {
 	private final static ObjectMapper objectMapper = new ObjectMapper();
+	private static final String VERSION = "VERSION";
 	private static Date systemDate = null;
 
 	/**
@@ -264,6 +265,8 @@ public class CommonUtils {
         }
     }
 	
-	
+	public static String getAppVersion() {
+		return System.getenv(VERSION) == null ? System.getProperty(VERSION) : System.getenv(VERSION);
+	}
 
 }
