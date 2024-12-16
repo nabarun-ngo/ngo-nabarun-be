@@ -1,6 +1,8 @@
 package ngo.nabarun.app.businesslogic.helper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
@@ -9,6 +11,7 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -25,6 +28,8 @@ public class LoggingAspect {
 
 	@Value("${log.pretty.print:false}")
 	private boolean prettyPrint;
+	
+	private List<String> asyncCorrelationIds= new ArrayList<>();
 
 	/**
 	 * Point cut that matches all repositories, services and Web REST end points.
@@ -37,6 +42,8 @@ public class LoggingAspect {
 			+ "!@annotation(ngo.nabarun.app.common.annotation.NoLogging)")
 	public void applicationPackagePointcut() {
 	}
+	
+	
 
 	/**
 	 * Advice that logs methods throwing exceptions.
@@ -63,12 +70,25 @@ public class LoggingAspect {
 	public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
 		return writeLog(joinPoint);
 	}
+	
+	@Around("@annotation(org.springframework.scheduling.annotation.Async)")
+	public Object logAsyncAround(ProceedingJoinPoint joinPoint) throws Throwable {
+		if(MDC.get("CorrelationId") != null) {
+			asyncCorrelationIds.add(MDC.get("CorrelationId"));
+		}
+		Object result= joinPoint.proceed();
+		if(MDC.get("CorrelationId") != null) {
+			asyncCorrelationIds.remove(MDC.get("CorrelationId"));
+		}
+		return result; 
+	}
 
+	
 	private Object writeLog(ProceedingJoinPoint joinPoint) throws Throwable {
 		//System.err.println(joinPoint);
 		//System.err.println(prettyPrint);
 
-		if (log.isDebugEnabled()) {
+		if (log.isDebugEnabled() || asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
 			String args;
 			try {
 				args = CommonUtils.toJSONString(joinPoint.getArgs(), prettyPrint);
@@ -77,14 +97,20 @@ public class LoggingAspect {
 				//e.printStackTrace();
 				args = Arrays.toString(joinPoint.getArgs());
 			}
-
-			log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
-					joinPoint.getSignature().getName(), args);
+			if(asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
+				log.info("Async | Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
+						joinPoint.getSignature().getName(), args);
+			}else {
+				log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
+						joinPoint.getSignature().getName(), args);
+			}
+			
 		}
+		
 		try {
 			Object result = joinPoint.proceed();
 			String value;
-			if (log.isDebugEnabled()) {
+			if (log.isDebugEnabled() || asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
 				if (result != null) {
 					try {
 						value = CommonUtils.toJSONString(result, prettyPrint);
@@ -95,8 +121,14 @@ public class LoggingAspect {
 				} else {
 					value = String.valueOf(result);
 				}
-				log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
-						joinPoint.getSignature().getName(), value);
+				if(asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
+					log.info("Async | Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
+							joinPoint.getSignature().getName(), value);
+				}else {
+					log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
+							joinPoint.getSignature().getName(), value);
+				}
+				
 			}
 			return result;
 		} catch (IllegalArgumentException e) {

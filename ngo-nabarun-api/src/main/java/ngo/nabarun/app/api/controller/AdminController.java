@@ -1,8 +1,6 @@
 package ngo.nabarun.app.api.controller;
 
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +19,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAdminBL;
+import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 
 @RestController
@@ -31,27 +30,27 @@ public class AdminController {
 	@Autowired
 	private IAdminBL adminBL;
 
-	@PreAuthorize(Authority.READ_ADMIN_SERVICE)
+	//@PreAuthorize(Authority.READ_ADMIN_SERVICE)
 	@GetMapping(value = "/apikey/list",produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SuccessResponse<Void>> getApiKeyList(@RequestBody List<String> names) throws Exception {
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
+	public ResponseEntity<SuccessResponse<List<ApiKeyDetail>>> getApiKeyList() throws Exception {
+		return new SuccessResponse<List<ApiKeyDetail>>().payload(adminBL.getApiKeys()).get(HttpStatus.OK);
 	}
 	
-	@PreAuthorize(Authority.CREATE_APIKEY)
+	//@PreAuthorize(Authority.CREATE_APIKEY)
 	@PostMapping("/apikey/generate")
-	public ResponseEntity<SuccessResponse<Map<String, String>>> generateApiKey(@RequestBody List<String> scopes)
+	public ResponseEntity<SuccessResponse<ApiKeyDetail>> generateApiKey(@RequestBody ApiKeyDetail apiKeyDetail)
 			throws Exception {
-		return new SuccessResponse<Map<String, String>>().payload(adminBL.generateApiKey(scopes)).get(HttpStatus.OK);
+		return new SuccessResponse<ApiKeyDetail>().payload(adminBL.generateApiKey(apiKeyDetail)).get(HttpStatus.OK);
 	}
 	
-	@PreAuthorize(Authority.UPDATE_APIKEY)
+	//@PreAuthorize(Authority.UPDATE_APIKEY)
 	@PostMapping("/apikey/{id}/update")
-	public ResponseEntity<SuccessResponse<Map<String, String>>> updateApiKey(
+	public ResponseEntity<SuccessResponse<ApiKeyDetail>> updateApiKey(
 			@PathVariable String id,
-			@RequestParam boolean revoke,
-			@RequestBody List<String> scopes)
+			@RequestParam(required = false) boolean revoke,
+			@RequestBody ApiKeyDetail apiKeyDetail)
 			throws Exception {
-		return new SuccessResponse<Map<String, String>>().payload(adminBL.updateApiKey(id,scopes,revoke)).get(HttpStatus.OK);
+		return new SuccessResponse<ApiKeyDetail>().payload(adminBL.updateApiKey(id,apiKeyDetail,revoke)).get(HttpStatus.OK);
 	}
 
 	
