@@ -12,7 +12,7 @@ import lombok.Data;
 public class ApiKeyEntity {
 	@Id
 	private String id;
-	private String name;// TODO yet to configure
+	private String name;
 
 	private String apiKey;
 	private String scopes;

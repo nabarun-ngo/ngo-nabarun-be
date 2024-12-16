@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserAddress;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.BankDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
@@ -32,6 +33,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserRole;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AddressDTO;
+import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO;
@@ -616,6 +618,17 @@ public class BusinessObjectConverter {
 		historyDetail.setCreatedBy(historyDTO.getCreatedByName());
 		historyDetail.setCreatedOn(new Date(historyDTO.getCreatedOn()));
 		return historyDetail;
+	}
+
+	public static ApiKeyDetail toApiKeyDetail(ApiKeyDTO apiKeyDTO, String apiKey) {
+		ApiKeyDetail apiKeyDetail= new ApiKeyDetail();
+		apiKeyDetail.setExpireable(apiKeyDTO.isExpireable());
+		apiKeyDetail.setExpiryDate(apiKeyDTO.getExpiryDate());
+		apiKeyDetail.setId(apiKeyDTO.getId());
+		apiKeyDetail.setName(apiKeyDTO.getName());
+		apiKeyDetail.setScopes(apiKeyDTO.getScopes());
+		apiKeyDetail.setApiKey(apiKey);
+		return apiKeyDetail;
 	}
 
 //	public static NotificationDetail toNotificationDetail(NotificationDTO notificationDTO) {

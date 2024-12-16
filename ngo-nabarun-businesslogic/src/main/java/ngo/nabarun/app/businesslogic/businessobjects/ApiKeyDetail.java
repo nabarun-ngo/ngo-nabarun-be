@@ -1,20 +1,17 @@
-package ngo.nabarun.app.infra.dto;
+package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import ngo.nabarun.app.common.enums.ApiKeyStatus;
 
 @Data
-public class ApiKeyDTO {
+public class ApiKeyDetail {
 	private String id;
 	private String name;
-	private String apiKey;
 	private List<String> scopes;
-	private ApiKeyStatus status;
+	private String apiKey;
 	private boolean expireable;
 	private Date expiryDate;
-	private Date createdOn;
 
 }

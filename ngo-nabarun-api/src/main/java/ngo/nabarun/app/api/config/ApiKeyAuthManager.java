@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import ngo.nabarun.app.common.enums.ApiKeyStatus;
+import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 
@@ -41,7 +42,9 @@ public class ApiKeyAuthManager implements AuthenticationManager {
 
 		@Nullable
 		ApiKeyDTO apiKey = this.keys.get(principal);
-		boolean isAuthenticated = apiKey != null && apiKey.getStatus() == ApiKeyStatus.ACTIVE
+		boolean isAuthenticated = apiKey != null 
+				&& apiKey.getStatus() == ApiKeyStatus.ACTIVE 
+				&& (!apiKey.isExpireable() || CommonUtils.getSystemDate().before(apiKey.getExpiryDate()))
 				&& apiKey.getScopes().contains(credential);
 
 		if (isAuthenticated) {

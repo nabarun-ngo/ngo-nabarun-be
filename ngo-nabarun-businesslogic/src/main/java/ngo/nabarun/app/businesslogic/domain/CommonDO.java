@@ -18,12 +18,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
+import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
-import ngo.nabarun.app.businesslogic.implementation.CommonBLImpl;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
 import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.enums.CommunicationMethod;
@@ -326,15 +326,6 @@ public class CommonDO {
 		return documentInfraService.hardDeleteDocument(docId);
 	}
 
-	public Map<String, String> generateAPIKey(List<String> scopes) {
-		ApiKeyDTO apikeyDTO = new ApiKeyDTO();
-		apikeyDTO.setExpireable(false);
-		apikeyDTO.setScopes(scopes);
-		apikeyDTO.setStatus(ApiKeyStatus.ACTIVE);
-		apikeyDTO = apiKeyInfraService.createApiKey(apikeyDTO);
-		return Map.of("id", apikeyDTO.getId(), "apiKey", apikeyDTO.getApiKey());
-	}
-
 	@Async
 	public void sendDashboardCounts(String userId) throws Exception {
 		Map<String, String> countMap = sequenceInfraService.getDashboardCounts(userId);
@@ -442,5 +433,33 @@ public class CommonDO {
 		int code =systemInfraService.configureAuthEmailProvider(sender,apikey_sg);
 		log.info("Auth email provider update ==> StatusCode ="+code);
 		log.info("Ending System Sync");
+	}
+	
+	public ApiKeyDTO generateAPIKey(ApiKeyDetail detail) {
+		ApiKeyDTO apikeyDTO = new ApiKeyDTO();
+		apikeyDTO.setName(detail.getName());
+		apikeyDTO.setExpireable(detail.isExpireable());
+		apikeyDTO.setExpiryDate(detail.getExpiryDate());
+		apikeyDTO.setScopes(detail.getScopes());
+		apikeyDTO.setStatus(ApiKeyStatus.ACTIVE);
+		apikeyDTO.setCreatedOn(CommonUtils.getSystemDate());
+		apikeyDTO = apiKeyInfraService.createOrUpdateApiKey(apikeyDTO);
+		return apikeyDTO;
+	}
+	
+	public ApiKeyDTO updateAPIKey(String id,ApiKeyDetail detail,boolean revoke) {
+		ApiKeyDTO apikeyDTO = new ApiKeyDTO();
+		apikeyDTO.setId(id);
+		apikeyDTO.setName(detail.getName());
+		apikeyDTO.setScopes(detail.getScopes());
+		if(revoke) {
+			apikeyDTO.setStatus(ApiKeyStatus.REVOKED);
+		}
+		apikeyDTO = apiKeyInfraService.createOrUpdateApiKey(apikeyDTO);
+		return apikeyDTO;
+	}
+
+	public List<ApiKeyDTO> getAPIKeys(ApiKeyStatus status) {
+		return apiKeyInfraService.getApiKeys(status);
 	}
 }

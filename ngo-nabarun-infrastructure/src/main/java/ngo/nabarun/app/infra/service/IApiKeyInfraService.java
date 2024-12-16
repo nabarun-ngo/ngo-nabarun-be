@@ -9,7 +9,7 @@ import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 
 @Service
 public interface IApiKeyInfraService {
-	ApiKeyDTO createApiKey(ApiKeyDTO apiKeyDTO);
+	ApiKeyDTO createOrUpdateApiKey(ApiKeyDTO apiKeyDTO);
 	ApiKeyDTO getApiKeyDetail(String apiKey);
 	List<ApiKeyDTO> getApiKeys(ApiKeyStatus status);
 

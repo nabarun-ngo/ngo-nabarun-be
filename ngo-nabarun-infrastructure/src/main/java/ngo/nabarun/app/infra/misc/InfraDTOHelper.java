@@ -721,6 +721,7 @@ public class InfraDTOHelper {
 
 	public static ApiKeyDTO convertToApiKeyDTO(ApiKeyEntity apiKeyEntity) {
 		ApiKeyDTO apiKeyDTO = new ApiKeyDTO();
+		apiKeyDTO.setName(apiKeyEntity.getName());
 		apiKeyDTO.setApiKey(apiKeyEntity.getApiKey());
 		apiKeyDTO.setCreatedOn(apiKeyEntity.getCreatedOn());
 		apiKeyDTO.setExpireable(apiKeyEntity.isExpireable());

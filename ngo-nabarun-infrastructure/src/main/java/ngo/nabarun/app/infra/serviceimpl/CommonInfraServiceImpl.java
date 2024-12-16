@@ -576,13 +576,19 @@ public class CommonInfraServiceImpl
 	}
 
 	@Override
-	public ApiKeyDTO createApiKey(ApiKeyDTO apiKeyDTO) {
-		ApiKeyEntity apiKeyEntity = new ApiKeyEntity();
-		apiKeyEntity.setApiKey("N." + UUID.randomUUID().toString() + "." + UUID.randomUUID().toString());
-		apiKeyEntity.setCreatedOn(CommonUtils.getSystemDate());
-		apiKeyEntity.setExpireable(apiKeyDTO.isExpireable());
+	public ApiKeyDTO createOrUpdateApiKey(ApiKeyDTO apiKeyDTO) {
+		ApiKeyEntity apiKeyEntity;
+		if(apiKeyDTO.getId() != null) {
+			apiKeyEntity = apiKeyRepo.findById(apiKeyDTO.getId()).orElseThrow();
+		}else {
+			apiKeyEntity = new ApiKeyEntity();
+			apiKeyEntity.setId(UUID.randomUUID().toString());
+			apiKeyEntity.setApiKey("N." + UUID.randomUUID().toString() + "." + UUID.randomUUID().toString());
+			apiKeyEntity.setCreatedOn(CommonUtils.getSystemDate());
+			apiKeyEntity.setExpireable(apiKeyDTO.isExpireable());
+		}
+		apiKeyEntity.setName(apiKeyDTO.getName());
 		apiKeyEntity.setExpireOn(apiKeyDTO.getExpiryDate());
-		apiKeyEntity.setId(UUID.randomUUID().toString());
 		apiKeyEntity.setScopes(InfraFieldHelper.stringListToString(apiKeyDTO.getScopes()));
 		apiKeyEntity.setStatus(apiKeyDTO.getStatus() == null ? null : apiKeyDTO.getStatus().name());
 		apiKeyEntity = apiKeyRepo.save(apiKeyEntity);
