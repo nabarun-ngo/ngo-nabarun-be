@@ -1,6 +1,8 @@
 name: Create Release
 on:
   push:
+    paths-ignore:
+    - '.github/workflows/**'
     branches:
     - master
 
@@ -11,6 +13,8 @@ jobs:
   create_release:
     name: 'Create release'
     runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.tag_version.outputs.new_tag }} 
     steps:
       - uses: actions/checkout@v4
       - name: Bump version and push tag
@@ -31,10 +35,10 @@ jobs:
     environment: 'STAGE'
     needs: [create_release]
     steps:
-      - name: Checkout repository | tag ${{ github.event.inputs.tag_name }}
+      - name: Checkout repository | tag ${{ needs.create_release.outputs.tag_name }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.tag_version.outputs.new_tag }}
+          ref: ${{ needs.create_release.outputs.tag_name }}
 
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -79,7 +83,7 @@ jobs:
          DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-         VERSION: ${{ steps.tag_version.outputs.new_tag }}
+         VERSION: ${{ needs.create_release.outputs.tag_name }}
          
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
@@ -96,10 +100,10 @@ jobs:
     environment: 'PROD'
     needs: [create_release,build-and-deploy-stage]
     steps:
-      - name: Checkout repository | tag ${{ github.event.inputs.tag_name }}
+      - name: Checkout repository | tag ${{ needs.create_release.outputs.tag_name }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.tag_version.outputs.new_tag }}
+          ref: ${{ needs.create_release.outputs.tag_name }}
 
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -144,7 +148,7 @@ jobs:
          DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
          DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-         VERSION: ${{ steps.tag_version.outputs.new_tag }}
+         VERSION: ${{ needs.create_release.outputs.tag_name }}
          
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@v2
