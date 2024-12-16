@@ -68,7 +68,7 @@ public class ApiKeyAuthManager implements AuthenticationManager {
 
 		@Override
 		public ApiKeyDTO load(String key) throws Exception {
-			LOG.info("Loading api key from database: [key: {}]", key);
+			LOG.debug("Loading api key from database: [key: {}]", key);
 			try {
 				return apiKeyInfraService.getApiKeyDetail(key);
 			} catch (Exception e) {
