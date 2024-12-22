@@ -269,4 +269,18 @@ public class CommonUtils {
 		return System.getenv(VERSION) == null ? System.getProperty(VERSION) : System.getenv(VERSION);
 	}
 
+	public static Date getDayOfCurrentMonth(int day) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(getSystemDate());
+		cal.set(Calendar.DAY_OF_MONTH, day);
+		return cal.getTime();
+	}
+
+	public static Date getLastDayOfCurrentMonth() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(getSystemDate());
+		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+		return cal.getTime();
+	}
+
 }

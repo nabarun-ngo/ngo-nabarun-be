@@ -1,6 +1,6 @@
 package ngo.nabarun.app.common.enums;
 
-public enum TriggerEvent {
+public enum TaskName {
 	DONATION_REMINDER_EMAIL,
 	TASK_REMINDER_EMAIL,
 	CREATE_DONATION,
