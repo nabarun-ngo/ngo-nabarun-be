@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import ngo.nabarun.app.common.enums.CommunicationMethod;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
 import ngo.nabarun.app.common.enums.HistoryRefType;
+import ngo.nabarun.app.common.enums.JobStatus;
 import ngo.nabarun.app.common.enums.TicketStatus;
 import ngo.nabarun.app.common.enums.TicketType;
 import ngo.nabarun.app.common.helper.PropertyHelper;
@@ -41,6 +43,7 @@ import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
@@ -49,6 +52,7 @@ import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
+import ngo.nabarun.app.infra.service.IJobsInfraService;
 import ngo.nabarun.app.infra.service.ISystemInfraService;
 import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
@@ -83,6 +87,9 @@ public class CommonDO {
 	
 	@Autowired
 	protected ISystemInfraService systemInfraService;
+	
+	@Autowired
+	private IJobsInfraService jobInfraService;
 
 	/**
 	 * Generate sequential human readable number for notice
@@ -256,17 +263,28 @@ public class CommonDO {
 		}
 	}
 
-	public void sendEmail(String templateName, List<CorrespondentDTO> recipients, Map<String, Object> objectMap)
+	public int sendEmail(String templateName, List<CorrespondentDTO> recipients, Map<String, Object> objectMap)
 			throws Exception {
-		sendEmail(null, templateName, recipients, objectMap);
+		return sendEmail(null, templateName, recipients, objectMap);
 	}
 
-	public void sendEmail(String senderName, String templateName, List<CorrespondentDTO> recipients,
+	public int sendEmail(String senderName, String templateName, List<CorrespondentDTO> recipients,
 			Map<String, Object> objectMap) throws Exception {
 		EmailTemplateDTO template = businessDomainHelper.findInterpolateAndConvertToEmailTemplateDTO(templateName,
 				objectMap);
-		correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template, null);
+		return correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template, null);
 	}
+	
+	
+	@Async 
+	public void sendEmailAsync(String templateName, List<CorrespondentDTO> recipients,
+			Map<String, Object> objectMap,String triggerId, String senderName) throws Exception {
+		JobDTO<Map<String, Object>, Integer> emailJob= new JobDTO<>(triggerId, templateName);
+		startJob(emailJob, Map.of("recipients",recipients,"objectMap",objectMap,"senderName",senderName==null?"":senderName));
+		int status=sendEmail(senderName, templateName, recipients, objectMap);
+		endJob(emailJob, status);
+	}
+
 
 	public Paginate<Map<String, String>> getNotifications(Integer index, Integer size) {
 		NotificationDTOFilter filter = new NotificationDTOFilter();
@@ -461,5 +479,36 @@ public class CommonDO {
 
 	public List<ApiKeyDTO> getAPIKeys(ApiKeyStatus status) {
 		return apiKeyInfraService.getApiKeys(status);
+	}
+
+	public <Input, Output> void startJob(JobDTO<Input, Output> job, Input ip) throws Exception {
+		job.setLog(new ArrayList<>());
+		job.setStart(CommonUtils.getSystemDate());
+		job.setStatus(JobStatus.IN_PROGRESS);
+		job.setInput(ip);
+		// Run garbage collection to reclaim unused memory
+        //System.gc();
+		Runtime runtime = Runtime.getRuntime();
+        long usedMemory = (runtime.totalMemory() - runtime.freeMemory())/1024;
+        long freeMemory = runtime.freeMemory()/1024;
+        long totalMemory = runtime.totalMemory()/1024;
+        long maxMemory = runtime.maxMemory()/1024;
+        job.setMemoryAtStart("Total memory (kB): " + totalMemory+ " Free memory (kB): " + freeMemory+" Used memory (kB): " + usedMemory+" Max memory (kB): " + maxMemory);
+        String id=jobInfraService.createOrUpdateJob(job).getId();
+        job.setId(id);
+	}
+
+	public <Input, Output> void endJob(JobDTO<Input, Output> job, Output op) throws Exception {
+		job.setEnd(CommonUtils.getSystemDate());
+		job.setOutput(op);
+		job.setStatus(JobStatus.COMPLETED);
+		Runtime runtime = Runtime.getRuntime();
+        long usedMemory = (runtime.totalMemory() - runtime.freeMemory())/1024;
+        long freeMemory = runtime.freeMemory()/1024;
+        long totalMemory = runtime.totalMemory()/1024;
+        long maxMemory = runtime.maxMemory()/1024;
+        job.setMemoryAtEnd("Total memory (kB): " + totalMemory+ " Free memory (kB): " + freeMemory+" Used memory (kB): " + usedMemory+" Max memory (kB): " + maxMemory);
+        job=jobInfraService.createOrUpdateJob(job);
+
 	}
 }

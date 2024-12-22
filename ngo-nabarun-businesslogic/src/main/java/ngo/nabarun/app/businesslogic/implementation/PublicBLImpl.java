@@ -288,8 +288,8 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 		/**
 		 * Sending notification and email
 		 */
-		requestDO.sendEmail(interview.getFirstName(), BusinessConstants.EMAILTEMPLATE__PUBLIC_QUERY, recipients,
-				Map.of("interview", interview));
+		requestDO.sendEmailAsync(BusinessConstants.EMAILTEMPLATE__PUBLIC_QUERY, recipients,
+				Map.of("interview", interview),interview.getEmail(),interview.getFirstName());
 		requestDO.sendNotification(BusinessConstants.NOTIFICATION__PUBLIC_QUERY, Map.of(), users);
 
 		interview.setStage("POST_SUBMIT");

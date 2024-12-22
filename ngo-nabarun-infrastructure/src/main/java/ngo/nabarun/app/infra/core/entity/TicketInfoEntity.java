@@ -3,6 +3,7 @@ package ngo.nabarun.app.infra.core.entity;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -45,6 +46,7 @@ public class TicketInfoEntity {
 
 	private String status;
 
+	@Indexed(name = "expireOn", expireAfterSeconds = 0)
 	private Date expireOn;
 	private Date createdOn;
 	private String createdBy;

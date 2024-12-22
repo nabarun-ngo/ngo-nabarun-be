@@ -218,7 +218,7 @@ public class DonationDO extends AccountDO {
 				.emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).mobile(donor.getPhoneNumber())
 				.build();
 		Map<String, Object> donation_vars=donationDTO.toMap(businessDomainHelper.getDomainKeyValues());
-		sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),Map.of("donation",donation_vars));
+		sendEmailAsync(BusinessConstants.EMAILTEMPLATE__DONATION_CREATE_REGULAR, List.of(recipient),Map.of("donation",donation_vars),donationDTO.getId(),null);
 		return donationDTO;
 	}
 
@@ -328,6 +328,14 @@ public class DonationDO extends AccountDO {
 				}
 				return map;
 			});
+			
+			}
+		if(user != null && user.getEmail() != null) {
+			CorrespondentDTO recipient = CorrespondentDTO.builder().name(user.getName())
+					.emailRecipientType(EmailRecipientType.TO).email(user.getEmail()).mobile(user.getPhoneNumber())
+					.build();
+			Map<String, Object> donation_vars=updatedDetail.toMap(businessDomainHelper.getDomainKeyValues());
+			sendEmailAsync(BusinessConstants.EMAILTEMPLATE__DONATION_UPDATE, List.of(recipient),Map.of("donation",donation_vars),updatedDetail.getId(),null);
 		}
 		return updatedDetail;
 	}
@@ -389,7 +397,12 @@ public class DonationDO extends AccountDO {
 		}
 	}
 
-	public void createBulkMonthlyDonation(List<UserDTO> users) throws Exception {
+	public List<DonationDTO> createBulkMonthlyDonation(List<UserDTO> users) throws Exception {
+		return createBulkMonthlyDonation(users, new ArrayList<>());
+	}
+	
+	public List<DonationDTO> createBulkMonthlyDonation(List<UserDTO> users, List<String> output_log) throws Exception {
+		List<DonationDTO> donations= new ArrayList<>(); 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(CommonUtils.getSystemDate());
 		cal.set(Calendar.DAY_OF_MONTH, 1);
@@ -408,13 +421,16 @@ public class DonationDO extends AccountDO {
 				donationDetail.setDonationType(DonationType.REGULAR);
 				try {
 					DonationDTO donation = raiseDonation(donationDetail);
-					log.info("Automatically raised donation id : " + donation.getId());
+					donations.add(donation);
+					log.info("Automatically raised donation id : " + donation.getId()+" for user "+user.getProfileId());
+					output_log.add("Automatically raised donation id : " + donation.getId()+" for user "+user.getProfileId());
 				} catch (Exception e) {
+					output_log.add("Exception occured during automatic donation creation "+e.getMessage());
 					log.error("Exception occured during automatic donation creation ", e);
 				}
-				Thread.sleep(2000);
 			}
 		}
+		return donations;
 	}
 	
 	

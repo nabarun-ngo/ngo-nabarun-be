@@ -11,6 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -22,6 +23,7 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.enums.ExpenseRefType;
 import ngo.nabarun.app.common.enums.ExpenseStatus;
+import ngo.nabarun.app.common.enums.JobStatus;
 import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.MeetingStatus;
@@ -54,6 +56,7 @@ import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
 import ngo.nabarun.app.infra.core.entity.ExpenseEntity;
 import ngo.nabarun.app.infra.core.entity.ExpenseItemEntity;
+import ngo.nabarun.app.infra.core.entity.JobEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.NoticeEntity;
 import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
@@ -72,6 +75,7 @@ import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
@@ -807,6 +811,30 @@ public class InfraDTOHelper {
 		
 
 		return expenseItemDTO;
+	}
+
+	public static <Input, Output> JobDTO<Input, Output> convertToJobDTO(JobEntity jobEntity) throws Exception {
+		JobDTO<Input, Output> jobDTO= new JobDTO<>(jobEntity.getTriggerId(), jobEntity.getName());
+		
+		if(jobEntity.getEnd() != null && jobEntity.getStart() != null) {
+			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());	
+		}
+		
+		jobDTO.setEnd(jobEntity.getEnd());
+		jobDTO.setId(jobEntity.getId());
+		jobDTO.setInput(CommonUtils.getObjectMapper().readValue(jobEntity.getInput(), new TypeReference<Input>() {
+		}));
+		jobDTO.setLog(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
+		jobDTO.setMemoryAtEnd(jobEntity.getMemoryAtEnd());
+		jobDTO.setMemoryAtStart(jobEntity.getMemoryAtStart());
+		if(jobEntity.getOutput() != null) {
+			jobDTO.setOutput(CommonUtils.getObjectMapper().readValue(jobEntity.getOutput(), new TypeReference<Output>() {
+			}));
+		}
+		
+		jobDTO.setStart(jobEntity.getStart());
+		jobDTO.setStatus(JobStatus.valueOf(jobEntity.getStatus()));
+		return jobDTO;
 	}
 
 }
