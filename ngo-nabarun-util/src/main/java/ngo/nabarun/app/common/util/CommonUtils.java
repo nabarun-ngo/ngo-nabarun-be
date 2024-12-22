@@ -282,5 +282,9 @@ public class CommonUtils {
 		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		return cal.getTime();
 	}
+	
+	public static ObjectMapper getObjectMapper(){
+		return objectMapper;
+	}
 
 }

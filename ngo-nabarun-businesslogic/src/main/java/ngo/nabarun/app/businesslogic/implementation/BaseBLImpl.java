@@ -71,7 +71,7 @@ public class BaseBLImpl {
 			emailVerified = workflow.getType() == RequestType.JOIN_REQUEST;
 			resetPassword = workflow.getType() == RequestType.JOIN_REQUEST_USER;
 			memeber = onboardMember(workflow.getAdditionalFields(), emailVerified, resetPassword);
-			sendOnboardingEmail(workflow.getAdditionalFields(), resetPassword);
+			sendOnboardingEmail(workflow, resetPassword);
 			workflow.setRequester(memeber);
 			workflow.setLastActionCompleted(true);
 			break;
@@ -127,10 +127,11 @@ public class BaseBLImpl {
 		userDO.updateUserDetailAdmin(workflow.getRequester().getProfileId(), userDTO);
 	}
 
-	private void sendOnboardingEmail(List<FieldDTO> fields, boolean sendPassword) throws Exception {
+	private void sendOnboardingEmail(RequestDTO workflow, boolean sendPassword) throws Exception {
 		String firstName = null;
 		String email = null;
 		String password = null;
+		List<FieldDTO> fields=workflow.getAdditionalFields();
 		for (FieldDTO field : fields) {
 			switch (field.getFieldKey()) {
 			case firstName:
@@ -158,7 +159,7 @@ public class BaseBLImpl {
 		if (!loginURL.isEmpty()) {
 			user.put("portalLink", loginURL.get().getValue());
 		}
-		userDO.sendEmail(BusinessConstants.EMAILTEMPLATE__ON_USER_ONBOARDING, corrDTO, Map.of("user", user));
+		userDO.sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_USER_ONBOARDING, corrDTO, Map.of("user", user),workflow.getId(),null);
 	}
 
 	private void createGuestDonation(RequestDTO workflow) throws Exception {

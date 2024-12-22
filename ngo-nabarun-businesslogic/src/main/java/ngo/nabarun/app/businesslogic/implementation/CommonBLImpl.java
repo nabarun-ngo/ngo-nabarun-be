@@ -15,9 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
@@ -31,6 +31,8 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
+import ngo.nabarun.app.infra.dto.DonationDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 
 @Slf4j
@@ -172,7 +174,7 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 
 	@Async
 	@Override
-	public void cronTrigger(List<ServiceDetail> triggerDetail) {
+	public void triggerJob(String triggerId,List<ServiceDetail> triggerDetail) {
 		for (ServiceDetail trigger : triggerDetail) {
 			try {
 				//Map<String, String> parameters = trigger.getParameters();
@@ -181,8 +183,11 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 					commonDO.syncSystems();
 					break;
 				case CREATE_DONATION:
+					JobDTO<ServiceDetail,List<DonationDTO>> donationjob = new JobDTO<ServiceDetail, List<DonationDTO>>(triggerId,trigger.getName().name());
 					List<UserDTO> users = userDO.retrieveAllUsers(null, null, new UserDetailFilter()).getContent();
-					donationDO.createBulkMonthlyDonation(users);
+					commonDO.startJob(donationjob,trigger);
+					List<DonationDTO> donations=donationDO.createBulkMonthlyDonation(users,donationjob.getLog());
+					commonDO.endJob(donationjob,donations);
 					break;
 				case DONATION_REMINDER_EMAIL:
 					donationDO.sendDonationReminderEmail();
@@ -190,7 +195,6 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 				case UPDATE_DONATION:
 					donationDO.convertToPendingDonation();
 					break;
-				
 				case TASK_REMINDER_EMAIL:
 					requestDO.sendTaskReminderEmail();
 					break;
@@ -202,5 +206,7 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 			}
 		}
 	}
+
+
 
 }

@@ -204,11 +204,11 @@ public class RequestDO extends CommonDO {
 				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
 						.email(workflow.getDelegatedRequester().getEmail())
 						.name(workflow.getDelegatedRequester().getName()).build());
-				sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
-						Map.of("request", workflow_vars));
+				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
+						Map.of("request", workflow_vars),workflow.getId(),null);
 			} else {
-				sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,
-						Map.of("request", workflow_vars));
+				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,
+						Map.of("request", workflow_vars),workflow.getId(),null);
 			}
 		}
 		return workflow;
@@ -362,8 +362,8 @@ public class RequestDO extends CommonDO {
 							.email(user.getEmail()).name(user.getName()).build());
 				}
 				Map<String, Object> work_item_vars = workItem.toMap(businessDomainHelper.getDomainKeyValues());
-				sendEmail(BusinessConstants.EMAILTEMPLATE__ON_WORK_CREATION, corrDTO,
-						Map.of("workItem", work_item_vars));
+				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_WORK_CREATION, corrDTO,
+						Map.of("workItem", work_item_vars),workItem.getId(),null);
 				sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CREATION, Map.of("workItem", work_item_vars),
 						workItem.getPendingWithUsers());
 			}
@@ -530,7 +530,7 @@ public class RequestDO extends CommonDO {
 						.name(workflowDTO.getDelegatedRequester().getName()).build());
 			}
 			Map<String, Object> work_flow_vars = workflowDTO.toMap(businessDomainHelper.getDomainKeyValues());
-			sendEmail(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO, Map.of("request", work_flow_vars));
+			sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO, Map.of("request", work_flow_vars),workflowDTO.getId(),null);
 
 		}
 		return nextWorkDTO;

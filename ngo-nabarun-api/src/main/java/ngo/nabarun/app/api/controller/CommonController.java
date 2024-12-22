@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
@@ -31,6 +30,7 @@ import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
@@ -143,13 +143,12 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	
-	@Operation(summary = "Triggers a cron event in background.", description = "<table><thead><tr><th>Trigger Name</th><th>Parameters</th></tr></thead><tbody><tr></tr></tbody></table>")
 	@SecurityRequirement(name = "nabarun_auth_apikey")
-	@PostMapping(value = "/cron/trigger")
-	public ResponseEntity<SuccessResponse<Void>> triggerCron(@RequestBody List<ServiceDetail> triggerDetail)
+	@PostMapping(value = "/jobs/trigger")
+	public ResponseEntity<SuccessResponse<String>> jobsTrigger(@RequestBody List<ServiceDetail> serviceDetail)
 			throws Exception {
-		commonBL.cronTrigger(triggerDetail);
-		return new SuccessResponse<Void>().get(HttpStatus.OK);
+		String triggerId=UUID.randomUUID().toString();
+		commonBL.triggerJob(triggerId,serviceDetail);
+		return new SuccessResponse<String>().payload(triggerId).get(HttpStatus.OK);
 	}
-	
 }

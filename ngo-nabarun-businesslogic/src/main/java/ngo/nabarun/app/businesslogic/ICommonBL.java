@@ -39,7 +39,7 @@ public interface ICommonBL {
 
 	void manageNotification(AuthenticatedUser user,String action,Map<String, Object> payload) throws Exception;
 
-	void cronTrigger(List<ServiceDetail> triggerDetail);
+	void triggerJob(String triggerId,List<ServiceDetail> triggerDetail);
 
 
 }

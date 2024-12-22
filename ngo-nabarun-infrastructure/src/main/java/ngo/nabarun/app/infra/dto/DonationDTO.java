@@ -76,31 +76,7 @@ public class DonationDTO {
 
 
 	public Map<String, Object> toHistoryMap(Map<String, String> domainKeyValues) {
-//		private String id;
-//		private Boolean guest;
-//		private Double amount;
-//		private Date startDate;
-//		private Date endDate;
-//		private Date raisedOn;
-//		private DonationType type;
-//		private DonationStatus status;
-//		private Date paidOn;
-//		private UserDTO confirmedBy;
-//		private Date confirmedOn;
-//		private PaymentMethod paymentMethod;
-//		private UPIOption upiName;
-//		private AccountDTO paidToAccount;
-//		private String transactionRefNumber;
-//		private UserDTO donor;
-//		private String forEventId;
-//		private Boolean isPaymentNotified;
-//		private String comment;
-//		private String cancelReason;
-//		private String payLaterReason;
-//		private String paymentFailDetail;
-//		private Date paymentNotificationDate;
-//		private List<FieldDTO> additionalFields;
-//		private int lastPaymentDay;
+
 		Map<String, Object> donation = new HashMap<>();
 		donation.put("Id", id);
 		donation.put("Guest", guest);
@@ -126,5 +102,14 @@ public class DonationDTO {
 		donation.put("Payment Failure Details", paymentFailDetail);
 		donation.put("Donor", donor.toMap(domainKeyValues));
 		return donation;
+	}
+
+	public DonationDTO() {}
+	public DonationDTO(DonationType type, double amount, Date startDate, Date endDate, UserDTO donor) {
+		this.type=type;
+		this.amount=amount;
+		this.donor=donor;
+		this.startDate=startDate;
+		this.endDate=endDate;
 	}
 }

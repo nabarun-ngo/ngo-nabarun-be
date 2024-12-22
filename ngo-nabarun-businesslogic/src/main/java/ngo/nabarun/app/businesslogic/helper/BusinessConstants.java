@@ -8,6 +8,7 @@ public class BusinessConstants {
 	
 	public static final String EMAILTEMPLATE__SEND_OTP = "ON_OTP_REQUEST";
 	public static final String EMAILTEMPLATE__DONATION_CREATE_REGULAR = "ON_DONATION_CREATE_REGULAR";
+	public static final String EMAILTEMPLATE__DONATION_UPDATE = "ON_DONATION_UPDATE";
 	public static final String EMAILTEMPLATE__PUBLIC_QUERY="ON_PUBLIC_QUERY";
 	public static final String EMAILTEMPLATE__DONATION_REMINDER = "ON_DONATION_REMINDER";
 	public static final String EMAILTEMPLATE__WORKITEM_REMINDER = "ON_WORKITEM_REMINDER";

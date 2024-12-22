@@ -14,16 +14,17 @@ import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 
 public interface ICorrespondenceInfraService {
 
-	@Async
-	void sendEmail(String senderName, List<CorrespondentDTO> recipient, EmailTemplateDTO template);
-	@Async
-	void sendEmail(String senderName, List<CorrespondentDTO> recipients, EmailTemplateDTO template,
+	
+	int sendEmail(String senderName, List<CorrespondentDTO> recipient, EmailTemplateDTO template);
+	
+	int sendEmail(String senderName, List<CorrespondentDTO> recipients, EmailTemplateDTO template,
 			List<DocumentDTO> attachFrom);
-	@Async
-	void sendEmail(String senderName, List<CorrespondentDTO> recipients,
+	
+	int sendEmail(String senderName, List<CorrespondentDTO> recipients,
 			String templateId, EmailTemplateDTO template, List<DocumentDTO> attachFrom);
 	
 
+	//TODO Remove async here and move to DO layer
 	Page<NotificationDTO> getNotifications(Integer index, Integer size, NotificationDTOFilter filterDTO);
 	@Async
 	NotificationDTO createAndSendNotification(NotificationDTO notificationDTO) throws Exception;
