@@ -1,0 +1,29 @@
+name: Create Release and Deploy
+on:
+  push:
+    paths-ignore:
+    - '.github/workflows/**'
+    branches:
+    - master
+
+permissions:
+      contents: write         
+
+jobs:
+  build-and-deploy-stage:
+    name: 'Build Artifacts and Deploy to STAGE'
+    runs-on: 'ubuntu-latest'
+    environment: 'STAGE'
+    steps: 
+      - name: Delete GAE versions
+        uses: vijayp23/delete-gae-version-action@1.0.0
+        with:
+          service-account: '$(echo -n "${{ secrets.GCP_SA_KEY }}" | base64)'
+          project-id: ${{ vars.GCP_PROJECT_ID }}
+          service-name: 'default'
+          retain-versions: 0
+          debug: false
+ 
+
+
+  
