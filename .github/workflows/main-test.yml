@@ -14,7 +14,7 @@ jobs:
       - name: Delete GAE versions
         uses: vijayp23/delete-gae-version-action@1.0.0
         with:
-          service-account: '$(echo -n "${{ secrets.GCP_SA_KEY }}" | base64)'
+          service-account: $(echo -n "${{ secrets.GCP_SA_KEY }}" | base64)
           project-id: ${{ vars.GCP_PROJECT_ID }}
           service-name: 'default'
           retain-versions: 0
