@@ -16,8 +16,9 @@ jobs:
         run: |
           ENCODED=$(echo "${{ secrets.GCP_SA_KEY }}" | base64)
           echo "Encoded Variable: $ENCODED"
-          # Save the encoded value as output
-          echo "GCP_SA_KEY_ENCODED='$ENCODED'" >> $GITHUB_ENV
+          echo 'GCP_SA_KEY_ENCODED<<EOF' >> $GITHUB_ENV
+          echo "$ENCODED" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
       
       - name: Delete GAE versions
         uses: vijayp23/delete-gae-version-action@1.0.0
