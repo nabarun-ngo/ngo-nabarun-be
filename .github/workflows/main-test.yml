@@ -11,15 +11,22 @@ jobs:
     runs-on: 'ubuntu-latest'
     environment: 'STAGE'
     steps: 
+      - name: Encode Variable to Base64
+        id: encode
+        run: |
+          ENCODED=$(echo -n "${{ secrets.GCP_SA_KEY }}" | base64)
+          echo "Encoded Variable: $ENCODED"
+          # Save the encoded value as output
+          echo "GCP_SA_KEY_ENCODED=$ENCODED" >> $GITHUB_ENV
+      
       - name: Delete GAE versions
         uses: vijayp23/delete-gae-version-action@1.0.0
         with:
-          service-account: ${{ secrets.GCP_SA_KEY }}
+          service-account: ${{ env.GCP_SA_KEY_ENCODED }}
           project-id: ${{ vars.GCP_PROJECT_ID }}
           service-name: 'default'
           retain-versions: 0
           debug: false
- 
 
 
   
