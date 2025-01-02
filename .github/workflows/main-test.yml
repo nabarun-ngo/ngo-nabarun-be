@@ -14,7 +14,7 @@ jobs:
       - name: Encode Variable to Base64
         id: encode
         run: |
-          ENCODED=$(echo -n "${{ secrets.GCP_SA_KEY }}" | base64)
+          ENCODED=$(echo "${{ secrets.GCP_SA_KEY }}" | base64)
           echo "Encoded Variable: $ENCODED"
           # Save the encoded value as output
           echo "GCP_SA_KEY_ENCODED='$ENCODED'" >> $GITHUB_ENV
