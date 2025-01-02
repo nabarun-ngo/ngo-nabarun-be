@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
@@ -36,6 +37,7 @@ public class DonationController {
 	@Autowired
 	private IDonationBL donationBL;
 
+	@Operation(summary = "Create new donation",description = "Authorities : "+Authority.CREATE_DONATION)
 	@PreAuthorize(Authority.CREATE_DONATION)
 	@PostMapping("/create")
 	public ResponseEntity<SuccessResponse<DonationDetail>> raiseDonation(@RequestBody DonationDetail request)
@@ -43,6 +45,7 @@ public class DonationController {
 		return new SuccessResponse<DonationDetail>().payload(donationBL.raiseDonation(request)).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Initiate payment for a donation")
 	@PostMapping("/{id}/payment")
 	public ResponseEntity<SuccessResponse<DonationDetail>> payments(
 			@PathVariable String id,
@@ -51,6 +54,7 @@ public class DonationController {
 		return new SuccessResponse<DonationDetail>().payload(donationBL.updatePaymentInfo(id, paymentOptions)).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Retrieve list of donations",description = "Authorities : "+Authority.READ_DONATIONS)
 	@PreAuthorize(Authority.READ_DONATIONS)
 	@GetMapping("/list")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getDonations(
@@ -60,6 +64,7 @@ public class DonationController {
 				.payload(donationBL.getDonations(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Retrieve list of donations of a logged in user")
 	@GetMapping("/list/self")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getLoggedInUserDonations(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
@@ -68,6 +73,7 @@ public class DonationController {
 				.payload(donationBL.getLoggedInUserDonations(pageIndex, pageSize)).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Retrieve list of donations for guests",description = "Authorities : "+Authority.READ_DONATIONS_GUEST)
 	@PreAuthorize(Authority.READ_DONATIONS_GUEST)
 	@GetMapping("/list/guest")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getGuestDonations(
@@ -78,6 +84,7 @@ public class DonationController {
 				.payload(donationBL.getDonations(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve list of donations for a member",description = "Authorities : "+Authority.READ_USER_DONATIONS)
 	@PreAuthorize(Authority.READ_USER_DONATIONS)
 	@GetMapping("/donor/{id}/list")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getUserDonations(@PathVariable String id,
@@ -87,6 +94,7 @@ public class DonationController {
 				.payload(donationBL.getUserDonations(id, pageIndex, pageSize)).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Calculates the donation summary")
 	@GetMapping("/summary")
 	public ResponseEntity<SuccessResponse<DonationSummary>> getDonationSummary(
 			@RequestParam(required = false) String id, 
@@ -120,6 +128,7 @@ public class DonationController {
 				.get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Update a donation details",description = "Authorities : "+Authority.UPDATE_DONATION)
 	@PreAuthorize(Authority.UPDATE_DONATION)
 	@PatchMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<DonationDetail>> updateDonation(@PathVariable String id,

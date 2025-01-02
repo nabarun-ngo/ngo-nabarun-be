@@ -594,10 +594,10 @@ public class CommonInfraServiceImpl
 			apiKeyEntity.setCreatedOn(CommonUtils.getSystemDate());
 			apiKeyEntity.setExpireable(apiKeyDTO.isExpireable());
 		}
-		apiKeyEntity.setName(apiKeyDTO.getName());
-		apiKeyEntity.setExpireOn(apiKeyDTO.getExpiryDate());
+		apiKeyEntity.setName(apiKeyDTO.getName()== null ? apiKeyEntity.getName() : apiKeyDTO.getName());
+		apiKeyEntity.setExpireOn(apiKeyDTO.getExpiryDate() == null ?apiKeyEntity.getExpireOn() :apiKeyDTO.getExpiryDate());
 		apiKeyEntity.setScopes(InfraFieldHelper.stringListToString(apiKeyDTO.getScopes()));
-		apiKeyEntity.setStatus(apiKeyDTO.getStatus() == null ? null : apiKeyDTO.getStatus().name());
+		apiKeyEntity.setStatus(apiKeyDTO.getStatus() == null ? apiKeyEntity.getStatus() : apiKeyDTO.getStatus().name());
 		apiKeyEntity = apiKeyRepo.save(apiKeyEntity);
 		return InfraDTOHelper.convertToApiKeyDTO(apiKeyEntity);
 	}
