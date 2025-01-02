@@ -1,4 +1,4 @@
-name: Create Release and Deploy
+name: Test
 on:
   push:
     paths-ignore:
