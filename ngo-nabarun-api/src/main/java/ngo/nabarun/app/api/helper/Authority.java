@@ -1,7 +1,9 @@
 package ngo.nabarun.app.api.helper;
 
 public class Authority {
-	public static final String READ_USERS="hasAuthority('SCOPE_read:users')";
+	public static final String ROLE_API_USER="ROLE_API_USER";
+
+	public static final String READ_USERS="hasAnyAuthority('SCOPE_read:users','ROLE_API_USER')";
 	public static final String READ_USER = "hasAuthority('SCOPE_read:user')";
 	public static final String UPDATE_USER = "hasAuthority('SCOPE_update:user')";
 	

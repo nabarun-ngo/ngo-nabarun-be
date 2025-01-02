@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -31,14 +32,20 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	OperationCustomizer customGlobalHeaders() {
+	OperationCustomizer customGlobalHeadersAndAddActuatorSecurity() {
 
 		return (Operation operation, HandlerMethod handlerMethod) -> {
 			
 			Parameter corelationIdHeader = new Parameter().in(ParameterIn.HEADER.toString()).schema(new StringSchema())
 					.name(RequestFilterConfig.CORRELATION_ID).required(false);
 			operation.addParametersItem(corelationIdHeader);
+			if(operation.getTags().contains("Actuator")) {
+				operation.addSecurityItem(new SecurityRequirement().addList(ACTUATOR_SECURITY_SCHEME_NAME).addList("nabarun_auth"));
+			}
 			return operation;
 		};
 	}
+	
+	  private static final String ACTUATOR_SECURITY_SCHEME_NAME = "nabarun_auth_apikey";
+
 }

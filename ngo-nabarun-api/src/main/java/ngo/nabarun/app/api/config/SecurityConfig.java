@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -36,6 +37,8 @@ public class SecurityConfig {
 		return http.antMatcher("/api/**").csrf(csrf -> csrf.disable()).cors(withDefaults()).sessionManagement(session -> {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}).addFilter(filter).authorizeHttpRequests(request -> {
+			request.antMatchers(HttpMethod.GET, "/api/actuator/**").hasAuthority("SCOPE_read:actuator");
+            request.antMatchers(HttpMethod.POST, "/api/actuator/**").hasAuthority("SCOPE_update:actuator");
 			request.antMatchers("/api/**").authenticated();
 		}).oauth2ResourceServer(server -> server.jwt(withDefaults())).build();
 	}
