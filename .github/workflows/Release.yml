@@ -109,8 +109,6 @@ jobs:
           service-account: ${{ env.GCP_SA_KEY_ENCODED }}
           project-id: ${{ vars.GCP_PROJECT_ID }}
           service-name: 'default'
-          retain-versions: 0
-          debug: false
  
   build-and-deploy-prod:
     name: 'Build Artifacts and Deploy to PROD'
@@ -192,8 +190,6 @@ jobs:
           service-account: ${{ env.GCP_SA_KEY_ENCODED }}
           project-id: ${{ vars.GCP_PROJECT_ID }}
           service-name: 'default'
-          retain-versions: 0
-          debug: false
 
 
 
