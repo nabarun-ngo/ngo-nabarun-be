@@ -2,7 +2,7 @@ name: Create Release and Deploy
 on:
   push:
     paths-ignore:
-    - '.github/workflows/**'
+    - '.github/**'
     branches:
     - master
 
