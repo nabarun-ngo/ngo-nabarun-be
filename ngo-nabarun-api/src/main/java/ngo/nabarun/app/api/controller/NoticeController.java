@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
@@ -31,7 +32,7 @@ public class NoticeController {
 	@Autowired
 	private INoticeBL noticeBL;
 	
-
+	@Operation(summary = "Retrieve notice list",description = "Authorities : "+Authority.READ_NOTICES)
 	@PreAuthorize(Authority.READ_NOTICES)
 	@GetMapping("/list")
 	public ResponseEntity<SuccessResponse<Paginate<NoticeDetail>>> getAllNotice(
@@ -41,18 +42,21 @@ public class NoticeController {
 				.payload(noticeBL.getAllNotice(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
 	
+	@Deprecated
 	@GetMapping("/getDraftedNotice")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> getDraftedNotice() throws Exception {
 		return new SuccessResponse<NoticeDetail>()
 				.payload(noticeBL.getDraftedNotice()).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve details of a specific notice",description = "Authorities : "+Authority.READ_NOTICE)
 	@PreAuthorize(Authority.READ_NOTICE)
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> getNotice(@PathVariable String id) throws Exception {
 		return new SuccessResponse<NoticeDetail>().payload(noticeBL.getNoticeDetail(id)).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Create a new notice",description = "Authorities : "+Authority.CREATE_NOTICE)
 	@PreAuthorize(Authority.CREATE_NOTICE)
 	@PostMapping("/create")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> createNotice(@RequestBody NoticeDetail noticeDetail)
@@ -61,6 +65,7 @@ public class NoticeController {
 				.get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Update a specific notice",description = "Authorities : "+Authority.UPDATE_NOTICE)
 	@PreAuthorize(Authority.UPDATE_NOTICE)
 	@PatchMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<NoticeDetail>> updateNotice(@PathVariable String id,

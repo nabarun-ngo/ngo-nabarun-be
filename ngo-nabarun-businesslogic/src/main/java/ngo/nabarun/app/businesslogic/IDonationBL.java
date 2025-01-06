@@ -14,11 +14,9 @@ import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 public interface IDonationBL {
 	DonationDetail raiseDonation(DonationDetail request) throws Exception;
 
-	Paginate<DonationDetail> getUserDonations(String id,Integer index,Integer size) throws Exception;
+	Paginate<DonationDetail> getUserDonations(String profileId,Integer index,Integer size, DonationDetailFilter filter) throws Exception;
 
-	Paginate<DonationDetail> getLoggedInUserDonations(Integer index,Integer size) throws Exception;
-
-	void autoRaiseDonation() throws Exception;
+	Paginate<DonationDetail> getLoggedInUserDonations(Integer index,Integer size, DonationDetailFilter filter) throws Exception;
 
 	Paginate<DonationDetail> getDonations(Integer index,Integer size, DonationDetailFilter filter);
 	

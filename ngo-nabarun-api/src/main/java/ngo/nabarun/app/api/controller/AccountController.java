@@ -47,7 +47,7 @@ public class AccountController {
 	}
 
 	@Operation(summary = "Retrieves list of accounts of the logged in user")
-	@GetMapping("/list/self")
+	@GetMapping("/self/list")
 	public ResponseEntity<SuccessResponse<Paginate<AccountDetail>>> getMyAccounts(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			AccountDetailFilter filter) throws Exception {
@@ -84,7 +84,7 @@ public class AccountController {
 	} 
 
 	@Operation(summary = "Retrieve list of transaction for a logged in user account")
-	@GetMapping("/{id}/transaction/list/self")
+	@GetMapping("/{id}/transaction/self/list")
 	public ResponseEntity<SuccessResponse<Paginate<TransactionDetail>>> getMyTransactions(@PathVariable String id,
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			TransactionDetailFilter filter) throws Exception {
@@ -119,28 +119,34 @@ public class AccountController {
 				.payload(accountBL.getExpenseList(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
 	
-	@Operation(summary = "Create new expense",description = "Authorities : "+Authority.CREATE_EXPENSE)
+	@Operation(summary = "Create new expense",description = "Authorities : "+Authority.CREATE_EXPENSE+
+			"<br><br>Note: If expense item is supplied then create expense item")
 	@PreAuthorize(Authority.CREATE_EXPENSE)
 	@PostMapping("/expense/create")
 	public ResponseEntity<SuccessResponse<ExpenseDetail>> createExpense(@RequestBody ExpenseDetail expense) throws Exception {
+		//
 		return new SuccessResponse<ExpenseDetail>()
 				.payload(accountBL.createExpenseGroup(expense)).get(HttpStatus.OK);
 	}
 	
-	@Operation(summary = "Update details of expense",description = "Authorities : "+Authority.UPDATE_EXPENSE)
+	@Operation(summary = "Update details of expense",description = "Authorities : "+Authority.UPDATE_EXPENSE+
+			"<br><br>Note: If new expense item is supplied (without id) then create expense item,"
+			+ "If existing expense item is supplied (with id) then update expense item,"
+			+ "Set remove attribute true in case expense item needs to be removed")
 	@PreAuthorize(Authority.UPDATE_EXPENSE)
 	@PatchMapping("/expense/{id}/update")
 	public ResponseEntity<SuccessResponse<ExpenseDetail>> updateExpense(
 			@PathVariable String id,
 			@RequestBody ExpenseDetail expense) throws Exception {
+		//During expense creation  
 		return new SuccessResponse<ExpenseDetail>()
 				.payload(accountBL.updateExpenseGroup(id,expense)).get(HttpStatus.OK);
 	}
 	
-	@Operation(description = "Authorities : "+Authority.CREATE_EXPENSE_ITEM)
-	@PreAuthorize(Authority.CREATE_EXPENSE_ITEM)
-	@PostMapping("/expense/{id}/createitem")
-	public ResponseEntity<SuccessResponse<ExpenseItemDetail>> createExpenseItem(
+	@Operation(summary = "Finalize expense",description = "Authorities : "+Authority.CREATE_EXPENSE_FINAL)
+	@PreAuthorize(Authority.CREATE_EXPENSE_FINAL)
+	@PatchMapping("/expense/{id}/finalize")
+	public ResponseEntity<SuccessResponse<ExpenseItemDetail>> finalizeExpense(
 			@PathVariable String id,
 			@RequestBody ExpenseItemDetail expenseItem) throws Exception {
 		return new SuccessResponse<ExpenseItemDetail>()

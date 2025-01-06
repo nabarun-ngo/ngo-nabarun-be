@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
@@ -36,11 +37,13 @@ public class UserController {
 	@Autowired
 	private IUserBL userBL;
 
+	@Operation(summary = "Retrieve logged in user details")
 	@GetMapping("/self")
 	public ResponseEntity<SuccessResponse<UserDetail>> getLoggedInUserDetails() throws Exception {
 		return new SuccessResponse<UserDetail>().payload(userBL.getAuthUserFullDetails()).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Update user details by user")
 	@PatchMapping("/update/self")
 	public ResponseEntity<SuccessResponse<UserDetail>> updateLoggedInUserDetails(@RequestBody UserDetail requestBody,
 			@RequestParam(required = false) boolean updatePicture) throws Exception {
@@ -48,6 +51,7 @@ public class UserController {
 				.get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve list of users",description = "Authorities : "+Authority.READ_USERS)
 	@GetMapping("/list")
 	@PreAuthorize(Authority.READ_USERS)
 	public ResponseEntity<SuccessResponse<Paginate<UserDetail>>> getUsers(
@@ -57,6 +61,7 @@ public class UserController {
 		return new SuccessResponse<Paginate<UserDetail>>().payload(userList).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve user details by user id",description = "Authorities : "+Authority.READ_USER)
 	@PreAuthorize(Authority.READ_USER)
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<UserDetail>> getUserDetails(@PathVariable String id,
@@ -65,12 +70,13 @@ public class UserController {
 				.get(HttpStatus.OK);
 	}
 
-	@PreAuthorize(Authority.READ_USER)
-	@GetMapping("/{id}/history")
-	public ResponseEntity<SuccessResponse<String>> getUserRoleHistory(@PathVariable String id) {
-		return new SuccessResponse<String>().payload("Hi").get(HttpStatus.OK);
-	}
+//	@PreAuthorize(Authority.READ_USER)
+//	@GetMapping("/{id}/history")
+//	public ResponseEntity<SuccessResponse<String>> getUserRoleHistory(@PathVariable String id) {
+//		return new SuccessResponse<String>().payload("Hi").get(HttpStatus.OK);
+//	}
 
+	@Operation(summary = "Update user details by admin",description = "Authorities : "+Authority.UPDATE_USER)
 	@PreAuthorize(Authority.UPDATE_USER)
 	@PostMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<UserDetail>> updateUserDetails(@PathVariable String id,
@@ -79,7 +85,8 @@ public class UserController {
 		return new SuccessResponse<UserDetail>().payload(user).get(HttpStatus.OK);
 	}
 
-	@PreAuthorize(Authority.UPDATE_USER)
+	@Operation(summary = "Assign users to specific role",description = "Authorities : "+Authority.UPDATE_USER_ROLE)
+	@PreAuthorize(Authority.UPDATE_USER_ROLE)
 	@PostMapping("/roles/{id}/assignUsersToRole")
 	public ResponseEntity<SuccessResponse<Void>> assignUsersToRoles(@PathVariable RoleCode id,
 			@RequestBody List<UserDetail> users) throws Exception {

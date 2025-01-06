@@ -69,19 +69,6 @@ public class DonationDO extends AccountDO {
 		Page<DonationDTO> page = donationInfraService.getDonations(index, size, filterDTO);
 		return new Paginate<DonationDTO>(page);
 	}
-
-	
-	public Paginate<DonationDTO> retrieveUserDonations(Integer index, Integer size, String id, IdType idType)
-			throws Exception {
-		UserDTO userDTO = userInfraService.getUser(id, idType, false);
-		DonationDTOFilter filterDTO = new DonationDTOFilter();
-		filterDTO.setDonorId(userDTO.getProfileId());
-		Page<DonationDTO> donationPage = donationInfraService.getDonations(index, size, filterDTO).map(m -> {
-			m.setDonor(userDTO);
-			return m;
-		});
-		return new Paginate<DonationDTO>(donationPage);
-	}
 	
 	public void convertMemberToGuestAndCloseAccount(String id) throws Exception {
 		DonationDTOFilter filter = new DonationDTOFilter();

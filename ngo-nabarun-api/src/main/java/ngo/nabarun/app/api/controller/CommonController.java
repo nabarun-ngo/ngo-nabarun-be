@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
@@ -38,6 +40,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping(value = "/api/common")
@@ -48,13 +51,16 @@ public class CommonController {
 	@Autowired
 	private ICommonBL commonBL;
 	
-	@GetMapping(value = "/document/list/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDocuments(@PathVariable String id,@RequestParam DocumentIndexType type)
+	@Operation(summary = "Retrieve list of documents against docIndexType and docIndexId")
+	@PreAuthorize(Authority.READ_DOCUMENT_LIST)
+	@GetMapping(value = "/document/{docIndexType}/{docIndexId}/list",produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDocuments(@PathVariable String docIndexId,@PathVariable DocumentIndexType docIndexType)
 			throws Exception {
-		return new SuccessResponse<List<DocumentDetail>>().payload(commonBL.getDocuments(id,type))
+		return new SuccessResponse<List<DocumentDetail>>().payload(commonBL.getDocuments(docIndexId,docIndexType))
 				.get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Upload document")
 	@PostMapping(value = "/document/upload", consumes = "multipart/form-data")
 	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType, @RequestParam MultipartFile[] files) throws Exception {
@@ -62,6 +68,7 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Upload document as base64")
 	@PostMapping(value = "/document/uploadbase64",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
 			@RequestParam DocumentIndexType docIndexType, @RequestBody List<DocumentDetailUpload> files)
@@ -70,14 +77,16 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/document/view/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "View a document")
+	@GetMapping(value = "/document/{id}/view",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<DocumentDetail>> viewDocument(@PathVariable String id) throws Exception {
 		DocumentDetail doc=commonBL.getDocument(id);
 		return new SuccessResponse<DocumentDetail>().payload(doc).get(HttpStatus.OK);
 
 	}
 	
-	@GetMapping(value = "/document/download/{id}")
+	@Operation(summary = "Download a document")
+	@GetMapping(value = "/document/{id}/download")
 	public ResponseEntity<Object> downloadDocument(@PathVariable String id) throws Exception {
 		DocumentDetail doc = commonBL.getDocument(id);
 		UrlResource resource=new UrlResource(doc.getDownloadURL());
@@ -86,13 +95,16 @@ public class CommonController {
 				.body(resource);
 	}
 
-	@DeleteMapping(value = "/document/delete/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "Delete a document",description = "Authorities : "+Authority.DELETE_DOCUMENT)
+	@PreAuthorize(Authority.DELETE_DOCUMENT)
+	@DeleteMapping(value = "/document/{id}/delete",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> deleteDocument(@PathVariable String id) throws Exception {
 		commonBL.deleteDocument(id);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 
 	}
 
+	@Operation(summary = "Retrieve reference field against source")
 	@GetMapping(value = "/data/referenceFields",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<AdditionalField>>> getReferenceField(@RequestParam String source)
 			throws Exception {
@@ -100,6 +112,7 @@ public class CommonController {
 		return new SuccessResponse<List<AdditionalField>>().payload(fields).get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve reference data with filter")
 	@GetMapping(value = "/data/referenceData",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Map<String, List<KeyValue>>>> getReferenceData(
 			@RequestParam(required = false) List<RefDataType> names,
@@ -127,6 +140,7 @@ public class CommonController {
 				.get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve notifications for logged in user")
 	@GetMapping(value = "/notification/list",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Paginate<Map<String, String>>>> getNotification(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
@@ -135,7 +149,8 @@ public class CommonController {
 		return new SuccessResponse<Paginate<Map<String, String>>>().payload(notifications).get(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/notification/list",produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "Manage notification for logged in user")
+	@PostMapping(value = "/notification/manage",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> manageNotification(@RequestParam(required = true) String action,
 			@RequestBody Map<String, Object> body) throws Exception {
 		AuthenticatedUser user=SecurityUtils.getAuthUser();
@@ -143,6 +158,7 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Triggers a job from external systems")
 	@SecurityRequirement(name = "nabarun_auth_apikey")
 	@PostMapping(value = "/jobs/trigger")
 	public ResponseEntity<SuccessResponse<String>> jobsTrigger(@RequestBody List<ServiceDetail> serviceDetail)
