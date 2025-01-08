@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+
+<div layout:fragment="content" th:remove="tag">
+	<div th:replace="fragments/components/header :: carousel"></div>
+	<div th:replace="fragments/components/about :: about"></div>
+	<div th:replace="fragments/components/service :: service"></div>
+	<div th:replace="fragments/components/donate :: donate"></div>
+	<div th:replace="fragments/components/team :: team"></div>
+	<div th:replace="fragments/components/join :: join"></div>
+	<div th:replace="fragments/components/contact :: contact"></div>
+
+</div>
+
+
+</html>

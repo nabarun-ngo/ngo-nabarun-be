@@ -1,0 +1,356 @@
+<div class="container-fluid donate my-5 py-5 scroll-margin" th:fragment="donate" id="donate" data-parallax="scroll"
+	data-image-src="img/nbrn/pic5.jpeg">
+	<div class="container py-5">
+		<div class="row g-5 align-items-center">
+			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Donate
+					Now</div>
+				<h1 class="display-6 text-white mb-5">Thanks For The Results
+					Achieved With You</h1>
+				<!--<p class="text-white-50 mb-0">Please fill this form to donate us.</p>-->
+			</div>
+			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+				<div class="h-100 bg-white p-5">
+					<form id="donationForm" th:action="@{/donate}" method="post" th:object="${interview}"
+						autocomplete="off">
+						<input type="hidden" name="X-Cloud-Trace-Context" th:value="${#dates.createNow().getTime()}">
+						<div class="row g-3">
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="text" class="form-control bg-light border-0" th:field="*{firstName}"
+										id="name" placeholder="Your Name"> <label for="name">Your
+										Name</label>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="email" class="form-control bg-light border-0" th:field="*{email}"
+										id="email" placeholder="Your Email"> <label for="email">Your Email</label>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-floating">
+									<select class="form-control bg-light border-0" id="phonecode"
+										th:field="*{dialCode}">
+										<option value="91" selected>+91</option>
+										<option value="92">+92</option>
+									</select> <label for="phonecode">Code</label>
+								</div>
+							</div>
+							<div class="col-md-10">
+								<div class="form-floating">
+									<input type="number" class="form-control bg-light border-0" id="mobileno"
+										placeholder="Your Mobile Number" th:field="*{contactNumber}"> <label
+										for="mobileNo">Your
+										Mobile Number</label>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="number" class="form-control bg-light border-0" id="amount"
+										placeholder="Donation Amount" th:field="*{amount}"> <label for="amount">Donation
+										Amount</label>
+								</div>
+							</div>
+							<!--<div class="col-12">
+								<div class="btn-group d-flex justify-content-around">
+									<input type="radio" class="btn-check" name="btnradio"
+										id="btnradio1" checked> 
+										
+									<label
+										class="btn btn-light py-3" for="btnradio1">₹100</label> <input
+										type="radio" class="btn-check" name="btnradio" id="btnradio2">
+									<label class="btn btn-light py-3" for="btnradio2">₹500</label> <input
+										type="radio" class="btn-check" name="btnradio" id="btnradio3">
+									<label class="btn btn-light py-3" for="btnradio3">₹Any</label>
+									
+								</div>
+							</div>-->
+							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_PAYMENT_INFO'">
+							<div class="col-12">
+								<button type="submit" class="btn btn-primary px-5" style="height: 60px;">
+									Donate Now
+									<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
+										<i class="fa fa-arrow-right"></i>
+									</div>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-xxl py-5 scroll-margin" th:fragment="completePayment" id="completepayment"
+	th:if="${stage == 'MAKE_PAYMENT'}">
+	<div class="container">
+		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:utext="${errorMessage}"></div>
+		<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
+
+		<div class="row">
+			<div class="col-12 mt-4">
+				<div class="card p-3">
+					<p class="mb-0 fw-bold h4">Payment Methods</p>
+				</div>
+			</div>
+			<div class="col-12" id="accordion">
+				<div class="card p-3">
+					<div class="card-body border p-0">
+						<p id="cardCashHeading">
+							<a class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-between"
+								data-bs-toggle="collapse" href="#collapseCash" role="button" aria-expanded="true"
+								aria-controls="collapseCash">
+								<span class="fw-bold">Cash</span>
+							</a>
+						</p>
+						<div class="collapse p-3 pt-0" id="collapseCash" aria-labelledby="cardCashHeading"
+							data-bs-parent="#accordion">
+							<div class="row">
+								<div class="col-5">
+									<div th:replace="fragments/components/donate :: donation_summary"></div>
+								</div>
+								<div class="col-lg-7">
+									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form"
+										enctype="multipart/form-data">
+										<input type="hidden" name="X-Cloud-Trace-Context"
+											th:value="${#dates.createNow().getTime()}">
+										<div class="row">
+											<div class="col-12 mb-2">
+												<p class="h5 mb-2">Please submit this request. Our team will connect you
+													to collect your donation.</p>
+											</div>
+											<input type="hidden" name="actionName" id="actionName"
+												th:value="'SUBMIT_REQUEST'">
+											<input type="hidden" name="paymentMethod" id="paymentMethod"
+												th:value="'CASH'">
+											<div class="col-12 mb-2" th:if="${!#lists.isEmpty(interview.accounts)}">
+												<button type="submit" class="btn btn-primary w-100">Submit
+													Request</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-body border p-0">
+						<p id="cardUpiHeading">
+							<a class="btn btn-primary p-2 w-100 h-100 d-flex align-items-center justify-content-between"
+								data-bs-toggle="collapse" href="#collapseUPI" role="button" aria-expanded="true"
+								aria-controls="collapseUPI">
+								<span class="fw-bold">UPI</span>
+
+							</a>
+						</p>
+						<div class="collapse show p-3 pt-0" id="collapseUPI" aria-labelledby="cardUpiHeading"
+							data-bs-parent="#accordion">
+							<div class="row">
+								<div class="col-lg-5 mb-lg-0 mb-3">
+									<div th:replace="fragments/components/donate :: donation_summary"></div>
+								</div>
+								<div class="col-lg-7">
+									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form"
+										id="donate_upi" enctype="multipart/form-data">
+										<input type="hidden" name="X-Cloud-Trace-Context"
+											th:value="${#dates.createNow().getTime()}">
+										<div class="row">
+											<div class="col-12 mb-2">
+												<p class="h5 mb-2">Please scan the QR code(s) to transfer the donation
+													amount and confirm payment.</p>
+											</div>
+
+											<div class="col-12" th:if="${#lists.isEmpty(interview.accounts)}">
+												<div class="alert alert-danger" role="alert"
+													th:text="'No account found.'"></div>
+											</div>
+
+											<div th:each="item,itemStat : ${interview.accounts}" th:remove="tag">
+												<div class="col-12" th:if="item != null">
+													<p class="mb-1"><span class="fw-bold">Name :
+														</span><span class="c-green"
+															th:text="${item.payableUPIDetail.payeeName}"></span>
+													</p>
+													<p class="mb-1"><span class="fw-bold">Mobile Number : </span><span
+															class="c-green"
+															th:text="${item.payableUPIDetail.mobileNumber}"></span></p>
+													<p class="mb-1"><span class="fw-bold">QR Code : </span><span
+															class="c-green">
+															<div th:id="'qrcode'+${itemStat.index}"></div>
+														</span>
+													</p>
+													<script th:inline="javascript">
+
+														/*<![CDATA[*/
+
+														var itemId = 'qrcode' + /*[[${itemStat.index}]]*/ '';
+														new QRCode(itemId, {
+															text: /*[[${item.payableUPIDetail.qrData}]]*/ '',
+															width: 128,
+															height: 128,
+															colorDark: "#000000",
+															colorLight: "#ffffff",
+															correctLevel: QRCode.CorrectLevel.H
+														});
+														/*]]>*/
+													</script>
+
+													<div class="mb-1">
+														<div>
+															<input type="checkbox" id="paidToAcc1"
+																name="paidToAccountId"
+																class="form-check-input check-item-1"
+																th:value="${item.id}" />
+															<label for="paidToAcc" class="form-check-label "> I have
+																successfully paid the donation amount to
+																above UPI.</label>
+														</div>
+													</div>
+
+												</div>
+												<div class="col-12 mt-2 mb-2"
+													th:if="${#lists.size(interview.accounts)-1 != itemStat.index}">
+													<b>OR</b>
+												</div>
+
+											</div>
+											<div class="mt-1 mb-2">
+												<div class="form-floating">
+													<input type="file" class="form-control" id="file"
+														th:field="*{files}" multiple required> <label for="file">Please select
+														any
+														supporting files (prefrerably UPI screenshots)</label>
+												</div>
+											</div>
+
+											<input type="hidden" name="actionName" id="actionName"
+												th:value="'CONFIRM_PAYMENT'">
+											<input type="hidden" name="paymentMethod" id="paymentMethod"
+												th:value="'UPI'">
+											<div class="col-12 mb-2" th:if="${!#lists.isEmpty(interview.accounts)}">
+												<button type="submit" class="btn btn-primary w-100" id="sub_bt1"
+													disabled>Confirm
+													Payment</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-body border p-0">
+						<p id="cardBankHeading">
+							<a class="btn btn-primary p-2 w-100 h-100 d-flex align-items-center justify-content-between"
+								data-bs-toggle="collapse" href="#collapseBank" role="button" aria-expanded="true"
+								aria-controls="collapseBank">
+								<span class="fw-bold">Bank Account</span>
+							</a>
+						</p>
+						<div class="collapse p-3 pt-0" id="collapseBank" aria-labelledby="cardBankHeading"
+							data-bs-parent="#accordion">
+							<div class="row">
+								<div class="col-lg-5 mb-lg-0 mb-3">
+									<div th:replace="fragments/components/donate :: donation_summary"></div>
+								</div>
+								<div class="col-lg-7">
+									<form th:action="@{/donate}" method="post" th:object="${interview}" class="form"
+										id="donate_bank" enctype="multipart/form-data">
+										<input type="hidden" name="X-Cloud-Trace-Context"
+											th:value="${#dates.createNow().getTime()}">
+										<div class="row">
+											<div class="col-12 mb-2">
+												<p class="h5 mb-2">Please transfer the donation amount to below
+													account(s) and confirm payment.</p>
+											</div>
+
+											<div class="col-12" th:if="${#lists.isEmpty(interview.accounts)}">
+												<div class="alert alert-danger" role="alert"
+													th:text="'No account found.'"></div>
+											</div>
+
+											<div th:each="item,itemStat : ${interview.accounts}" th:remove="tag">
+												<div class="col-12">
+													<p class="mb-1"><span class="fw-bold">Account Holder Name :
+														</span><span class="c-green"
+															th:text="${item.payableBankDetails.bankAccountHolderName}"></span>
+													</p>
+													<p class="mb-1"><span class="fw-bold">Bank Name : </span><span
+															class="c-green"
+															th:text="${item.payableBankDetails.bankName}"></span></p>
+													<p class="mb-1"><span class="fw-bold">Branch Name : </span><span
+															class="c-green"
+															th:text="${item.payableBankDetails.bankBranch}"></span>
+													</p>
+													<p class="mb-1"><span class="fw-bold">Account Number : </span><span
+															class="c-green"
+															th:text="${item.payableBankDetails.bankAccountNumber}"></span>
+													</p>
+													<p class="mb-1"><span class="fw-bold">IFSC Code : </span><span
+															class="c-green"
+															th:text="${item.payableBankDetails.IFSCNumber}"></span>
+													</p>
+												</div>
+
+												<div class="mb-1">
+													<div>
+														<input type="checkbox" id="paidToAcc2" name="paidToAccountId"
+															class="form-check-input check-item-2"
+															th:value="${item.id}" />
+														<label for="paidToAcc" class="form-check-label"> I have
+															successfully paid the donation amount to
+															above bank account.</label>
+													</div>
+												</div>
+												<div class="col-12 mt-2 mb-2"
+													th:if="${#lists.size(interview.accounts)-1 != itemStat.index}">
+													<b>OR</b>
+												</div>
+											</div>
+
+											<div class="mt-1 mb-2">
+												<div class="form-floating">
+													<input type="file" class="form-control" id="file"
+														th:field="*{files}" multiple required> <label for="file">Please
+														select any
+														supporting files (prefrerably transaction recipt)</label>
+												</div>
+											</div>
+											<input type="hidden" name="actionName" id="actionName"
+												th:value="'CONFIRM_PAYMENT'">
+											<input type="hidden" name="paymentMethod" id="paymentMethod"
+												th:value="'NETBANKING'">
+											<div class="col-12 mb-2" th:if="${!#lists.isEmpty(interview.accounts)}">
+												<button type="submit" class="btn btn-primary w-100" id="sub_bt2"
+													disabled>Confirm
+													Payment</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<div th:fragment="donation_summary">
+	<p class="h4 mb-2">Donation Summary</p>
+	<p class="mb-1"><span class="fw-bold">Donor Name : </span><span class="c-green"
+			th:text="${interview.firstName}"></span></p>
+	<p class="mb-1"><span class="fw-bold">Donor Email : </span><span class="c-green"
+			th:text="${interview.email}"></span></p>
+	<p class="mb-1"><span class="fw-bold">Donor Number : </span><span class="c-green"
+			th:text="${interview.dialCode}+${interview.contactNumber}"></span>
+	</p>
+	<p class="mb-1"><span class="fw-bold">Donation Amount : </span><span class="c-green"
+			th:text="'₹ '+${interview.amount}"></span></p>
+</div>
+
+
+

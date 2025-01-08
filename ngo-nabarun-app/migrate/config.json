@@ -1,0 +1,5 @@
+{
+	"SOURCE_DB": "nabarun_prod",
+	"DEST_DB": "nabarun_prod3",
+	"LAST_MIGRATION_ON": null
+}
