@@ -20,171 +20,21 @@ jobs:
     with:
      source_branch: ${{ github.base_ref }}
   
-  # deploy_stage:
-  #   name: 'Deploy to STAGE'
-  #   environment: 'STAGE'
-  #   needs: [create_release]
-  #   uses: 
-  #   steps:
-  #     - name: Checkout repository | tag ${{ needs.create_release.outputs.tag_name }}
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ needs.create_release.outputs.tag_name }}
-
-  #     - name: Set up Java
-  #       uses: actions/setup-java@v2
-  #       with:
-  #         java-version: '17' 
-  #         distribution: 'adopt'
-
-  #     - name: Cache Maven dependencies
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.m2/repository
-  #         key: maven-${{ hashFiles('**/pom.xml') }}
-  #         restore-keys: |
-  #           maven-   
-        
-  #     - name: Build with Maven
-  #       run: |
-  #         mvn clean package
-          
-  #     - name: Get JAR file path
-  #       id: get-jar-path
-  #       run: |
-  #         ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-  #         JAR_PATH="ngo-nabarun-app/target/app.jar"
-  #         mv "${ORIGINAL_JAR}" "${JAR_PATH}"
-  #         echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
-  #         echo "Renamed JAR file path: ${JAR_PATH}"
-
-  #     - name: Setup Google Cloud CLI
-  #       uses: google-github-actions/auth@v2
-  #       with:
-  #         project_id: ${{ vars.GCP_PROJECT_ID }}
-  #         credentials_json: ${{ secrets.GCP_SA_KEY }}
-  #         export_default_credentials: true
-        
-  #     - name: Setup Application Variables
-  #       uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
-  #       with:
-  #         path: "app.yaml"
-  #       env:
-  #        ENVIRONMENT: ${{ vars.APP_ENV }} 
-  #        DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
-  #        DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
-  #        LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-  #        VERSION: ${{ needs.create_release.outputs.tag_name }}
-         
-  #     - name: Deploy to Google App Engine
-  #       uses: google-github-actions/deploy-appengine@v2
-  #       with:
-  #         project_id: ${{ vars.GCP_PROJECT_ID }}
-  #         credentials: ${{ secrets.GCP_SA_KEY }}
-  #         promote: true
-  #         deliverables: ${{ env.JAR_PATH }}
-  #         flags: '--appyaml=app.yaml'
-      
-  #     - name: Encode Variable to Base64
-  #       id: encode
-  #       run: |
-  #         ENCODED=$(echo '${{ secrets.GCP_SA_KEY }}' | base64)
-  #         echo "Encoded Variable: $ENCODED"
-  #         echo 'GCP_SA_KEY_ENCODED<<EOF' >> $GITHUB_ENV
-  #         echo "$ENCODED" >> $GITHUB_ENV
-  #         echo 'EOF' >> $GITHUB_ENV
-      
-  #     - name: Delete GAE versions
-  #       uses: vijayp23/delete-gae-version-action@1.0.0
-  #       with:
-  #         service-account: ${{ env.GCP_SA_KEY_ENCODED }}
-  #         project-id: ${{ vars.GCP_PROJECT_ID }}
-  #         service-name: 'default'
- 
-  # build-and-deploy-prod:
-  #   name: 'Build Artifacts and Deploy to PROD'
-  #   runs-on: 'ubuntu-latest'
-  #   environment: 'PROD'
-  #   needs: [create_release,build-and-deploy-stage]
-  #   steps:
-  #     - name: Checkout repository | tag ${{ needs.create_release.outputs.tag_name }}
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ needs.create_release.outputs.tag_name }}
-
-  #     - name: Set up Java
-  #       uses: actions/setup-java@v2
-  #       with:
-  #         java-version: '17' 
-  #         distribution: 'adopt'
-
-  #     - name: Cache Maven dependencies
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.m2/repository
-  #         key: maven-${{ hashFiles('**/pom.xml') }}
-  #         restore-keys: |
-  #           maven-   
-        
-  #     - name: Build with Maven
-  #       run: |
-  #         mvn clean package
-          
-  #     - name: Get JAR file path
-  #       id: get-jar-path
-  #       run: |
-  #         ORIGINAL_JAR=$(find ngo-nabarun-app/target -name "*.jar" | grep -v "sources.jar" | grep -v "javadoc.jar")
-  #         JAR_PATH="ngo-nabarun-app/target/app.jar"
-  #         mv "${ORIGINAL_JAR}" "${JAR_PATH}"
-  #         echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
-  #         echo "Renamed JAR file path: ${JAR_PATH}"
-
-  #     - name: Setup Google Cloud CLI
-  #       uses: google-github-actions/auth@v2
-  #       with:
-  #         project_id: ${{ vars.GCP_PROJECT_ID }}
-  #         credentials_json: ${{ secrets.GCP_SA_KEY }}
-  #         export_default_credentials: true
-        
-  #     - name: Setup Application Variables
-  #       uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
-  #       with:
-  #         path: "app.yaml"
-  #       env:
-  #        ENVIRONMENT: ${{ vars.APP_ENV }} 
-  #        DOPPLER_PROJECT_NAME: ${{ vars.DOPPLER_PROJECT_NAME }} 
-  #        DOPPLER_SERVICE_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}  
-  #        LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-  #        VERSION: ${{ needs.create_release.outputs.tag_name }}
-         
-  #     - name: Deploy to Google App Engine
-  #       uses: google-github-actions/deploy-appengine@v2
-  #       with:
-  #         project_id: ${{ vars.GCP_PROJECT_ID }}
-  #         credentials: ${{ secrets.GCP_SA_KEY }}
-  #         promote: true
-  #         deliverables: ${{ env.JAR_PATH }}
-  #         flags: '--appyaml=app.yaml'
-
-  #     - name: Encode Variable to Base64
-  #       id: encode
-  #       run: |
-  #         ENCODED=$(echo '${{ secrets.GCP_SA_KEY }}' | base64)
-  #         echo "Encoded Variable: $ENCODED"
-  #         echo 'GCP_SA_KEY_ENCODED<<EOF' >> $GITHUB_ENV
-  #         echo "$ENCODED" >> $GITHUB_ENV
-  #         echo 'EOF' >> $GITHUB_ENV
-      
-  #     - name: Delete GAE versions
-  #       uses: vijayp23/delete-gae-version-action@1.0.0
-  #       with:
-  #         service-account: ${{ env.GCP_SA_KEY_ENCODED }}
-  #         project-id: ${{ vars.GCP_PROJECT_ID }}
-  #         service-name: 'default'
-
-
-
-
+  gcp_deploy:
+    if: github.event.pull_request.merged == true
+    needs: create_release
+    name: Deploy to GCP App Engine 
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/GCP-Deploy.yml@main
+    with:
+     tag_name: ${{ needs.create_release.output.tag_name }}
+     target_folder: 'ngo-nabarun-app/target'
+     gcp_project_id: ${{ github.base_ref == 'master' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
+     app_env: ${{ github.base_ref == 'master' && 'prod' || 'stage' }}
+     app_doppler_project_name: ${{ github.base_ref == 'master' && 'prod' || 'stage' }}
+     app_log_level: ${{ github.base_ref == 'master' && 'INFO' || 'DEBUG' }}
+    secrets:
+      gcp_service_account: ${{ github.base_ref == 'master' && secrets.GCP_SERVICE_ACCOUNT || secrets.GCP_SERVICE_ACCOUNT_STAGE }}
+      app_doppler_service_token: ${{ github.base_ref == 'master' && secrets.DOPPLER_SERVICE_TOKEN || secrets.DOPPLER_SERVICE_TOKEN_STAGE }}
 
 
 
