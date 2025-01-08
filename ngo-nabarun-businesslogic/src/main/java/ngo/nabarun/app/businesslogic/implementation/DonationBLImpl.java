@@ -1,15 +1,12 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.IDonationBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
@@ -24,7 +21,6 @@ import ngo.nabarun.app.businesslogic.domain.UserDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessExceptionMessage;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
-import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
@@ -35,15 +31,14 @@ import ngo.nabarun.app.common.enums.HistoryRefType;
 import ngo.nabarun.app.common.enums.IdType;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.helper.PropertyHelper;
-import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
+import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import ngo.nabarun.app.infra.dto.DonationDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 
 @Service
-@Slf4j
 public class DonationBLImpl extends BaseBLImpl implements IDonationBL {
 
 	@Autowired
@@ -54,9 +49,6 @@ public class DonationBLImpl extends BaseBLImpl implements IDonationBL {
 
 	@Autowired
 	private PropertyHelper propertyHelper;
-	
-	@Autowired
-	private BusinessDomainHelper domainHelper;
 
 	@Override
 	public DonationDetail raiseDonation(DonationDetail donationDetail) throws Exception {
@@ -77,48 +69,24 @@ public class DonationBLImpl extends BaseBLImpl implements IDonationBL {
 	}
 
 	@Override
-	public void autoRaiseDonation() throws Exception {
-
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		Date startDate = cal.getTime();
-		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-		Date endDate = cal.getTime();
-
-		List<UserDTO> users = userDO.retrieveAllUsers(null, null, null).getContent();
-		for (UserDTO user : users) {
-
-			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
-					&& !donationDO.checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
-
-				DonationDetail donationDetail = new DonationDetail();
-				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,domainHelper.getDomainKeyValues()));
-				donationDetail.setEndDate(endDate);
-				donationDetail.setIsGuest(false);
-				donationDetail.setStartDate(startDate);
-				donationDetail.setDonationType(DonationType.REGULAR);
-				try {
-					DonationDTO donation = donationDO.raiseDonation(donationDetail);
-					log.info("Automatically raised donation id : " + donation.getId());
-				} catch (Exception e) {
-					log.error("Exception occured during automatic donation creation ", e);
-				}
-			}
-		}
-
-	}
-
-	@Override
-	public Paginate<DonationDetail> getUserDonations(String id, Integer index, Integer size) throws Exception {
-		return donationDO.retrieveUserDonations(index, size, id, IdType.ID)
+	public Paginate<DonationDetail> getUserDonations(String profileId, Integer index, Integer size,DonationDetailFilter filter) throws Exception {
+		filter.setDonorId(profileId);
+		return donationDO.retrieveDonations(index, size, filter)
 				.map(BusinessObjectConverter::toDonationDetail);
 	}
 
 	@Override
-	public Paginate<DonationDetail> getLoggedInUserDonations(Integer index, Integer size) throws Exception {
-		String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
-				: SecurityUtils.getAuthUserId();
-		return donationDO.retrieveUserDonations(index, size, userId, IdType.AUTH_USER_ID)
+	public Paginate<DonationDetail> getLoggedInUserDonations(Integer index, Integer size, DonationDetailFilter filter) throws Exception {
+		AuthenticatedUser authUser=SecurityUtils.getAuthUser();
+		if(authUser.getId() != null) {
+			filter.setDonorId(authUser.getId());
+		}else {
+			String userId = propertyHelper.isTokenMockingEnabledForTest() ? propertyHelper.getMockedTokenUserId()
+					: authUser.getUserId();
+			UserDTO user=userDO.retrieveUserDetail(userId, IdType.AUTH_USER_ID, false);
+			filter.setDonorId(user.getProfileId());
+		}
+		return donationDO.retrieveDonations(index, size, filter)
 				.map(BusinessObjectConverter::toDonationDetail);
 	}
 

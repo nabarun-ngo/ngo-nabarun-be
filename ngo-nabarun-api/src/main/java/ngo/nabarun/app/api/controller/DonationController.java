@@ -65,17 +65,18 @@ public class DonationController {
 	}
 	
 	@Operation(summary = "Retrieve list of donations of a logged in user")
-	@GetMapping("/list/self")
+	@GetMapping("/self/list")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getLoggedInUserDonations(
-			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
+			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
+			DonationDetailFilter filter)
 			throws Exception {
 		return new SuccessResponse<Paginate<DonationDetail>>()
-				.payload(donationBL.getLoggedInUserDonations(pageIndex, pageSize)).get(HttpStatus.OK);
+				.payload(donationBL.getLoggedInUserDonations(pageIndex, pageSize, filter)).get(HttpStatus.OK); 
 	}
 	
 	@Operation(summary = "Retrieve list of donations for guests",description = "Authorities : "+Authority.READ_DONATIONS_GUEST)
 	@PreAuthorize(Authority.READ_DONATIONS_GUEST)
-	@GetMapping("/list/guest")
+	@GetMapping("/guest/list")
 	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getGuestDonations(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
 			DonationDetailFilter filter) {
@@ -86,18 +87,19 @@ public class DonationController {
 
 	@Operation(summary = "Retrieve list of donations for a member",description = "Authorities : "+Authority.READ_USER_DONATIONS)
 	@PreAuthorize(Authority.READ_USER_DONATIONS)
-	@GetMapping("/donor/{id}/list")
-	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getUserDonations(@PathVariable String id,
-			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize)
+	@GetMapping("/{donorId}/list")
+	public ResponseEntity<SuccessResponse<Paginate<DonationDetail>>> getUserDonations(@PathVariable String donorId,
+			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
+			DonationDetailFilter filter)
 			throws Exception {
 		return new SuccessResponse<Paginate<DonationDetail>>()
-				.payload(donationBL.getUserDonations(id, pageIndex, pageSize)).get(HttpStatus.OK);
+				.payload(donationBL.getUserDonations(donorId, pageIndex, pageSize,filter)).get(HttpStatus.OK);
 	}
 
 	@Operation(summary = "Calculates the donation summary")
-	@GetMapping("/summary")
+	@GetMapping("/{donorId}/summary")
 	public ResponseEntity<SuccessResponse<DonationSummary>> getDonationSummary(
-			@RequestParam(required = false) String id, 
+			@PathVariable String donorId, 
 			@RequestParam(required = false) boolean includePayableAccount,
 			@RequestParam(required = false) boolean includeOutstandingMonths
 			)
@@ -110,10 +112,12 @@ public class DonationController {
 		if (includeOutstandingMonths) {
 			fields.add("INCLUDE_OUTSTANDING_MONTHS");
 		}
-		return new SuccessResponse<DonationSummary>().payload(donationBL.getDonationSummary(id, fields))
+		return new SuccessResponse<DonationSummary>().payload(donationBL.getDonationSummary(donorId, fields))
 				.get(HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retrieve list of documents for a donation",description = "Authorities : "+Authority.READ_DONATION_DOCUMENTS)
+	@PreAuthorize(Authority.READ_DONATION_DOCUMENTS)
 	@GetMapping("/{id}/documents")
 	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getDonationDocuments(@PathVariable String id)
 			throws Exception {
@@ -121,7 +125,9 @@ public class DonationController {
 				.get(HttpStatus.OK);
 	}
 	
-	@GetMapping("/{id}/histories")
+	@Operation(summary = "Retrieve list of changes for a donation",description = "Authorities : "+Authority.READ_DONATION_HISTORY)
+	@PreAuthorize(Authority.READ_DONATION_HISTORY)
+	@GetMapping("/{id}/changes")
 	public ResponseEntity<SuccessResponse<List<HistoryDetail>>> getHistories(@PathVariable String id)
 			throws Exception {
 		return new SuccessResponse<List<HistoryDetail>>().payload(donationBL.getHistories(id))

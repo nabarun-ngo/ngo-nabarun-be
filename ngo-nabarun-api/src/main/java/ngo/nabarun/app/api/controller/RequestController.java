@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
@@ -36,6 +37,7 @@ public class RequestController {
 	@Autowired
 	private IRequestBL requestBL;
 
+	@Operation(summary = "Retrieve list of requests of logged in user")
 	@GetMapping("/list/self")
 	public ResponseEntity<SuccessResponse<Paginate<RequestDetail>>> getMyRequests(
 			@RequestParam(required = false) Integer pageIndex, 
@@ -46,6 +48,7 @@ public class RequestController {
 				.payload(requestList).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Retrieves details of a specific request",description = "Authorities : "+Authority.READ_REQUEST)
 	@PreAuthorize(Authority.READ_REQUEST)
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<RequestDetail>> getRequestDetail(@PathVariable String id) throws Exception {
@@ -53,6 +56,7 @@ public class RequestController {
 				.payload(requestBL.getRequest(id)).get(HttpStatus.OK); 
 	}
 	
+	@Operation(summary = "Create a new request",description = "Authorities : "+Authority.CREATE_REQUEST)
 	@PreAuthorize(Authority.CREATE_REQUEST)
 	@PostMapping("/create")
 	public ResponseEntity<SuccessResponse<RequestDetail>> createRequest(@RequestBody RequestDetail createRequest) throws Exception {
@@ -60,6 +64,7 @@ public class RequestController {
 				.payload(requestBL.createRequest(createRequest)).get(HttpStatus.OK); 
 	}
 	
+	@Operation(summary = "Update an existing requests",description = "Authorities : "+Authority.UPDATE_REQUEST)
 	@PreAuthorize(Authority.UPDATE_REQUEST)
 	@PatchMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<RequestDetail>> updateRequest(@PathVariable String id,@RequestBody RequestDetail request) throws Exception {
@@ -68,6 +73,7 @@ public class RequestController {
 				.payload(worklist).get(HttpStatus.OK);
 	} 
 	
+	@Operation(summary = "Retrieve list of workitems for logged in user")
 	@GetMapping("/workitem/list/self")
 	public ResponseEntity<SuccessResponse<Paginate<WorkDetail>>> getMyWorkItems(
 			@RequestParam(required = false) Integer pageIndex, 
@@ -78,6 +84,7 @@ public class RequestController {
 				.payload(requestList).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Retrieves list of workitems against a specific request",description = "Authorities : "+Authority.READ_WORK)
 	@PreAuthorize(Authority.READ_WORK)
 	@GetMapping("/{id}/workitems")
 	public ResponseEntity<SuccessResponse<List<WorkDetail>>> getWorkItems(
@@ -87,6 +94,7 @@ public class RequestController {
 				.payload(requestList).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Update an existing workitem",description = "Authorities : "+Authority.UPDATE_WORK)
 	@PreAuthorize(Authority.UPDATE_WORK)
 	@PatchMapping("/workitem/{id}/update")
 	public ResponseEntity<SuccessResponse<WorkDetail>> updateWorkItem(@PathVariable String id,@RequestBody WorkDetail request) throws Exception {

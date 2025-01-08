@@ -30,20 +30,23 @@ public class AdminController {
 	@Autowired
 	private IAdminBL adminBL;
 
-	//@PreAuthorize(Authority.READ_ADMIN_SERVICE)
+	@Operation(summary = "Retrieve list of apikeys",description = "Authorities : "+Authority.READ_APIKEY)
+	@PreAuthorize(Authority.READ_APIKEY)
 	@GetMapping(value = "/apikey/list",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<ApiKeyDetail>>> getApiKeyList() throws Exception {
 		return new SuccessResponse<List<ApiKeyDetail>>().payload(adminBL.getApiKeys()).get(HttpStatus.OK);
 	}
 	
-	//@PreAuthorize(Authority.CREATE_APIKEY)
+	@Operation(summary = "Create new apikey",description = "Authorities : "+Authority.CREATE_APIKEY)
+	@PreAuthorize(Authority.CREATE_APIKEY)
 	@PostMapping("/apikey/generate")
 	public ResponseEntity<SuccessResponse<ApiKeyDetail>> generateApiKey(@RequestBody ApiKeyDetail apiKeyDetail)
 			throws Exception {
 		return new SuccessResponse<ApiKeyDetail>().payload(adminBL.generateApiKey(apiKeyDetail)).get(HttpStatus.OK);
 	}
 	
-	//@PreAuthorize(Authority.UPDATE_APIKEY)
+	@Operation(summary = "Update existing apikey",description = "Authorities : "+Authority.UPDATE_APIKEY)
+	@PreAuthorize(Authority.UPDATE_APIKEY)
 	@PostMapping("/apikey/{id}/update")
 	public ResponseEntity<SuccessResponse<ApiKeyDetail>> updateApiKey(
 			@PathVariable String id,
@@ -54,7 +57,8 @@ public class AdminController {
 	}
 
 	
-	@Operation(summary = "Runs a admin service.", description = "<table><thead><tr><th>Trigger Name</th><th>Parameters</th></tr></thead><tbody><tr><td>SYNC_USER</td><td>sync_role - Y/N (Sync roles with auth0)<br>user_id - &lt;user id &gt; (Sync specific user by id)<br>user_email - &lt;user email&gt; (Sync specific user by email)</td></tr></tbody></table>")
+	@Operation(summary = "Runs a admin service.", description = "Authorities : "+Authority.CREATE_SERVICERUN
+			+ "<br><br><table><thead><tr><th>Trigger Name</th><th>Parameters</th></tr></thead><tbody><tr><td>SYNC_USER</td><td>sync_role - Y/N (Sync roles with auth0)<br>user_id - &lt;user id &gt; (Sync specific user by id)<br>user_email - &lt;user email&gt; (Sync specific user by email)</td></tr></tbody></table>")
 	@PreAuthorize(Authority.CREATE_SERVICERUN)
 	@PostMapping(value = "/service/run")
 	public ResponseEntity<SuccessResponse<Void>> runService(@RequestBody ServiceDetail triggerDetail)
@@ -63,6 +67,7 @@ public class AdminController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Clears System cache")
 	@PostMapping(value = "/clearcache",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Void>> clearCache(@RequestBody List<String> names) throws Exception {
 		adminBL.clearSystemCache(names);
