@@ -26,7 +26,7 @@ jobs:
     name: Deploy to GCP App Engine 
     uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/GCP-Deploy.yml@main
     with:
-     tag_name: ${{ needs.create_release.output.tag_name }}
+     tag_name: ${{ needs.create_release.outputs.tag_name }}
      target_folder: 'ngo-nabarun-app/target'
      gcp_project_id: ${{ github.base_ref == 'master' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
      app_env: ${{ github.base_ref == 'master' && 'prod' || 'stage' }}
