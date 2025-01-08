@@ -49,7 +49,7 @@ jobs:
         auth0_secrets: ${{ secrets.AUTH0_CREDENTIALS }}
 
   run_automated_test:
-    if: github.event.pull_request.merged == true 
+    if: github.event.pull_request.merged == true && always()
     needs: [gcp_deploy,auth0_sync]
     name: Run Automated Test 
     runs-on: ubuntu-latest
