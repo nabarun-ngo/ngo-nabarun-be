@@ -35,7 +35,27 @@ jobs:
     secrets:
       gcp_service_account: ${{ github.base_ref == 'master' && secrets.GCP_SERVICE_ACCOUNT || secrets.GCP_SERVICE_ACCOUNT_STAGE }}
       app_doppler_service_token: ${{ github.base_ref == 'master' && secrets.DOPPLER_SERVICE_TOKEN || secrets.DOPPLER_SERVICE_TOKEN_STAGE }}
+  
+  auth0_sync:
+    if: github.event.pull_request.merged == true && contains(join(fromJSON(toJSON(github.event.pull_request.labels)).*name, ','), 'Sync_Auth0')
+    needs: create_release
+    name: Sync Auth0 Tenants 
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Auth0-Sync.yml@main
+    with:
+        branch_name: 'main'
+        auth0_source_tenant: ${{ github.base_ref == 'master' && 'STAGE' || 'DEV' }}
+        auth0_dest_tenant:  ${{ github.base_ref == 'master' && 'PROD' || 'STAGE' }}
+    secrets:
+        auth0_secrets: ${{ secrets.AUTH0_CREDENTIALS }}
 
+  run_automated_test:
+    if: github.event.pull_request.merged == true 
+    needs: [gcp_deploy,auth0_sync]
+    name: Run Automated Test 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conditional Actions for Stage
+        run: echo "Running automated tests."
 
 
 
