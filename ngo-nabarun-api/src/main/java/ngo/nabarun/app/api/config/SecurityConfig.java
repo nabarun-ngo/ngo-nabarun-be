@@ -34,7 +34,7 @@ public class SecurityConfig {
 	SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
 		ApiKeyAuthFilter filter = new ApiKeyAuthFilter("X-API-KEY");
 		filter.setAuthenticationManager(new ApiKeyAuthManager(apiKeyInfraService));
-		return http.antMatcher("/api/**").csrf(csrf -> csrf.disable()).cors(withDefaults()).sessionManagement(session -> {
+		return http.antMatcher("/api/**").csrf(withDefaults()).cors(withDefaults()).sessionManagement(session -> {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}).addFilter(filter).authorizeHttpRequests(request -> {
 			request.antMatchers(HttpMethod.GET, "/api/actuator/**").hasAuthority("SCOPE_read:actuator");
