@@ -17,15 +17,17 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.GCMParameterSpec;
 
 public class CryptUtil {
-    private static final String algorithm = "AES/CBC/PKCS5Padding";
+    private static final String algorithm = "AES/GCM/NoPadding";
 
 	public static String encrypt(String input, SecretKey key, IvParameterSpec iv)
 			throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
 			InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 		Cipher cipher = Cipher.getInstance(algorithm);
-		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+		GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv.getIV());
+		cipher.init(Cipher.ENCRYPT_MODE, key, gcmSpec);
 		byte[] cipherText = cipher.doFinal(input.getBytes());
 		return Base64.getEncoder().encodeToString(cipherText);
 	}
@@ -34,7 +36,8 @@ public class CryptUtil {
 			throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
 			InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 		Cipher cipher = Cipher.getInstance(algorithm);
-		cipher.init(Cipher.DECRYPT_MODE, key, iv);
+		GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv.getIV());
+		cipher.init(Cipher.DECRYPT_MODE, key, gcmSpec);
 		byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
 		return new String(plainText);
 	}
