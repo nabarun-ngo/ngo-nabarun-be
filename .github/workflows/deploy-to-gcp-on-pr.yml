@@ -30,7 +30,7 @@ jobs:
      target_folder: 'ngo-nabarun-app/target'
      gcp_project_id: ${{ github.base_ref == 'master' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
      app_env: ${{ github.base_ref == 'master' && 'prod' || 'stage' }}
-     app_doppler_project_name: ${{ github.base_ref == 'master' && 'prod' || 'stage' }}
+     app_doppler_project_name: ${{ vars.DOPPLER_PROJECT_NAME }}
      app_log_level: ${{ github.base_ref == 'master' && 'INFO' || 'DEBUG' }}
     secrets:
       gcp_service_account: ${{ github.base_ref == 'master' && secrets.GCP_SERVICE_ACCOUNT || secrets.GCP_SERVICE_ACCOUNT_STAGE }}
