@@ -1,4 +1,4 @@
-name: 'PR Closed: Release, Deploy, Sync'
+name: 'PR Merged: Release, Deploy tp GCP (GAE), Sync Env'
 on:
   pull_request:
     paths-ignore:
@@ -8,7 +8,7 @@ on:
     branches:
     - master
     - stage
- 
+
 permissions:
   contents: write      
 
@@ -37,7 +37,7 @@ jobs:
       app_doppler_service_token: ${{ github.base_ref == 'master' && secrets.DOPPLER_SERVICE_TOKEN || secrets.DOPPLER_SERVICE_TOKEN_STAGE }}
   
   auth0_sync:
-    if: github.event.pull_request.merged == true && contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'Sync_Auth0')
+    if: github.event.pull_request.merged == true && (github.base_ref == 'master' || contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'Sync_Auth0'))
     needs: create_release
     name: Sync Auth0 Tenants 
     uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Auth0-Sync.yml@main
@@ -51,12 +51,14 @@ jobs:
   run_automated_test:
     if: github.event.pull_request.merged == true && always()
     needs: [gcp_deploy,auth0_sync]
-    name: Run Automated Test 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Conditional Actions for Stage
-        run: echo "Running automated tests."
-
-
-
-  
+    name: Run Smoke Test 
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Run-Tests.yml@main
+    with:
+        test_env: ${{ github.base_ref == 'master' && 'PROD' || 'STAGE' }}
+        test_doppler_project_name: 'nabarun_test'
+        test_cycle: ${{ github.base_ref == 'master' && 'NAB-TR-3' || 'NAB-TR-1' }}
+        upload_result: true 
+        test_cucumber_tags: ${{ github.base_ref == 'master' && '@smokeprod' || '@smoke' }}
+    secrets:
+      test_doppler_service_token: ${{ github.base_ref == 'master' && secrets.DOPPLER_TEST_SERVICE_TOKEN || secrets.DOPPLER_TEST_SERVICE_TOKEN_STAGE }}
+      qmetry_api_key: ${{ secrets.QMETRY_APIKEY }}
