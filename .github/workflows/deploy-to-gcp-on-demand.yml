@@ -11,8 +11,8 @@ on:
        description: 'Target env'
        type: choice
        options:
-         - STAGE
-         - PROD
+         - stage
+         - prod
      auth0_sync:
        description: 'Sync Auth0'
        required: true
@@ -36,13 +36,13 @@ jobs:
     with:
      tag_name: ${{ github.event.inputs.tag_name }}
      target_folder: 'ngo-nabarun-app/target'
-     gcp_project_id: ${{ github.event.inputs.target_env == 'PROD' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
-     app_env: ${{ github.event.inputs.target_env == 'PROD' && 'prod' || 'stage' }}
+     gcp_project_id: ${{ github.event.inputs.target_env == 'prod' && vars.GCP_PROJECT_ID || vars.GCP_PROJECT_ID_STAGE }}
+     app_env: ${{ github.event.inputs.target_env == 'prod' && 'prod' || 'stage' }}
      app_doppler_project_name: ${{ vars.DOPPLER_PROJECT_NAME }}
-     app_log_level: ${{ github.event.inputs.target_env == 'PROD' && 'INFO' || 'DEBUG' }}
+     app_log_level: ${{ github.event.inputs.target_env == 'prod' && 'INFO' || 'DEBUG' }}
     secrets:
-      gcp_service_account: ${{ github.event.inputs.target_env == 'PROD' && secrets.GCP_SERVICE_ACCOUNT || secrets.GCP_SERVICE_ACCOUNT_STAGE }}
-      app_doppler_service_token: ${{ github.event.inputs.target_env == 'PROD' && secrets.DOPPLER_SERVICE_TOKEN || secrets.DOPPLER_SERVICE_TOKEN_STAGE }}
+      gcp_service_account: ${{ github.event.inputs.target_env == 'prod' && secrets.GCP_SERVICE_ACCOUNT || secrets.GCP_SERVICE_ACCOUNT_STAGE }}
+      app_doppler_service_token: ${{ github.event.inputs.target_env == 'prod' && secrets.DOPPLER_SERVICE_TOKEN || secrets.DOPPLER_SERVICE_TOKEN_STAGE }}
   
   auth0_sync:
     if: github.event.inputs.auth0_sync == 'Y'
@@ -50,8 +50,8 @@ jobs:
     uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Auth0-Sync.yml@main
     with:
         branch_name: 'main'
-        auth0_source_tenant: ${{ github.event.inputs.target_env == 'PROD' && 'STAGE' || 'DEV' }}
-        auth0_dest_tenant:  ${{ github.event.inputs.target_env == 'PROD' && 'PROD' || 'STAGE' }}
+        auth0_source_tenant: ${{ github.event.inputs.target_env == 'prod' && 'STAGE' || 'DEV' }}
+        auth0_dest_tenant:  ${{ github.event.inputs.target_env == 'prod' && 'PROD' || 'STAGE' }}
     secrets:
         auth0_secrets: ${{ secrets.AUTH0_CREDENTIALS }}
 
@@ -61,11 +61,11 @@ jobs:
     name: Run Smoke Test 
     uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Run-Tests.yml@main
     with:
-        test_env: ${{ github.event.inputs.target_env == 'PROD' && 'PROD' || 'STAGE' }}
+        test_env: ${{ github.event.inputs.target_env == 'prod' && 'prod' || 'stage' }}
         test_doppler_project_name: 'nabarun_test'
-        test_cycle: ${{ github.event.inputs.target_env == 'PROD' && 'NAB-TR-3' || 'NAB-TR-1' }}
+        test_cycle: ${{ github.event.inputs.target_env == 'prod' && 'NAB-TR-3' || 'NAB-TR-1' }}
         upload_result: true 
         test_cucumber_tags: ${{ github.event.inputs.cucumber_tags}}
     secrets:
-      test_doppler_service_token: ${{ github.event.inputs.target_env == 'PROD' && secrets.DOPPLER_TEST_SERVICE_TOKEN || secrets.DOPPLER_TEST_SERVICE_TOKEN_STAGE }}
+      test_doppler_service_token: ${{ github.event.inputs.target_env == 'prod' && secrets.DOPPLER_TEST_SERVICE_TOKEN || secrets.DOPPLER_TEST_SERVICE_TOKEN_STAGE }}
       qmetry_api_key: ${{ secrets.QMETRY_APIKEY }}
