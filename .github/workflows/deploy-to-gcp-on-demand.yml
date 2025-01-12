@@ -1,4 +1,4 @@
-name: 'Manual : Deploy tp GCP (GAE), Sync Env'
+name: 'Manual : Deploy to GCP (GAE), Sync Env'
 on:
   workflow_dispatch:
     inputs:
