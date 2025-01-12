@@ -16,7 +16,7 @@ jobs:
   create_release:
     if: github.event.pull_request.merged == true
     name: Create Tag and Release
-    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Create-Tag-Release.yml@main
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/templates/Create-Tag-Release.yml@main
     with:
      source_branch: ${{ github.base_ref }}
   
