@@ -54,7 +54,7 @@ jobs:
     name: Run Smoke Test 
     uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Run-Tests.yml@main
     with:
-        test_env: ${{ github.base_ref == 'master' && 'PROD' || 'STAGE' }}
+        test_env: ${{ github.base_ref == 'master' && 'prod' || 'stage'  }}
         test_doppler_project_name: 'nabarun_test'
         test_cycle: ${{ github.base_ref == 'master' && 'NAB-TR-3' || 'NAB-TR-1' }}
         upload_result: true 
