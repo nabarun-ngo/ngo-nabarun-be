@@ -1,4 +1,4 @@
-name: 'PR Merged: Release, Deploy tp GCP (GAE), Sync Env'
+name: 'PR Merged: Release, Deploy to GCP (GAE), Sync Env'
 on:
   pull_request:
     paths-ignore:
