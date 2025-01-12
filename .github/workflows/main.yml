@@ -1,0 +1,21 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+    
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Add your deployment steps here
+
+      - name: Trigger frontend dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: nabarun-ngo/ngo-nabarun-devops
+          event-type: backend-deployed
