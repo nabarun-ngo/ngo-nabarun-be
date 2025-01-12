@@ -24,7 +24,7 @@ jobs:
     if: github.event.pull_request.merged == true
     needs: create_release
     name: Deploy to GCP App Engine 
-    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/GCP-Deploy.yml@main
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/templates/GCP-Deploy.yml@main
     with:
      tag_name: ${{ needs.create_release.outputs.tag_name }}
      target_folder: 'ngo-nabarun-app/target'
@@ -40,7 +40,7 @@ jobs:
     if: github.event.pull_request.merged == true && (github.base_ref == 'master' || contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'Sync_Auth0'))
     needs: create_release
     name: Sync Auth0 Tenants 
-    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Auth0-Sync.yml@main
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/templates/Auth0-Sync.yml@main
     with:
         branch_name: 'main'
         auth0_source_tenant: ${{ github.base_ref == 'master' && 'STAGE' || 'DEV' }}
@@ -52,7 +52,7 @@ jobs:
     if: github.event.pull_request.merged == true && always()
     needs: [gcp_deploy,auth0_sync]
     name: Run Smoke Test 
-    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/Run-Tests.yml@main
+    uses: nabarun-ngo/ngo-nabarun-devops/.github/workflows/templates/Run-Tests.yml@main
     with:
         test_env: ${{ github.base_ref == 'master' && 'prod' || 'stage'  }}
         test_doppler_project_name: 'nabarun_test'
