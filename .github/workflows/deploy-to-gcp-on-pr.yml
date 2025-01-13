@@ -50,7 +50,7 @@ jobs:
 
   run_automated_test:
     if: github.event.pull_request.merged == true && always()
-    needs: [gcp_deploy,auth0_sync]
+    needs: [create_release,gcp_deploy,auth0_sync]
     name: Run Smoke Test 
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Run-Tests.yml@main
     with:
