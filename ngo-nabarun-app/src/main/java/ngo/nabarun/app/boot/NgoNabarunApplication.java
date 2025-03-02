@@ -31,6 +31,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 public class NgoNabarunApplication {
 	
 	public static void main(String[] args) {
+		System.out.println("Hiii");
 		SpringApplication.run(NgoNabarunApplication.class, args);
 	}
 
