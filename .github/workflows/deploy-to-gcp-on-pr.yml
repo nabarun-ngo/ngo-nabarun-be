@@ -38,6 +38,6 @@ jobs:
                 "target_env": "${{ github.base_ref == 'master' && 'prod' || 'stage' }}",
                 "firebase_sync_rc" : "${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }}",
                 "run_smoke_test" : "true"
-              }
+              } 
 
 
