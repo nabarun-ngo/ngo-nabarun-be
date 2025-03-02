@@ -90,6 +90,7 @@ public class PublicController {
 		for(Entry<String, Object> data:pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
+		System.out.println("Test");
 		return modelAndView;
 	}
 	
