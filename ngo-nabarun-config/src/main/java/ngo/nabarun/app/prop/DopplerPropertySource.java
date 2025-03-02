@@ -51,7 +51,7 @@ public class DopplerPropertySource extends PropertySource{
             JSONObject respObj=new JSONObject(responseBody);
             JSONObject secrets=respObj.getJSONObject("secrets");
             for(String key:secrets.toMap().keySet()) {
-            	propertySource.put(key,secrets.getJSONObject(key).get("raw") );
+            	propertySource.put(key,secrets.getJSONObject(key).get("computed") );
             }
         }
 		return propertySource;
