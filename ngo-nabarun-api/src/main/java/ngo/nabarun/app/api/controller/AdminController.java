@@ -20,11 +20,13 @@ import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAdminBL;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/api/admin")
 @SecurityRequirement(name = "nabarun_auth")
+@SecurityRequirement(name = "nabarun_auth_apikey")
 public class AdminController {
 
 	@Autowired
@@ -35,6 +37,13 @@ public class AdminController {
 	@GetMapping(value = "/apikey/list",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<List<ApiKeyDetail>>> getApiKeyList() throws Exception {
 		return new SuccessResponse<List<ApiKeyDetail>>().payload(adminBL.getApiKeys()).get(HttpStatus.OK);
+	}
+	
+	@Operation(summary = "Retrieve scope of api key",description = "Authorities : "+Authority.READ_APIKEY)
+	@PreAuthorize(Authority.READ_APIKEY)
+	@GetMapping(value = "/apikey/scopes",produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SuccessResponse<List<KeyValue>>> getApiKeyScopes() throws Exception {
+		return new SuccessResponse<List<KeyValue>>().payload(adminBL.getApiKeyScopes()).get(HttpStatus.OK);
 	}
 	
 	@Operation(summary = "Create new apikey",description = "Authorities : "+Authority.CREATE_APIKEY)

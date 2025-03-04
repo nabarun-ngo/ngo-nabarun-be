@@ -512,4 +512,8 @@ public class CommonDO {
         job=jobInfraService.createOrUpdateJob(job);
 
 	}
+
+	public List<Map<String, String>> getApiScopes() throws Exception {
+		return apiKeyInfraService.getAPIScopes();
+	}
 }

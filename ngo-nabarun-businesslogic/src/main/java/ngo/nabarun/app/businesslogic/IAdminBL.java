@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 
 
@@ -18,5 +19,7 @@ public interface IAdminBL {
 	ApiKeyDetail generateApiKey(ApiKeyDetail apiKeyDetail);
 	ApiKeyDetail updateApiKey(String id, ApiKeyDetail keyDetail,boolean revoke);
 	List<ApiKeyDetail> getApiKeys();
+
+	List<KeyValue> getApiKeyScopes() throws Exception;
 
 }

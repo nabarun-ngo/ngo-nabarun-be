@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.IAdminBL;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
@@ -73,8 +74,8 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 	}
 
 	@Override
-	public ApiKeyDetail updateApiKey(String id, ApiKeyDetail keyDetail,boolean revoke) {
-		ApiKeyDTO apiKeyDTO = commonDO.updateAPIKey(id, keyDetail,revoke);
+	public ApiKeyDetail updateApiKey(String id, ApiKeyDetail keyDetail, boolean revoke) {
+		ApiKeyDTO apiKeyDTO = commonDO.updateAPIKey(id, keyDetail, revoke);
 		return BusinessObjectConverter.toApiKeyDetail(apiKeyDTO, null);
 	}
 
@@ -82,5 +83,16 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 	public List<ApiKeyDetail> getApiKeys() {
 		return commonDO.getAPIKeys(ApiKeyStatus.ACTIVE).stream()
 				.map(m -> BusinessObjectConverter.toApiKeyDetail(m, null)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<KeyValue> getApiKeyScopes() throws Exception {
+		return commonDO.getApiScopes().stream().map(m -> {
+			KeyValue keyValue = new KeyValue();
+			keyValue.setKey(m.get("name"));
+			keyValue.setDescription(m.get("description"));
+			keyValue.setValue(keyValue.getKey()+" ["+keyValue.getDescription()+"]");
+			return keyValue;
+		}).toList();
 	}
 }
