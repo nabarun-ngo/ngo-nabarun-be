@@ -36,6 +36,7 @@ import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
 import ngo.nabarun.app.ext.helpers.ObjectFilter.Operator;
+import ngo.nabarun.app.ext.objects.AuthAPIInfo.AuthAPIScope;
 import ngo.nabarun.app.ext.objects.RemoteConfig;
 import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 import ngo.nabarun.app.ext.service.ICollectionExtService;
@@ -742,6 +743,17 @@ public class CommonInfraServiceImpl
 		jobEntity.setMemoryAtEnd(jobDTO.getMemoryAtEnd());
 		jobEntity = jobsRepo.save(jobEntity);
 		return InfraDTOHelper.convertToJobDTO(jobEntity);
+	}
+
+	@Override
+	public List<Map<String, String>> getAPIScopes() throws Exception {
+		String audience = propertyHelper.getAuth0ResourceAPIAudience();
+		List<AuthAPIScope> scopes=authManagementService.getAuthAPIInfo(audience).getScopes();
+		List<Map<String, String>> mapp= new ArrayList<Map<String, String>>();
+		for(AuthAPIScope scope:scopes) {
+			mapp.add(Map.of("name",scope.getValue(),"description",scope.getDescription()));
+		}
+		return mapp;
 	}
 
 }

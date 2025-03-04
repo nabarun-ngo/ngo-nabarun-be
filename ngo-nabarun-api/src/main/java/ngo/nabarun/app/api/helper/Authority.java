@@ -1,7 +1,7 @@
 package ngo.nabarun.app.api.helper;
 
 public class Authority {
-	public static final String ROLE_API_USER="ROLE_API_USER";
+	//public static final String ROLE_API_USER="ROLE_API_USER";
 
 	public static final String READ_USERS="hasAnyAuthority('SCOPE_read:users','ROLE_API_USER')";
 	public static final String READ_USER = "hasAuthority('SCOPE_read:user')";
@@ -19,7 +19,7 @@ public class Authority {
 	public static final String READ_NOTICE = "hasAuthority('SCOPE_read:notice')";
 	public static final String CREATE_NOTICE = "hasAuthority('SCOPE_create:notice')";
 	public static final String UPDATE_NOTICE = "hasAuthority('SCOPE_update:notice')";
-//	public static final String DELETE_NOTICE = "hasAuthority('SCOPE_delete:notice')";
+    //public static final String DELETE_NOTICE = "hasAuthority('SCOPE_delete:notice')";
 	
 	public static final String READ_DONATIONS = "hasAuthority('SCOPE_read:donations')";
 	public static final String READ_DONATIONS_GUEST= "hasAnyAuthority('SCOPE_read:donation_guest','ROLE_API_USER')";

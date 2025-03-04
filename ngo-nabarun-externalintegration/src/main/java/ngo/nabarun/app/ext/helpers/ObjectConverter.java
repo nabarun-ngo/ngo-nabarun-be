@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.auth0.json.mgmt.connections.Connection;
+import com.auth0.json.mgmt.resourceserver.ResourceServer;
+import com.auth0.json.mgmt.resourceserver.Scope;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.Identity;
 import com.auth0.json.mgmt.users.User;
@@ -15,6 +17,8 @@ import com.google.api.services.calendar.model.EventAttendee;
 
 import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.MeetingType;
+import ngo.nabarun.app.ext.objects.AuthAPIInfo;
+import ngo.nabarun.app.ext.objects.AuthAPIInfo.AuthAPIScope;
 import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
@@ -159,6 +163,22 @@ public class ObjectConverter {
 		aconn.setStrategy(connection.getStrategy());
 		aconn.setDatabaseConnection(connection.getName().equalsIgnoreCase("Username-Password-Authentication"));
 		return aconn;
+	}
+
+	public static AuthAPIInfo toAuthAPIInfo(ResourceServer resourceServer) {
+		AuthAPIInfo authAPIInfo= new AuthAPIInfo();
+		authAPIInfo.setId(resourceServer.getId());
+		authAPIInfo.setIdentifier(resourceServer.getIdentifier());
+		authAPIInfo.setName(resourceServer.getName());
+		List<AuthAPIScope> scopeList= new ArrayList<>();
+		for(Scope scope:resourceServer.getScopes()) {
+			AuthAPIScope authAPIScope= new AuthAPIScope();
+			authAPIScope.setDescription(scope.getDescription());
+			authAPIScope.setValue(scope.getValue());
+			scopeList.add(authAPIScope);
+		}
+		authAPIInfo.setScopes(scopeList);
+		return authAPIInfo;
 	}
 	
 	

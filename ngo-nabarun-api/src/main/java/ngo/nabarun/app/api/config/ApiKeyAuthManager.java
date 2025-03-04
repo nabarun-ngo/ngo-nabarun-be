@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
@@ -21,8 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.util.AntPathMatcher;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -43,21 +40,23 @@ public class ApiKeyAuthManager implements AuthenticationManager {
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String principal = (String) authentication.getPrincipal();
-		String credential = (String) authentication.getCredentials();
+		//String credential = (String) authentication.getCredentials();
 		//System.out.println(credential);
-        AntPathMatcher pathMatcher = new AntPathMatcher();
+        //AntPathMatcher pathMatcher = new AntPathMatcher();
 
 		@Nullable
 		ApiKeyDTO apiKey = this.keys.get(principal);
 		boolean isAuthenticated = apiKey != null 
 				&& apiKey.getStatus() == ApiKeyStatus.ACTIVE 
-				&& (!apiKey.isExpireable() || CommonUtils.getSystemDate().before(apiKey.getExpiryDate())) 
-				&& apiKey.getScopes().stream().anyMatch(m->pathMatcher.match(m, credential));
+				&& (!apiKey.isExpireable() || CommonUtils.getSystemDate().before(apiKey.getExpiryDate())) ;
+				//&& apiKey.getScopes().stream().anyMatch(m->pathMatcher.match(m, credential));
 
 		if (isAuthenticated) {
 			authentication.setAuthenticated(true);
 			List<GrantedAuthority> authorities= new ArrayList<>();
-			authorities.add(new SimpleGrantedAuthority(Authority.ROLE_API_USER));
+			for(String scope:apiKey.getScopes()) {
+				authorities.add(new SimpleGrantedAuthority("SCOPE_"+scope));
+			}
 			return new ApiKeyAuthenticationToken(authentication,authorities);
 		} else {
 			throw new BadCredentialsException("The API key was not found or not the expected value.");
