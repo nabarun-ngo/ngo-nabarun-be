@@ -55,7 +55,7 @@ public class LoggingAspect {
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
 		log.error("Exception in {}.{}() with cause = {} Stacktrace : {}",
 				joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(),
-				e.getCause() != null ? e.getCause() : "NULL", ExceptionUtils.getStackTrace(e));
+				e.getCause() != null ? e.getCause() : "NULL", ExceptionUtils.getStackFrames(e));
 
 	}
 

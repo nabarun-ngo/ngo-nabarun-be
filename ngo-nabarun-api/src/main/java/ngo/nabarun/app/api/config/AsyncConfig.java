@@ -12,9 +12,9 @@ public class AsyncConfig implements AsyncConfigurer {
     @Bean(name = "threadPoolTaskExecutor")
     ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(10);
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.setTaskDecorator(new MdcTaskDecorator());
         executor.initialize();
