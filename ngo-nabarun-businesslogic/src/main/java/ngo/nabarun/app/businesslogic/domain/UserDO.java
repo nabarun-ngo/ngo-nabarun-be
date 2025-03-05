@@ -315,15 +315,17 @@ public class UserDO extends CommonDO {
 							userDTO.getFirstName() == null ? firstUser.getFirstName() : userDTO.getFirstName());
 					userDTO_U.setLastName(
 							userDTO.getLastName() == null ? firstUser.getLastName() : userDTO.getLastName());
-					userDTO_U.setName(userDTO.getName());
-					;
+					userDTO_U.setName(userDTO.getName() == null ? firstUser.getName() : userDTO.getName());
+					userDTO_U.setLoginProviders(userDTO.getLoginProviders());
+					userDTO_U.setStatus(userDTO.getStatus());
+					userDTO_U.setUserId(userDTO.getUserId());
 					userDTO_U.setImageUrl(
 							firstUser.getImageUrl() == null ? userDTO.getImageUrl() : firstUser.getImageUrl());
 
 					job.log("[INFO] Syncing/Updating details from Auth0 to DB. ==> " + userDTO_U);
-					userDTO_U = userInfraService.updateUser(users.get(0).getProfileId(), userDTO_U);
+					userDTO_U = userInfraService.updateUser(firstUser.getProfileId(), userDTO_U);
 					job.log("[INFO] Details updated successfully to DB.");
-					
+
 					job.log("[INFO] Auth0 Profile Id ==> " + userDTO_U.getProfileId_Auth0());
 				} else {
 					job.log("[INFO] No user Found using email " + userDTO.getEmail()
