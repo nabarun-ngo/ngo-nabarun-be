@@ -18,6 +18,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.HistoryDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.HistoryDetail.ChangeDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.MeetingDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.NoticeDetail;
@@ -42,6 +43,7 @@ import ngo.nabarun.app.infra.dto.ExpenseDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
 import ngo.nabarun.app.infra.dto.NoticeDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
@@ -629,6 +631,25 @@ public class BusinessObjectConverter {
 		apiKeyDetail.setScopes(apiKeyDTO.getScopes());
 		apiKeyDetail.setApiKey(apiKey);
 		return apiKeyDetail;
+	}
+	
+	public static JobDetail toJobDetail(JobDTO job) {
+		JobDetail jobDetail= new JobDetail();
+		jobDetail.setDuration(job.getDuration());		
+		jobDetail.setEnd(job.getEnd());
+		jobDetail.setError(job.getError());
+		jobDetail.setId(job.getId());
+		jobDetail.setInput(jobDetail.getInput());
+		jobDetail.setLogs(job.getLogs());
+		jobDetail.setMemoryAtEnd(job.getMemoryAtEnd());
+		jobDetail.setMemoryAtStart(job.getMemoryAtStart());
+		jobDetail.setName(job.getName());
+		jobDetail.setOutput(jobDetail.getOutput());
+		jobDetail.setQueue(job.getQueue());
+		jobDetail.setStart(job.getStart());
+		jobDetail.setStatus(job.getStatus());
+		jobDetail.setTriggerId(job.getTriggerId());
+		return jobDetail;
 	}
 
 //	public static NotificationDetail toNotificationDetail(NotificationDTO notificationDTO) {

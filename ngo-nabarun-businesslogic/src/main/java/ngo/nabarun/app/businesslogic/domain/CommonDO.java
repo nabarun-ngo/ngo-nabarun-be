@@ -1,7 +1,6 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+ 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
@@ -44,17 +44,18 @@ import ngo.nabarun.app.infra.dto.DocumentDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.JobDTO;
+import ngo.nabarun.app.infra.dto.JobDTO.JobDTOFilter;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
+import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.dto.TicketDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
-import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
+import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.IJobsInfraService;
 import ngo.nabarun.app.infra.service.ISystemInfraService;
-import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.ITicketInfraService;
 
 @Slf4j
@@ -81,13 +82,13 @@ public class CommonDO {
 
 	@Autowired
 	protected IHistoryInfraService historyInfraService;
-	
+
 	@Autowired
 	protected PropertyHelper propertyHelper;
-	
+
 	@Autowired
 	protected ISystemInfraService systemInfraService;
-	
+
 	@Autowired
 	private IJobsInfraService jobInfraService;
 
@@ -218,7 +219,6 @@ public class CommonDO {
 		return ticket.getToken();
 	}
 
-
 	/**
 	 * Re-send OTP to user
 	 * 
@@ -275,17 +275,16 @@ public class CommonDO {
 				objectMap);
 		return correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template, null);
 	}
-	
-	
-	@Async 
-	public void sendEmailAsync(String templateName, List<CorrespondentDTO> recipients,
-			Map<String, Object> objectMap,String triggerId, String senderName) throws Exception {
-		JobDTO<Map<String, Object>, Integer> emailJob= new JobDTO<>(triggerId, templateName);
-		startJob(emailJob, Map.of("recipients",recipients,"objectMap",objectMap,"senderName",senderName==null?"":senderName));
-		int status=sendEmail(senderName, templateName, recipients, objectMap);
+
+	@Async
+	public void sendEmailAsync(String templateName, List<CorrespondentDTO> recipients, Map<String, Object> objectMap,
+			String triggerId, String senderName) throws Exception {
+		JobDTO emailJob = new JobDTO(triggerId, templateName);
+		startJob(emailJob, Map.of("recipients", recipients, "objectMap", objectMap, "senderName",
+				senderName == null ? "" : senderName));
+		int status = sendEmail(senderName, templateName, recipients, objectMap);
 		endJob(emailJob, status);
 	}
-
 
 	public Paginate<Map<String, String>> getNotifications(Integer index, Integer size) {
 		NotificationDTOFilter filter = new NotificationDTOFilter();
@@ -409,18 +408,23 @@ public class CommonDO {
 	}
 
 	@Async
-	public void updateAndSendDashboardCounts(String userId,Function<Object, Map<String, String>> action) throws Exception {
-		Map<String, String> countMap = action.apply("");
-		Map<String, String> userCountMap = new HashMap<>();
-		for (Entry<String, String> countM : countMap.entrySet()) {
-			userCountMap.put(countM.getKey(), countM.getValue());
-		}
+	public void updateAndSendDashboardCounts(String userId, Function<Object, Map<String, String>> action) {
+		try {
+			Map<String, String> countMap = action.apply("");
+			Map<String, String> userCountMap = new HashMap<>();
+			for (Entry<String, String> countM : countMap.entrySet()) {
+				userCountMap.put(countM.getKey(), countM.getValue());
+			}
 
-		if (!userCountMap.isEmpty()) {
-			Map<String, String> updateCountMap = sequenceInfraService.addOrUpdateDashboardCounts(userId, userCountMap);
-			Map<String, String> dataMap = prepareDataMap(updateCountMap);
-			correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
-					"", "", dataMap);
+			if (!userCountMap.isEmpty()) {
+				Map<String, String> updateCountMap = sequenceInfraService.addOrUpdateDashboardCounts(userId,
+						userCountMap);
+				Map<String, String> dataMap = prepareDataMap(updateCountMap);
+				correspondenceInfraService.sendNotificationMessage(userId,
+						"Hey! There are some updates for you from NABARUN.", "", "", dataMap);
+			}
+		} catch (Exception e) {
+			log.error("Error sending notification", e);
 		}
 	}
 
@@ -444,16 +448,17 @@ public class CommonDO {
 		}).collect(Collectors.toList());
 	}
 
-	public void syncSystems() throws Exception {
-		log.info("Starting System Sync");
-		String apikey_sg=propertyHelper.getSendGridAPIKey();
-		String sender=propertyHelper.getDefaultEmailSender();
-		log.info("Auth email provider update ==> Sender ="+sender+" Apikey=<apiKey>");
-		int code =systemInfraService.configureAuthEmailProvider(sender,apikey_sg);
-		log.info("Auth email provider update ==> StatusCode ="+code);
-		log.info("Ending System Sync");
+	public void syncSystems(JobDTO job) throws Exception {
+		job.log("[INFO] -----Starting System SYNC -----");
+		String apikey_sg = propertyHelper.getSendGridAPIKey();
+		String sender = propertyHelper.getDefaultEmailSender();
+		job.log("[INFO] -----Syncing Auth0 Email provider -----");
+		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
+		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
+		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
+		job.log("[INFO] -----Ending System SYNC -----");
 	}
-	
+
 	public ApiKeyDTO generateAPIKey(ApiKeyDetail detail) {
 		ApiKeyDTO apikeyDTO = new ApiKeyDTO();
 		apikeyDTO.setName(detail.getName());
@@ -465,13 +470,13 @@ public class CommonDO {
 		apikeyDTO = apiKeyInfraService.createOrUpdateApiKey(apikeyDTO);
 		return apikeyDTO;
 	}
-	
-	public ApiKeyDTO updateAPIKey(String id,ApiKeyDetail detail,boolean revoke) {
+
+	public ApiKeyDTO updateAPIKey(String id, ApiKeyDetail detail, boolean revoke) {
 		ApiKeyDTO apikeyDTO = new ApiKeyDTO();
 		apikeyDTO.setId(id);
 		apikeyDTO.setName(detail.getName());
 		apikeyDTO.setScopes(detail.getScopes());
-		if(revoke) {
+		if (revoke) {
 			apikeyDTO.setStatus(ApiKeyStatus.REVOKED);
 		}
 		apikeyDTO = apiKeyInfraService.createOrUpdateApiKey(apikeyDTO);
@@ -482,38 +487,55 @@ public class CommonDO {
 		return apiKeyInfraService.getApiKeys(status);
 	}
 
-	public <Input, Output> void startJob(JobDTO<Input, Output> job, Input ip) throws Exception {
-		job.setLog(new ArrayList<>());
+	public void startJob(JobDTO job, Object ip) throws Exception {
 		job.setStart(CommonUtils.getSystemDate());
 		job.setStatus(JobStatus.IN_PROGRESS);
 		job.setInput(ip);
 		// Run garbage collection to reclaim unused memory
-        //System.gc();
+		// System.gc();
 		Runtime runtime = Runtime.getRuntime();
-        long usedMemory = (runtime.totalMemory() - runtime.freeMemory())/1024;
-        long freeMemory = runtime.freeMemory()/1024;
-        long totalMemory = runtime.totalMemory()/1024;
-        long maxMemory = runtime.maxMemory()/1024;
-        job.setMemoryAtStart("Total memory (kB): " + totalMemory+ " Free memory (kB): " + freeMemory+" Used memory (kB): " + usedMemory+" Max memory (kB): " + maxMemory);
-        String id=jobInfraService.createOrUpdateJob(job).getId();
-        job.setId(id);
+		long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / 1024;
+		long freeMemory = runtime.freeMemory() / 1024;
+		long totalMemory = runtime.totalMemory() / 1024;
+		long maxMemory = runtime.maxMemory() / 1024;
+		job.setMemoryAtStart("Total memory (kB): " + totalMemory + " Free memory (kB): " + freeMemory
+				+ " Used memory (kB): " + usedMemory + " Max memory (kB): " + maxMemory);
+		String id = jobInfraService.createOrUpdateJob(job).getId();
+		job.setId(id);
 	}
 
-	public <Input, Output> void endJob(JobDTO<Input, Output> job, Output op) throws Exception {
+	public void endJob(JobDTO job, Object op) throws Exception {
 		job.setEnd(CommonUtils.getSystemDate());
 		job.setOutput(op);
 		job.setStatus(JobStatus.COMPLETED);
 		Runtime runtime = Runtime.getRuntime();
-        long usedMemory = (runtime.totalMemory() - runtime.freeMemory())/1024;
-        long freeMemory = runtime.freeMemory()/1024;
-        long totalMemory = runtime.totalMemory()/1024;
-        long maxMemory = runtime.maxMemory()/1024;
-        job.setMemoryAtEnd("Total memory (kB): " + totalMemory+ " Free memory (kB): " + freeMemory+" Used memory (kB): " + usedMemory+" Max memory (kB): " + maxMemory);
-        job=jobInfraService.createOrUpdateJob(job);
-
+		long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / 1024;
+		long freeMemory = runtime.freeMemory() / 1024;
+		long totalMemory = runtime.totalMemory() / 1024;
+		long maxMemory = runtime.maxMemory() / 1024;
+		job.setMemoryAtEnd("Total memory (kB): " + totalMemory + " Free memory (kB): " + freeMemory
+				+ " Used memory (kB): " + usedMemory + " Max memory (kB): " + maxMemory);
+		job = jobInfraService.createOrUpdateJob(job);
+		// Add failure log count
+		// TODO Send Email if failure log count is non 0 with log details
 	}
 
 	public List<Map<String, String>> getApiScopes() throws Exception {
 		return apiKeyInfraService.getAPIScopes();
+	}
+
+	public Paginate<JobDTO> retrieveJobs(Integer pageIndex, Integer pageSize, JobDetailFilter filter) {
+		JobDTOFilter filterDTO = null;
+		if (filter != null) {
+			filterDTO = new JobDTOFilter();
+			filterDTO.setEnd(filter.getEnd());
+			filterDTO.setId(filter.getId());
+			filterDTO.setName(filter.getName());
+			filterDTO.setStart(filter.getStart());
+			filterDTO.setStatus(filter.getStatus());
+			filterDTO.setTriggerId(filter.getTriggerId());
+		}
+		Page<JobDTO> page = jobInfraService.getJobList(pageIndex, pageSize, filterDTO);
+		return new Paginate<JobDTO>(page);
 	}
 }

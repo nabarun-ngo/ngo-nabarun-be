@@ -51,5 +51,8 @@ public class Authority {
 	public static final String READ_DOCUMENT_LIST = "hasAuthority('SCOPE_read:document_list')";
 	public static final String DELETE_DOCUMENT = "hasAuthority('SCOPE_delete:document')";
 	
+	public static final String READ_JOB = "hasAuthority('SCOPE_read:job')";
+	public static final String CREATE_JOB = "hasAuthority('SCOPE_create:job')";
+
 
 }
