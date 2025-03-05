@@ -39,7 +39,7 @@ public class JobDTO {
 		if(logs == null) {
 			logs= new ArrayList<>();
 		}
-		String timestamp=CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyy-MM-dd hh:mm:ss");
+		String timestamp=CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyy-MM-dd HH:mm:ss");
 		logs.add(timestamp+" "+msg);
 		log.info(msg);
 	}
