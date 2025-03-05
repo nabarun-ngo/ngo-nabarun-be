@@ -43,6 +43,7 @@ import ngo.nabarun.app.infra.dto.TransactionDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.DonationDTO.DonationDTOFilter;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.service.IDonationInfraService;
 
 @Component
@@ -107,35 +108,35 @@ public class DonationDO extends AccountDO {
 	}
 	
 	
-	public void autoRaiseRegularDonation(List<UserDTO> users) throws Exception {
-
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(CommonUtils.getSystemDate());
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		Date startDate = cal.getTime();
-		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-		Date endDate = cal.getTime();
-
-		for (UserDTO user : users) {
-			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
-					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
-				DonationDetail donationDetail = new DonationDetail();
-				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,businessDomainHelper.getDomainKeyValues()));
-				donationDetail.setEndDate(endDate);
-				donationDetail.setIsGuest(false);
-				donationDetail.setStartDate(startDate);
-				donationDetail.setDonationType(DonationType.REGULAR);
-				try {
-					DonationDTO donation = raiseDonation(donationDetail);
-					log.info("Automatically raised donation id : " + donation.getId());
-				} catch (Exception e) {
-					log.error("Exception occured during automatic donation creation ", e);
-				}
-				Thread.sleep(2000);
-			}
-		}
-
-	}
+//	public void autoRaiseRegularDonation(List<UserDTO> users) throws Exception {
+//
+//		Calendar cal = Calendar.getInstance();
+//		cal.setTime(CommonUtils.getSystemDate());
+//		cal.set(Calendar.DAY_OF_MONTH, 1);
+//		Date startDate = cal.getTime();
+//		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+//		Date endDate = cal.getTime();
+//
+//		for (UserDTO user : users) {
+//			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
+//					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
+//				DonationDetail donationDetail = new DonationDetail();
+//				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,businessDomainHelper.getDomainKeyValues()));
+//				donationDetail.setEndDate(endDate);
+//				donationDetail.setIsGuest(false);
+//				donationDetail.setStartDate(startDate);
+//				donationDetail.setDonationType(DonationType.REGULAR);
+//				try {
+//					DonationDTO donation = raiseDonation(donationDetail);
+//					log.info("Automatically raised donation id : " + donation.getId());
+//				} catch (Exception e) {
+//					log.error("Exception occured during automatic donation creation ", e);
+//				}
+//				Thread.sleep(2000);
+//			}
+//		}
+//
+//	}
 
 	public DonationDTO raiseDonation(DonationDetail donationDetail) throws Exception {
 		DonationDTO donationDTO = businessDomainHelper.convertToDonationDTO(donationDetail);
@@ -354,41 +355,64 @@ public class DonationDO extends AccountDO {
 		return donationInfraService.getDonation(id);
 	}
 
-	public void convertToPendingDonation() throws Exception {
+	public void convertToPendingDonation(JobDTO job) throws Exception {
+		job.log("[INFO] Starting DONATION CONVERSION Job");
 		DonationDetailFilter filter = new DonationDetailFilter();
 		filter.setDonationType(List.of(DonationType.REGULAR));
 		filter.setDonationStatus(List.of(DonationStatus.RAISED));
+		job.log("[INFO] Retrieveing all RAISED regular donations.");
 		List<DonationDTO> raisedDonations=retrieveDonations(null, null, filter).getContent();
+		job.log("[INFO] All RAISED regular donations retrieved.");
 		for(DonationDTO donation:raisedDonations) {
+			job.log("[INFO] Converting Donation ("+donation.getId()+") from RAISED to PENDING.");
 			DonationDetail updates= new DonationDetail();
 			updates.setDonationStatus(DonationStatus.PENDING);
 			updateDonation(donation.getId(), updates, null);
 			Thread.sleep(1000);
+			job.log("[INFO] Successfully converted.");
 		}
+		job.log("[INFO] Ending DONATION CONVERSION Job");
 	}
 
-	public void sendDonationReminderEmail() throws Exception {
+	public void sendDonationReminderEmail(JobDTO job) throws Exception {
+		job.log("[INFO] Starting Donation Reminder Job");
 		DonationDetailFilter filter = new DonationDetailFilter();
 		filter.setDonationStatus(List.of(DonationStatus.PENDING));
+		job.log("[INFO] Retrieveing all pending donations.");
 		Map<UserDTO, List<DonationDTO>> pendingDonations=retrieveDonations(null, null, filter).getContent().stream().filter(f->f.getGuest() == Boolean.FALSE).collect(Collectors.groupingBy(g->g.getDonor()));
+		job.log("[INFO] All pending donations retrieved.");
+
 		for(Entry<UserDTO, List<DonationDTO>> donations:pendingDonations.entrySet()) {
-			CorrespondentDTO recipient= CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(donations.getKey().getEmail()).name(donations.getKey().getName()).build();
-			List<Map<String, Object>> donation_vars=donations.getValue().stream().map(m->{
+			UserDTO donor =donations.getKey();
+			List<DonationDTO> donationList=donations.getValue();
+			job.log("[INFO] ------ Found "+donationList.size()+" pending donations for user "+donor.getName()+"("+donor.getProfileId()+") ----");
+
+			CorrespondentDTO recipient= CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(donor.getEmail()).name(donor.getName()).build();
+			List<Map<String, Object>> donation_vars=donationList.stream().map(m->{
 				try {
 					return m.toMap(businessDomainHelper.getDomainKeyValues());
-				} catch (Exception e) {}
-				return null;
+				} catch (Exception e) {
+					job.log("[ERROR] Unable to retrieve getDomainKeyValues().");
+					return null;
+				}
 			}).collect(Collectors.toList());
+			job.log("[INFO] Sending email to "+donor.getName()+"("+donor.getProfileId()+").");
 			Map<String, Object> user_vars=donations.getKey().toMap(businessDomainHelper.getDomainKeyValues());
 			sendEmail(BusinessConstants.EMAILTEMPLATE__DONATION_REMINDER, List.of(recipient),Map.of("donations",donation_vars,"user",user_vars));
+			job.log("[INFO] Email sent!");
+			job.log("[INFO] ------------------");
 		}
+		job.log("[INFO] Ending Donation Reminder Job");
 	}
 
 	public List<DonationDTO> createBulkMonthlyDonation(List<UserDTO> users) throws Exception {
-		return createBulkMonthlyDonation(users, new ArrayList<>());
+		return createBulkMonthlyDonation(users, new JobDTO());
 	}
 	
-	public List<DonationDTO> createBulkMonthlyDonation(List<UserDTO> users, List<String> output_log) throws Exception {
+	public List<DonationDTO> createBulkMonthlyDonation(List<UserDTO> users, JobDTO job) throws Exception {
+		job.log("[INFO] Starting Bulk Monthly Donation Creation");
+		job.log("[INFO] Found "+users.size()+" active/blocked users found.");
+
 		List<DonationDTO> donations= new ArrayList<>(); 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(CommonUtils.getSystemDate());
@@ -396,26 +420,39 @@ public class DonationDO extends AccountDO {
 		Date startDate = cal.getTime();
 		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		Date endDate = cal.getTime();
+		job.log("[INFO] Donation Start Date : "+startDate);
+		job.log("[INFO] Donation End Date : "+endDate);
+
 
 		for (UserDTO user : users) {
-			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
-					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
+			job.log("[INFO] ------- Starting for "+user.getName()+" ("+user.getProfileId()+") ---------");
+			boolean isJoinedCurrMonth= CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn());
+			boolean isDonationRaised= checkIfDonationRaised(user.getProfileId(), startDate, endDate);
+			Double preferredDonationAmount= null;
+			job.log("[INFO] User Joined on Current month : "+isJoinedCurrMonth);
+			job.log("[INFO] Donation Raised for Current month : "+isDonationRaised);
+			job.log("[INFO] Preferred donation amount : "+preferredDonationAmount);
+
+			if (!isJoinedCurrMonth && !isDonationRaised) {
 				DonationDetail donationDetail = new DonationDetail();
 				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,businessDomainHelper.getDomainKeyValues()));
 				donationDetail.setEndDate(endDate);
 				donationDetail.setIsGuest(false);
 				donationDetail.setStartDate(startDate);
 				donationDetail.setDonationType(DonationType.REGULAR);
+				donationDetail.setAmount(preferredDonationAmount);
 				try {
 					DonationDTO donation = raiseDonation(donationDetail);
 					donations.add(donation);
-					log.info("Automatically raised donation id : " + donation.getId()+" for user "+user.getProfileId());
-					output_log.add("Automatically raised donation id : " + donation.getId()+" for user "+user.getProfileId());
+					job.log("[INFO] Successfully raised donation [Donation Id = "+donation.getId()+"] for user "+user.getName());
 				} catch (Exception e) {
-					output_log.add("Exception occured during automatic donation creation "+e.getMessage());
-					log.error("Exception occured during automatic donation creation ", e);
+					job.log("[ERROR] Failed to raise donation for user "+user.getName()+" due to "+e.getMessage());
 				}
 			}
+			else {
+				job.log("[INFO] Skipping user "+user.getName()+" as condition not met.");
+			}
+			job.log("[INFO] ------- Ending for "+user.getName()+" ("+user.getProfileId()+") ---------");
 		}
 		return donations;
 	}

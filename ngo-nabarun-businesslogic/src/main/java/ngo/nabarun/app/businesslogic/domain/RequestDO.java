@@ -32,6 +32,7 @@ import ngo.nabarun.app.common.enums.RequestStatus;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.dto.RequestDTO;
 import ngo.nabarun.app.infra.dto.WorkDTO;
@@ -205,10 +206,10 @@ public class RequestDO extends CommonDO {
 						.email(workflow.getDelegatedRequester().getEmail())
 						.name(workflow.getDelegatedRequester().getName()).build());
 				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
-						Map.of("request", workflow_vars),workflow.getId(),null);
+						Map.of("request", workflow_vars), workflow.getId(), null);
 			} else {
 				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,
-						Map.of("request", workflow_vars),workflow.getId(),null);
+						Map.of("request", workflow_vars), workflow.getId(), null);
 			}
 		}
 		return workflow;
@@ -363,7 +364,7 @@ public class RequestDO extends CommonDO {
 				}
 				Map<String, Object> work_item_vars = workItem.toMap(businessDomainHelper.getDomainKeyValues());
 				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_WORK_CREATION, corrDTO,
-						Map.of("workItem", work_item_vars),workItem.getId(),null);
+						Map.of("workItem", work_item_vars), workItem.getId(), null);
 				sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CREATION, Map.of("workItem", work_item_vars),
 						workItem.getPendingWithUsers());
 			}
@@ -495,7 +496,7 @@ public class RequestDO extends CommonDO {
 				});
 			}
 		}
-		
+
 		List<UserDTO> notifyUser = new ArrayList<>();
 		notifyUser.add(workflowDTO.getRequester());
 		if (workflowDTO.isDelegated()) {
@@ -530,31 +531,53 @@ public class RequestDO extends CommonDO {
 						.name(workflowDTO.getDelegatedRequester().getName()).build());
 			}
 			Map<String, Object> work_flow_vars = workflowDTO.toMap(businessDomainHelper.getDomainKeyValues());
-			sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO, Map.of("request", work_flow_vars),workflowDTO.getId(),null);
+			sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO,
+					Map.of("request", work_flow_vars), workflowDTO.getId(), null);
 
 		}
 		return nextWorkDTO;
 	}
-	
-	public void sendTaskReminderEmail() throws Exception {
-		WorkDetailFilter workFilter= new  WorkDetailFilter();
-		workFilter.setCompleted(false);
-	     Map<UserDTO, List<WorkDTO>> groupedByPendingWithUsers = retrieveAllWorkItems(null, null, workFilter).getContent().stream()
-	             .filter(work -> work.getPendingWithUsers() != null) // Handle null pendingWithUsers lists
-	             .flatMap(work -> work.getPendingWithUsers().stream()
-	                 .map(user -> new AbstractMap.SimpleEntry<>(user, work))) // Create pairs of UserDTO and WorkDTO
-	             .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
 
-		for(Entry<UserDTO, List<WorkDTO>> workitem:groupedByPendingWithUsers.entrySet()) {
-			List<Map<String, Object>> task_vars=workitem.getValue().stream().map(m->{
+	public void sendTaskReminderEmail(JobDTO job) throws Exception {
+		job.log("[INFO] Starting TASK REMINDER Job");
+
+		job.log("[INFO] Retrieveing and grouping all open tasks");
+		WorkDetailFilter workFilter = new WorkDetailFilter();
+		workFilter.setCompleted(false);
+		Map<UserDTO, List<WorkDTO>> groupedByPendingWithUsers = retrieveAllWorkItems(null, null, workFilter)
+				.getContent().stream().filter(work -> work.getPendingWithUsers() != null) // Handle null
+																							// pendingWithUsers lists
+				.flatMap(work -> work.getPendingWithUsers().stream()
+						.map(user -> new AbstractMap.SimpleEntry<>(user, work))) // Create pairs of UserDTO and WorkDTO
+				.collect(Collectors.groupingBy(Map.Entry::getKey,
+						Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+		job.log("[INFO] Retrieved and groupd all open tasks by assignee");
+
+		for (Entry<UserDTO, List<WorkDTO>> workitem : groupedByPendingWithUsers.entrySet()) {
+			UserDTO assignee =workitem.getKey();
+			List<WorkDTO> workList=workitem.getValue();
+			job.log("[INFO] ------ Found "+workList.size()+" open tasks for user "+assignee.getName()+"("+assignee.getProfileId()+") ----");
+
+			List<Map<String, Object>> task_vars = workList.stream().map(m -> {
 				try {
 					return m.toMap(businessDomainHelper.getDomainKeyValues());
-				} catch (Exception e) {}
-				return null;
+				} catch (Exception e) {
+					job.log("[ERROR] Unable to retrieve getDomainKeyValues().");
+					return null;
+				}
 			}).collect(Collectors.toList());
-			CorrespondentDTO recipient= CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(workitem.getKey().getEmail()).name(workitem.getKey().getName()).build();
-			Map<String, Object> user_vars=workitem.getKey().toMap(businessDomainHelper.getDomainKeyValues());
-			sendEmail(BusinessConstants.EMAILTEMPLATE__WORKITEM_REMINDER, List.of(recipient),Map.of("workItems",task_vars,"user",user_vars,"currentDate",CommonUtils.formatDateToString(CommonUtils.getSystemDate(), "dd MMM yyyy", "IST")));}
+			job.log("[INFO] Sending email to "+assignee.getName()+"("+assignee.getProfileId()+").");
+			CorrespondentDTO recipient = CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
+					.email(assignee.getEmail()).name(assignee.getName()).build();
+			Map<String, Object> user_vars = workitem.getKey().toMap(businessDomainHelper.getDomainKeyValues());
+			sendEmail(BusinessConstants.EMAILTEMPLATE__WORKITEM_REMINDER, List.of(recipient),
+					Map.of("workItems", task_vars, "user", user_vars, "currentDate",
+							CommonUtils.formatDateToString(CommonUtils.getSystemDate(), "dd MMM yyyy", "IST")));
+			job.log("[INFO] Email sent!");
+			job.log("[INFO] ------------------");
+		}
+		job.log("[INFO] Ending TASK REMINDER Job");
+
 	}
 
 }

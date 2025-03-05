@@ -20,7 +20,10 @@ import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.IAdminBL;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 
 @RestController
@@ -84,5 +87,14 @@ public class AdminController {
 	}
 	
 	
+	@Operation(summary = "Retrieve job history",description = "Authorities : "+Authority.READ_JOB)
+	//@PreAuthorize(Authority.READ_JOB)
+	@GetMapping(value = "/jobs/list",produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SuccessResponse<Paginate<JobDetail>>> retrieveJobHistory(
+			@RequestParam(required = false) Integer pageIndex, 
+			@RequestParam(required = false) Integer pageSize,
+			JobDetailFilter filter) throws Exception {
+		return new SuccessResponse<Paginate<JobDetail>>().payload(adminBL.getJobList(pageIndex,pageSize,filter)).get(HttpStatus.OK);
+	}
 	
 }

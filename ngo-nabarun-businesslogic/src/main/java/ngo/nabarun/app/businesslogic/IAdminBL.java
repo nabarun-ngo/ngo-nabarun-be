@@ -5,7 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 
 
@@ -21,5 +24,7 @@ public interface IAdminBL {
 	List<ApiKeyDetail> getApiKeys();
 
 	List<KeyValue> getApiKeyScopes() throws Exception;
+
+	Paginate<JobDetail> getJobList(Integer pageIndex, Integer pageSize, JobDetailFilter filter);
 
 }

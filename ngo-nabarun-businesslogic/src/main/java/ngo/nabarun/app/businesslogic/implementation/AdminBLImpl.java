@@ -10,12 +10,16 @@ import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.IAdminBL;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail;
+import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.ApiKeyStatus;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.UserDTO;
 
 @Service
@@ -40,17 +44,17 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 		Map<String, String> parameters = trigger.getParameters();
 		switch (trigger.getName()) {
 		case SYNC_SYSTEMS:
-			commonDO.syncSystems();
+			commonDO.syncSystems(new JobDTO());
 			break;
 		case CREATE_DONATION:
 			List<UserDTO> users = userDO.retrieveAllUsers(null, null, new UserDetailFilter()).getContent();
 			donationDO.createBulkMonthlyDonation(users);
 			break;
 		case DONATION_REMINDER_EMAIL:
-			donationDO.sendDonationReminderEmail();
+			donationDO.sendDonationReminderEmail(new JobDTO());
 			break;
 		case UPDATE_DONATION:
-			donationDO.convertToPendingDonation();
+			donationDO.convertToPendingDonation(new JobDTO());
 			break;
 		case SYNC_USERS:
 			boolean syncRole = parameters.get("sync_role") == null ? false
@@ -60,7 +64,7 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 			userDO.syncUserDetail(syncRole, user_id, user_email);
 			break;
 		case TASK_REMINDER_EMAIL:
-			requestDO.sendTaskReminderEmail();
+			requestDO.sendTaskReminderEmail(new JobDTO());
 			break;
 		default:
 			throw new Exception("Invalid Service " + trigger.getName());
@@ -94,5 +98,10 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 			keyValue.setValue(keyValue.getKey()+" ["+keyValue.getDescription()+"]");
 			return keyValue;
 		}).toList();
+	}
+
+	@Override
+	public Paginate<JobDetail> getJobList(Integer pageIndex, Integer pageSize, JobDetailFilter filter) {
+		return commonDO.retrieveJobs(pageIndex, pageSize, filter).map(BusinessObjectConverter::toJobDetail);
 	}
 }

@@ -1,17 +1,13 @@
-package ngo.nabarun.app.infra.dto;
+package ngo.nabarun.app.businesslogic.businessobjects;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.enums.JobStatus;
-import ngo.nabarun.app.common.util.CommonUtils;
 
-@Slf4j
 @Data
-public class JobDTO {
+public class JobDetail {
 	private String id;
 	private String name;
 	private JobStatus status ;
@@ -26,26 +22,9 @@ public class JobDTO {
 	private String memoryAtStart;
 	private String memoryAtEnd;
 	private long duration;
-
-	public JobDTO(String triggerId,String name){
-		this.triggerId=triggerId;
-		this.name=name;
-	}
-	
-	public JobDTO() {
-	}
-	
-	public void log(String msg) {
-		if(logs == null) {
-			logs= new ArrayList<>();
-		}
-		String timestamp=CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyy-MM-dd hh:mm:ss");
-		logs.add(timestamp+" "+msg);
-		log.info(msg);
-	}
 	
 	@Data
-	public static class JobDTOFilter{
+	public static class JobDetailFilter {
 		private String id;
 		private String name;
 		private List<JobStatus> status ;
