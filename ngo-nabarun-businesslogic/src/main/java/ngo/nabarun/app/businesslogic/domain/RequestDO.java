@@ -551,7 +551,7 @@ public class RequestDO extends CommonDO {
 						.map(user -> new AbstractMap.SimpleEntry<>(user, work))) // Create pairs of UserDTO and WorkDTO
 				.collect(Collectors.groupingBy(Map.Entry::getKey,
 						Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
-		job.log("[INFO] Retrieved and groupd all open tasks by assignee");
+		job.log("[INFO] Retrieved "+groupedByPendingWithUsers.entrySet().size()+"  groupd open tasks by assignee");
 
 		for (Entry<UserDTO, List<WorkDTO>> workitem : groupedByPendingWithUsers.entrySet()) {
 			UserDTO assignee =workitem.getKey();

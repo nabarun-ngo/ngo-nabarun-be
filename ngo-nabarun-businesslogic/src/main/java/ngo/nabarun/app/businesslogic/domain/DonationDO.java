@@ -378,9 +378,9 @@ public class DonationDO extends AccountDO {
 		job.log("[INFO] Starting Donation Reminder Job");
 		DonationDetailFilter filter = new DonationDetailFilter();
 		filter.setDonationStatus(List.of(DonationStatus.PENDING));
-		job.log("[INFO] Retrieveing all pending donations.");
+		job.log("[INFO] Retrieveing pending donations grouped by user.");
 		Map<UserDTO, List<DonationDTO>> pendingDonations=retrieveDonations(null, null, filter).getContent().stream().filter(f->f.getGuest() == Boolean.FALSE).collect(Collectors.groupingBy(g->g.getDonor()));
-		job.log("[INFO] All pending donations retrieved.");
+		job.log("[INFO] "+pendingDonations.entrySet().size()+" pending donation grouping retrieved.");
 
 		for(Entry<UserDTO, List<DonationDTO>> donations:pendingDonations.entrySet()) {
 			UserDTO donor =donations.getKey();

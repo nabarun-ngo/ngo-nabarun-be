@@ -25,6 +25,7 @@ import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
 import ngo.nabarun.app.infra.dto.UserAdditionalDetailsDTO;
@@ -274,39 +275,51 @@ public class UserDO extends CommonDO {
 
 	/**
 	 * 
+	 * @param job 
 	 * @param user_email 
 	 * @param user_id 
 	 * @throws Exception
 	 */
-	public void syncUserDetail(boolean syncRole, String user_id, String user_email) throws Exception {
+	public void syncUserDetail(JobDTO job,boolean syncRole, String user_id, String user_email) throws Exception {
+		job.log("[INFO] Starting User Detail Sync Job with SyncRole="+syncRole+" UserId="+ user_id+" UserEmail="+user_email);
+
+		job.log("[INFO] Retrieveing user list from auth0...");
 		UserDTOFilter filterDTO = new UserDTOFilter();
 		filterDTO.setUserId(user_id);
 		filterDTO.setEmail(user_email);
 		List<UserDTO> usersDTOs=userInfraService.getAuthUsers(filterDTO);
+		job.log("[INFO] "+usersDTOs.size()+" users retrieved from auth0.");
 		for (UserDTO userDTO : usersDTOs) {
+			job.log("[INFO] Trying to sync "+userDTO.getName()+" ("+userDTO.getUserId()+").");
 			try {
-				// System.err.println(userDTO);
+				job.log("[INFO] Trying to get "+userDTO.getEmail()+" from DB.");
 				UserDTOFilter filter = new UserDTOFilter();
 				filter.setEmail(userDTO.getEmail());
 				List<UserDTO> users = userInfraService.getUsers(null, null, filter).getContent();
-				// System.err.println(users);
-
+				job.log("[INFO] Found "+users.size()+" using email "+userDTO.getEmail()+" from DB.");
 				if (!users.isEmpty()) {
 					if (syncRole) {
+						job.log("[INFO] Syncing roles from auth0 to DB");
 						List<RoleDTO> roles = userInfraService.getUserRoles(users.get(0).getUserId(),
 								IdType.AUTH_USER_ID, true);
 						List<RoleDTO> roleDTO = businessDomainHelper
 								.convertToRoleDTO(roles.stream().map(m -> m.getCode()).collect(Collectors.toList()));
 						userDTO.setRoles(roleDTO);
+						job.log("[INFO] Role sync complete. On update this will reflect in DB");
 					}
-					userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
-
+					job.log("[INFO] Syncing/Updating details from Auth0 to DB. ==> "+userDTO);
+					userDTO=userInfraService.updateUser(users.get(0).getProfileId(), userDTO);
+					job.log("[INFO] Details updated successfully to DB.");
+					job.log("[INFO] Auth0 attributes ==> "+userDTO.getAttributes());
 				} else {
+					job.log("[INFO] No user Found using email "+userDTO.getEmail()+" from DB. Creating New User in DB.");
 					userDTO.getAdditionalDetails().setActiveContributor(true);
 					userInfraService.createUser(userDTO,false);
+					job.log("[INFO] User creation completed.");
 				}
 				Thread.sleep(2000);
 			} catch (Exception e) {
+				job.log("[ERROR] Something went wrong while running job for "+userDTO.getEmail()+". Message ==> "+e.getMessage());
 				e.printStackTrace();
 			}
 

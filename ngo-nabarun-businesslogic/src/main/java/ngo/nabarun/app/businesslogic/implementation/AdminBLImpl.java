@@ -137,7 +137,7 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 					: parameters.get("sync_role").equalsIgnoreCase("Y");
 			String user_id = parameters.get("user_id") == null ? null : parameters.get("user_id");
 			String user_email = parameters.get("user_email") == null ? null : parameters.get("user_email");
-			userDO.syncUserDetail(syncRole, user_id, user_email);
+			userDO.syncUserDetail(job,syncRole, user_id, user_email);
 			break;
 		default:
 			throw new BusinessException("Invalid Service " + trigger.getName());

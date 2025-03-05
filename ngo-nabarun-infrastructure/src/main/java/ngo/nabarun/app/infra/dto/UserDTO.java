@@ -42,6 +42,7 @@ public class UserDTO {
 	private Boolean presentPermanentSame;
 
 	private UserAdditionalDetailsDTO additionalDetails;
+	private Map<String,Object> attributes;
 
 	@Data
 	public static class UserDTOFilter {
