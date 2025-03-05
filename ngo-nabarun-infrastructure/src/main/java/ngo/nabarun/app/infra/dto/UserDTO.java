@@ -42,7 +42,9 @@ public class UserDTO {
 	private Boolean presentPermanentSame;
 
 	private UserAdditionalDetailsDTO additionalDetails;
-	private Map<String,Object> attributes;
+	
+	private String profileId_Auth0;
+
 
 	@Data
 	public static class UserDTOFilter {

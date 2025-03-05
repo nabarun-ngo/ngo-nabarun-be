@@ -143,7 +143,9 @@ public class InfraDTOHelper {
 		uaDTO.setDonPauseStartDate(profile == null ? null : profile.getDonationPauseStartDate());
 		uaDTO.setDonPauseEndDate(profile == null ? null : profile.getDonationPauseEndDate());
 		userDTO.setAdditionalDetails(uaDTO);
-		userDTO.setAttributes(user.getAttributes());
+		
+		userDTO.setProfileId_Auth0(user != null ? user.getProfileId() : null);
+		
 		if (profile != null) {
 			/**
 			 * roles
