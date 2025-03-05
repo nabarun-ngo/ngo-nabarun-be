@@ -11,31 +11,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
-import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
-import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.DonationStatus;
 import ngo.nabarun.app.common.enums.DonationType;
-import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
-import ngo.nabarun.app.infra.dto.JobDTO;
-import ngo.nabarun.app.infra.dto.UserDTO;
 
-@Slf4j
+
 @Service
 public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 
@@ -172,53 +165,6 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 				.collect(Collectors.toList());
 	}
 
-	@Async
-	@Override
-	public void triggerJob(String triggerId, List<ServiceDetail> triggerDetail) {
-		for (ServiceDetail trigger : triggerDetail) {
-			JobDTO job = new JobDTO(triggerId, trigger.getName().name());
-			Object output = null;
-			try {
-				// Map<String, String> parameters = trigger.getParameters();
-				commonDO.startJob(job, trigger);
-				switch (trigger.getName()) {
-				//TODO Schedule this everyday at 7AM 
-				case SYNC_SYSTEMS:
-					commonDO.syncSystems(job);
-					break;
-				//TODO Schedule this on 1st day of every month at 7AM
-				case CREATE_DONATION:
-					UserDetailFilter filters = new UserDetailFilter();
-					filters.setStatus(List.of(ProfileStatus.ACTIVE, ProfileStatus.BLOCKED));
-					List<UserDTO> users = userDO.retrieveAllUsers(null, null, filters).getContent();
-					output = donationDO.createBulkMonthlyDonation(users, job);
-					break;
-				//TODO Schedule Everyday at 7AM
-				case DONATION_REMINDER_EMAIL:
-					donationDO.sendDonationReminderEmail(job);
-					break;
-				//TODO Schedule this on 15st day of every month at 7AM
-				case UPDATE_DONATION:
-					donationDO.convertToPendingDonation(job);
-					break;
-				//TODO Schedule Everyday at 7AM and 7 PM
-				case TASK_REMINDER_EMAIL:
-					requestDO.sendTaskReminderEmail(job);
-					break;
-				default:
-					throw new BusinessException("Invalid Service " + trigger.getName());
-				}
-			} catch (Exception e) {
-				job.setError(e);
-				log.error("Error in cron service: ", e);
-			} finally {
-				try {
-					commonDO.endJob(job, output);
-				} catch (Exception e) {
-					log.error("Error in ending job: ", e);
-				}
-			}
-		}
-	}
+	
 
 }

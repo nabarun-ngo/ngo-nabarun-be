@@ -1,6 +1,8 @@
 package ngo.nabarun.app.api.controller;
 
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -88,7 +90,7 @@ public class AdminController {
 	
 	
 	@Operation(summary = "Retrieve job history",description = "Authorities : "+Authority.READ_JOB)
-	//@PreAuthorize(Authority.READ_JOB)
+	@PreAuthorize(Authority.READ_JOB)
 	@GetMapping(value = "/jobs/list",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<Paginate<JobDetail>>> retrieveJobHistory(
 			@RequestParam(required = false) Integer pageIndex, 
@@ -97,4 +99,13 @@ public class AdminController {
 		return new SuccessResponse<Paginate<JobDetail>>().payload(adminBL.getJobList(pageIndex,pageSize,filter)).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Triggers a job from external systems")
+	@SecurityRequirement(name = "nabarun_auth_apikey")
+	@PostMapping(value = "/jobs/trigger")
+	public ResponseEntity<SuccessResponse<String>> jobsTrigger(@RequestBody List<ServiceDetail> serviceDetail)
+			throws Exception {
+		String triggerId=UUID.randomUUID().toString();
+		adminBL.triggerJob(triggerId,serviceDetail);
+		return new SuccessResponse<String>().payload(triggerId).get(HttpStatus.OK);
+	}
 }
