@@ -21,7 +21,7 @@ import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.objects.CalendarEvent;
 
 public class ObjectConverter {
-	public static User toAuth0User(AuthUser authUser,String connection) {
+	public static User toAuth0User(AuthUser authUser,String connection, String password) {
 		User user = new User();
 		//user.setAppMetadata(authUser.getAppMetadata());
 		user.setBlocked(authUser.isBlocked());
@@ -46,7 +46,7 @@ public class ObjectConverter {
 		user.setUsername(authUser.getUsername());
 		user.setVerifyEmail(authUser.getVerifyEmail());
 		
-		user.setPassword(authUser.getPassword() == null ? null : authUser.getPassword().toCharArray());
+		user.setPassword(password == null ? null : password.toCharArray());
 		return user;
 
 	}
