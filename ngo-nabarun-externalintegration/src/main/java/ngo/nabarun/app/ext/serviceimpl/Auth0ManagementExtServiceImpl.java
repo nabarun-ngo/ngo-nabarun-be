@@ -106,22 +106,22 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		
 		try {
 			String connection = null;
+			String password = null;
 			boolean userCreated=false;
 			for(LoginMethod provider:userDetails.getProviders()) {
 				switch(provider) {
 				case PASSWORD:
 					connection="Username-Password-Authentication";
+					password= userDetails.getPassword();
 					break;
 				case EMAIL:
 					connection="email";
-					userDetails.setPassword(null);
 					break;
 				case SMS:
 					connection="sms";
-					userDetails.setPassword(null);
 					break;
 				}
-				Response<User> response=initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection)).execute();
+				Response<User> response=initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection,password)).execute();
 				if(response.getStatusCode() == 201) {
 					userCreated=true;
 				}
@@ -234,7 +234,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 	@Override
 	public AuthUser updateUser(String id, AuthUser auth0User) throws ThirdPartyException {
 		try {
-			User updatedUser = ObjectConverter.toAuth0User(auth0User,null);
+			User updatedUser = ObjectConverter.toAuth0User(auth0User,null,auth0User.getPassword());
 			updatedUser = initManagementAPI().users().update(id, updatedUser).execute().getBody();
 			return ObjectConverter.toAuthUser(updatedUser);
 		} catch (Auth0Exception e) {

@@ -42,6 +42,7 @@ import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 import ngo.nabarun.app.ext.service.ICollectionExtService;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 import ngo.nabarun.app.ext.service.IFileStorageExtService;
+import ngo.nabarun.app.ext.service.IGitHubExtService;
 import ngo.nabarun.app.ext.service.IMessageExtService;
 import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
@@ -130,6 +131,9 @@ public class CommonInfraServiceImpl
 	
 	@Autowired
 	private IAuthManagementExtService authManagementService;
+	
+	@Autowired
+	private IGitHubExtService gitHubExtService;
 
 	/**
 	 * Constants THIS SHOULD BE SAME AS REMOTE CONFIG
@@ -721,6 +725,15 @@ public class CommonInfraServiceImpl
 			mapp.add(Map.of("name",scope.getValue(),"description",scope.getDescription()));
 		}
 		return mapp;
+	}
+
+	@Override
+	public String getRulesAndRegulationContent() {
+		String owner= propertyHelper.getGithubOrg();
+		String repo = propertyHelper.getGithubRepo();
+		String discussionId = propertyHelper.getGithubDiscussionId();
+		String body=gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
+		return body.replaceAll("\n", "");
 	}
 
 	

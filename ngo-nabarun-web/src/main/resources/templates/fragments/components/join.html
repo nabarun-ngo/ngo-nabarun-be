@@ -11,7 +11,6 @@
 			</div>
 
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-
 				<div class="h-100 bg-secondary p-5">
 					<form id="JoinUsForm" th:action="@{/signup}" method="post" th:object="${interview}"
 						autocomplete="off">
@@ -111,8 +110,6 @@
 				Carefully</h1>
 		</div>
 		<div class="row g-4 justify-content-center">
-			<iframe src="https://raw.githubusercontent.com/nabarun-ngo/.github/refs/heads/main/profile/README.md" width="100%" height="500px"></iframe>
-
 			<div class="px-2 ">
 				<div class="py-2 " th:each="rule,ruleStat : ${rules}">
 					<p>
@@ -120,6 +117,10 @@
 						[[${rule}]]
 					</p>
 				</div>
+				<div class="px-4" th:utext="${rulesHTML}">				
+				
+				</div>
+				
 			</div>
 			<form th:action="@{/signup}" method="post" th:object="${interview}">
 				<input type="hidden" name="actionName" id="actionName" th:value="'ACCEPT_RULES'">
