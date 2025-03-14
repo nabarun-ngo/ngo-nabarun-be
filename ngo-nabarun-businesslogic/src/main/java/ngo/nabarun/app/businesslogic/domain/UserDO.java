@@ -304,7 +304,7 @@ public class UserDO extends CommonDO {
 					UserDTO userDTO_U = new UserDTO();
 					if (syncRole) {
 						job.log("[INFO] Syncing roles from auth0 to DB");
-						List<RoleDTO> roles = userInfraService.getUserRoles(firstUser.getUserId(), IdType.AUTH_USER_ID,
+						List<RoleDTO> roles = userInfraService.getUserRoles(userDTO.getUserId(), IdType.AUTH_USER_ID,
 								true);
 						List<RoleDTO> roleDTO = businessDomainHelper
 								.convertToRoleDTO(roles.stream().map(m -> m.getCode()).collect(Collectors.toList()));
