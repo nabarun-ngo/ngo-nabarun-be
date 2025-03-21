@@ -40,6 +40,7 @@ public class AuthUser implements Serializable {
 	private String profileId;
 	private boolean inactive;
 	private Boolean resetPassword;
+	private Boolean profileUpdated;
 
 
 }

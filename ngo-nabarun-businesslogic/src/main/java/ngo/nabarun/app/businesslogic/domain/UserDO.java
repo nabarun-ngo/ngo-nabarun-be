@@ -159,6 +159,7 @@ public class UserDO extends CommonDO {
 	 * @param id
 	 * @param updatedUserDetails
 	 * @param updateProfilePic
+	 * @param  
 	 * @return
 	 * @throws Exception
 	 */
@@ -217,6 +218,9 @@ public class UserDO extends CommonDO {
 			} else {
 				updatedUserDTO.setImageUrl("");
 			}
+		}
+		if(updatedUserDetails.getAbout() != null && updatedUserDetails.getGender() != null && updatedUserDetails.getTitle() != null) {
+			updatedUserDTO.setProfile_updated("Y");
 		}
 		userDTO = userInfraService.updateUser(id, updatedUserDTO);
 		return userDTO;

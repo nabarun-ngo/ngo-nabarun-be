@@ -46,6 +46,9 @@ public class ObjectConverter {
 		if(authUser.getResetPassword() != null) {
 			userMetaData.put("reset_password", authUser.getResetPassword());
 		}
+		if(authUser.getProfileUpdated() != null) {
+			userMetaData.put("profile_updated", authUser.getProfileUpdated());
+		}
 		user.setUserMetadata(userMetaData);
 		user.setUsername(authUser.getUsername());
 		user.setVerifyEmail(authUser.getVerifyEmail());

@@ -120,7 +120,7 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 			List<UserDTO> users = userDO.retrieveAllUsers(null, null, filters).getContent();
 			output = donationDO.createBulkMonthlyDonation(users, job);
 			break;
-		//TODO Schedule Everyday at 7AM
+		//TODO Schedule Everyday at 7AM after 15th of month
 		case DONATION_REMINDER_EMAIL:
 			donationDO.sendDonationReminderEmail(job);
 			break;
