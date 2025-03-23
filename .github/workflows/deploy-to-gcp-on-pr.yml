@@ -26,7 +26,7 @@ jobs:
     name: Trigger Deploy to GCP App Engine 
     uses : nabarun-ngo/ngo-nabarun-templates/.github/workflows/Trigger-Workflow.yml@main
     with:
-      repository: nabarun-ngo/ngo-nabarun-actions
+      repository: nabarun-ngo/ngo-nabarun-ops
       event_type: Trigger-Deploy-Sync-Test
       input_json: |-
         {
