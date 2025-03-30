@@ -11,17 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
-import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
-import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.annotation.NoLogging;
@@ -31,11 +27,8 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.RefDataType;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
-import ngo.nabarun.app.infra.dto.DonationDTO;
-import ngo.nabarun.app.infra.dto.JobDTO;
-import ngo.nabarun.app.infra.dto.UserDTO;
 
-@Slf4j
+
 @Service
 public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 
@@ -172,41 +165,6 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 				.collect(Collectors.toList());
 	}
 
-	@Async
-	@Override
-	public void triggerJob(String triggerId,List<ServiceDetail> triggerDetail) {
-		for (ServiceDetail trigger : triggerDetail) {
-			try {
-				//Map<String, String> parameters = trigger.getParameters();
-				switch (trigger.getName()) {
-				case SYNC_SYSTEMS:
-					commonDO.syncSystems();
-					break;
-				case CREATE_DONATION:
-					JobDTO<ServiceDetail,List<DonationDTO>> donationjob = new JobDTO<ServiceDetail, List<DonationDTO>>(triggerId,trigger.getName().name());
-					List<UserDTO> users = userDO.retrieveAllUsers(null, null, new UserDetailFilter()).getContent();
-					commonDO.startJob(donationjob,trigger);
-					List<DonationDTO> donations=donationDO.createBulkMonthlyDonation(users,donationjob.getLog());
-					commonDO.endJob(donationjob,donations);
-					break;
-				case DONATION_REMINDER_EMAIL:
-					donationDO.sendDonationReminderEmail();
-					break;
-				case UPDATE_DONATION:
-					donationDO.convertToPendingDonation();
-					break;
-				case TASK_REMINDER_EMAIL:
-					requestDO.sendTaskReminderEmail();
-					break;
-				default:
-					throw new BusinessException("Invalid Service " + trigger.getName());
-				}
-			} catch (Exception e) {
-				log.error("Error in cron service: ", e);
-			}
-		}
-	}
-
-
+	
 
 }

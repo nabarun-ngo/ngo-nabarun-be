@@ -1,6 +1,7 @@
 package ngo.nabarun.app.infra.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -12,5 +13,6 @@ public interface IApiKeyInfraService {
 	ApiKeyDTO createOrUpdateApiKey(ApiKeyDTO apiKeyDTO);
 	ApiKeyDTO getApiKeyDetail(String apiKey);
 	List<ApiKeyDTO> getApiKeys(ApiKeyStatus status);
+	List<Map<String,String>> getAPIScopes() throws Exception;
 
 }

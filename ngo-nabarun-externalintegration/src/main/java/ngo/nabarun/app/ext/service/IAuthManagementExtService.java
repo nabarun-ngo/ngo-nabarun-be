@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
+import ngo.nabarun.app.ext.objects.AuthAPIInfo;
 import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
@@ -38,4 +39,6 @@ public interface IAuthManagementExtService {
 	Void endUserSessions(String userId) throws ThirdPartyException;
 
 	int updateEmailProvider(boolean enabled,String sender,String apikey_sg) throws ThirdPartyException;
+
+	AuthAPIInfo getAuthAPIInfo(String identifier) throws ThirdPartyException;
 }

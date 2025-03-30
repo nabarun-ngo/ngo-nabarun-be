@@ -166,5 +166,21 @@ public class PropertyHelper {
 	@Getter
 	@Value("${APP_LOGIN_URL}")
 	private String appLoginURL;
+	
+	@Getter
+	@Value("${GITHUB_TOKEN}")
+	private String githubToken;
+	
+	@Getter
+	@Value("${GITHUB_ORG}")
+	private String githubOrg;
+	
+	@Getter
+	@Value("${GITHUB_REPO}")
+	private String githubRepo;
+	
+	@Getter
+	@Value("${GITHUB_DICUSSION_ID}")
+	private String githubDiscussionId;
 
 }

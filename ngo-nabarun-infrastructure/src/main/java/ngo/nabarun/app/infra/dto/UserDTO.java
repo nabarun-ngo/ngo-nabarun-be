@@ -42,6 +42,10 @@ public class UserDTO {
 	private Boolean presentPermanentSame;
 
 	private UserAdditionalDetailsDTO additionalDetails;
+	
+	private String profileId_Auth0;
+	private String profile_updated;
+
 
 	@Data
 	public static class UserDTOFilter {

@@ -60,7 +60,6 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 	private static Map<String, String> roleVsIdMap = new HashMap<>();
 
-	
 	private String getRoleId(String code) {
 		if (roleVsIdMap.isEmpty()) {
 			try {
@@ -150,7 +149,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 	 * layer
 	 */
 	@Override
-	public UserDTO createUser(UserDTO userDTO,boolean createAuth0User) throws Exception {
+	public UserDTO createUser(UserDTO userDTO, boolean createAuth0User) throws Exception {
 		Assert.notNull(userDTO.getAdditionalDetails(), "additionalDetails object must not be null.");
 
 		/**
@@ -391,12 +390,14 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		 */
 		if (userDTO.getFirstName() != null || userDTO.getLastName() != null || userDTO.getEmail() != null
 				|| userDTO.getStatus() != null || isEmailVerifiedUpdated || userDTO.getProfileId() != null
-				|| userDTO.getPassword() != null) {
+				|| userDTO.getPassword() != null || userDTO.getProfile_updated() != null) {
 			if (userDTO.getStatus() != null) {
 				updateAuthUser.setInactive(ProfileStatus.ACTIVE != userDTO.getStatus());
 				updateAuthUser.setBlocked(userDTO.getStatus() == ProfileStatus.BLOCKED);
 			}
 			updateAuthUser.setProfileId(profile.getId());
+			updateAuthUser.setProfileUpdated("Y".equals(userDTO.getProfile_updated()));
+
 			updateAuthUser = authManagementService.updateUser(profile.getUserId(), updateAuthUser);
 			if (userDTO.getPassword() != null) {
 				authManagementService.endUserSessions(updateAuthUser.getUserId());
@@ -471,8 +472,6 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		profileRepository.save(profile);
 	}
 
-	
-
 	// @CacheEvict(cacheNames = "auth0",allEntries = true)
 	@Override
 	public void assignUsersToRole(RoleDTO role, List<String> userIds) throws Exception {
@@ -538,12 +537,12 @@ public class UserInfraServiceImpl implements IUserInfraService {
 
 	@Override
 	public List<UserDTO> getAuthUsers(UserDTOFilter filter) throws Exception {
-		if(filter != null && filter.getUserId() != null) {
-			AuthUser user =authManagementService.getUser(filter.getUserId());
+		if (filter != null && filter.getUserId() != null) {
+			AuthUser user = authManagementService.getUser(filter.getUserId());
 			return List.of(InfraDTOHelper.convertToUserDTO(null, user));
-		}else if(filter != null && filter.getEmail() != null) {
-			List<AuthUser> users =authManagementService.getUserByEmail(filter.getEmail());
-			return users.stream().map(user->InfraDTOHelper.convertToUserDTO(null, user)).collect(Collectors.toList());
+		} else if (filter != null && filter.getEmail() != null) {
+			List<AuthUser> users = authManagementService.getUserByEmail(filter.getEmail());
+			return users.stream().map(user -> InfraDTOHelper.convertToUserDTO(null, user)).collect(Collectors.toList());
 		}
 		return authManagementService.getUsers().stream()
 				.map(authUser -> InfraDTOHelper.convertToUserDTO(null, authUser)).collect(Collectors.toList());

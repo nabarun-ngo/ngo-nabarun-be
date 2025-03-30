@@ -15,6 +15,7 @@ import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.emailproviders.EmailProvider;
 import com.auth0.json.mgmt.emailproviders.EmailProviderCredentials;
+import com.auth0.json.mgmt.resourceserver.ResourceServer;
 import com.auth0.json.mgmt.tickets.PasswordChangeTicket;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Response;
@@ -26,6 +27,7 @@ import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectConverter;
 import ngo.nabarun.app.ext.helpers.ThirdPartySystem;
+import ngo.nabarun.app.ext.objects.AuthAPIInfo;
 import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
@@ -104,22 +106,22 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		
 		try {
 			String connection = null;
+			String password = null;
 			boolean userCreated=false;
 			for(LoginMethod provider:userDetails.getProviders()) {
 				switch(provider) {
 				case PASSWORD:
 					connection="Username-Password-Authentication";
+					password= userDetails.getPassword();
 					break;
 				case EMAIL:
 					connection="email";
-					userDetails.setPassword(null);
 					break;
 				case SMS:
 					connection="sms";
-					userDetails.setPassword(null);
 					break;
 				}
-				Response<User> response=initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection)).execute();
+				Response<User> response=initManagementAPI().users().create(ObjectConverter.toAuth0User(userDetails,connection,password)).execute();
 				if(response.getStatusCode() == 201) {
 					userCreated=true;
 				}
@@ -232,7 +234,7 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 	@Override
 	public AuthUser updateUser(String id, AuthUser auth0User) throws ThirdPartyException {
 		try {
-			User updatedUser = ObjectConverter.toAuth0User(auth0User,null);
+			User updatedUser = ObjectConverter.toAuth0User(auth0User,null,auth0User.getPassword());
 			updatedUser = initManagementAPI().users().update(id, updatedUser).execute().getBody();
 			return ObjectConverter.toAuthUser(updatedUser);
 		} catch (Auth0Exception e) {
@@ -286,6 +288,17 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 			ep.setCredentials(new EmailProviderCredentials(apikey_sg));
 			Response<EmailProvider> response=initManagementAPI().emailProvider().update(ep).execute();
 			return response.getStatusCode();
+		} catch (Auth0Exception e) {
+			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
+		}
+	}
+	
+	@Cacheable(value = "auth0_apis",key="#identifier")
+	@Override
+	public AuthAPIInfo getAuthAPIInfo(String identifier) throws ThirdPartyException {
+		try {
+			ResourceServer resourceServer=initManagementAPI().resourceServers().get(identifier).execute().getBody();
+			return ObjectConverter.toAuthAPIInfo(resourceServer);
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}

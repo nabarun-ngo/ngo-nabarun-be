@@ -55,7 +55,7 @@ public class LoggingAspect {
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
 		log.error("Exception in {}.{}() with cause = {} Stacktrace : {}",
 				joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(),
-				e.getCause() != null ? e.getCause() : "NULL", ExceptionUtils.getStackTrace(e));
+				e.getCause() != null ? e.getCause() : "NULL", ExceptionUtils.getStackFrames(e));
 
 	}
 
@@ -73,13 +73,13 @@ public class LoggingAspect {
 	
 	@Around("@annotation(org.springframework.scheduling.annotation.Async)")
 	public Object logAsyncAround(ProceedingJoinPoint joinPoint) throws Throwable {
-		if(MDC.get("CorrelationId") != null) {
-			asyncCorrelationIds.add(MDC.get("CorrelationId"));
-		}
+//		if(MDC.get("CorrelationId") != null) {
+//			asyncCorrelationIds.add(MDC.get("CorrelationId"));
+//		}
 		Object result= joinPoint.proceed();
-		if(MDC.get("CorrelationId") != null) {
-			asyncCorrelationIds.remove(MDC.get("CorrelationId"));
-		}
+//		if(MDC.get("CorrelationId") != null) {
+//			asyncCorrelationIds.remove(MDC.get("CorrelationId"));
+//		}
 		return result; 
 	}
 
@@ -97,13 +97,13 @@ public class LoggingAspect {
 				//e.printStackTrace();
 				args = Arrays.toString(joinPoint.getArgs());
 			}
-			if(asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
-				log.info("Async | Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
-						joinPoint.getSignature().getName(), args);
-			}else {
+//			if(asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
+//				log.info("Async | Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
+//						joinPoint.getSignature().getName(), args);
+//			}else {
 				log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
 						joinPoint.getSignature().getName(), args);
-			}
+//			}
 			
 		}
 		
@@ -121,13 +121,13 @@ public class LoggingAspect {
 				} else {
 					value = String.valueOf(result);
 				}
-				if(asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
-					log.info("Async | Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
-							joinPoint.getSignature().getName(), value);
-				}else {
+//				if(asyncCorrelationIds.contains(MDC.get("CorrelationId"))) {
+//					log.info("Async | Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
+//							joinPoint.getSignature().getName(), value);
+//				}else {
 					log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringType().getSimpleName(),
 							joinPoint.getSignature().getName(), value);
-				}
+				//}
 				
 			}
 			return result;

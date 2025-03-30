@@ -36,11 +36,13 @@ import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
 import ngo.nabarun.app.ext.helpers.ObjectFilter.Operator;
+import ngo.nabarun.app.ext.objects.AuthAPIInfo.AuthAPIScope;
 import ngo.nabarun.app.ext.objects.RemoteConfig;
 import ngo.nabarun.app.ext.service.IAuthManagementExtService;
 import ngo.nabarun.app.ext.service.ICollectionExtService;
 import ngo.nabarun.app.ext.service.IEmailExtService;
 import ngo.nabarun.app.ext.service.IFileStorageExtService;
+import ngo.nabarun.app.ext.service.IGitHubExtService;
 import ngo.nabarun.app.ext.service.IMessageExtService;
 import ngo.nabarun.app.ext.service.IRemoteConfigExtService;
 import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
@@ -48,7 +50,6 @@ import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
 import ngo.nabarun.app.infra.core.entity.DashboardCountEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
-import ngo.nabarun.app.infra.core.entity.JobEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
 import ngo.nabarun.app.infra.core.repo.ApiKeyRepository;
@@ -56,7 +57,6 @@ import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DashboardCountRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
-import ngo.nabarun.app.infra.core.repo.JobsRepository;
 import ngo.nabarun.app.infra.core.repo.LogsRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
@@ -64,7 +64,6 @@ import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO.ChangeDTO;
-import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.NTokenDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
@@ -79,7 +78,6 @@ import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
 import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
-import ngo.nabarun.app.infra.service.IJobsInfraService;
 import ngo.nabarun.app.infra.service.ILogInfraService;
 import ngo.nabarun.app.infra.service.ISystemInfraService;
 import ngo.nabarun.app.infra.service.ICountsInfraService;
@@ -90,7 +88,7 @@ import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 @Service
 public class CommonInfraServiceImpl
 		implements ICountsInfraService, ITicketInfraService, IDocumentInfraService, IHistoryInfraService,
-		ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService, IApiKeyInfraService,ISystemInfraService,IJobsInfraService {
+		ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService, IApiKeyInfraService,ISystemInfraService {
 
 	@Autowired
 	private DBSequenceRepository dbSeqRepository;
@@ -106,9 +104,6 @@ public class CommonInfraServiceImpl
 
 	@Autowired
 	private ApiKeyRepository apiKeyRepo;
-	
-	@Autowired
-	private JobsRepository jobsRepo;
 	
 	@Autowired
 	private IFileStorageExtService fileStorageService;
@@ -136,6 +131,9 @@ public class CommonInfraServiceImpl
 	
 	@Autowired
 	private IAuthManagementExtService authManagementService;
+	
+	@Autowired
+	private IGitHubExtService gitHubExtService;
 
 	/**
 	 * Constants THIS SHOULD BE SAME AS REMOTE CONFIG
@@ -717,31 +715,27 @@ public class CommonInfraServiceImpl
 		return authManagementService.updateEmailProvider(true,sender,apikey_sg);
 	}
 	
+
 	@Override
-	public <Input, Output> JobDTO<Input, Output> createOrUpdateJob(JobDTO<Input, Output> jobDTO) throws Exception {
-		
-		JobEntity jobEntity;
-		if(jobDTO.getId() != null) {
-			jobEntity = jobsRepo.findById(jobDTO.getId()).orElseThrow();
-		}else {
-			jobEntity = new JobEntity();
-			jobEntity.setId(UUID.randomUUID().toString());
-			jobEntity.setCreatedOn(CommonUtils.getSystemDate());
-			jobEntity.setName(jobDTO.getName());
-			jobEntity.setInput(CommonUtils.getObjectMapper().writeValueAsString(jobDTO.getInput()));
-			jobEntity.setMemoryAtStart(jobDTO.getMemoryAtStart());
-			jobEntity.setStart(jobDTO.getStart());
-			jobEntity.setTriggerId(jobDTO.getTriggerId());
+	public List<Map<String, String>> getAPIScopes() throws Exception {
+		String audience = propertyHelper.getAuth0ResourceAPIAudience();
+		List<AuthAPIScope> scopes=authManagementService.getAuthAPIInfo(audience).getScopes();
+		List<Map<String, String>> mapp= new ArrayList<Map<String, String>>();
+		for(AuthAPIScope scope:scopes) {
+			mapp.add(Map.of("name",scope.getValue(),"description",scope.getDescription()));
 		}
-		jobEntity.setStatus(jobDTO.getStatus() == null ? null : jobDTO.getStatus().name());
-		jobEntity.setEnd(jobDTO.getEnd());
-		if(jobDTO.getOutput() != null) {
-			jobEntity.setOutput(CommonUtils.getObjectMapper().writeValueAsString(jobDTO.getOutput()));
-		}
-		jobEntity.setLog(InfraFieldHelper.stringListToString(jobDTO.getLog()));
-		jobEntity.setMemoryAtEnd(jobDTO.getMemoryAtEnd());
-		jobEntity = jobsRepo.save(jobEntity);
-		return InfraDTOHelper.convertToJobDTO(jobEntity);
+		return mapp;
 	}
+
+	@Override
+	public String getRulesAndRegulationContent() {
+		String owner= propertyHelper.getGithubOrg();
+		String repo = propertyHelper.getGithubRepo();
+		String discussionId = propertyHelper.getGithubDiscussionId();
+		String body=gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
+		return body.replaceAll("\n", "");
+	}
+
+	
 
 }

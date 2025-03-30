@@ -52,6 +52,7 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 			modelAndView.addObject("rules", interview.getRules());
+			modelAndView.addObject("rulesHTML", interview.getRulesHTML());
 			modelAndView.addObject("siteKey", interview.getSiteKey());
 		} catch (BusinessException e) {
 			modelAndView.addObject("stage", interview.getStage());

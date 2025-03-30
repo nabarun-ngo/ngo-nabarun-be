@@ -16,7 +16,6 @@ import ngo.nabarun.app.api.helper.Authority;
 import ngo.nabarun.app.api.response.SuccessResponse;
 import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
-import ngo.nabarun.app.businesslogic.businessobjects.ServiceDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
@@ -32,8 +31,6 @@ import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -158,13 +155,5 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	
-	@Operation(summary = "Triggers a job from external systems")
-	@SecurityRequirement(name = "nabarun_auth_apikey")
-	@PostMapping(value = "/jobs/trigger")
-	public ResponseEntity<SuccessResponse<String>> jobsTrigger(@RequestBody List<ServiceDetail> serviceDetail)
-			throws Exception {
-		String triggerId=UUID.randomUUID().toString();
-		commonBL.triggerJob(triggerId,serviceDetail);
-		return new SuccessResponse<String>().payload(triggerId).get(HttpStatus.OK);
-	}
+	
 }

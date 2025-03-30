@@ -94,6 +94,8 @@ public class InterviewDetail {
 	@JsonIgnore
 	private List<String> rules;
 	
+	private String rulesHTML;
+	
 	@JsonProperty("otpToken")
 	private String otpToken;
 	

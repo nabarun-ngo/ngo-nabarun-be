@@ -11,7 +11,6 @@ import javax.crypto.spec.IvParameterSpec;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import ngo.nabarun.app.common.enums.AccountStatus;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AddressType;
@@ -144,7 +143,9 @@ public class InfraDTOHelper {
 		uaDTO.setDonPauseStartDate(profile == null ? null : profile.getDonationPauseStartDate());
 		uaDTO.setDonPauseEndDate(profile == null ? null : profile.getDonationPauseEndDate());
 		userDTO.setAdditionalDetails(uaDTO);
-
+		
+		userDTO.setProfileId_Auth0(user != null ? user.getProfileId() : null);
+		
 		if (profile != null) {
 			/**
 			 * roles
@@ -813,8 +814,8 @@ public class InfraDTOHelper {
 		return expenseItemDTO;
 	}
 
-	public static <Input, Output> JobDTO<Input, Output> convertToJobDTO(JobEntity jobEntity) throws Exception {
-		JobDTO<Input, Output> jobDTO= new JobDTO<>(jobEntity.getTriggerId(), jobEntity.getName());
+	public static JobDTO convertToJobDTO(JobEntity jobEntity) {
+		JobDTO jobDTO= new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
 		
 		if(jobEntity.getEnd() != null && jobEntity.getStart() != null) {
 			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());	
@@ -822,14 +823,12 @@ public class InfraDTOHelper {
 		
 		jobDTO.setEnd(jobEntity.getEnd());
 		jobDTO.setId(jobEntity.getId());
-		jobDTO.setInput(CommonUtils.getObjectMapper().readValue(jobEntity.getInput(), new TypeReference<Input>() {
-		}));
-		jobDTO.setLog(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
+		jobDTO.setInput(jobEntity.getInput());
+		jobDTO.setLogs(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
 		jobDTO.setMemoryAtEnd(jobEntity.getMemoryAtEnd());
 		jobDTO.setMemoryAtStart(jobEntity.getMemoryAtStart());
 		if(jobEntity.getOutput() != null) {
-			jobDTO.setOutput(CommonUtils.getObjectMapper().readValue(jobEntity.getOutput(), new TypeReference<Output>() {
-			}));
+			jobDTO.setOutput(jobEntity.getOutput());
 		}
 		
 		jobDTO.setStart(jobEntity.getStart());
