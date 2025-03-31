@@ -3,6 +3,7 @@ on:
   pull_request:
     paths-ignore:
     - '.github/**'
+    types: [opened, synchronize, reopened, closed]
     branches:
     - master
     - stage
@@ -12,10 +13,11 @@ permissions:
 
 jobs:
   build:
+   name: Build and Test
    uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Build-Test.yml@main
    with:
       platform: "java"
-      command: "./mvnw clean install"
+      command: "mvn clean install"
       
   create_release:
     if: github.event.pull_request.merged == true
