@@ -21,7 +21,7 @@ jobs:
      source_branch: ${{ github.base_ref }}
   
   gcp_deploy:
-    if: github.event.pull_request.merged == true && github.base_ref == 'stage'
+    if: github.event.pull_request.merged == true && github.base_ref == 'master'
     needs: create_release
     name: Trigger Deploy to GCP App Engine 
     uses : nabarun-ngo/ngo-nabarun-templates/.github/workflows/Trigger-Workflow.yml@main
