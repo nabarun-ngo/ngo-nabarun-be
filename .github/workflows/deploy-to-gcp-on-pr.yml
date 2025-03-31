@@ -43,4 +43,5 @@ jobs:
             "auth0_sync" : ${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }},
             "run_smoke_test" : true
           } 
+    secrets:
       token: ${{ secrets.PAT }}
