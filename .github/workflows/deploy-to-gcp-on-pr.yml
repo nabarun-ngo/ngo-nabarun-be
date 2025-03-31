@@ -13,8 +13,14 @@ permissions:
   contents: write      
 
 jobs:
+  build:
+   uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/reusable-build-test.yml@main
+   with:
+      platform: "java"
+      command: "./mvnw clean install"
+      
   create_release:
-    #if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     name: Create Tag and Release
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Create-Tag-Release.yml@main
     with:
