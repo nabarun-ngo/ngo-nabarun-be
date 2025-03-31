@@ -3,8 +3,8 @@ on:
   pull_request:
     paths-ignore:
     - '.github/**'
-    types:
-      - closed 
+    #types:
+    #  - closed 
     branches:
     - master
     - stage
