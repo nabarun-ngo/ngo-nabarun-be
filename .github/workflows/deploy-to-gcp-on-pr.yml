@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   create_release:
-    if: github.event.pull_request.merged == true
+    #if: github.event.pull_request.merged == true
     name: Create Tag and Release
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Create-Tag-Release.yml@main
     with:
@@ -40,5 +40,3 @@ jobs:
                 "auth0_sync" : ${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }},
                 "run_smoke_test" : true
               } 
-
-
