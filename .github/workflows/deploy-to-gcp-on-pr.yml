@@ -4,7 +4,9 @@ on:
     paths-ignore:
     - '.github/**'
     types:
-      - closed 
+      - closed
+      - opened
+      
     branches:
     - master
     - stage
