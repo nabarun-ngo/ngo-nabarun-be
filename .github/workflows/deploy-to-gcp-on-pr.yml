@@ -21,6 +21,7 @@ jobs:
       
   create_release:
     if: github.event.pull_request.merged == true
+    needs: build
     name: Create Tag and Release
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Create-Tag-Release.yml@main
     with:
