@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build:
-   uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/reusable-build-test.yml@main
+   uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Build-Test.yml@main
    with:
       platform: "java"
       command: "./mvnw clean install"
