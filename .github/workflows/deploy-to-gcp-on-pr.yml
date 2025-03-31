@@ -30,7 +30,7 @@ jobs:
          uses: peter-evans/repository-dispatch@v3
          with:
           token: ${{ secrets.PAT }}
-          repository: nabarun-ngo/ngo-nabarun-devops
+          repository: ${{ github.base_ref == 'master' && 'nabarun-ngo/ngo-nabarun-prodops' || 'nabarun-ngo/ngo-nabarun-ops' }}
           event-type: Trigger-Deploy-Sync-Test
           client-payload: |-
               {
