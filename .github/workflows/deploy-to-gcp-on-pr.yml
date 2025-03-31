@@ -21,7 +21,7 @@ jobs:
      source_branch: ${{ github.base_ref }}
   
   gcp_deploy:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.base_ref == 'stage'
     needs: create_release
     name: Trigger Deploy to GCP App Engine 
     uses : nabarun-ngo/ngo-nabarun-templates/.github/workflows/Trigger-Workflow.yml@main
@@ -32,7 +32,7 @@ jobs:
         {
           "be_deploy": true ,
           "be_tag_name": "${{ needs.create_release.outputs.tag_name }}",
-          "target_env": "${{ github.base_ref == 'master' && 'prod' || 'stage' }}",
+          "target_env": "stage",
           "auth0_sync" : ${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }},
           "run_smoke_test" : true
         }        
