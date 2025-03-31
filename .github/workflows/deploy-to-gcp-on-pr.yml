@@ -3,8 +3,7 @@ on:
   pull_request:
     paths-ignore:
     - '.github/**'
-    types:
-      - closed 
+    types: [opened, synchronize, reopened, closed]
     branches:
     - master
     - stage
@@ -13,8 +12,16 @@ permissions:
   contents: write      
 
 jobs:
+  build:
+   name: Build and Test
+   uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Build-Test.yml@main
+   with:
+      platform: "java"
+      command: "mvn clean install"
+      
   create_release:
     if: github.event.pull_request.merged == true
+    needs: build
     name: Create Tag and Release
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Create-Tag-Release.yml@main
     with:
@@ -23,22 +30,16 @@ jobs:
   gcp_deploy:
     if: github.event.pull_request.merged == true
     needs: create_release
-    runs-on: ubuntu-latest
     name: Trigger Deploy to GCP App Engine 
-    steps:
-       - name: Repository Dispatch
-         uses: peter-evans/repository-dispatch@v3
-         with:
-          token: ${{ secrets.PAT }}
-          repository: ${{ github.base_ref == 'master' && 'nabarun-ngo/ngo-nabarun-prodops' || 'nabarun-ngo/ngo-nabarun-ops' }}
-          event-type: Trigger-Deploy-Sync-Test
-          client-payload: |-
-              {
-                "be_deploy": true ,
-                "be_tag_name": "${{ needs.create_release.outputs.tag_name }}",
-                "target_env": "${{ github.base_ref == 'master' && 'prod' || 'stage' }}",
-                "auth0_sync" : ${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }},
-                "run_smoke_test" : true
-              } 
-
-
+    uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Trigger-Workflow.yml@main    
+    with:
+      repository: ${{ github.base_ref == 'master' && 'nabarun-ngo/ngo-nabarun-prodops' || 'nabarun-ngo/ngo-nabarun-ops' }}
+      event_type: Trigger-Deploy-Sync-Test
+      input_json: |-
+          {
+            "be_deploy": true ,
+            "be_tag_name": "${{ needs.create_release.outputs.tag_name }}",
+            "target_env": "${{ github.base_ref == 'master' && 'prod' || 'stage' }}",
+            "auth0_sync" : ${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }},
+            "run_smoke_test" : true
+          } 
