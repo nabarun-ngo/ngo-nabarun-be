@@ -9,13 +9,13 @@ on:
         description: 'Pull Request Number'
         required: true
         type: string
-
-permissions:
-  contents: write
-  pull-requests: write
       
 jobs:
   update-description:
+    permissions:
+      contents: write
+      pull-requests: write
+    name: Update Pull Request
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Update-PR-Description.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number || inputs.pr_number }}
