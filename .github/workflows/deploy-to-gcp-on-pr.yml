@@ -34,7 +34,7 @@ jobs:
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Trigger-Workflow.yml@main    
     with:
       repository: ${{ github.base_ref == 'master' && 'nabarun-ngo/ngo-nabarun-prodops' || 'nabarun-ngo/ngo-nabarun-ops' }}
-      event_type: Trigger-Deploy-Sync-Test
+      event_type: Trigger-DeployBE-Sync-Test
       input_json: |-
           {
             "be_deploy": true ,
