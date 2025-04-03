@@ -9,5 +9,6 @@ jobs:
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Update-PR-Description.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number }}
+      repository: 'nabarun-ngo/ngo-nabarun-be'
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.GITHUB_TOKEN }}
