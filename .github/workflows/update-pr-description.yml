@@ -1,0 +1,13 @@
+name: Trigger PR Description Update
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  update-description:
+    uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Update-PR-Description.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
