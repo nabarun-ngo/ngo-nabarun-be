@@ -3,12 +3,18 @@ name: Trigger PR Description Update
 on:
   pull_request:
     types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: true
+        type: number
 
 jobs:
   update-description:
     uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Update-PR-Description.yml@main
     with:
-      pr_number: ${{ github.event.pull_request.number }}
+      pr_number: ${{ github.event.pull_request.number || inputs.pr_number }}
       repository: 'nabarun-ngo/ngo-nabarun-be'
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
