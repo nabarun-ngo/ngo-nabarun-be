@@ -1,5 +1,6 @@
 package ngo.nabarun.app.businesslogic.implementation;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -90,6 +91,15 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 		for (ServiceDetail trigger : triggerDetail) {
 			JobDTO job = new JobDTO(triggerId, trigger.getName().name());
 			try {
+				if(trigger.getParameters().containsKey("day_of_month_to_skip")) {
+					List<Integer> days = List.of(trigger.getParameters().get("day_of_month_to_skip").split(",")).stream().map(m->Integer.parseInt(m)).collect(Collectors.toList());
+					Calendar cal = Calendar.getInstance();
+					int dom = cal.get(Calendar.DAY_OF_MONTH);
+					if(days.contains(dom)) {
+						continue;
+					}
+				}
+				
 				commonDO.startJob(job, trigger);
 				processJobs(trigger, job);
 			} catch (Exception e) {
