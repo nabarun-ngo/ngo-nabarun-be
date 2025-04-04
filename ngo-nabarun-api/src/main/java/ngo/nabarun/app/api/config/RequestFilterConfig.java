@@ -1,8 +1,7 @@
 package ngo.nabarun.app.api.config;
 
 import java.io.IOException;
-
-
+import java.util.UUID;
 
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
@@ -27,6 +26,9 @@ public class RequestFilterConfig implements Filter {
         String corrId=httpRequest.getHeader(CORRELATION_ID);
 		if (corrId == null) {
         	corrId = request.getParameter(CORRELATION_ID);
+        }
+		if (corrId == null) {
+        	corrId = UUID.randomUUID().toString();
         }
         MDC.put("CorrelationId", corrId);
         chain.doFilter(request, response); 
