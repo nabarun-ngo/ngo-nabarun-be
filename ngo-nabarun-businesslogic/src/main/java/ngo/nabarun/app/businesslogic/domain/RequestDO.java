@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
@@ -163,9 +164,11 @@ public class RequestDO extends CommonDO {
 		} else if (createRequest.isDelegated()) {
 			workflow.setDelegated(true);
 			workflow.setRequester(createRequest.getRequester());
+			// TODO Check if this can be reduced
 			UserDTO tokenUser = userInfraService.getUser(creatorUserId, IdType.AUTH_USER_ID, false);
 			workflow.setDelegatedRequester(tokenUser);
 		} else if (!createRequest.isSystemGenerated()) {
+			// TODO Check if this can be reduced
 			UserDTO tokenUser = userInfraService.getUser(creatorUserId, IdType.AUTH_USER_ID, false);
 			workflow.setRequester(tokenUser);
 		}
@@ -175,44 +178,66 @@ public class RequestDO extends CommonDO {
 		}
 		workflow.setId(generateWorkflowId());
 		workflow = workflowInfraService.createRequest(workflow);
-		WorkDTO workItem = businessDomainHelper.prepareWorkList(workflow.getType(), workflow.getStatus(), null);
-		/*
-		 * Update dash board count
-		 */
-		if (workflow.getRequester() != null && workflow.getRequester().getUserId() != null) {
-			String requesterUserId = workflow.getRequester().getUserId();
-			updateAndSendDashboardCounts(requesterUserId, data -> {
-				Map<String, String> map = new HashMap<>();
-				RequestDTOFilter filterDTO = new RequestDTOFilter();
-				filterDTO.setRequesterUserId(requesterUserId);
-				filterDTO.setResolved(false);
-				Page<RequestDTO> page = workflowInfraService.getRequests(null, null, filterDTO);
-				map.put(BusinessConstants.attr_DB_requestCount, String.valueOf(page.getNumberOfElements()));
-				return map;
-			});
+
+		createTasksForRequest(createRequest, workflow, task);
+		return workflow;
+	}
+
+	@Async
+	public void createTasksForRequest(RequestDTO createRequest, RequestDTO workflow,
+			ActionFunction<WorkAction, RequestDTO, RequestDTO> task) throws Exception {
+		JobDTO job = new JobDTO(workflow.getId(), "Create Tasks for Request");
+		startJob(job, Map.of("createRequest", createRequest, "workflow", workflow, "task", task));
+		try {
+			job.log("Preparing draft WorkList from business helper");
+			WorkDTO workItem = businessDomainHelper.prepareWorkList(workflow.getType(), workflow.getStatus(), null);
+			job.log("Draft workItem = " + CommonUtils.toJSONString(workItem, false));
+			/*
+			 * Update dash board count
+			 */
+			if (workflow.getRequester() != null && workflow.getRequester().getUserId() != null) {
+				String requesterUserId = workflow.getRequester().getUserId();
+				job.log("Sending Updates to " + requesterUserId);
+				updateAndSendDashboardCounts(requesterUserId, data -> {
+					Map<String, String> map = new HashMap<>();
+					RequestDTOFilter filterDTO = new RequestDTOFilter();
+					filterDTO.setRequesterUserId(requesterUserId);
+					filterDTO.setResolved(false);
+					Page<RequestDTO> page = workflowInfraService.getRequests(null, null, filterDTO);
+					map.put(BusinessConstants.attr_DB_requestCount, String.valueOf(page.getNumberOfElements()));
+					return map;
+				});
+			}
+			job.log("Creating workitem ...");
+			workItem = createWorkItem(job, workflow, workItem, task);
+			job.log("Workitem created...");
+			if (!createRequest.isSystemGenerated()) {
+				job.log("Sending Email....");
+
+				/**
+				 * Sending email to requester and delegated requester
+				 */
+				List<CorrespondentDTO> corrDTO = new ArrayList<>();
+				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
+						.email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
+				Map<String, Object> workflow_vars = workflow.toMap(businessDomainHelper.getDomainKeyValues());
+				if (workflow.isDelegated()) {
+					corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
+							.email(workflow.getDelegatedRequester().getEmail())
+							.name(workflow.getDelegatedRequester().getName()).build());
+					sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
+							Map.of("request", workflow_vars), workflow.getId(), null);
+				} else {
+					sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,
+							Map.of("request", workflow_vars), workflow.getId(), null);
+				}
+			}
+		} catch (Exception e) {
+			job.setError(e);
+		} finally {
+			endJob(job, null);
 		}
 
-		workItem = createWorkItem(workflow, workItem, task);
-		if (!createRequest.isSystemGenerated()) {
-			/**
-			 * Sending email to requester and delegated requester
-			 */
-			List<CorrespondentDTO> corrDTO = new ArrayList<>();
-			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
-					.email(workflow.getRequester().getEmail()).name(workflow.getRequester().getName()).build());
-			Map<String, Object> workflow_vars = workflow.toMap(businessDomainHelper.getDomainKeyValues());
-			if (workflow.isDelegated()) {
-				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
-						.email(workflow.getDelegatedRequester().getEmail())
-						.name(workflow.getDelegatedRequester().getName()).build());
-				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION_DELEGATED, corrDTO,
-						Map.of("request", workflow_vars), workflow.getId(), null);
-			} else {
-				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CREATION, corrDTO,
-						Map.of("request", workflow_vars), workflow.getId(), null);
-			}
-		}
-		return workflow;
 	}
 
 	/**
@@ -309,9 +334,10 @@ public class RequestDO extends CommonDO {
 		return worklist;
 	}
 
-	public WorkDTO createWorkItem(RequestDTO workflow, WorkDTO workItem,
+	public WorkDTO createWorkItem(JobDTO job, RequestDTO workflow, WorkDTO workItem,
 			ActionFunction<WorkAction, RequestDTO, RequestDTO> task) throws Exception {
 		// System.err.println("Final Step1 = "+workItem.isFinalStep());
+		job.log("Retrieveing Additional field DTO");
 		List<FieldDTO> fieldList = businessDomainHelper
 				.findAddtlFieldDTOList("WORKITEM-" + workItem.getWorkSourceStatus());
 		workItem.setAdditionalFields(fieldList);
@@ -337,6 +363,7 @@ public class RequestDO extends CommonDO {
 		if (workItem.getWorkType() != WorkType.NA) {
 			workItem.setId(generateWorkId());
 			workItem = workflowInfraService.createWorkItem(workItem);
+			job.log("Created workitem " + CommonUtils.toJSONString(workItem, false));
 			/**
 			 * Update Dashboard count
 			 */
@@ -377,6 +404,7 @@ public class RequestDO extends CommonDO {
 	 * @param id
 	 * @param request
 	 * @param loggedInUserId
+	 * @return 
 	 * @return
 	 * @throws Exception
 	 * @Note Check Vaid Access >>
@@ -415,8 +443,6 @@ public class RequestDO extends CommonDO {
 			businessDomainHelper.throwBusinessExceptionIf(() -> insufficientScope, ExceptionEvent.INSUFFICIENT_ACCESS);
 		}
 
-		RequestDTO workflowDTO = workflowInfraService.getRequest(currentWorkDTO.getWorkSourceId());
-
 		/**
 		 * We are setting additional fields and preparing based on which next step will
 		 * be derived but we will not mark this step as completed We will mark this step
@@ -438,6 +464,7 @@ public class RequestDO extends CommonDO {
 		}
 		currWorkDTOUpdate.setDecisionDate(CommonUtils.getSystemDate());
 		currWorkDTOUpdate.setDecisionMakerRoleGroup(decisionGroup);
+		// TODO check if this can be replaced
 		UserDTO tokenUser = userInfraService.getUser(loggedInUserId, IdType.AUTH_USER_ID, false);
 		currWorkDTOUpdate.setDecisionMaker(tokenUser);
 
@@ -461,81 +488,101 @@ public class RequestDO extends CommonDO {
 						.filter(f -> f.getFieldKey() == AdditionalFieldKey.remarks).findFirst();
 		remarks = remarksField.isEmpty() ? null : remarksField.get().getFieldValue();
 
-		/**
-		 * Deriving next step based on current work decision and prepare and create next
-		 * work after completing current actions once the next work is created we will
-		 * update the current work as complete
-		 */
-		RequestStatus nextStatus = businessDomainHelper.getWorkflowNextStatus(currentWorkDTO.getWorkSourceStatus(),
-				currentWorkDTO.getWorkSourceType(), decisionOrConfirmation);
+		createTasksAndUpdateCurrTask(currentWorkDTO, task, currWorkDTOUpdate, decisionOrConfirmation, decisionGroup,
+				remarks);
+		return currentWorkDTO;
+	}
 
-		WorkDTO nextWorkDTO = businessDomainHelper.prepareWorkList(currentWorkDTO.getWorkSourceType(), nextStatus,
-				decisionGroup);
-		nextWorkDTO = createWorkItem(workflowDTO, nextWorkDTO, task);
+	@Async
+	public void createTasksAndUpdateCurrTask(WorkDTO currentWorkDTO,
+			ActionFunction<WorkAction, RequestDTO, RequestDTO> task, WorkDTO currWorkDTOUpdate,
+			String decisionOrConfirmation, String decisionGroup, String remarks) throws Exception {
+		JobDTO job = new JobDTO(currentWorkDTO.getWorkSourceRefId(), "createTasksAndUpdateCurrTask");
+		try {
+			startJob(job, null);
 
-		/**
-		 * Now Next step/task has been successfully created We will mark current work as
-		 * completed we will send notification to requester and delegated requester
-		 * Regarding work update
-		 */
-		currWorkDTOUpdate.setStepCompleted(true);
-		currWorkDTOUpdate = workflowInfraService.updateWorkItem(currentWorkDTO.getId(), currWorkDTOUpdate);
-		/**
-		 * Update Dashboard count
-		 */
-		if (currWorkDTOUpdate.getPendingWithUsers() != null) {
-			for (UserDTO pendingUser : currWorkDTOUpdate.getPendingWithUsers()) {
-				updateAndSendDashboardCounts(pendingUser.getUserId(), data -> {
-					Map<String, String> map = new HashMap<>();
-					WorkDTOFilter filterDTO = new WorkDTOFilter();
-					filterDTO.setPendingWithUserId(pendingUser.getUserId());
-					filterDTO.setStepCompleted(false);
-					Page<WorkDTO> page = workflowInfraService.getWorkItems(null, null, filterDTO);
-					map.put(BusinessConstants.attr_DB_workCount, String.valueOf(page.getNumberOfElements()));
-					return map;
-				});
+			RequestDTO workflowDTO = workflowInfraService.getRequest(currentWorkDTO.getWorkSourceId());
+
+			/**
+			 * Deriving next step based on current work decision and prepare and create next
+			 * work after completing current actions once the next work is created we will
+			 * update the current work as complete
+			 */
+			RequestStatus nextStatus = businessDomainHelper.getWorkflowNextStatus(currentWorkDTO.getWorkSourceStatus(),
+					currentWorkDTO.getWorkSourceType(), decisionOrConfirmation);
+
+			WorkDTO nextWorkDTO = businessDomainHelper.prepareWorkList(currentWorkDTO.getWorkSourceType(), nextStatus,
+					decisionGroup);
+			nextWorkDTO = createWorkItem(new JobDTO(), workflowDTO, nextWorkDTO, task);
+
+			/**
+			 * Now Next step/task has been successfully created We will mark current work as
+			 * completed we will send notification to requester and delegated requester
+			 * Regarding work update
+			 */
+			currWorkDTOUpdate.setStepCompleted(true);
+			currWorkDTOUpdate = workflowInfraService.updateWorkItem(currentWorkDTO.getId(), currWorkDTOUpdate);
+			/**
+			 * Update Dashboard count
+			 */
+			if (currWorkDTOUpdate.getPendingWithUsers() != null) {
+				for (UserDTO pendingUser : currWorkDTOUpdate.getPendingWithUsers()) {
+					updateAndSendDashboardCounts(pendingUser.getUserId(), data -> {
+						Map<String, String> map = new HashMap<>();
+						WorkDTOFilter filterDTO = new WorkDTOFilter();
+						filterDTO.setPendingWithUserId(pendingUser.getUserId());
+						filterDTO.setStepCompleted(false);
+						Page<WorkDTO> page = workflowInfraService.getWorkItems(null, null, filterDTO);
+						map.put(BusinessConstants.attr_DB_workCount, String.valueOf(page.getNumberOfElements()));
+						return map;
+					});
+				}
 			}
-		}
 
-		List<UserDTO> notifyUser = new ArrayList<>();
-		notifyUser.add(workflowDTO.getRequester());
-		if (workflowDTO.isDelegated()) {
-			notifyUser.add(workflowDTO.getDelegatedRequester());
-		}
-		sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CLOSURE, Map.of("work", currWorkDTOUpdate),
-				notifyUser);
-
-		/**
-		 * Next task is created based on current task and current task is marked
-		 * completed Now Updating the workflow with next work details
-		 */
-		workflowDTO.setStatus(nextStatus);
-		workflowDTO.setRemarks(remarks);
-		if (nextWorkDTO.isFinalStep()) {
-			workflowDTO.setResolvedOn(CommonUtils.getSystemDate());
-		}
-		workflowDTO = workflowInfraService.updateRequest(currentWorkDTO.getWorkSourceId(), workflowDTO);
-
-		/**
-		 * After updating the workflow If next work step is final step and if current
-		 * action is performed Then send 'REQUEST_CLOSURE' email to REQUESTER as no
-		 * further action to be done on this workflow re
-		 */
-		if (!workflowDTO.isSystemGenerated() && nextWorkDTO.getActionPerformed() && nextWorkDTO.isFinalStep()) {
-			List<CorrespondentDTO> corrDTO = new ArrayList<>();
-			corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
-					.email(workflowDTO.getRequester().getEmail()).name(workflowDTO.getRequester().getName()).build());
+			List<UserDTO> notifyUser = new ArrayList<>();
+			notifyUser.add(workflowDTO.getRequester());
 			if (workflowDTO.isDelegated()) {
-				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
-						.email(workflowDTO.getDelegatedRequester().getEmail())
-						.name(workflowDTO.getDelegatedRequester().getName()).build());
+				notifyUser.add(workflowDTO.getDelegatedRequester());
 			}
-			Map<String, Object> work_flow_vars = workflowDTO.toMap(businessDomainHelper.getDomainKeyValues());
-			sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO,
-					Map.of("request", work_flow_vars), workflowDTO.getId(), null);
+			sendNotification(BusinessConstants.NOTIFICATION__ON_WORK_CLOSURE, Map.of("work", currWorkDTOUpdate),
+					notifyUser);
 
+			/**
+			 * Next task is created based on current task and current task is marked
+			 * completed Now Updating the workflow with next work details
+			 */
+			workflowDTO.setStatus(nextStatus);
+			workflowDTO.setRemarks(remarks);
+			if (nextWorkDTO.isFinalStep()) {
+				workflowDTO.setResolvedOn(CommonUtils.getSystemDate());
+			}
+			workflowDTO = workflowInfraService.updateRequest(currentWorkDTO.getWorkSourceId(), workflowDTO);
+
+			/**
+			 * After updating the workflow If next work step is final step and if current
+			 * action is performed Then send 'REQUEST_CLOSURE' email to REQUESTER as no
+			 * further action to be done on this workflow re
+			 */
+			if (!workflowDTO.isSystemGenerated() && nextWorkDTO.getActionPerformed() && nextWorkDTO.isFinalStep()) {
+				List<CorrespondentDTO> corrDTO = new ArrayList<>();
+				corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
+						.email(workflowDTO.getRequester().getEmail()).name(workflowDTO.getRequester().getName())
+						.build());
+				if (workflowDTO.isDelegated()) {
+					corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC)
+							.email(workflowDTO.getDelegatedRequester().getEmail())
+							.name(workflowDTO.getDelegatedRequester().getName()).build());
+				}
+				Map<String, Object> work_flow_vars = workflowDTO.toMap(businessDomainHelper.getDomainKeyValues());
+				sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_REQUEST_CLOSURE, corrDTO,
+						Map.of("request", work_flow_vars), workflowDTO.getId(), null);
+
+			}
+		} catch (Exception e) {
+			job.setError(e);
+		} finally {
+			endJob(job, null);
 		}
-		return nextWorkDTO;
 	}
 
 	public void sendTaskReminderEmail(JobDTO job) throws Exception {
@@ -551,12 +598,13 @@ public class RequestDO extends CommonDO {
 						.map(user -> new AbstractMap.SimpleEntry<>(user, work))) // Create pairs of UserDTO and WorkDTO
 				.collect(Collectors.groupingBy(Map.Entry::getKey,
 						Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
-		job.log("[INFO] Retrieved "+groupedByPendingWithUsers.entrySet().size()+"  groupd open tasks by assignee");
+		job.log("[INFO] Retrieved " + groupedByPendingWithUsers.entrySet().size() + "  groupd open tasks by assignee");
 
 		for (Entry<UserDTO, List<WorkDTO>> workitem : groupedByPendingWithUsers.entrySet()) {
-			UserDTO assignee =workitem.getKey();
-			List<WorkDTO> workList=workitem.getValue();
-			job.log("[INFO] ------ Found "+workList.size()+" open tasks for user "+assignee.getName()+"("+assignee.getProfileId()+") ----");
+			UserDTO assignee = workitem.getKey();
+			List<WorkDTO> workList = workitem.getValue();
+			job.log("[INFO] ------ Found " + workList.size() + " open tasks for user " + assignee.getName() + "("
+					+ assignee.getProfileId() + ") ----");
 
 			List<Map<String, Object>> task_vars = workList.stream().map(m -> {
 				try {
@@ -566,7 +614,7 @@ public class RequestDO extends CommonDO {
 					return null;
 				}
 			}).collect(Collectors.toList());
-			job.log("[INFO] Sending email to "+assignee.getName()+"("+assignee.getProfileId()+").");
+			job.log("[INFO] Sending email to " + assignee.getName() + "(" + assignee.getProfileId() + ").");
 			CorrespondentDTO recipient = CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
 					.email(assignee.getEmail()).name(assignee.getName()).build();
 			Map<String, Object> user_vars = workitem.getKey().toMap(businessDomainHelper.getDomainKeyValues());
