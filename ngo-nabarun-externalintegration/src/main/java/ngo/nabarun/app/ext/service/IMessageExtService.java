@@ -11,6 +11,8 @@ import ngo.nabarun.app.ext.exception.ThirdPartyException;
 public interface IMessageExtService {
 
 	List<String> sendMessage(String title, String body, String imageUrl, List<String> tokens, Map<String, String> data) throws ThirdPartyException;
+
+	String saveItemInRealtimeDB(String url, Object data) throws ThirdPartyException;
 	
 
 }

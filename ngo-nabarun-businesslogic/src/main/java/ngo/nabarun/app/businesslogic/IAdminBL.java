@@ -24,7 +24,7 @@ public interface IAdminBL {
 	List<ApiKeyDetail> getApiKeys();
 
 	List<KeyValue> getApiKeyScopes() throws Exception;
-	void triggerJob(String triggerId,List<ServiceDetail> triggerDetail);
+	void triggerJob(String triggerId,List<ServiceDetail> triggerDetail) throws Exception;
 	Paginate<JobDetail> getJobList(Integer pageIndex, Integer pageSize, JobDetailFilter filter);
 
 }

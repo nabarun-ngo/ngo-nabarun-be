@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,26 +34,33 @@ public class JobInfraServiceImpl implements IJobsInfraService{
 	@Override
 	public JobDTO createOrUpdateJob(JobDTO jobDTO) throws Exception {
 		
-		JobEntity jobEntity;
-		if(jobDTO.getId() != null) {
-			jobEntity = jobsRepo.findById(jobDTO.getId()).orElseThrow();
-		}else {
-			jobEntity = new JobEntity();
+		JobEntity jobEntity = jobDTO.getId() != null ? jobsRepo.findById(jobDTO.getId()).orElseThrow() : new JobEntity();
+		if(jobDTO.getId() == null) {
 			jobEntity.setId(UUID.randomUUID().toString());
 			jobEntity.setCreatedOn(CommonUtils.getSystemDate());
-			jobEntity.setName(jobDTO.getName());
-			jobEntity.setInput(CommonUtils.getObjectMapper().writeValueAsString(jobDTO.getInput()));
-			jobEntity.setMemoryAtStart(jobDTO.getMemoryAtStart());
-			jobEntity.setStart(jobDTO.getStart());
 			jobEntity.setTriggerId(jobDTO.getTriggerId());
 		}
-		jobEntity.setStatus(jobDTO.getStatus() == null ? null : jobDTO.getStatus().name());
-		jobEntity.setEnd(jobDTO.getEnd());
-		if(jobDTO.getOutput() != null) {
-			jobEntity.setOutput(CommonUtils.getObjectMapper().writeValueAsString(jobDTO.getOutput()));
+		JobEntity jobEntityUpdate = new JobEntity();
+		jobEntityUpdate.setName(jobDTO.getName());
+		if(jobDTO.getInput() != null) {
+			jobEntityUpdate.setInput(CommonUtils.getObjectMapper().writeValueAsString(jobDTO.getInput()));
 		}
-		jobEntity.setLog(InfraFieldHelper.stringListToString(jobDTO.getLogs()));
-		jobEntity.setMemoryAtEnd(jobDTO.getMemoryAtEnd());
+		jobEntityUpdate.setMemoryAtStart(jobDTO.getMemoryAtStart());
+		jobEntityUpdate.setStart(jobDTO.getStartAt());
+		jobEntityUpdate.setStatus(jobDTO.getStatus() == null ? null : jobDTO.getStatus().name());
+		jobEntityUpdate.setEnd(jobDTO.getEndAt());
+		if(jobDTO.getOutput() != null) {
+			jobEntityUpdate.setOutput(CommonUtils.getObjectMapper().writeValueAsString(jobDTO.getOutput()));
+		}
+		jobEntityUpdate.setLog(InfraFieldHelper.stringListToString(jobDTO.getLogs()));
+		jobEntityUpdate.setMemoryAtEnd(jobDTO.getMemoryAtEnd());
+		if(jobDTO.getError() != null) {
+			jobEntityUpdate.setErrorCause(ExceptionUtils.getRootCauseMessage(jobDTO.getError()));
+			jobEntityUpdate.setErrorMessage(ExceptionUtils.getMessage(jobDTO.getError()));
+			jobEntityUpdate.setStackTrace(ExceptionUtils.getStackTrace(jobDTO.getError()));
+		}
+		CommonUtils.copyNonNullProperties(jobEntityUpdate, jobEntity);
+
 		jobEntity = jobsRepo.save(jobEntity);
 		return InfraDTOHelper.convertToJobDTO(jobEntity);
 	}

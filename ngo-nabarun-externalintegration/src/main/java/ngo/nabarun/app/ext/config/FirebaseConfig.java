@@ -25,6 +25,7 @@ public class FirebaseConfig {
 			String jsonCredential=propertyHelper.getFirebaseCredential();
 			options = FirebaseOptions.builder()
 					.setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(jsonCredential.getBytes())))
+					.setDatabaseUrl(propertyHelper.getFirebaseDBUrl())
 					.build();
 	        if(FirebaseApp.getApps().isEmpty()) {
 		        return FirebaseApp.initializeApp(options);

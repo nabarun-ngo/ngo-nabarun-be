@@ -817,11 +817,8 @@ public class InfraDTOHelper {
 	public static JobDTO convertToJobDTO(JobEntity jobEntity) {
 		JobDTO jobDTO= new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
 		
-		if(jobEntity.getEnd() != null && jobEntity.getStart() != null) {
-			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());	
-		}
-		
-		jobDTO.setEnd(jobEntity.getEnd());
+		jobDTO.setStartAt(jobEntity.getCreatedOn());
+		jobDTO.setEndAt(jobEntity.getEnd());
 		jobDTO.setId(jobEntity.getId());
 		jobDTO.setInput(jobEntity.getInput());
 		jobDTO.setLogs(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
@@ -831,8 +828,10 @@ public class InfraDTOHelper {
 			jobDTO.setOutput(jobEntity.getOutput());
 		}
 		
-		jobDTO.setStart(jobEntity.getStart());
+		jobDTO.setStartAt(jobEntity.getStart());
 		jobDTO.setStatus(JobStatus.valueOf(jobEntity.getStatus()));
+		
+		jobDTO.setErrorLog("Message : "+jobEntity.getErrorMessage() +"\nCause : "+jobEntity.getErrorCause()+"\nStacktrace : \n"+jobEntity.getStackTrace());		
 		return jobDTO;
 	}
 

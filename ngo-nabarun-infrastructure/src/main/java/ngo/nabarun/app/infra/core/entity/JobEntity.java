@@ -24,5 +24,10 @@ public class JobEntity {
 	private String triggerId;
 	private String memoryAtStart;
 	private String memoryAtEnd;
+	private int retryCount;
+	private String errorMessage;
+	private String errorCause;
+	private String stackTrace;
+
 	
 }

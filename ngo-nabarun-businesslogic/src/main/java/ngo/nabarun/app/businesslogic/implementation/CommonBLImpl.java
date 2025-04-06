@@ -148,7 +148,7 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 		switch (action.toUpperCase()) {
 		case "SAVE_TOKEN_AND_GET_COUNTS":
 			commonDO.saveNotificationToken(user.getUserId(), payload.get("token").toString());
-			commonDO.sendDashboardCounts(user.getUserId());
+			//commonDO.sendDashboardCounts(user.getUserId());
 			break;
 		case "DELETE_TOKEN":
 			commonDO.removeNotificationToken(user.getUserId(), payload.get("token").toString());

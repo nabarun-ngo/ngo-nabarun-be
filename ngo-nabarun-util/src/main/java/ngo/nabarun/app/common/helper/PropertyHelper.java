@@ -120,6 +120,10 @@ public class PropertyHelper {
 	private String firebaseCredential;
 	
 	@Getter
+	@Value("${FIREBASE_DATABASE_URL}")
+	private String firebaseDBUrl;
+	
+	@Getter
 	@Value("${AUTH0_BASE_URL:'NO_VALUE'}")
 	private String auth0BaseURL;
 
@@ -182,5 +186,5 @@ public class PropertyHelper {
 	@Getter
 	@Value("${GITHUB_DICUSSION_ID}")
 	private String githubDiscussionId;
-
+	
 }
