@@ -17,7 +17,6 @@ public interface ISocialEventBL {
 	EventDetail createSocialEvent(EventDetail eventDetail) throws Exception;
 	EventDetail updateSocialEvent(String id,EventDetail updatedEventDetail) throws Exception;
 	List<DocumentDetail> getSocialEventDocs(String id);
-	EventDetail getDraftedEvent();
 	void deleteEvent(String id);
 
 }

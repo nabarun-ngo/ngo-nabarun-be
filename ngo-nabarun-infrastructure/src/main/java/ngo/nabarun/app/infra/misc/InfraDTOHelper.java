@@ -415,7 +415,10 @@ public class InfraDTOHelper {
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setBudget(event.getEventBudget());
 		eventDTO.setCoverPic(event.getCoverPicture());
-		eventDTO.setCreatorId(event.getCreatedBy());
+		UserDTO createdBy = new UserDTO();
+		createdBy.setProfileId(event.getCreatedById());
+		createdBy.setName(event.getCreatedByName());
+		eventDTO.setCreator(createdBy);
 		eventDTO.setDescription(event.getDescription());
 		eventDTO.setDraft(event.getDraft());
 		eventDTO.setEventDate(event.getEventDate());
@@ -423,6 +426,7 @@ public class InfraDTOHelper {
 		eventDTO.setLocation(event.getEventLocation());
 		eventDTO.setTitle(event.getTitle());
 		eventDTO.setType(EventType.valueOf(event.getEventState()));
+		eventDTO.setTotalExpense(event.getEventExpense());
 		return eventDTO;
 	}
 
