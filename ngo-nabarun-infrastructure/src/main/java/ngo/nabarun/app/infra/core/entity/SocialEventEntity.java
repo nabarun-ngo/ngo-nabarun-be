@@ -1,8 +1,6 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -40,15 +38,16 @@ public class SocialEventEntity {
 	
 	private String coverPicture;
 	
-	@CreatedBy
-	private String createdBy;
-	
-	@CreatedDate
+	private String createdById;
+	private String createdByName;
+
 	private Date createdOn;
 	
 	private Boolean draft;
 	
 	private Double eventBudget;
+	private Double eventExpense;
+
 	
 	private boolean deleted;
 	

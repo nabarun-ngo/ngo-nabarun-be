@@ -1,14 +1,14 @@
 package ngo.nabarun.app.infra.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.infra.dto.EventDTO;
+import ngo.nabarun.app.infra.dto.EventDTO.EventDTOFilter;
 
 @Service
 public interface IEventInfraService {
-	List<EventDTO> getEventList(Integer index,Integer size,EventDTO filter);
+	Page<EventDTO> getEventList(Integer index,Integer size,EventDTOFilter filter);
 	EventDTO createEvent(EventDTO eventDTO) throws Exception;
 	EventDTO getEvent(String id);
 	void deleteEvent(String id);

@@ -2,16 +2,10 @@ package ngo.nabarun.app.infra.dto;
 
 import java.util.Date;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import ngo.nabarun.app.common.enums.EventType;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class EventDTO {
 	private String id;
 	private String title;
@@ -24,5 +18,15 @@ public class EventDTO {
 	private EventType type;
 	private boolean draft;
 	private Double budget;
-	private String creatorId;
+	private Double totalExpense;
+	private UserDTO creator;
+	
+	@Data
+	public static class EventDTOFilter{
+		private String id;
+		private String title;
+		private Date fromDate;
+		private Date toDate;
+		private String location;
+	}
 }

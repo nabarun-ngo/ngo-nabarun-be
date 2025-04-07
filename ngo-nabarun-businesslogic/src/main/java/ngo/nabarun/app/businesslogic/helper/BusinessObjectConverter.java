@@ -30,6 +30,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserSocialMedia;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserRole;
 import ngo.nabarun.app.infra.dto.AccountDTO;
@@ -272,7 +273,10 @@ public class BusinessObjectConverter {
 	public static EventDetail toEventDetail(EventDTO eventDTO) {
 		EventDetail eventDetail = new EventDetail();
 		eventDetail.setCoverPicture(eventDTO.getCoverPic());
-		eventDetail.setCreatorName(eventDTO.getCreatorId());
+		UserDetail createdBy = new UserDetail();
+		createdBy.setId(eventDTO.getCreator() == null ? null : eventDTO.getCreator().getProfileId());
+		createdBy.setFullName(eventDTO.getCreator() == null ? null : eventDTO.getCreator().getName());
+		eventDetail.setCreatedBy(createdBy);
 		eventDetail.setDraft(eventDTO.isDraft());
 		eventDetail.setEventBudget(eventDTO.getBudget());
 		eventDetail.setEventDate(eventDTO.getEventDate());
@@ -281,7 +285,7 @@ public class BusinessObjectConverter {
 		eventDetail.setEventType(eventDTO.getType());
 		eventDetail.setId(eventDTO.getId());
 		eventDetail.setTitle(eventDTO.getTitle());
-		eventDetail.setTotalExpenditure(null);
+		eventDetail.setTotalExpenditure(eventDTO.getTotalExpense());
 		return eventDetail;
 	}
 
@@ -480,6 +484,14 @@ public class BusinessObjectConverter {
 		requesterDTO.setUserId(requester == null ? null : requester.getUserId());
 		requesterDTO.setImageUrl(requester == null ? null : requester.getPicture());
 
+		return requesterDTO;
+	}
+	
+	public static UserDTO toUserDTO(AuthenticatedUser authUser) {
+		UserDTO requesterDTO = new UserDTO();
+		requesterDTO.setProfileId(authUser == null ? null : authUser.getId());
+		requesterDTO.setName(authUser == null ? null : authUser.getName());
+		requesterDTO.setUserId(authUser == null ? null : authUser.getUserId());
 		return requesterDTO;
 	}
 
