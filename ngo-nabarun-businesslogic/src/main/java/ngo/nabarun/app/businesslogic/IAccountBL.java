@@ -6,7 +6,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail.TransactionDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
@@ -22,9 +21,11 @@ public interface IAccountBL {
 	Paginate<AccountDetail> getMyAccounts(Integer pageIndex, Integer pageSize, AccountDetailFilter filter) throws Exception;
 	TransactionDetail createTransaction(TransactionDetail txnDetail) throws Exception;
 	AccountDetail updateMyAccount(String id, AccountDetail accountDetail) throws Exception;
-	ExpenseDetail createExpenseGroup(ExpenseDetail expense) throws Exception;
+	ExpenseDetail createExpense(ExpenseDetail expense) throws Exception;
 	Paginate<ExpenseDetail> getExpenseList(Integer index, Integer size,ExpenseDetailFilter filter);
-	ExpenseDetail updateExpenseGroup(String id,ExpenseDetail expense) throws Exception;
-	ExpenseItemDetail createExpenseItem(String id,ExpenseItemDetail expenseItem) throws Exception;
+	ExpenseDetail updateExpense(String id,ExpenseDetail expense) throws Exception;
+	ExpenseDetail finalizeExpense(String id, ExpenseDetail expenseDetail) throws Exception;
+	ExpenseDetail settleExpense(String id, ExpenseDetail expenseDetail) throws Exception;
+	Paginate<ExpenseDetail> getMyExpenseList(Integer index, Integer size, ExpenseDetailFilter filter);
 
 }

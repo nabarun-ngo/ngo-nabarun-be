@@ -40,6 +40,7 @@ public class Authority {
 	public static final String CREATE_EXPENSE = "hasAuthority('SCOPE_create:expense')";
 	public static final String UPDATE_EXPENSE = "hasAuthority('SCOPE_update:expense')";
 	public static final String CREATE_EXPENSE_FINAL = "hasAuthority('SCOPE_create:expense_final')";
+	public static final String CREATE_EXPENSE_SETTLE =  "hasAuthority('SCOPE_create:expense_settle')";
 
 	public static final String READ_APIKEY = "hasAuthority('SCOPE_read:apikey')";
 	public static final String CREATE_APIKEY = "hasAuthority('SCOPE_create:apikey')";

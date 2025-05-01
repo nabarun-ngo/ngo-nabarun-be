@@ -562,24 +562,33 @@ public class BusinessObjectConverter {
 	}
 
 	public static ExpenseDetail toExpenseDetail(ExpenseDTO expenseDTO) {
-		ExpenseDetail expenseDetail = new ExpenseDetail();
-		expenseDetail.setFinalized(expenseDTO.isFinalized());
-		expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(), null));
-		expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(), null));
-		expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
-		expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
-		expenseDetail.setDescription(expenseDTO.getDescription());
-		
-		expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream().map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
-		expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
-		expenseDetail.setId(expenseDTO.getId());
-		expenseDetail.setName(expenseDTO.getName());
-		
-		expenseDetail.setAccount(toAccountDetail(expenseDTO.getAccount()));
-		expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
-		expenseDetail.setStatus(expenseDTO.getStatus());
-
+        ExpenseDetail expenseDetail = new ExpenseDetail();
+        expenseDetail.setId(expenseDTO.getId());
+        expenseDetail.setName(expenseDTO.getName());
+        expenseDetail.setDescription(expenseDTO.getDescription());
+        expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
+        expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(),null));
+        expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
+        expenseDetail.setAdmin(expenseDTO.isAdmin());
+        expenseDetail.setDeligated(expenseDTO.isDeligated());
+        expenseDetail.setPaidBy(toUserDetail(expenseDTO.getPaidBy(),null));
+        expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(),null));
+        expenseDetail.setStatus(expenseDTO.getStatus());
+        expenseDetail.setFinalizedOn(expenseDTO.getFinalizedOn());
+        expenseDetail.setSettledBy(toUserDetail(expenseDTO.getSettledBy(),null));
+        expenseDetail.setSettledOn(expenseDTO.getSettledOn());
+        if(expenseDTO.getExpenseItems() != null) {
+            expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream().map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
+        }
+        expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
+        expenseDetail.setExpenseRefType(expenseDTO.getExpenseRefType());
+        expenseDetail.setExpenseRefId(expenseDTO.getExpenseRefId());
+        expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
+        if(expenseDTO.getSettlementAccount() != null) {
+            expenseDetail.setSettlementAccount(toAccountDetail(expenseDTO.getSettlementAccount()));
+        }
 		return expenseDetail;
+
 	}
 
 	public static ExpenseItemDetail toExpenseItemDetail(ExpenseItemDTO itemDTO) {
@@ -588,8 +597,6 @@ public class BusinessObjectConverter {
 		itemDetail.setDescription(itemDTO.getDescription());
 		itemDetail.setId(itemDTO.getId());
 		itemDetail.setItemName(itemDTO.getItemName());
-		//expenseDetail.setExpenseAccount(toAccountDetail(expenseDTO.getExpenseAccount()));
-
 		return itemDetail;
 		
 	}

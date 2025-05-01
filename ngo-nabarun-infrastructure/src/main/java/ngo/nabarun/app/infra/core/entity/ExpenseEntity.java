@@ -1,13 +1,8 @@
 package ngo.nabarun.app.infra.core.entity;
 
 import java.util.Date;
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
-
 import lombok.Data;
 
 /**
@@ -20,33 +15,48 @@ public class ExpenseEntity {
 
 	@Id
 	private String id;
-	private String expenseRefId;
-	private String expenseRefType;
 	private String expenseTitle;
 	private String expenseDescription;
-	private Double expenseAmount;
 	private Date expenseDate;
+	
 	private Date expenseCreatedOn;
-	private Date finalizedOn;
-	private boolean deleted;
-	private boolean finalized;
-	private String finalizedById;
-	private String finalizedByUserId;
-	private String finalizedByName;
-
 	private String createdById;
 	private String createdByUserId;
 	private String createdByName;
 	
+	private boolean deligated;
+	private boolean admin;
+	
+	private String paidById;
+	private String paidByUserId;
+	private String paidByName;
+	
+	private Date updatedOn;
+	private String updatedById;
+	private String updatedByUserId;
+	private String updatedByName;
+	
+	private Date finalizedOn;
+	private String finalizedById;
+	private String finalizedByUserId;
+	private String finalizedByName;
+	
+	private String status;
+	private Date settledOn;
+	private String settledById;
+	private String settledByUserId;
+	private String settledByName;
+	
+	private String expenseItems;
+	private Double expenseAmount;
+
+	private String expenseRefId;
+	private String expenseRefType;
+
 	private String expenseAccountId;
 	private String expenseAccountName;
 	
 	private String transactionRefNumber;
-	private String expenseStatus;
-
-	
-	@ReadOnlyProperty
-	@DocumentReference(lookup = "{'expenseId':?#{#self._id} }")
-	private List<ExpenseItemEntity> expenses;
+	private boolean deleted;
 	
 }

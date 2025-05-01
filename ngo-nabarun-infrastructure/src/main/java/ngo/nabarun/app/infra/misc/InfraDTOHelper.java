@@ -741,80 +741,85 @@ public class InfraDTOHelper {
 		return apiKeyDTO;
 	}
 
-	public static ExpenseDTO convertToExpenseDTO(ExpenseEntity expense) {
-		ExpenseDTO expenseDTO = new ExpenseDTO();
-		expenseDTO.setFinalized(expense.isFinalized());
-		expenseDTO.setFinalizedOn(expense.getFinalizedOn());
-		UserDTO finalizedBy = new UserDTO();
-		finalizedBy.setProfileId(expense.getFinalizedById());
-		finalizedBy.setUserId(expense.getFinalizedByUserId());
-		finalizedBy.setName(expense.getFinalizedByName());
-		expenseDTO.setFinalizedBy(finalizedBy);
+	public static ExpenseDTO convertToExpenseDTO(ExpenseEntity entity) {
+		 ExpenseDTO dto = new ExpenseDTO();
+	        dto.setId(entity.getId());
+	        dto.setName(entity.getExpenseTitle());
+	        dto.setDescription(entity.getExpenseDescription());
+	        dto.setExpenseDate(entity.getExpenseDate());
+	        dto.setCreatedOn(entity.getExpenseCreatedOn());
+	        dto.setAdmin(entity.isAdmin());
+	        dto.setDeligated(entity.isDeligated());
+	        dto.setStatus(entity.getStatus() == null? null : ExpenseStatus.valueOf(entity.getStatus()));
+	        dto.setFinalizedOn(entity.getFinalizedOn());
+	        dto.setSettledOn(entity.getSettledOn());
+	        dto.setFinalAmount(entity.getExpenseAmount());
+	        dto.setExpenseRefId(entity.getExpenseRefId());
+	        dto.setTxnNumber(entity.getTransactionRefNumber());
+	        dto.setExpenseRefType(entity.getExpenseRefType() != null ?ExpenseRefType.valueOf(entity.getExpenseRefType()) : null);
 
-		UserDTO createdBy = new UserDTO();
-		createdBy.setProfileId(expense.getCreatedById());
-		createdBy.setUserId(expense.getCreatedByUserId());
-		createdBy.setName(expense.getCreatedByName());
-		expenseDTO.setCreatedBy(createdBy);
+	        // Map nested objects
+	        if (entity.getCreatedById() != null) {
+	            UserDTO createdBy = new UserDTO();
+	            createdBy.setProfileId(entity.getCreatedById());
+	            createdBy.setUserId(entity.getCreatedByUserId());
+	            createdBy.setName(entity.getCreatedByName());
+	            dto.setCreatedBy(createdBy);
+	        }
 
-		expenseDTO.setCreatedOn(expense.getExpenseCreatedOn());
-		expenseDTO.setDescription(expense.getExpenseDescription());
-		
-		List<ExpenseItemDTO> expItems = new ArrayList<>();
-		if (expense.getExpenses() != null) {
-			for (ExpenseItemEntity exp : expense.getExpenses()) {
-				expItems.add(convertToExpenseItemDTO(exp));
-			}
+	        if (entity.getPaidById() != null) {
+	            UserDTO paidBy = new UserDTO();
+	            paidBy.setProfileId(entity.getPaidById());
+	            paidBy.setUserId(entity.getPaidByUserId());
+	            paidBy.setName(entity.getPaidByName());
+	            dto.setPaidBy(paidBy);
+	        }
+
+	        if (entity.getUpdatedById() != null) {
+	            UserDTO updatedBy = new UserDTO();
+	            updatedBy.setProfileId(entity.getUpdatedById());
+	            updatedBy.setUserId(entity.getUpdatedByUserId());
+	            updatedBy.setName(entity.getUpdatedByName());
+	            dto.setUpdatedBy(updatedBy);
+	        }
+
+	        if (entity.getFinalizedById() != null) {
+	            UserDTO finalizedBy = new UserDTO();
+	            finalizedBy.setProfileId(entity.getFinalizedById());
+	            finalizedBy.setUserId(entity.getFinalizedByUserId());
+	            finalizedBy.setName(entity.getFinalizedByName());
+	            dto.setFinalizedBy(finalizedBy);
+	        }
+
+	        if (entity.getSettledById() != null) {
+	            UserDTO settledBy = new UserDTO();
+	            settledBy.setProfileId(entity.getSettledById());
+	            settledBy.setUserId(entity.getSettledByUserId());
+	            settledBy.setName(entity.getSettledByName());
+	            dto.setSettledBy(settledBy);
+	        }
+
+	        if (entity.getExpenseAccountId() != null) {
+	            AccountDTO settlementAccount = new AccountDTO();
+	            settlementAccount.setId(entity.getExpenseAccountId());
+	            settlementAccount.setAccountName(entity.getExpenseAccountName());
+	            dto.setSettlementAccount(settlementAccount);
+	        }
+
+		if(entity.getExpenseItems() != null) {
+			ExpenseItemDTO[] expenses=CommonUtils.jsonToPojo(entity.getExpenseItems(), ExpenseItemDTO[].class);
+			dto.setExpenseItems(List.of(expenses));
 		}
-		expenseDTO.setExpenseItems(expItems);
-		expenseDTO.setFinalAmount(expense.getExpenseAmount());
-		expenseDTO.setId(expense.getId());
-		expenseDTO.setName(expense.getExpenseTitle());
-		expenseDTO.setRefId(expense.getExpenseRefId());
-		expenseDTO.setRefType(
-				expense.getExpenseRefType() == null ? null : ExpenseRefType.valueOf(expense.getExpenseRefType()));
 		
-		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setId(expense.getExpenseAccountId());
-		accountDTO.setAccountName(expense.getExpenseAccountName());
-		expenseDTO.setAccount(accountDTO);
-		
-		expenseDTO.setTxnNumber(expense.getTransactionRefNumber());
-		expenseDTO.setStatus(ExpenseStatus.valueOf(expense.getExpenseStatus()));
-		expenseDTO.setExpenseDate(expense.getExpenseDate());
-
-		return expenseDTO;
+		return dto;
 	}
 
 	public static ExpenseItemDTO convertToExpenseItemDTO(ExpenseItemEntity expenseItem) {
 		ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
 		expenseItemDTO.setId(expenseItem.getId());
-		expenseItemDTO.setCreatedOn(expenseItem.getCreatedOn());
 		expenseItemDTO.setAmount(expenseItem.getExpenseAmount());	
-		expenseItemDTO.setDate(expenseItem.getExpenseDate());
 		expenseItemDTO.setDescription(expenseItem.getExpenseDescription());
-		expenseItemDTO.setStatus(ExpenseStatus.valueOf(expenseItem.getExpenseStatus()));
 		expenseItemDTO.setItemName(expenseItem.getExpenseTitle());
-		expenseItemDTO.setTxnNumber(expenseItem.getTransactionRefNumber());
-		
-		UserDTO confirmedBy = new UserDTO();
-		confirmedBy.setProfileId(expenseItem.getPaymentConfirmedById());
-		confirmedBy.setUserId(expenseItem.getPaymentConfirmedByName());
-		confirmedBy.setName(expenseItem.getPaymentConfirmedByUserId());
-		expenseItemDTO.setConfirmedBy(confirmedBy);
-		
-		UserDTO createdBy = new UserDTO();
-		createdBy.setProfileId(expenseItem.getCreatedById());
-		createdBy.setUserId(expenseItem.getCreatedByName());
-		createdBy.setName(expenseItem.getCreatedByUserId());
-		expenseItemDTO.setCreatedBy(createdBy);
-		
-		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setId(expenseItem.getExpenseAccountId());
-		accountDTO.setAccountName(expenseItem.getExpenseAccountName());
-		expenseItemDTO.setAccount(accountDTO);
-		
-
 		return expenseItemDTO;
 	}
 

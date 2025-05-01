@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
@@ -31,7 +30,6 @@ import ngo.nabarun.app.common.enums.TransactionStatus;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
-import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.BankDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
@@ -372,137 +370,111 @@ public class AccountDO extends CommonDO {
 
 	}
 
-	public ExpenseDTO createExpense(ExpenseDetail expense) throws Exception {
+	public ExpenseDTO createExpense(ExpenseDetail expenseDetail) throws Exception {
 		ExpenseDTO expenseDTO = new ExpenseDTO();
-		expenseDTO.setDescription(expense.getDescription());
-		expenseDTO.setName(expense.getName());
-		expenseDTO.setRefType(expense.getExpenseRefType());
-		expenseDTO.setRefId(expense.getExpenseRefId());
-		expenseDTO.setExpenseDate(expense.getExpenseDate());
-		
-		AuthenticatedUser auth_user = SecurityUtils.getAuthUser();
-		UserDTO loggedInUser = new UserDTO();
-		loggedInUser.setName(auth_user.getName());
-		loggedInUser.setProfileId(auth_user.getId());
-		loggedInUser.setUserId(auth_user.getUserId());
-		expenseDTO.setCreatedBy(loggedInUser);
-		expenseDTO.setStatus(ExpenseStatus.SUBMITTED);
-//		AccountDTO accountDTO = accountInfraService
-//				.getAccountDetails(expense.getAccount().getId());
-//		expenseDTO.setAccount(accountDTO);
-		expenseDTO.setId(generateExpenseId());
+		expenseDTO.setName(expenseDetail.getName());
+		expenseDTO.setDescription(expenseDetail.getDescription());
+		expenseDTO.setExpenseDate(expenseDetail.getExpenseDate());
+		expenseDTO.setCreatedOn(CommonUtils.getSystemDate());
+		expenseDTO.setAdmin(expenseDetail.isAdmin());
+		expenseDTO.setDeligated(expenseDetail.isDeligated());
+		expenseDTO.setStatus(expenseDetail.getStatus() == null ? ExpenseStatus.DRAFT : expenseDetail.getStatus());
 
-		expenseDTO= accountInfraService.addOrUpdateExpense(expenseDTO);
-		if(expense.getExpenseItems() != null) {
-			for(ExpenseItemDetail expenseItem:expense.getExpenseItems()) {
-				ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
-				expenseItemDTO.setAmount(expenseItem.getAmount());
-				expenseItemDTO.setCreatedBy(loggedInUser);
-				expenseItemDTO.setCreatedOn(CommonUtils.getSystemDate());
-				expenseItemDTO.setDescription(expenseItem.getDescription());
-				expenseItemDTO.setItemName(expenseItem.getItemName());
-			}
+		if(expenseDetail.isDeligated()) {
+			expenseDTO.setCreatedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+			expenseDTO.setPaidBy(BusinessObjectConverter.toUserDTO(expenseDetail.getPaidBy()));
+		}else {
+			expenseDTO.setCreatedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+			expenseDTO.setPaidBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
 		}
+		expenseDTO.setExpenseRefType(expenseDetail.getExpenseRefType());
+		expenseDTO.setExpenseRefId(expenseDetail.getExpenseRefId());
+		
+		updateExpenseItems(expenseDetail,expenseDTO);
+		expenseDTO.setId(generateExpenseId());
+		expenseDTO = accountInfraService.addOrUpdateExpense(expenseDTO);
 		return expenseDTO;
 	}
 
-	public Paginate<ExpenseDTO> getExpenses(Integer index, Integer size, ExpenseDetailFilter filter) {
-		ExpenseDTOFilter expenseDTOFilter = new ExpenseDTOFilter();
+	public Paginate<ExpenseDTO> getExpenses(Integer index, Integer size, ExpenseDTOFilter expenseDTOFilter) {
 		Page<ExpenseDTO> expensePage = accountInfraService.getExpenses(index, size, expenseDTOFilter);
 		return new Paginate<ExpenseDTO>(expensePage);
 	}
 
-	public ExpenseDTO updateExpense(String id, ExpenseDetail expense) throws Exception {
-		ExpenseDTO expenseDetail = accountInfraService.getExpense(id);
-		if (expenseDetail.isFinalized()) {
-			throw new BusinessException("No updates allowed on Final expense.");
-		}
-		ExpenseDTO expenseDTO = new ExpenseDTO();
-		expenseDTO.setId(expenseDetail.getId());
-		expenseDTO.setName(expense.getName());
-		expenseDTO.setDescription(expense.getDescription());
-
-		AuthenticatedUser auth_user = SecurityUtils.getAuthUser();
-		UserDTO loggedInUser = new UserDTO();
-		loggedInUser.setName(auth_user.getName());
-		loggedInUser.setProfileId(auth_user.getId());
-		loggedInUser.setUserId(auth_user.getUserId());
-
-		expenseDTO.setFinalized(expense.isFinalized());
-		if (expense.isFinalized()) {
-			expenseDTO.setFinalizedBy(loggedInUser);
-		}
-
-		if (expense.getExpenseItems() != null) {
-			expenseDTO.setExpenseItems(new ArrayList<>());
-			for (ExpenseItemDetail expenseItem : expense.getExpenseItems()) {
-				ExpenseItemDTO expenseItemDTOC = expenseDetail.getExpenseItems().stream()
-						.filter(f -> f.getId().equals(expenseItem.getId())).findFirst().orElse(null);
-
-				if (expenseItemDTOC != null && expenseItemDTOC.getStatus() != ExpenseStatus.PAID) {
-					ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
-					AccountDTO accountDTO = accountInfraService
-							.getAccountDetails(expenseItem.getExpenseAccount().getId());
-					expenseItemDTO.setAccount(accountDTO);
-
-					expenseItemDTO.setAmount(expenseItem.getAmount());
-					expenseItemDTO.setConfirmedBy(loggedInUser);
-					expenseItemDTO.setDescription(expenseItem.getDescription());
-					expenseItemDTO.setItemName(expenseItem.getItemName());
-					expenseItemDTO.setRemove(expenseItem.isRemove());
-					expenseItemDTO.setStatus(expenseItem.getStatus());
-
-					if (expenseItem.getStatus() == ExpenseStatus.PAID) {
-						TransactionDTO newTxn = new TransactionDTO();
-						newTxn.setTxnAmount(expenseItem.getAmount());
-						newTxn.setTxnDate(CommonUtils.getSystemDate());
-						newTxn.setTxnRefId(expenseDetail.getId());
-						newTxn.setTxnRefType(TransactionRefType.EXPENSE);
-						newTxn.setTxnStatus(TransactionStatus.SUCCESS);
-						newTxn.setTxnType(TransactionType.OUT);
-						newTxn.setFromAccount(expenseItemDTO.getAccount());
-						newTxn.setCreatedBy(loggedInUser);
-						newTxn.setTxnDescription("Txn Expense : " + expenseDetail.getName() + "("
-								+ expenseDetail.getId() + ") for item " + expenseItem.getItemName());
-						newTxn.setComment("Amount PAID.");
-						newTxn = createTransaction(newTxn, loggedInUser);
-						expenseItemDTO.setTxnNumber(newTxn.getId());
-						Double lastAmount = expenseDetail.getFinalAmount() == null ? 0.0
-								: expenseDetail.getFinalAmount();
-						expenseDTO.setFinalAmount(lastAmount + newTxn.getTxnAmount());
-					}
-					expenseItemDTO = accountInfraService.addOrUpdateExpenseItem(expenseDetail.getId(), expenseItemDTO);
-					expenseDTO.getExpenseItems().add(expenseItemDTO);
+	public ExpenseDTO updateExpense(String id, ExpenseDetail expense,String action) throws Exception {
+		ExpenseDTO expenseDTO = accountInfraService.getExpense(id);
+		switch (action) {	
+		 	case "update":
+				if (expenseDTO.getStatus() == ExpenseStatus.FINALIZED) {
+					throw new BusinessException("No updates allowed on Final expense.");
 				}
-			}
+				expenseDTO.setName(expense.getName());
+				expenseDTO.setDescription(expense.getDescription());
+				expenseDTO.setExpenseDate(expense.getExpenseDate());
+				expenseDTO.setUpdatedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+				expenseDTO.setUpdatedOn(CommonUtils.getSystemDate());
+				expenseDTO.setPaidBy(BusinessObjectConverter.toUserDTO(expense.getPaidBy()));
+				updateExpenseItems(expense,expenseDTO);
+				if(expense.getStatus() == ExpenseStatus.SUBMITTED || expense.getStatus() == ExpenseStatus.REJECTED) {
+					expenseDTO.setStatus(expense.getStatus());
+				}
+				break;
+			case "finalize":
+				if (expenseDTO.getStatus() == ExpenseStatus.FINALIZED) {
+					throw new BusinessException("Expense is already finalized.");
+				}
+				if (expenseDTO.getStatus() != ExpenseStatus.SUBMITTED) {
+					throw new BusinessException("Expense must be submitted before finalized.");
+				}
+				expenseDTO.setFinalizedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+				expenseDTO.setStatus(ExpenseStatus.FINALIZED);
+				expenseDTO.setFinalizedOn(CommonUtils.getSystemDate());
+				break;
+			case "settle":
+				if (expenseDTO.getStatus() == ExpenseStatus.SETTLED) {
+					throw new BusinessException("Expense is already settled.");
+				}
+				expenseDTO.setSettledBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+				expenseDTO.setStatus(ExpenseStatus.SETTLED);
+				expenseDTO.setSettledOn(CommonUtils.getSystemDate());
+				//Create Transaction
+				TransactionDTO newTxn = new TransactionDTO();
+				newTxn.setTxnAmount(expenseDTO.getFinalAmount());
+				newTxn.setTxnDate(CommonUtils.getSystemDate());
+				newTxn.setTxnRefId(expenseDTO.getId());
+				newTxn.setTxnRefType(TransactionRefType.EXPENSE);
+				newTxn.setTxnStatus(TransactionStatus.SUCCESS);
+				newTxn.setTxnType(TransactionType.OUT);
+				AccountDTO settlementAccount = new AccountDTO();
+				settlementAccount.setId(expenseDTO.getSettlementAccount().getId());
+				settlementAccount.setAccountName(expenseDTO.getSettlementAccount().getAccountName());
+				newTxn.setToAccount(settlementAccount);
+				newTxn.setCreatedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+				newTxn.setTxnDescription("Txn Expense : " + expenseDTO.getName() + "("
+						+ expenseDTO.getId() + ")");
+				newTxn.setComment("Amount PAID.");
+				newTxn = createTransaction(newTxn, BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+				expenseDTO.setTxnNumber(newTxn.getId());
+				break;
+			default:
+				break;	
 		}
 		ExpenseDTO updatedExpense = accountInfraService.addOrUpdateExpense(expenseDTO);
-		updatedExpense.setExpenseItems(expenseDTO.getExpenseItems());
 		return updatedExpense;
 	}
 
-	public ExpenseItemDTO createExpenseItem(String id, ExpenseItemDetail expenseItem) throws Exception {
-		ExpenseDTO expenseDetail = accountInfraService.getExpense(id);
-		if (expenseDetail.isFinalized()) {
-			throw new BusinessException("No expense item can be added on Final expense.");
+	private void updateExpenseItems(ExpenseDetail expenseDetail,ExpenseDTO expenseDTO) {
+		if (expenseDetail.getExpenseItems() != null) {
+			List<ExpenseItemDTO> expenseItemListDTO = new ArrayList<>();
+			for (ExpenseItemDetail expenseItem : expenseDetail.getExpenseItems()) {
+				ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
+				expenseItemDTO.setAmount(expenseItem.getAmount());
+				expenseItemDTO.setDescription(expenseItem.getDescription());
+				expenseItemDTO.setItemName(expenseItem.getItemName());
+				expenseItemListDTO.add(expenseItemDTO);
+			}
+			expenseDTO.setExpenseItems(expenseItemListDTO);
 		}
-		ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
-		expenseItemDTO.setAmount(expenseItem.getAmount());
-		AuthenticatedUser auth_user = SecurityUtils.getAuthUser();
-		UserDTO loggedInUser = new UserDTO();
-		loggedInUser.setName(auth_user.getName());
-		loggedInUser.setProfileId(auth_user.getId());
-		loggedInUser.setUserId(auth_user.getUserId());
-		expenseItemDTO.setCreatedBy(loggedInUser);
-		
-		expenseItemDTO.setCreatedOn(CommonUtils.getSystemDate());
-		expenseItemDTO.setDate(expenseItem.getExpenseDate());
-		expenseItemDTO.setDescription(expenseItem.getDescription());
-		expenseItemDTO.setItemName(expenseItem.getItemName());
-
-		//expenseItemDTO.setId(id);
-		expenseItemDTO.setStatus(ExpenseStatus.SUBMITTED);
-		return accountInfraService.addOrUpdateExpenseItem(expenseDetail.getId(), expenseItemDTO);
 	}
 
 }

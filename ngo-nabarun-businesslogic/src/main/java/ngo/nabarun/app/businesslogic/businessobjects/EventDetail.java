@@ -59,6 +59,9 @@ public class EventDetail {
 		
 		@JsonProperty("toDate")
 		private Date toDate;
+		
+		@JsonProperty("completed")
+		private Boolean completed;
 	}
 	
 	

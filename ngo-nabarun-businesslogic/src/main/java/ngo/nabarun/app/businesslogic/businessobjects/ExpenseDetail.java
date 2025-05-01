@@ -28,21 +28,41 @@ public class ExpenseDetail implements Serializable{
 	@JsonProperty("description")
 	private String description;
 	
-	@JsonProperty("createdBy")
-	private UserDetail createdBy;
-	
 	@JsonProperty("expenseDate")
 	private Date expenseDate;
 	
+	@JsonProperty("createdBy")
+	private UserDetail createdBy;
+
 	@JsonProperty("createdOn")
 	private Date createdOn;
 	
+	@JsonProperty("isAdmin")
+	private boolean admin;
+	
+	@JsonProperty("isDeligated")
+	private boolean deligated;
+	
+	@JsonProperty("paidBy")
+	private UserDetail paidBy;
+	
+	//Finalize
 	@JsonProperty("finalizedBy")
 	private UserDetail finalizedBy;
 	
-	@JsonProperty("finalized")
-	private boolean finalized;
+	@JsonProperty("status")
+	private ExpenseStatus status;
 	
+	@JsonProperty("finalizedOn")
+	private Date finalizedOn;
+	
+	//Settlement
+	@JsonProperty("settledBy")
+	private UserDetail settledBy;
+	
+	@JsonProperty("settledOn")
+	private Date settledOn;
+
 	@JsonProperty("expenseItems")
 	private List<ExpenseItemDetail> expenseItems;
 	
@@ -55,17 +75,11 @@ public class ExpenseDetail implements Serializable{
 	@JsonProperty("expenseRefId")
 	private String expenseRefId;
 	
-	@JsonProperty("status")
-	private ExpenseStatus status;
-	
 	@JsonProperty("txnNumber")
 	private String txnNumber;
 	
-	@JsonProperty("account")
-	private AccountDetail account;
-	
-//	@JsonProperty("expenseItem")
-//	private ExpenseItemDetail expenseItem;
+	@JsonProperty("settlementAccount")
+	private AccountDetail settlementAccount;
 	
 	@Data
 	public static class ExpenseDetailFilter {
@@ -77,7 +91,11 @@ public class ExpenseDetail implements Serializable{
 		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		@JsonProperty("endDate")
 		private Date endDate;
+		
+		@JsonProperty("expenseRefId")
+		private String expenseRefId;
 	}
+	
 	@Data
 	public static class ExpenseItemDetail {
 		@JsonProperty("id")
@@ -89,23 +107,8 @@ public class ExpenseDetail implements Serializable{
 		@JsonProperty("description")
 		private String description;
 		
-		@JsonProperty("expenseDate")
-		private Date expenseDate;
-		
 		@JsonProperty("amount")
 		private Double amount;
 		
-		@JsonProperty("expenseAccount")
-		private AccountDetail expenseAccount;
-		
-		@JsonProperty("remove")
-		private boolean remove;
-		
-		@JsonProperty("status")
-		private ExpenseStatus status;
-
 	}
-
-
-	
 }

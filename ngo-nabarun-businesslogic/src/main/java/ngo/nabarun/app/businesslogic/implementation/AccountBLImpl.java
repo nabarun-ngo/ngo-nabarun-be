@@ -8,7 +8,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail.TransactionDetailFilter;
@@ -19,7 +18,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
-import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
+import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseDTOFilter;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 
 @Service
@@ -89,27 +88,42 @@ public class AccountBLImpl implements IAccountBL {
 	}
 
 	@Override
-	public ExpenseDetail createExpenseGroup(ExpenseDetail expense) throws Exception {
+	public ExpenseDetail createExpense(ExpenseDetail expense) throws Exception {
 		ExpenseDTO expenseDTO = accountDO.createExpense(expense);
 		return BusinessObjectConverter.toExpenseDetail(expenseDTO);
 	}
 
 	@Override
 	public Paginate<ExpenseDetail> getExpenseList(Integer index, Integer size, ExpenseDetailFilter filter) {
-		Paginate<ExpenseDTO> expenseDTOs=accountDO.getExpenses(index, size, filter);
+		ExpenseDTOFilter filterDTO = new ExpenseDTOFilter();
+		Paginate<ExpenseDTO> expenseDTOs=accountDO.getExpenses(index, size, filterDTO);
+		return expenseDTOs.map(BusinessObjectConverter::toExpenseDetail);
+	}
+	
+	@Override
+	public Paginate<ExpenseDetail> getMyExpenseList(Integer index, Integer size, ExpenseDetailFilter filter) {
+		ExpenseDTOFilter filterDTO = new ExpenseDTOFilter();
+		filterDTO.setPayerId(SecurityUtils.getAuthUser().getId());
+		Paginate<ExpenseDTO> expenseDTOs=accountDO.getExpenses(index, size, filterDTO);
 		return expenseDTOs.map(BusinessObjectConverter::toExpenseDetail);
 	}
 
 	@Override
-	public ExpenseDetail updateExpenseGroup(String id, ExpenseDetail expense) throws Exception {
-		ExpenseDTO expenseDTO = accountDO.updateExpense(id,expense);
+	public ExpenseDetail updateExpense(String id, ExpenseDetail expense) throws Exception {
+		ExpenseDTO expenseDTO = accountDO.updateExpense(id,expense,"update");
 		return BusinessObjectConverter.toExpenseDetail(expenseDTO);
 	}
 
 	@Override
-	public ExpenseItemDetail createExpenseItem(String id,ExpenseItemDetail expenseItem) throws Exception {
-		ExpenseItemDTO expenseItemDTO = accountDO.createExpenseItem(id,expenseItem);
-		return BusinessObjectConverter.toExpenseItemDetail(expenseItemDTO);
+	public ExpenseDetail finalizeExpense(String id,ExpenseDetail expenseDetail) throws Exception {
+		ExpenseDTO expenseDTO = accountDO.updateExpense(id,expenseDetail,"finalize");
+		return BusinessObjectConverter.toExpenseDetail(expenseDTO);
+	}
+	
+	@Override
+	public ExpenseDetail settleExpense(String id,ExpenseDetail expenseDetail) throws Exception {
+		ExpenseDTO expenseDTO = accountDO.updateExpense(id,expenseDetail,"settle");
+		return BusinessObjectConverter.toExpenseDetail(expenseDTO);
 	}
 
 }
