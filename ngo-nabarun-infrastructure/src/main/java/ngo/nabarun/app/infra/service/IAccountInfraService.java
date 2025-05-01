@@ -7,7 +7,6 @@ import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.AccountDTO.AccountDTOFilter;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseDTOFilter;
-import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 
 @Service
 public interface IAccountInfraService {
@@ -17,8 +16,8 @@ public interface IAccountInfraService {
 	AccountDTO createAccount(AccountDTO accountDTO);
 	AccountDTO updateAccount(String id, AccountDTO accountUpdate);
 	void deleteAccount(String id);
-	ExpenseDTO addOrUpdateExpense(ExpenseDTO expenseDTO);
+	ExpenseDTO addOrUpdateExpense(ExpenseDTO expenseDTO) throws Exception;
 	Page<ExpenseDTO> getExpenses(Integer index, Integer size, ExpenseDTOFilter expenseDTOFilter);
 	ExpenseDTO getExpense(String id);
-	ExpenseItemDTO addOrUpdateExpenseItem(String expenseId, ExpenseItemDTO expenseItemDTO);
+	//ExpenseItemDTO addOrUpdateExpenseItem(String expenseId, ExpenseItemDTO expenseItemDTO);
 }

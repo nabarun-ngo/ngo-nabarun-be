@@ -1,6 +1,9 @@
 package ngo.nabarun.app.infra.serviceimpl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.querydsl.core.BooleanBuilder;
-
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.infra.core.entity.QSocialEventEntity;
 import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
@@ -28,7 +30,7 @@ public class EventInfraServiceImpl implements IEventInfraService {
 	private SocialEventRepository eventRepository;
 
 	@Override
-	public Page<EventDTO> getEventList(Integer page ,Integer size,EventDTOFilter filter) {
+	public Page<EventDTO> getEventList(Integer page, Integer size, EventDTOFilter filter) {
 		Page<SocialEventEntity> pageContent = null;
 		Sort sort = Sort.by(Sort.Direction.DESC, "eventDate");
 		if (filter != null) {
@@ -36,6 +38,8 @@ public class EventInfraServiceImpl implements IEventInfraService {
 			/*
 			 * Query building and filter logic
 			 */
+	        Date todayStart = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 			QSocialEventEntity q = QSocialEventEntity.socialEventEntity;
 			BooleanBuilder query = WhereClause.builder()
 					.optionalAnd(filter.getId() != null, () -> q.id.eq(filter.getId()))
@@ -43,6 +47,10 @@ public class EventInfraServiceImpl implements IEventInfraService {
 					.optionalAnd(filter.getLocation() != null, () -> q.eventLocation.contains(filter.getLocation()))
 					.optionalAnd(filter.getToDate() != null && filter.getFromDate() != null,
 							() -> q.eventDate.between(filter.getFromDate(), filter.getToDate()))
+					.optionalAnd(filter.getCompleted() != null && filter.getCompleted() == Boolean.TRUE,
+							() -> q.eventDate.before(todayStart))
+					.optionalAnd(filter.getCompleted() != null && filter.getCompleted() == Boolean.FALSE,
+							() -> q.eventDate.goe(todayStart))
 					.build();
 
 			if (page == null || size == null) {
@@ -111,7 +119,7 @@ public class EventInfraServiceImpl implements IEventInfraService {
 		updated_event.setEventExpense(eventDTO.getTotalExpense());
 
 		CommonUtils.copyNonNullProperties(updated_event, event);
-		
+
 		event = eventRepository.save(event);
 		return InfraDTOHelper.convertToEventDTO(event);
 	}

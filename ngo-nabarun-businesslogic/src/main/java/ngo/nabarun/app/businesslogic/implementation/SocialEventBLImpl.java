@@ -30,6 +30,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 			eventDTOFilter.setId(filter.getId());
 			eventDTOFilter.setFromDate(filter.getFromDate());
 			eventDTOFilter.setToDate(filter.getToDate());
+			eventDTOFilter.setCompleted(filter.getCompleted());
 		}
 		return eventDO.retrieveSocialEvents(page, size, eventDTOFilter).map(BusinessObjectConverter::toEventDetail);
 	}

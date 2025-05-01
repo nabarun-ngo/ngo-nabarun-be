@@ -28,5 +28,6 @@ public class EventDTO {
 		private Date fromDate;
 		private Date toDate;
 		private String location;
+		private Boolean completed;
 	}
 }
