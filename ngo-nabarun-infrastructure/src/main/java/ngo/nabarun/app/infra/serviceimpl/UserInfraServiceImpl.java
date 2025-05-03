@@ -193,7 +193,7 @@ public class UserInfraServiceImpl implements IUserInfraService {
 		profile.setFirstName(newAuth0User.getFirstName());
 		profile.setMiddleName(userDTO.getMiddleName());
 		profile.setLastName(newAuth0User.getLastName());
-		profile.setAvatarUrl(newAuth0User.getPicture() != null ? newAuth0User.getPicture() : userDTO.getImageUrl());
+		//profile.setAvatarUrl(newAuth0User.getPicture() != null ? newAuth0User.getPicture() : userDTO.getImageUrl());
 		profile.setDateOfBirth(userDTO.getDateOfBirth());
 		profile.setGender(userDTO.getGender());
 		profile.setEmail(newAuth0User.getEmail());

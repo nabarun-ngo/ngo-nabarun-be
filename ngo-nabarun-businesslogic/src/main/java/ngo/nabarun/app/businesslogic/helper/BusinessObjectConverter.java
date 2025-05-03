@@ -64,9 +64,7 @@ public class BusinessObjectConverter {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setEmail(userDTO.getEmail());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
-				: (userDetails.getInitials() == null ? null
-						: "https://i0.wp.com/cdn.auth0.com/avatars/" + userDetails.getInitials().toLowerCase()
-								+ ".png?ssl=1"));
+				: "https://ui-avatars.com/api/?name="+userDTO.getFirstName()+"+"+userDTO.getLastName()+"&background=random");
 		String title = userDTO.getTitle() == null ? ""
 				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
 						? domainKeyValue.get(userDTO.getTitle()) + " "
@@ -114,9 +112,7 @@ public class BusinessObjectConverter {
 						: null);
 		userDetails.setMiddleName(userDTO.getMiddleName());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
-				: (userDetails.getInitials() == null ? null
-						: "https://i0.wp.com/cdn.auth0.com/avatars/" + userDetails.getInitials().toLowerCase()
-								+ ".png?ssl=1"));
+				: "https://ui-avatars.com/api/?name="+userDTO.getFirstName()+"+"+userDTO.getLastName()+"&background=random");
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
