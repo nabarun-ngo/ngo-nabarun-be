@@ -18,7 +18,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail.AccountDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseDetailFilter;
-import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail.TransactionDetailFilter;
@@ -119,6 +118,16 @@ public class AccountController {
 				.payload(accountBL.getExpenseList(pageIndex, pageSize, filter)).get(HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Retrieve list of expenses of logged in user")
+	@PreAuthorize(Authority.READ_EXPENSE)
+	@GetMapping("/expense/list/self")
+	public ResponseEntity<SuccessResponse<Paginate<ExpenseDetail>>> getMyExpenses(
+			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
+			ExpenseDetailFilter filter) throws Exception {
+		return new SuccessResponse<Paginate<ExpenseDetail>>()
+				.payload(accountBL.getMyExpenseList(pageIndex, pageSize, filter)).get(HttpStatus.OK);
+	}
+	
 	@Operation(summary = "Create new expense",description = "Authorities : "+Authority.CREATE_EXPENSE+
 			"<br><br>Note: If expense item is supplied then create expense item")
 	@PreAuthorize(Authority.CREATE_EXPENSE)
@@ -126,7 +135,7 @@ public class AccountController {
 	public ResponseEntity<SuccessResponse<ExpenseDetail>> createExpense(@RequestBody ExpenseDetail expense) throws Exception {
 		//
 		return new SuccessResponse<ExpenseDetail>()
-				.payload(accountBL.createExpenseGroup(expense)).get(HttpStatus.OK);
+				.payload(accountBL.createExpense(expense)).get(HttpStatus.OK);
 	}
 	
 	@Operation(summary = "Update details of expense",description = "Authorities : "+Authority.UPDATE_EXPENSE+
@@ -140,16 +149,26 @@ public class AccountController {
 			@RequestBody ExpenseDetail expense) throws Exception {
 		//During expense creation  
 		return new SuccessResponse<ExpenseDetail>()
-				.payload(accountBL.updateExpenseGroup(id,expense)).get(HttpStatus.OK);
+				.payload(accountBL.updateExpense(id,expense)).get(HttpStatus.OK);
 	}
 	
 	@Operation(summary = "Finalize expense",description = "Authorities : "+Authority.CREATE_EXPENSE_FINAL)
 	@PreAuthorize(Authority.CREATE_EXPENSE_FINAL)
 	@PatchMapping("/expense/{id}/finalize")
-	public ResponseEntity<SuccessResponse<ExpenseItemDetail>> finalizeExpense(
+	public ResponseEntity<SuccessResponse<ExpenseDetail>> finalizeExpense(
 			@PathVariable String id,
-			@RequestBody ExpenseItemDetail expenseItem) throws Exception {
-		return new SuccessResponse<ExpenseItemDetail>()
-				.payload(accountBL.createExpenseItem(id,expenseItem)).get(HttpStatus.OK);
+			@RequestBody ExpenseDetail expenseDetails) throws Exception {
+		return new SuccessResponse<ExpenseDetail>()
+				.payload(accountBL.finalizeExpense(id,expenseDetails)).get(HttpStatus.OK);
+	}
+	
+	@Operation(summary = "Settle expense",description = "Authorities : "+Authority.CREATE_EXPENSE_SETTLE)
+	@PreAuthorize(Authority.CREATE_EXPENSE_SETTLE)
+	@PatchMapping("/expense/{id}/settle")
+	public ResponseEntity<SuccessResponse<ExpenseDetail>> settleExpense(
+			@PathVariable String id,
+			@RequestBody ExpenseDetail expenseDetails) throws Exception {
+		return new SuccessResponse<ExpenseDetail>()
+				.payload(accountBL.settleExpense(id,expenseDetails)).get(HttpStatus.OK);
 	}
 }

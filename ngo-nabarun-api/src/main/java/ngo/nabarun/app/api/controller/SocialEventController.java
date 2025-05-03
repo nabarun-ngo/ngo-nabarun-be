@@ -17,8 +17,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.EventDetail.EventDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
-import ngo.nabarun.app.common.util.CommonUtils;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,56 +27,46 @@ import org.springframework.http.ResponseEntity;
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/api/socialevent")
 @SecurityRequirement(name = "nabarun_auth")
-public class EventController {
+public class SocialEventController {
 
 	@Autowired
 	private ISocialEventBL socialEventBL;
 
-	@GetMapping("/getEvents")
+	@GetMapping("/list")
 	public ResponseEntity<SuccessResponse<Paginate<EventDetail>>> getSocialEvents(
 			@RequestParam(required = false) Integer pageIndex, @RequestParam(required = false) Integer pageSize,
-			@RequestParam(required = false) String filter) throws Exception {
-		EventDetailFilter eventFilter = null;
-		if (filter != null) {
-			eventFilter = CommonUtils.jsonToPojo(filter, EventDetailFilter.class);
-		}
+			EventDetailFilter eventFilter) throws Exception {
 		return new SuccessResponse<Paginate<EventDetail>>()
 				.payload(socialEventBL.getSocialEvents(pageIndex, pageSize, eventFilter)).get(HttpStatus.OK);
 	}
-	
-	@GetMapping("/getDraftedEvent")
-	public ResponseEntity<SuccessResponse<EventDetail>> getDraftedEvent() throws Exception {
-		return new SuccessResponse<EventDetail>()
-				.payload(socialEventBL.getDraftedEvent()).get(HttpStatus.OK);
-	}
 
-	@GetMapping("/getEvent/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<EventDetail>> getSocialEvent(@PathVariable String id) throws Exception {
 		return new SuccessResponse<EventDetail>().payload(socialEventBL.getSocialEvent(id)).get(HttpStatus.OK);
 	}
 
-	@PostMapping("/createEvent")
+	@PostMapping("/create")
 	public ResponseEntity<SuccessResponse<EventDetail>> createSocialEvent(@RequestBody EventDetail eventDetail)
 			throws Exception {
 		return new SuccessResponse<EventDetail>().payload(socialEventBL.createSocialEvent(eventDetail))
 				.get(HttpStatus.OK);
 	}
 
-	@PatchMapping("/updateEvent/{id}")
+	@PatchMapping("/{id}/update")
 	public ResponseEntity<SuccessResponse<EventDetail>> updateSocialEvent(@PathVariable String id,
 			@RequestBody EventDetail eventDetail) throws Exception {
 		return new SuccessResponse<EventDetail>().payload(socialEventBL.updateSocialEvent(id, eventDetail))
 				.get(HttpStatus.OK);
 	}
 
-	@GetMapping("/getEventDocuments/{id}")
+	@GetMapping("/{id}/documents")
 	public ResponseEntity<SuccessResponse<List<DocumentDetail>>> getSocialEventDocuments(@PathVariable String id)
 			throws Exception {
 		return new SuccessResponse<List<DocumentDetail>>().payload(socialEventBL.getSocialEventDocs(id))
 				.get(HttpStatus.OK);
 	}
 	
-	@DeleteMapping("/deleteEvent/{id}")
+	@DeleteMapping("/{id}/delete")
 	public ResponseEntity<SuccessResponse<Void>> deleteEvent(@PathVariable String id)
 			throws Exception {
 		socialEventBL.deleteEvent(id);

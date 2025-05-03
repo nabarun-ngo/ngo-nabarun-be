@@ -188,6 +188,14 @@ public class CommonDO {
 		int seq = sequenceInfraService.incrementEntirySequence(seqName);
 		return String.format(pattern, ran, seq);
 	}
+	
+	public String generateEventId() {
+		String seqName = "EVENT_SEQUENCE";
+		String pattern = "NEV%sR%s";
+		String ran = PasswordUtils.generateRandomNumber(3);
+		int seq = sequenceInfraService.incrementEntirySequence(seqName);
+		return String.format(pattern, ran, seq);
+	}
 
 	/**
 	 * Generate and send OTP to user

@@ -30,6 +30,7 @@ import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserSocialMedia;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.common.enums.TransactionType;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.util.SecurityUtils.AuthenticatedUser;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserRole;
 import ngo.nabarun.app.infra.dto.AccountDTO;
@@ -63,9 +64,7 @@ public class BusinessObjectConverter {
 		UserDetail userDetails = new UserDetail();
 		userDetails.setEmail(userDTO.getEmail());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
-				: (userDetails.getInitials() == null ? null
-						: "https://i0.wp.com/cdn.auth0.com/avatars/" + userDetails.getInitials().toLowerCase()
-								+ ".png?ssl=1"));
+				: "https://ui-avatars.com/api/?name="+userDTO.getFirstName()+"+"+userDTO.getLastName()+"&background=random");
 		String title = userDTO.getTitle() == null ? ""
 				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
 						? domainKeyValue.get(userDTO.getTitle()) + " "
@@ -113,9 +112,7 @@ public class BusinessObjectConverter {
 						: null);
 		userDetails.setMiddleName(userDTO.getMiddleName());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
-				: (userDetails.getInitials() == null ? null
-						: "https://i0.wp.com/cdn.auth0.com/avatars/" + userDetails.getInitials().toLowerCase()
-								+ ".png?ssl=1"));
+				: "https://ui-avatars.com/api/?name="+userDTO.getFirstName()+"+"+userDTO.getLastName()+"&background=random");
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
@@ -272,7 +269,10 @@ public class BusinessObjectConverter {
 	public static EventDetail toEventDetail(EventDTO eventDTO) {
 		EventDetail eventDetail = new EventDetail();
 		eventDetail.setCoverPicture(eventDTO.getCoverPic());
-		eventDetail.setCreatorName(eventDTO.getCreatorId());
+		UserDetail createdBy = new UserDetail();
+		createdBy.setId(eventDTO.getCreator() == null ? null : eventDTO.getCreator().getProfileId());
+		createdBy.setFullName(eventDTO.getCreator() == null ? null : eventDTO.getCreator().getName());
+		eventDetail.setCreatedBy(createdBy);
 		eventDetail.setDraft(eventDTO.isDraft());
 		eventDetail.setEventBudget(eventDTO.getBudget());
 		eventDetail.setEventDate(eventDTO.getEventDate());
@@ -281,7 +281,7 @@ public class BusinessObjectConverter {
 		eventDetail.setEventType(eventDTO.getType());
 		eventDetail.setId(eventDTO.getId());
 		eventDetail.setTitle(eventDTO.getTitle());
-		eventDetail.setTotalExpenditure(null);
+		eventDetail.setTotalExpenditure(eventDTO.getTotalExpense());
 		return eventDetail;
 	}
 
@@ -482,6 +482,14 @@ public class BusinessObjectConverter {
 
 		return requesterDTO;
 	}
+	
+	public static UserDTO toUserDTO(AuthenticatedUser authUser) {
+		UserDTO requesterDTO = new UserDTO();
+		requesterDTO.setProfileId(authUser == null ? null : authUser.getId());
+		requesterDTO.setName(authUser == null ? null : authUser.getName());
+		requesterDTO.setUserId(authUser == null ? null : authUser.getUserId());
+		return requesterDTO;
+	}
 
 	public static AddressDTO toAddressDTO(UserAddress m) {
 		AddressDTO address = new AddressDTO();
@@ -550,24 +558,37 @@ public class BusinessObjectConverter {
 	}
 
 	public static ExpenseDetail toExpenseDetail(ExpenseDTO expenseDTO) {
-		ExpenseDetail expenseDetail = new ExpenseDetail();
-		expenseDetail.setFinalized(expenseDTO.isFinalized());
-		expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(), null));
-		expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(), null));
-		expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
-		expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
-		expenseDetail.setDescription(expenseDTO.getDescription());
-		
-		expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream().map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
-		expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
-		expenseDetail.setId(expenseDTO.getId());
-		expenseDetail.setName(expenseDTO.getName());
-		
-		expenseDetail.setAccount(toAccountDetail(expenseDTO.getAccount()));
-		expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
-		expenseDetail.setStatus(expenseDTO.getStatus());
-
+        ExpenseDetail expenseDetail = new ExpenseDetail();
+        expenseDetail.setId(expenseDTO.getId());
+        expenseDetail.setName(expenseDTO.getName());
+        expenseDetail.setDescription(expenseDTO.getDescription());
+        expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
+        expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(),null));
+        expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
+        expenseDetail.setAdmin(expenseDTO.isAdmin());
+        expenseDetail.setDeligated(expenseDTO.isDeligated());
+        expenseDetail.setPaidBy(toUserDetail(expenseDTO.getPaidBy(),null));
+        expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(),null));
+        expenseDetail.setStatus(expenseDTO.getStatus());
+        expenseDetail.setFinalizedOn(expenseDTO.getFinalizedOn());
+        expenseDetail.setSettledBy(toUserDetail(expenseDTO.getSettledBy(),null));
+        expenseDetail.setSettledOn(expenseDTO.getSettledOn());
+        if(expenseDTO.getExpenseItems() != null) {
+            expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream().map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
+        }
+        expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
+        expenseDetail.setExpenseRefType(expenseDTO.getExpenseRefType());
+        expenseDetail.setExpenseRefId(expenseDTO.getExpenseRefId());
+        expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
+        if(expenseDTO.getSettlementAccount() != null) {
+            expenseDetail.setSettlementAccount(toAccountDetail(expenseDTO.getSettlementAccount()));
+        }
+        expenseDetail.setRemarks(expenseDTO.getRemarks());
+        expenseDetail.setRejectedOn(expenseDTO.getRejectedOn());
+        expenseDetail.setRejectedBy(toUserDetail(expenseDTO.getRejectedBy(),null));
+        
 		return expenseDetail;
+
 	}
 
 	public static ExpenseItemDetail toExpenseItemDetail(ExpenseItemDTO itemDTO) {
@@ -576,8 +597,6 @@ public class BusinessObjectConverter {
 		itemDetail.setDescription(itemDTO.getDescription());
 		itemDetail.setId(itemDTO.getId());
 		itemDetail.setItemName(itemDTO.getItemName());
-		//expenseDetail.setExpenseAccount(toAccountDetail(expenseDTO.getExpenseAccount()));
-
 		return itemDetail;
 		
 	}

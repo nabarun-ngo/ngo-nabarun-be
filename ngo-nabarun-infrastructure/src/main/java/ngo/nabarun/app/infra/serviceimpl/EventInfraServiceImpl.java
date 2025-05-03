@@ -1,17 +1,26 @@
 package ngo.nabarun.app.infra.serviceimpl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.querydsl.core.BooleanBuilder;
 import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.infra.core.entity.QSocialEventEntity;
 import ngo.nabarun.app.infra.core.entity.SocialEventEntity;
 import ngo.nabarun.app.infra.core.repo.SocialEventRepository;
 import ngo.nabarun.app.infra.dto.EventDTO;
+import ngo.nabarun.app.infra.dto.EventDTO.EventDTOFilter;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
+import ngo.nabarun.app.infra.misc.WhereClause;
 import ngo.nabarun.app.infra.service.IEventInfraService;
 
 @Service
@@ -21,30 +30,49 @@ public class EventInfraServiceImpl implements IEventInfraService {
 	private SocialEventRepository eventRepository;
 
 	@Override
-	public List<EventDTO> getEventList(Integer page, Integer size, EventDTO filter) {
-		List<SocialEventEntity> events = null;
+	public Page<EventDTO> getEventList(Integer page, Integer size, EventDTOFilter filter) {
+		Page<SocialEventEntity> pageContent = null;
+		Sort sort = Sort.by(Sort.Direction.DESC, "eventDate");
 		if (filter != null) {
-			ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase()
-					.withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-			SocialEventEntity example = new SocialEventEntity();
-			example.setTitle(filter.getTitle());
-			example.setEventState(filter.getType() == null ? null : filter.getType().name());
-			example.setCreatedBy(filter.getCreatorId());
-			example.setDraft(filter.isDraft());
-			events = (page == null || size == null) ? eventRepository.findAll(Example.of(example, matcher))
-					: eventRepository.findAll(Example.of(example, matcher), PageRequest.of(page, size)).getContent();
+
+			/*
+			 * Query building and filter logic
+			 */
+	        Date todayStart = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+			QSocialEventEntity q = QSocialEventEntity.socialEventEntity;
+			BooleanBuilder query = WhereClause.builder()
+					.optionalAnd(filter.getId() != null, () -> q.id.eq(filter.getId()))
+					.optionalAnd(filter.getTitle() != null, () -> q.title.contains(filter.getTitle()))
+					.optionalAnd(filter.getLocation() != null, () -> q.eventLocation.contains(filter.getLocation()))
+					.optionalAnd(filter.getToDate() != null && filter.getFromDate() != null,
+							() -> q.eventDate.between(filter.getFromDate(), filter.getToDate()))
+					.optionalAnd(filter.getCompleted() != null && filter.getCompleted() == Boolean.TRUE,
+							() -> q.eventDate.before(todayStart))
+					.optionalAnd(filter.getCompleted() != null && filter.getCompleted() == Boolean.FALSE,
+							() -> q.eventDate.goe(todayStart))
+					.build();
+
+			if (page == null || size == null) {
+				List<SocialEventEntity> result = new ArrayList<>();
+				eventRepository.findAll(query, sort).iterator().forEachRemaining(result::add);
+				pageContent = new PageImpl<>(result);
+			} else {
+				pageContent = eventRepository.findAll(query, PageRequest.of(page, size, sort));
+			}
 		} else if (page != null && size != null) {
-			events = eventRepository.findAll(PageRequest.of(page, size)).getContent();
+			pageContent = eventRepository.findAll(PageRequest.of(page, size, sort));
 		} else {
-			events = eventRepository.findAll();
+			pageContent = new PageImpl<>(eventRepository.findAll(sort));
 		}
-		return events.stream().map(m -> InfraDTOHelper.convertToEventDTO(m)).toList();
+		return pageContent.map(InfraDTOHelper::convertToEventDTO);
 	}
 
 	@Override
 	public EventDTO createEvent(EventDTO eventDTO) throws Exception {
 		SocialEventEntity event = new SocialEventEntity();
-		event.setCreatedBy(eventDTO.getCreatorId());
+		event.setCreatedById(eventDTO.getCreator().getProfileId());
+		event.setCreatedByName(eventDTO.getCreator().getName());
 		event.setCreatedOn(CommonUtils.getSystemDate());
 		event.setDescription(eventDTO.getDescription());
 		event.setDraft(eventDTO.isDraft());
@@ -54,6 +82,7 @@ public class EventInfraServiceImpl implements IEventInfraService {
 		event.setEventState(eventDTO.getType().name());
 		event.setId(eventDTO.getId());
 		event.setTitle(eventDTO.getTitle());
+		event.setEventExpense(eventDTO.getTotalExpense());
 		event = eventRepository.save(event);
 		return InfraDTOHelper.convertToEventDTO(event);
 	}
@@ -79,7 +108,6 @@ public class EventInfraServiceImpl implements IEventInfraService {
 	public EventDTO updateEvent(String id, EventDTO eventDTO) throws Exception {
 		SocialEventEntity event = eventRepository.findById(id).orElseThrow();
 		SocialEventEntity updated_event = new SocialEventEntity();
-		updated_event.setCreatedBy(eventDTO.getCreatorId());
 		updated_event.setDescription(eventDTO.getDescription());
 		updated_event.setDraft(eventDTO.isDraft());
 		updated_event.setEventBudget(eventDTO.getBudget());
@@ -88,8 +116,10 @@ public class EventInfraServiceImpl implements IEventInfraService {
 		updated_event.setEventState(eventDTO.getType() == null ? null : eventDTO.getType().name());
 		updated_event.setTitle(eventDTO.getTitle());
 		updated_event.setCoverPicture(eventDTO.getCoverPic());
+		updated_event.setEventExpense(eventDTO.getTotalExpense());
+
 		CommonUtils.copyNonNullProperties(updated_event, event);
-		
+
 		event = eventRepository.save(event);
 		return InfraDTOHelper.convertToEventDTO(event);
 	}
