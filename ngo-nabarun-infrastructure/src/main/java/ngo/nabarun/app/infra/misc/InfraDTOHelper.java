@@ -118,10 +118,13 @@ public class InfraDTOHelper {
 
 		userDTO.setUserId(profile == null ? (user == null ? null : user.getUserId()) : profile.getUserId());
 		userDTO.setTitle(profile == null ? null : profile.getTitle());
-		
-		userDTO.setLoginProviders(user == null ? (profile == null ? null
-				: InfraFieldHelper.stringToStringList(profile.getLoginMethods()).stream()
-				.map(m -> LoginMethod.valueOf(m)).collect(Collectors.toList())) : user.getProviders());
+
+		userDTO.setLoginProviders(
+				user == null
+						? (profile == null ? null
+								: InfraFieldHelper.stringToStringList(profile.getLoginMethods()).stream()
+										.map(m -> LoginMethod.valueOf(m)).collect(Collectors.toList()))
+						: user.getProviders());
 		/**
 		 * additional details
 		 */
@@ -143,9 +146,9 @@ public class InfraDTOHelper {
 		uaDTO.setDonPauseStartDate(profile == null ? null : profile.getDonationPauseStartDate());
 		uaDTO.setDonPauseEndDate(profile == null ? null : profile.getDonationPauseEndDate());
 		userDTO.setAdditionalDetails(uaDTO);
-		
+
 		userDTO.setProfileId_Auth0(user != null ? user.getProfileId() : null);
-		
+
 		if (profile != null) {
 			/**
 			 * roles
@@ -742,104 +745,115 @@ public class InfraDTOHelper {
 	}
 
 	public static ExpenseDTO convertToExpenseDTO(ExpenseEntity entity) {
-		 ExpenseDTO dto = new ExpenseDTO();
-	        dto.setId(entity.getId());
-	        dto.setName(entity.getExpenseTitle());
-	        dto.setDescription(entity.getExpenseDescription());
-	        dto.setExpenseDate(entity.getExpenseDate());
-	        dto.setCreatedOn(entity.getExpenseCreatedOn());
-	        dto.setAdmin(entity.isAdmin());
-	        dto.setDeligated(entity.isDeligated());
-	        dto.setStatus(entity.getStatus() == null? null : ExpenseStatus.valueOf(entity.getStatus()));
-	        dto.setFinalizedOn(entity.getFinalizedOn());
-	        dto.setSettledOn(entity.getSettledOn());
-	        dto.setFinalAmount(entity.getExpenseAmount());
-	        dto.setExpenseRefId(entity.getExpenseRefId());
-	        dto.setTxnNumber(entity.getTransactionRefNumber());
-	        dto.setExpenseRefType(entity.getExpenseRefType() != null ?ExpenseRefType.valueOf(entity.getExpenseRefType()) : null);
+		ExpenseDTO dto = new ExpenseDTO();
+		dto.setId(entity.getId());
+		dto.setName(entity.getExpenseTitle());
+		dto.setDescription(entity.getExpenseDescription());
+		dto.setExpenseDate(entity.getExpenseDate());
+		dto.setCreatedOn(entity.getExpenseCreatedOn());
+		dto.setAdmin(entity.isAdmin());
+		dto.setDeligated(entity.isDeligated());
+		dto.setStatus(entity.getStatus() == null ? null : ExpenseStatus.valueOf(entity.getStatus()));
+		dto.setFinalizedOn(entity.getFinalizedOn());
+		dto.setSettledOn(entity.getSettledOn());
+		dto.setFinalAmount(entity.getExpenseAmount());
+		dto.setExpenseRefId(entity.getExpenseRefId());
+		dto.setTxnNumber(entity.getTransactionRefNumber());
+		dto.setExpenseRefType(
+				entity.getExpenseRefType() != null ? ExpenseRefType.valueOf(entity.getExpenseRefType()) : null);
 
-	        // Map nested objects
-	        if (entity.getCreatedById() != null) {
-	            UserDTO createdBy = new UserDTO();
-	            createdBy.setProfileId(entity.getCreatedById());
-	            createdBy.setUserId(entity.getCreatedByUserId());
-	            createdBy.setName(entity.getCreatedByName());
-	            dto.setCreatedBy(createdBy);
-	        }
+		// Map nested objects
+		if (entity.getCreatedById() != null) {
+			UserDTO createdBy = new UserDTO();
+			createdBy.setProfileId(entity.getCreatedById());
+			createdBy.setUserId(entity.getCreatedByUserId());
+			createdBy.setName(entity.getCreatedByName());
+			dto.setCreatedBy(createdBy);
+		}
 
-	        if (entity.getPaidById() != null) {
-	            UserDTO paidBy = new UserDTO();
-	            paidBy.setProfileId(entity.getPaidById());
-	            paidBy.setUserId(entity.getPaidByUserId());
-	            paidBy.setName(entity.getPaidByName());
-	            dto.setPaidBy(paidBy);
-	        }
+		if (entity.getPaidById() != null) {
+			UserDTO paidBy = new UserDTO();
+			paidBy.setProfileId(entity.getPaidById());
+			paidBy.setUserId(entity.getPaidByUserId());
+			paidBy.setName(entity.getPaidByName());
+			dto.setPaidBy(paidBy);
+		}
 
-	        if (entity.getUpdatedById() != null) {
-	            UserDTO updatedBy = new UserDTO();
-	            updatedBy.setProfileId(entity.getUpdatedById());
-	            updatedBy.setUserId(entity.getUpdatedByUserId());
-	            updatedBy.setName(entity.getUpdatedByName());
-	            dto.setUpdatedBy(updatedBy);
-	        }
+		if (entity.getUpdatedById() != null) {
+			UserDTO updatedBy = new UserDTO();
+			updatedBy.setProfileId(entity.getUpdatedById());
+			updatedBy.setUserId(entity.getUpdatedByUserId());
+			updatedBy.setName(entity.getUpdatedByName());
+			dto.setUpdatedBy(updatedBy);
+		}
 
-	        if (entity.getFinalizedById() != null) {
-	            UserDTO finalizedBy = new UserDTO();
-	            finalizedBy.setProfileId(entity.getFinalizedById());
-	            finalizedBy.setUserId(entity.getFinalizedByUserId());
-	            finalizedBy.setName(entity.getFinalizedByName());
-	            dto.setFinalizedBy(finalizedBy);
-	        }
+		if (entity.getFinalizedById() != null) {
+			UserDTO finalizedBy = new UserDTO();
+			finalizedBy.setProfileId(entity.getFinalizedById());
+			finalizedBy.setUserId(entity.getFinalizedByUserId());
+			finalizedBy.setName(entity.getFinalizedByName());
+			dto.setFinalizedBy(finalizedBy);
+		}
 
-	        if (entity.getSettledById() != null) {
-	            UserDTO settledBy = new UserDTO();
-	            settledBy.setProfileId(entity.getSettledById());
-	            settledBy.setUserId(entity.getSettledByUserId());
-	            settledBy.setName(entity.getSettledByName());
-	            dto.setSettledBy(settledBy);
-	        }
+		if (entity.getSettledById() != null) {
+			UserDTO settledBy = new UserDTO();
+			settledBy.setProfileId(entity.getSettledById());
+			settledBy.setUserId(entity.getSettledByUserId());
+			settledBy.setName(entity.getSettledByName());
+			dto.setSettledBy(settledBy);
+		}
 
-	        if (entity.getExpenseAccountId() != null) {
-	            AccountDTO settlementAccount = new AccountDTO();
-	            settlementAccount.setId(entity.getExpenseAccountId());
-	            settlementAccount.setAccountName(entity.getExpenseAccountName());
-	            dto.setSettlementAccount(settlementAccount);
-	        }
+		if (entity.getExpenseAccountId() != null) {
+			AccountDTO settlementAccount = new AccountDTO();
+			settlementAccount.setId(entity.getExpenseAccountId());
+			settlementAccount.setAccountName(entity.getExpenseAccountName());
+			dto.setSettlementAccount(settlementAccount);
+		}
 
-		if(entity.getExpenseItems() != null) {
-			ExpenseItemDTO[] expenses=CommonUtils.jsonToPojo(entity.getExpenseItems(), ExpenseItemDTO[].class);
+		if (entity.getRejectedById() != null) {
+			UserDTO rejectedBy = new UserDTO();
+			rejectedBy.setProfileId(entity.getRejectedById());
+			rejectedBy.setUserId(entity.getRejectedByUserId());
+			rejectedBy.setName(entity.getRejectedByName());
+			dto.setRejectedBy(rejectedBy);
+		}
+		dto.setRejectedOn(entity.getRejectedOn());
+		dto.setRemarks(entity.getRemarks());
+
+		if (entity.getExpenseItems() != null) {
+			ExpenseItemDTO[] expenses = CommonUtils.jsonToPojo(entity.getExpenseItems(), ExpenseItemDTO[].class);
 			dto.setExpenseItems(List.of(expenses));
 		}
-		
+
 		return dto;
 	}
 
 	public static ExpenseItemDTO convertToExpenseItemDTO(ExpenseItemEntity expenseItem) {
 		ExpenseItemDTO expenseItemDTO = new ExpenseItemDTO();
 		expenseItemDTO.setId(expenseItem.getId());
-		expenseItemDTO.setAmount(expenseItem.getExpenseAmount());	
+		expenseItemDTO.setAmount(expenseItem.getExpenseAmount());
 		expenseItemDTO.setDescription(expenseItem.getExpenseDescription());
 		expenseItemDTO.setItemName(expenseItem.getExpenseTitle());
 		return expenseItemDTO;
 	}
 
 	public static JobDTO convertToJobDTO(JobEntity jobEntity) {
-		JobDTO jobDTO= new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
-		
-		if(jobEntity.getEnd() != null && jobEntity.getStart() != null) {
-			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());	
+		JobDTO jobDTO = new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
+
+		if (jobEntity.getEnd() != null && jobEntity.getStart() != null) {
+			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());
 		}
-		
+
 		jobDTO.setEnd(jobEntity.getEnd());
 		jobDTO.setId(jobEntity.getId());
 		jobDTO.setInput(jobEntity.getInput());
 		jobDTO.setLogs(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
 		jobDTO.setMemoryAtEnd(jobEntity.getMemoryAtEnd());
 		jobDTO.setMemoryAtStart(jobEntity.getMemoryAtStart());
-		if(jobEntity.getOutput() != null) {
+		if (jobEntity.getOutput() != null) {
 			jobDTO.setOutput(jobEntity.getOutput());
 		}
-		
+
 		jobDTO.setStart(jobEntity.getStart());
 		jobDTO.setStatus(JobStatus.valueOf(jobEntity.getStatus()));
 		return jobDTO;

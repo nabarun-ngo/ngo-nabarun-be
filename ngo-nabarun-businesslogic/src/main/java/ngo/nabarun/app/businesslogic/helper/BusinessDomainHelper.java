@@ -100,6 +100,8 @@ public class BusinessDomainHelper {
 
 	private static final String ITEM_ACCOUNT_TYPE = "ACCOUNT_TYPES";
 	private static final String ITEM_ACCOUNT_STATUS = "ACCOUNT_STATUSES";
+	private static final String ITEM_EXPENSE_STATUS = "EXPENSE_STATUSES";
+	private static final String ITEM_TRANSACTION_TYPE= "TRANSACTION_TYPES";
 	private static final String ITEM_PROFILE_STATUSES = "PROFILE_STATUSES";
 	private static final String ITEM_COUNTRY_LIST = "COUNTRY_LIST";
 	private static final String ITEM_STATE_LIST = "STATE_LIST";
@@ -871,6 +873,8 @@ public class BusinessDomainHelper {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
 		obj.put("accountTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_TYPE)));
 		obj.put("accountStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_ACCOUNT_STATUS)));
+		obj.put("expenseStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_EXPENSE_STATUS)));
+		obj.put("transactionRefTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_TRANSACTION_TYPE)));
 		return obj;
 	}
 	

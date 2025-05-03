@@ -353,6 +353,13 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 		expenseUpdate.setExpenseAccountId(expenseDTO.getSettlementAccount() != null ? expenseDTO.getSettlementAccount().getId() : null);
 		expenseUpdate.setExpenseAccountName(expenseDTO.getSettlementAccount() != null ? expenseDTO.getSettlementAccount().getAccountName() : null);
 
+		expenseUpdate.setRejectedOn(expenseDTO.getRejectedOn());
+		if(expenseDTO.getRejectedBy() != null) {
+			expenseUpdate.setRejectedById(expenseDTO.getRejectedBy().getProfileId());
+			expenseUpdate.setRejectedByName(expenseDTO.getRejectedBy().getName());
+			expenseUpdate.setRejectedByUserId(expenseDTO.getRejectedBy().getUserId());
+		}
+		expenseUpdate.setRemarks(expenseDTO.getRemarks());
 		
 		expenseUpdate.setDeleted(false);
 		if(expenseDTO.getExpenseItems() != null) {

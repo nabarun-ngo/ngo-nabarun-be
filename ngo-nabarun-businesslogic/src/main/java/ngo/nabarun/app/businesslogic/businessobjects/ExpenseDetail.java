@@ -81,6 +81,15 @@ public class ExpenseDetail implements Serializable{
 	@JsonProperty("settlementAccount")
 	private AccountDetail settlementAccount;
 	
+	@JsonProperty("rejectedBy")
+	private UserDetail rejectedBy;
+	
+	@JsonProperty("rejectedOn")
+	private Date rejectedOn;
+	
+	@JsonProperty("remarks")
+	private String remarks;
+	
 	@Data
 	public static class ExpenseDetailFilter {
 		
@@ -94,6 +103,15 @@ public class ExpenseDetail implements Serializable{
 		
 		@JsonProperty("expenseRefId")
 		private String expenseRefId;
+		
+		@JsonProperty("expenseId")
+		private String expenseId;
+		
+		@JsonProperty("expenseStatus")
+		private List<ExpenseStatus> expenseStatus;
+		
+		@JsonProperty("payerId")
+		private String payerId;
 	}
 	
 	@Data

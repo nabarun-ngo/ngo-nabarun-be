@@ -19,6 +19,7 @@ import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.AccountDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseDTOFilter;
+import ngo.nabarun.app.infra.dto.TransactionDTO.TransactionDTOFilter;
 import ngo.nabarun.app.infra.dto.TransactionDTO;
 
 @Service
@@ -55,13 +56,31 @@ public class AccountBLImpl implements IAccountBL {
 	public Paginate<TransactionDetail> getMyTransactions(String id,Integer index, Integer size,TransactionDetailFilter filter) throws Exception{
 		List<AccountDTO> myaccounts= accountDO.retrieveMyAccounts(null, null, new AccountDetailFilter()).getContent();
 		myaccounts.stream().filter(f->f.getId().equalsIgnoreCase(id)).findFirst().orElseThrow(()-> new Exception("Invalid account selected"));
-		return accountDO.retrieveAccountTransactions(id,index, size,filter)
+		TransactionDTOFilter filterDTO = new TransactionDTOFilter();
+		filterDTO.setAccountId(id);
+		filterDTO.setTxnId(filter.getTxnId());
+		filterDTO.setFromDate(filter.getStartDate());
+		filterDTO.setToDate(filter.getEndDate());
+		filterDTO.setTxnRefType(filter.getTxnRefType());
+		filterDTO.setTxnStatus(filter.getTxnStatus());
+		filterDTO.setTxnType(filter.getTxnType());
+		filterDTO.setTxnRefId(filter.getTxnRefId());
+		return accountDO.retrieveAccountTransactions(id,index, size,filterDTO)
 				.map(m -> BusinessObjectConverter.toTransactionDetail(m, true,id));
 	} 
 	
 	@Override
 	public Paginate<TransactionDetail> getTransactions(String id,Integer index, Integer size,TransactionDetailFilter filter) {
-		return accountDO.retrieveAccountTransactions(id,index, size,filter)
+		TransactionDTOFilter filterDTO = new TransactionDTOFilter();
+		filterDTO.setAccountId(id);
+		filterDTO.setTxnId(filter.getTxnId());
+		filterDTO.setFromDate(filter.getStartDate());
+		filterDTO.setToDate(filter.getEndDate());
+		filterDTO.setTxnRefType(filter.getTxnRefType());
+		filterDTO.setTxnStatus(filter.getTxnStatus());
+		filterDTO.setTxnType(filter.getTxnType());
+		filterDTO.setTxnRefId(filter.getTxnRefId());
+		return accountDO.retrieveAccountTransactions(id,index, size,filterDTO)
 				.map(m -> BusinessObjectConverter.toTransactionDetail(m, true,id));
 	}
 	
@@ -96,6 +115,12 @@ public class AccountBLImpl implements IAccountBL {
 	@Override
 	public Paginate<ExpenseDetail> getExpenseList(Integer index, Integer size, ExpenseDetailFilter filter) {
 		ExpenseDTOFilter filterDTO = new ExpenseDTOFilter();
+		filterDTO.setStartDate(filter.getStartDate());
+		filterDTO.setEndDate(filter.getEndDate());
+		filterDTO.setRefId(filter.getExpenseRefId());
+		filterDTO.setExpId(filter.getExpenseId());
+		filterDTO.setStatus(filter.getExpenseStatus());
+		filterDTO.setPayerId(filter.getPayerId());
 		Paginate<ExpenseDTO> expenseDTOs=accountDO.getExpenses(index, size, filterDTO);
 		return expenseDTOs.map(BusinessObjectConverter::toExpenseDetail);
 	}
@@ -103,6 +128,11 @@ public class AccountBLImpl implements IAccountBL {
 	@Override
 	public Paginate<ExpenseDetail> getMyExpenseList(Integer index, Integer size, ExpenseDetailFilter filter) {
 		ExpenseDTOFilter filterDTO = new ExpenseDTOFilter();
+		filterDTO.setStartDate(filter.getStartDate());
+		filterDTO.setEndDate(filter.getEndDate());
+		filterDTO.setRefId(filter.getExpenseRefId());
+		filterDTO.setExpId(filter.getExpenseId());
+		filterDTO.setStatus(filter.getExpenseStatus());
 		filterDTO.setPayerId(SecurityUtils.getAuthUser().getId());
 		Paginate<ExpenseDTO> expenseDTOs=accountDO.getExpenses(index, size, filterDTO);
 		return expenseDTOs.map(BusinessObjectConverter::toExpenseDetail);
