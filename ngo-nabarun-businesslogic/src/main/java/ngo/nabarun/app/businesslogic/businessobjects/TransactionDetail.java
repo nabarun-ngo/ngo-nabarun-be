@@ -36,7 +36,8 @@ public class TransactionDetail {
     	private String txnId;
     	//private String accountId;
     	private List<TransactionType> txnType;
-    	private List<TransactionStatus> txnStatus;
+    	private List<TransactionStatus> txnStatus;	
+    	private String txnRefId;
     	private TransactionRefType txnRefType;
     	@DateTimeFormat(pattern="yyyy-MM-dd")
     	private Date startDate;

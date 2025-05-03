@@ -17,7 +17,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.ExpenseDetail.ExpenseItemDe
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.TransactionDetail.TransactionDetailFilter;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountStatus;
@@ -175,16 +174,8 @@ public class AccountDO extends CommonDO {
 	 * @return
 	 */
 	public Paginate<TransactionDTO> retrieveAccountTransactions(String id, Integer index, Integer size,
-			TransactionDetailFilter filter) {
-		TransactionDTOFilter filterDTO = new TransactionDTOFilter();
-		filterDTO.setAccountId(id);
-		filterDTO.setTxnId(filter.getTxnId());
-		filterDTO.setFromDate(filter.getStartDate());
-		filterDTO.setToDate(filter.getEndDate());
-		filterDTO.setTxnRefType(filter.getTxnRefType());
-		filterDTO.setTxnStatus(filter.getTxnStatus());
-		filterDTO.setTxnType(filter.getTxnType());
-		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filterDTO);
+			TransactionDTOFilter filter) {
+		Page<TransactionDTO> transactions = transactionInfraService.getTransactions(index, size, filter);
 		return new Paginate<TransactionDTO>(transactions);
 	}
 
@@ -418,6 +409,11 @@ public class AccountDO extends CommonDO {
 				if(expense.getStatus() == ExpenseStatus.SUBMITTED || expense.getStatus() == ExpenseStatus.REJECTED) {
 					expenseDTO.setStatus(expense.getStatus());
 				}
+				if(expense.getStatus() == ExpenseStatus.REJECTED) {
+					expenseDTO.setRejectedOn(expense.getRejectedOn());
+					expenseDTO.setRejectedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
+				}
+				expenseDTO.setRemarks(expense.getRemarks());
 				break;
 			case "finalize":
 				if (expenseDTO.getStatus() == ExpenseStatus.FINALIZED) {
@@ -446,21 +442,21 @@ public class AccountDO extends CommonDO {
 				newTxn.setTxnStatus(TransactionStatus.SUCCESS);
 				newTxn.setTxnType(TransactionType.OUT);
 				AccountDTO settlementAccount = new AccountDTO();
-				settlementAccount.setId(expenseDTO.getSettlementAccount().getId());
-				settlementAccount.setAccountName(expenseDTO.getSettlementAccount().getAccountName());
-				newTxn.setToAccount(settlementAccount);
+				settlementAccount.setId(expense.getSettlementAccount().getId());
+				settlementAccount.setAccountName(expense.getSettlementAccount().getAccountHolderName());
+				newTxn.setFromAccount(settlementAccount);
 				newTxn.setCreatedBy(BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
 				newTxn.setTxnDescription("Txn Expense : " + expenseDTO.getName() + "("
 						+ expenseDTO.getId() + ")");
 				newTxn.setComment("Amount PAID.");
 				newTxn = createTransaction(newTxn, BusinessObjectConverter.toUserDTO(SecurityUtils.getAuthUser()));
 				expenseDTO.setTxnNumber(newTxn.getId());
+				expenseDTO.setSettlementAccount(settlementAccount);
 				break;
 			default:
 				break;	
 		}
-		ExpenseDTO updatedExpense = accountInfraService.addOrUpdateExpense(expenseDTO);
-		return updatedExpense;
+		return accountInfraService.addOrUpdateExpense(expenseDTO);
 	}
 
 	private void updateExpenseItems(ExpenseDetail expenseDetail,ExpenseDTO expenseDTO) {

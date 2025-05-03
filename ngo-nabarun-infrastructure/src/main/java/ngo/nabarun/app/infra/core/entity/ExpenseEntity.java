@@ -59,4 +59,10 @@ public class ExpenseEntity {
 	private String transactionRefNumber;
 	private boolean deleted;
 	
+	private String rejectedById;
+	private String rejectedByUserId;
+	private String rejectedByName;
+	private Date rejectedOn;
+	private String remarks;
+	
 }

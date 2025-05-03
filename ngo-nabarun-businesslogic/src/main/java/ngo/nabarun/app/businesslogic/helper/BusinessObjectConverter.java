@@ -587,6 +587,10 @@ public class BusinessObjectConverter {
         if(expenseDTO.getSettlementAccount() != null) {
             expenseDetail.setSettlementAccount(toAccountDetail(expenseDTO.getSettlementAccount()));
         }
+        expenseDetail.setRemarks(expenseDTO.getRemarks());
+        expenseDetail.setRejectedOn(expenseDTO.getRejectedOn());
+        expenseDetail.setRejectedBy(toUserDetail(expenseDTO.getRejectedBy(),null));
+        
 		return expenseDetail;
 
 	}

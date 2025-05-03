@@ -31,6 +31,9 @@ public class ExpenseDTO {
 	private String expenseRefId;
 	private String txnNumber;
 	private AccountDTO settlementAccount;
+	private UserDTO rejectedBy;
+	private Date rejectedOn;
+	private String remarks;
 
 	@Data
 	public static class ExpenseDTOFilter {
