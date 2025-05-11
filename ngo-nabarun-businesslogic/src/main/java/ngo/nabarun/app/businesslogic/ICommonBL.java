@@ -24,7 +24,7 @@ public interface ICommonBL {
 
 	boolean deleteDocument(String docId) throws Exception;
 	
-	void uploadDocuments(List<DocumentDetailUpload> files,String docIndexId, DocumentIndexType docIndexType) throws Exception;
+	void uploadDocuments(List<DocumentDetailUpload> files) throws Exception;
 
 	Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names, Map<String, String> attr) throws Exception;
 

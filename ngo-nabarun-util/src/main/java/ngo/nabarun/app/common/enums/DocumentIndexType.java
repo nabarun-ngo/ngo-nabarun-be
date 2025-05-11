@@ -10,8 +10,9 @@ public enum DocumentIndexType {
 	PROFILE_PHOTO("PROFILE_PHOTOS"), 
 	EVENT_COVER("EVENT_COVER_PICTURES"), 
 	REQUEST("REQUEST"),
-	EXPENSE("EXPENSE");
-
+	EXPENSE("EXPENSE"),
+	TRANSACTION("TRANSACTIONS");
+	
 	@Getter
 	private String docFolderName;
 

@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
- 
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
@@ -41,6 +43,8 @@ import ngo.nabarun.app.common.util.SecurityUtils;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.JobDTO;
@@ -92,7 +96,7 @@ public class CommonDO {
 
 	@Autowired
 	private IJobsInfraService jobInfraService;
-	
+
 	@Autowired
 	private IGlobalDataInfraService dataInfraService;
 
@@ -188,7 +192,7 @@ public class CommonDO {
 		int seq = sequenceInfraService.incrementEntirySequence(seqName);
 		return String.format(pattern, ran, seq);
 	}
-	
+
 	public String generateEventId() {
 		String seqName = "EVENT_SEQUENCE";
 		String pattern = "NEV%sR%s";
@@ -335,16 +339,32 @@ public class CommonDO {
 	}
 
 	@Async
-	public void uploadDocument(DocumentDetailUpload file, String docIndexId, DocumentIndexType docIndexType)
-			throws Exception {
-		byte[] content = file.getContent() == null ? Base64.decodeBase64(file.getBase64Content()) : file.getContent();
-		documentInfraService.uploadDocument(file.getOriginalFileName(), file.getContentType(), docIndexId, docIndexType,
-				content);
+	public void uploadDocument(DocumentDetailUpload file) throws Exception {
+		byte[] content = Base64.decodeBase64(file.getBase64Content());
+		DocumentUploadDTO docDTO = new DocumentUploadDTO();
+		docDTO.setContent(content);
+		docDTO.setContentType(file.getContentType());
+		docDTO.setOriginalFileName(file.getOriginalFileName());
+		docDTO.setDocumentMapping(new ArrayList<>());
+		for (DocumentMapping mapping : file.getDocumentMapping()) {
+			DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+			documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+			documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+			docDTO.getDocumentMapping().add(documentMappingDTO);
+		}
+		documentInfraService.uploadDocument(docDTO);
 	}
 
 	@Async
-	public void uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType) throws Exception {
-		documentInfraService.uploadDocument(file, docIndexId, docIndexType);
+	public void uploadDocument(MultipartFile file, List<DocumentMapping> documentMapping) throws Exception {
+		List<DocumentMappingDTO> documentMappingDTOList = new ArrayList<>();
+		for (DocumentMapping mapping : documentMapping) {
+			DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+			documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+			documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+			documentMappingDTOList.add(documentMappingDTO);
+		}
+		documentInfraService.uploadDocument(file, documentMappingDTOList);
 	}
 
 	public URL getDocumentUrl(String docId) throws Exception {
@@ -448,9 +468,10 @@ public class CommonDO {
 			DocumentIndexType destIndexType) {
 		List<DocumentDTO> docDTos = documentInfraService.getDocumentList(sourceId, sourceIndexType);
 		for (DocumentDTO docDTO : docDTos) {
-			docDTO.setDocumentRefId(destId);
-			docDTO.setDocumentType(destIndexType);
-			documentInfraService.createDocumentIndex(docDTO);
+			DocumentMappingDTO docMapDTO = new DocumentMappingDTO();
+			docMapDTO.setDocIndexId(destId);
+			docMapDTO.setDocIndexType(destIndexType);
+			documentInfraService.createDocumentIndex(docDTO.getDocId(),List.of(docMapDTO));
 		}
 	}
 
@@ -462,12 +483,12 @@ public class CommonDO {
 
 	public void syncSystems(JobDTO job) throws Exception {
 		job.log("[INFO] -----Starting System SYNC -----");
-		String apikey_sg = propertyHelper.getSendGridAPIKey();
-		String sender = propertyHelper.getDefaultEmailSender();
-		job.log("[INFO] -----Syncing Auth0 Email provider -----");
-		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
-		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
-		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
+//		String apikey_sg = propertyHelper.getSendGridAPIKey();
+//		String sender = propertyHelper.getDefaultEmailSender();
+//		job.log("[INFO] -----Syncing Auth0 Email provider -----");
+//		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
+//		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
+//		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
 		job.log("[INFO] -----Ending System SYNC -----");
 	}
 

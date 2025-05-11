@@ -382,7 +382,7 @@ public class InfraDTOHelper {
 	public static DocumentDTO convertToDocumentDTO(DocumentRefEntity docRef) {
 		DocumentDTO documentDTO = new DocumentDTO();
 		documentDTO.setDocumentRefId(docRef.getDocumentRefId());
-		documentDTO.setDocumentType(DocumentIndexType.valueOf(docRef.getDocumentType()));
+		documentDTO.setDocumentType(docRef.getDocumentType() == null ? null : DocumentIndexType.valueOf(docRef.getDocumentType()));
 		documentDTO.setFileType(docRef.getFileType());
 		documentDTO.setImage(docRef.getFileType() == null ? false : docRef.getFileType().startsWith("image"));
 		documentDTO.setOriginalFileName(docRef.getOriginalFileName());

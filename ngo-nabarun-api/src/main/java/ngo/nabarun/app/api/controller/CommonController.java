@@ -67,10 +67,9 @@ public class CommonController {
 
 	@Operation(summary = "Upload document as base64")
 	@PostMapping(value = "/document/uploadbase64",produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestParam String docIndexId,
-			@RequestParam DocumentIndexType docIndexType, @RequestBody List<DocumentDetailUpload> files)
+	public ResponseEntity<SuccessResponse<Void>> uploadDocuments(@RequestBody List<DocumentDetailUpload> files)
 			throws Exception {
-		commonBL.uploadDocuments(files, docIndexId, docIndexType);
+		commonBL.uploadDocuments(files);
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 
