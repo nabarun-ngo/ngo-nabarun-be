@@ -382,7 +382,7 @@ public class InfraDTOHelper {
 	public static DocumentDTO convertToDocumentDTO(DocumentRefEntity docRef) {
 		DocumentDTO documentDTO = new DocumentDTO();
 		documentDTO.setDocumentRefId(docRef.getDocumentRefId());
-		documentDTO.setDocumentType(DocumentIndexType.valueOf(docRef.getDocumentType()));
+		documentDTO.setDocumentType(docRef.getDocumentType() == null ? null : DocumentIndexType.valueOf(docRef.getDocumentType()));
 		documentDTO.setFileType(docRef.getFileType());
 		documentDTO.setImage(docRef.getFileType() == null ? false : docRef.getFileType().startsWith("image"));
 		documentDTO.setOriginalFileName(docRef.getOriginalFileName());
@@ -838,13 +838,9 @@ public class InfraDTOHelper {
 	}
 
 	public static JobDTO convertToJobDTO(JobEntity jobEntity) {
-		JobDTO jobDTO = new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
-
-		if (jobEntity.getEnd() != null && jobEntity.getStart() != null) {
-			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());
-		}
-
-		jobDTO.setEnd(jobEntity.getEnd());
+		JobDTO jobDTO= new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
+		
+		jobDTO.setEndAt(jobEntity.getEnd());
 		jobDTO.setId(jobEntity.getId());
 		jobDTO.setInput(jobEntity.getInput());
 		jobDTO.setLogs(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
@@ -852,10 +848,11 @@ public class InfraDTOHelper {
 		jobDTO.setMemoryAtStart(jobEntity.getMemoryAtStart());
 		if (jobEntity.getOutput() != null) {
 			jobDTO.setOutput(jobEntity.getOutput());
-		}
-
-		jobDTO.setStart(jobEntity.getStart());
+		}		
+		jobDTO.setStartAt(jobEntity.getStart());
 		jobDTO.setStatus(JobStatus.valueOf(jobEntity.getStatus()));
+		
+		jobDTO.setErrorLog("Message : "+jobEntity.getErrorMessage() +"\nCause : "+jobEntity.getErrorCause()+"\nStacktrace : \n"+jobEntity.getStackTrace());		
 		return jobDTO;
 	}
 

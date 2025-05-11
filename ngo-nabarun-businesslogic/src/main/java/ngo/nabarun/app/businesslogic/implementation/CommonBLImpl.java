@@ -15,6 +15,7 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
@@ -46,24 +47,21 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 		Assert.notNull(docIndexType, "docIndexType must not be null !");
 
 		for (MultipartFile file : files) {
-			DocumentDetailUpload doc = new DocumentDetailUpload();
-			doc.setContent(file.getBytes());
-			doc.setContentType(file.getContentType());
-			doc.setOriginalFileName(file.getOriginalFilename());
-			commonDO.uploadDocument(doc, docIndexId, docIndexType);
+			DocumentMapping docMapping = new DocumentMapping();
+			docMapping.setDocIndexId(docIndexId);
+			docMapping.setDocIndexType(docIndexType);
+			commonDO.uploadDocument(file,List.of(docMapping));
 		}
 	}
 
 	@Override
-	public void uploadDocuments(List<DocumentDetailUpload> files, String docIndexId, DocumentIndexType docIndexType)
+	public void uploadDocuments(List<DocumentDetailUpload> files)
 			throws Exception {
 		Assert.noNullElements(files, "Files cannot be null !");
 		Assert.notEmpty(files, "Files cannot be empty !");
-		Assert.notNull(docIndexId, "docIndexId must not be null !");
-		Assert.notNull(docIndexType, "docIndexType must not be null !");
 
 		for (DocumentDetailUpload file : files) {
-			commonDO.uploadDocument(file, docIndexId, docIndexType);
+			commonDO.uploadDocument(file);
 		}
 	}
 
@@ -148,7 +146,7 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 		switch (action.toUpperCase()) {
 		case "SAVE_TOKEN_AND_GET_COUNTS":
 			commonDO.saveNotificationToken(user.getUserId(), payload.get("token").toString());
-			commonDO.sendDashboardCounts(user.getUserId());
+			//commonDO.sendDashboardCounts(user.getUserId());
 			break;
 		case "DELETE_TOKEN":
 			commonDO.removeNotificationToken(user.getUserId(), payload.get("token").toString());

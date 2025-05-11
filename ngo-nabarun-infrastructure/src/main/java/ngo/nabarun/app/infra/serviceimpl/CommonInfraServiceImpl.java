@@ -49,6 +49,7 @@ import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
 import ngo.nabarun.app.infra.core.entity.DashboardCountEntity;
+import ngo.nabarun.app.infra.core.entity.DocumentMappingEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
@@ -56,10 +57,13 @@ import ngo.nabarun.app.infra.core.repo.ApiKeyRepository;
 import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DashboardCountRepository;
+import ngo.nabarun.app.infra.core.repo.DocumentMappingRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
 import ngo.nabarun.app.infra.core.repo.LogsRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
@@ -69,6 +73,7 @@ import ngo.nabarun.app.infra.dto.NTokenDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.dto.TicketDTO;
+import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
@@ -86,9 +91,9 @@ import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 
 @Service
-public class CommonInfraServiceImpl
-		implements ICountsInfraService, ITicketInfraService, IDocumentInfraService, IHistoryInfraService,
-		ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService, IApiKeyInfraService,ISystemInfraService {
+public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfraService, IDocumentInfraService,
+		IHistoryInfraService, ICorrespondenceInfraService, IGlobalDataInfraService, ILogInfraService,
+		IApiKeyInfraService, ISystemInfraService {
 
 	@Autowired
 	private DBSequenceRepository dbSeqRepository;
@@ -104,12 +109,15 @@ public class CommonInfraServiceImpl
 
 	@Autowired
 	private ApiKeyRepository apiKeyRepo;
-	
+
 	@Autowired
 	private IFileStorageExtService fileStorageService;
 
 	@Autowired
 	private DocumentRefRepository documentRefRepository;
+
+	@Autowired
+	private DocumentMappingRepository documentMappingRepository;
 
 	@Autowired
 	private CustomFieldRepository fieldRepository;
@@ -128,10 +136,10 @@ public class CommonInfraServiceImpl
 
 	@Autowired
 	private ICollectionExtService collectionExtService;
-	
+
 	@Autowired
 	private IAuthManagementExtService authManagementService;
-	
+
 	@Autowired
 	private IGitHubExtService gitHubExtService;
 
@@ -268,34 +276,34 @@ public class CommonInfraServiceImpl
 	}
 
 	@Override
-	public DocumentDTO uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType)
+	public DocumentDTO uploadDocument(MultipartFile file, List<DocumentMappingDTO> documentMapping)
 			throws ThirdPartyException {
-		String remotefileName = buildRemoteFileName(file.getOriginalFilename(), docIndexType);
+		String remotefileName = buildRemoteFileName(file.getOriginalFilename(), null);
 		String fileDownloadableUrl = fileStorageService.uploadFile(remotefileName, file);
-		DocumentRefEntity docRef = addDocumentReference(file.getOriginalFilename(), remotefileName, docIndexId,
-				docIndexType.name(), fileDownloadableUrl, file.getContentType());
+		DocumentRefEntity docRef = addDocumentReference(file.getOriginalFilename(), remotefileName, fileDownloadableUrl,
+				file.getContentType());
+		createDocumentIndex(docRef.getId(), documentMapping);
 		return InfraDTOHelper.convertToDocumentDTO(docRef);
 	}
 
 	@Override
-	public DocumentDTO uploadDocument(String originalFileName, String contentType, String docIndexId,
-			DocumentIndexType docIndexType, byte[] content) throws ThirdPartyException {
-		String remotefileName = buildRemoteFileName(originalFileName, docIndexType);
-		String fileDownloadableUrl = fileStorageService.uploadFile(remotefileName, contentType, content);
-		DocumentRefEntity docRef = addDocumentReference(originalFileName, remotefileName, docIndexId,
-				docIndexType.name(), fileDownloadableUrl, contentType);
+	public DocumentDTO uploadDocument(DocumentUploadDTO documentUploadDTO) throws ThirdPartyException {
+		String remotefileName = buildRemoteFileName(documentUploadDTO.getOriginalFileName(), null);
+		String fileDownloadableUrl = fileStorageService.uploadFile(remotefileName, documentUploadDTO.getContentType(),
+				documentUploadDTO.getContent());
+		DocumentRefEntity docRef = addDocumentReference(documentUploadDTO.getOriginalFileName(), remotefileName,
+				fileDownloadableUrl, documentUploadDTO.getContentType());
+		createDocumentIndex(docRef.getId(), documentUploadDTO.getDocumentMapping());
 		return InfraDTOHelper.convertToDocumentDTO(docRef);
 	}
 
-	private DocumentRefEntity addDocumentReference(String originalFileName, String remotefileName, String docIndexId,
-			String docIndexType, String fileDownloadableUrl, String contentType) {
+	private DocumentRefEntity addDocumentReference(String originalFileName, String remotefileName,
+			String fileDownloadableUrl, String contentType) {
 		DocumentRefEntity docRef = new DocumentRefEntity();
 		docRef.setId(UUID.randomUUID().toString());
 		docRef.setRemoteFileName(remotefileName);
 		docRef.setCreatedOn(CommonUtils.getSystemDate());
 		docRef.setDeleted(false);
-		docRef.setDocumentRefId(docIndexId);
-		docRef.setDocumentType(docIndexType);
 		docRef.setDownloadUrl(fileDownloadableUrl);
 		docRef.setFileType(contentType);
 		docRef.setOriginalFileName(originalFileName);
@@ -306,9 +314,11 @@ public class CommonInfraServiceImpl
 
 	private String buildRemoteFileName(String originalFileName, DocumentIndexType docType) {
 		String extension = FilenameUtils.getExtension(originalFileName);
+		if (docType == null) {
+			return UUID.randomUUID().toString() + "." + extension;
+		}
 		return docType.getDocFolderName() + "/" + UUID.randomUUID().toString() + "."
 				+ (extension == null ? "zip" : extension);
-
 	}
 
 	@Override
@@ -327,23 +337,31 @@ public class CommonInfraServiceImpl
 		boolean deleted = fileStorageService.removeFileByFilename(remoteFileName);
 		if (deleted) {
 			documentRefRepository.delete(docRef);
+			List<DocumentMappingEntity> mappedDoc=documentMappingRepository.findByDocumentId(docId);
+			documentMappingRepository.deleteAll(mappedDoc);
 		}
+		
 		return deleted;
 	}
 
 	@Override
 	public List<DocumentDTO> getDocumentList(String docRefId, DocumentIndexType documentType) {
-		List<DocumentRefEntity> docList = documentRefRepository.findByDocumentRefIdAndDocumentType(docRefId,
+		List<DocumentMappingEntity> docList = documentMappingRepository.findByDocumentRefIdAndDocumentType(docRefId,
 				documentType.name());
-		return docList.stream().map(m -> InfraDTOHelper.convertToDocumentDTO(m)).toList();
+		return docList.stream().map(m -> InfraDTOHelper.convertToDocumentDTO(m.getDocumentRef())).toList();
 	}
 
 	@Override
-	public DocumentDTO createDocumentIndex(DocumentDTO document) {
-		DocumentRefEntity index = addDocumentReference(document.getOriginalFileName(), document.getRemoteFileName(),
-				document.getDocumentRefId(), document.getDocumentType().name(), document.getDocumentURL(),
-				document.getFileType());
-		return InfraDTOHelper.convertToDocumentDTO(index);
+	public void createDocumentIndex(String documentId, List<DocumentMappingDTO> documentMapping) {
+		for (DocumentMappingDTO docMap : documentMapping) {
+			DocumentMappingEntity docMapEntity = new DocumentMappingEntity();
+			docMapEntity.setId(UUID.randomUUID().toString());
+			docMapEntity.setCreatedOn(CommonUtils.getSystemDate());
+			docMapEntity.setDocumentId(documentId);
+			docMapEntity.setDocumentRefId(docMap.getDocIndexId());
+			docMapEntity.setDocumentType(docMap.getDocIndexType() == null ? null : docMap.getDocIndexType().name());
+			documentMappingRepository.save(docMapEntity);
+		}
 	}
 
 	@Override
@@ -418,8 +436,8 @@ public class CommonInfraServiceImpl
 		}
 
 		senderName = (senderName == null) ? propertyHelper.getAppName() : senderName;
-		return emailExtService.sendEmail(template.getSubject(), senderName, recipientsList, templateId, template.getBody(),
-				attachmentList);
+		return emailExtService.sendEmail(template.getSubject(), senderName, recipientsList, templateId,
+				template.getBody(), attachmentList);
 	}
 
 	@NoLogging
@@ -472,8 +490,8 @@ public class CommonInfraServiceImpl
 			filter.add(new ObjectFilter("targetUserIds", Operator.ARRAY_CONTAIN, filterDTO.getTargetUserId()));
 		}
 		try {
-			notifications = collectionExtService
-					.getCollectionData(COLLECTION_NOTIFICATION, index, size, filter,NotificationDTO.class);
+			notifications = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION, index, size, filter,
+					NotificationDTO.class);
 //			for (Map<String, Object> notification : notificationCollection) {
 //				notifications.add(new NotificationDTO(notification));
 //			}
@@ -490,22 +508,13 @@ public class CommonInfraServiceImpl
 
 	@Override
 	public NotificationDTO createAndSendNotification(NotificationDTO notificationDTO) throws Exception {
-		//Map<String, Object> sourceMap = notificationDTO.toSourceMap();
 		if (notificationDTO.getTarget() != null && !notificationDTO.getTarget().isEmpty()) {
-			List<String> userIds = notificationDTO.getTarget().stream().map(m -> m.getUserId())
-					.collect(Collectors.toList());
-			for (String userId : userIds) {
-				List<String> message_ids = sendNotificationMessage(userId, notificationDTO.getTitle(),
-						notificationDTO.getSummary(), notificationDTO.getImage(), notificationDTO.toMap());
-				if (!message_ids.isEmpty()) {
-					notificationDTO.toSourceMap().put("message_ids", message_ids);
-				}
+			for (UserDTO targetUser : notificationDTO.getTarget()) {
+				String id = messageExtService.saveItemInRealtimeDB("notifications/"+targetUser.getUserId(), notificationDTO.toMap());
+				notificationDTO.setId(id);
 			}
-			notificationDTO.setTargetUserIds(userIds);
-			notificationDTO.setId(UUID.randomUUID().toString());
 		}
-		NotificationDTO data = collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION, notificationDTO.getId(),notificationDTO);
-		return data;
+		return notificationDTO;
 	}
 
 	@Override
@@ -532,8 +541,8 @@ public class CommonInfraServiceImpl
 	public boolean saveNotificationToken(String userId, String token) throws Exception {
 		ObjectFilter filter = new ObjectFilter("token", Operator.EQUAL, token);
 		ObjectFilter filter2 = new ObjectFilter("userId", Operator.EQUAL, userId);
-		List<NTokenDTO> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN,
-				null, null, List.of(filter, filter2), NTokenDTO.class);
+		List<NTokenDTO> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null,
+				List.of(filter, filter2), NTokenDTO.class);
 		if (collections.isEmpty()) {
 			NTokenDTO dataMap = new NTokenDTO();
 			dataMap.setId(UUID.randomUUID().toString());
@@ -549,11 +558,10 @@ public class CommonInfraServiceImpl
 	public boolean deleteNotificationTargetToken(String userId, String token) throws Exception {
 		ObjectFilter filter = new ObjectFilter("token", Operator.EQUAL, token);
 		ObjectFilter filter2 = new ObjectFilter("userId", Operator.EQUAL, userId);
-		List<NTokenDTO> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN,
-				null, null, List.of(filter, filter2),NTokenDTO.class);
+		List<NTokenDTO> collections = collectionExtService.getCollectionData(COLLECTION_NOTIFICATION_TOKEN, null, null,
+				List.of(filter, filter2), NTokenDTO.class);
 		for (NTokenDTO collection : collections) {
-			collectionExtService.removeCollectionData(COLLECTION_NOTIFICATION_TOKEN,
-					collection.getId());
+			collectionExtService.removeCollectionData(COLLECTION_NOTIFICATION_TOKEN, collection.getId());
 		}
 		return true;
 	}
@@ -583,17 +591,18 @@ public class CommonInfraServiceImpl
 	@Override
 	public ApiKeyDTO createOrUpdateApiKey(ApiKeyDTO apiKeyDTO) {
 		ApiKeyEntity apiKeyEntity;
-		if(apiKeyDTO.getId() != null) {
+		if (apiKeyDTO.getId() != null) {
 			apiKeyEntity = apiKeyRepo.findById(apiKeyDTO.getId()).orElseThrow();
-		}else {
+		} else {
 			apiKeyEntity = new ApiKeyEntity();
 			apiKeyEntity.setId(UUID.randomUUID().toString());
 			apiKeyEntity.setApiKey("N." + UUID.randomUUID().toString() + "." + UUID.randomUUID().toString());
 			apiKeyEntity.setCreatedOn(CommonUtils.getSystemDate());
 			apiKeyEntity.setExpireable(apiKeyDTO.isExpireable());
 		}
-		apiKeyEntity.setName(apiKeyDTO.getName()== null ? apiKeyEntity.getName() : apiKeyDTO.getName());
-		apiKeyEntity.setExpireOn(apiKeyDTO.getExpiryDate() == null ?apiKeyEntity.getExpireOn() :apiKeyDTO.getExpiryDate());
+		apiKeyEntity.setName(apiKeyDTO.getName() == null ? apiKeyEntity.getName() : apiKeyDTO.getName());
+		apiKeyEntity.setExpireOn(
+				apiKeyDTO.getExpiryDate() == null ? apiKeyEntity.getExpireOn() : apiKeyDTO.getExpiryDate());
 		apiKeyEntity.setScopes(InfraFieldHelper.stringListToString(apiKeyDTO.getScopes()));
 		apiKeyEntity.setStatus(apiKeyDTO.getStatus() == null ? apiKeyEntity.getStatus() : apiKeyDTO.getStatus().name());
 		apiKeyEntity = apiKeyRepo.save(apiKeyEntity);
@@ -614,9 +623,8 @@ public class CommonInfraServiceImpl
 
 	@Override
 	public Map<String, String> getDashboardCounts(String userId) {
-		List<DashboardCountEntity> counts= dbCountRepository.findByUserIdIn(List.of(userId));
-		return counts.stream()
-				.collect(Collectors.toMap(m1 -> m1.getDbFieldKey(), m2 -> m2.getDbFieldValue()));
+		List<DashboardCountEntity> counts = dbCountRepository.findByUserIdIn(List.of(userId));
+		return counts.stream().collect(Collectors.toMap(m1 -> m1.getDbFieldKey(), m2 -> m2.getDbFieldValue()));
 	}
 
 	@Override
@@ -635,11 +643,10 @@ public class CommonInfraServiceImpl
 				.collect(Collectors.toMap(m1 -> m1.getDbFieldKey(), m2 -> m2.getDbFieldValue()));
 	}
 
-	private static List<ChangeDTO> compareMapsAndGetChanges(Map<String, Object> oldMap,
-			Map<String, Object> newMap) {
+	private static List<ChangeDTO> compareMapsAndGetChanges(Map<String, Object> oldMap, Map<String, Object> newMap) {
 		List<ChangeDTO> changes = new ArrayList<>();
 
-		if(newMap != null && oldMap != null) {
+		if (newMap != null && oldMap != null) {
 			for (String key : oldMap.keySet()) {
 				Object oldValue = oldMap.get(key);
 				Object newValue = newMap.get(key);
@@ -647,20 +654,18 @@ public class CommonInfraServiceImpl
 					changes.add(new ChangeDTO(key, oldValue, newValue, "changed"));
 				}
 			}
-		}
-		else if(newMap != null) {
+		} else if (newMap != null) {
 			for (String key : newMap.keySet()) {
 				if (oldMap == null || !oldMap.containsKey(key)) {
-					if(!ObjectUtils.isEmpty(newMap.get(key))) {
+					if (!ObjectUtils.isEmpty(newMap.get(key))) {
 						changes.add(new ChangeDTO(key, null, newMap.get(key), "added"));
 					}
 				}
 			}
-		} 
-		else if(oldMap != null) {
+		} else if (oldMap != null) {
 			for (String key : oldMap.keySet()) {
 				if (newMap == null || !newMap.containsKey(key)) {
-					changes.add(new ChangeDTO(key, oldMap.get(key),null , "removed"));
+					changes.add(new ChangeDTO(key, oldMap.get(key), null, "removed"));
 				}
 			}
 		}
@@ -668,7 +673,7 @@ public class CommonInfraServiceImpl
 	}
 
 	@Override
-	public void logCreation(HistoryRefType type, String refId, AuthenticatedUser aUser, Map<String,Object> object)
+	public void logCreation(HistoryRefType type, String refId, AuthenticatedUser aUser, Map<String, Object> object)
 			throws ThirdPartyException {
 
 		HistoryDTO historyDTO = new HistoryDTO();
@@ -681,13 +686,13 @@ public class CommonInfraServiceImpl
 		historyDTO.setId(UUID.randomUUID().toString());
 		historyDTO.setReferenceId(refId);
 		historyDTO.setReferenceType(type.name());
-		collectionExtService.storeCollectionData(historyCollectionMap.get(type),historyDTO.getId(), historyDTO);
+		collectionExtService.storeCollectionData(historyCollectionMap.get(type), historyDTO.getId(), historyDTO);
 	}
 
 	@Override
-	public void logUpdate(HistoryRefType type, String refId, AuthenticatedUser aUser, Map<String,Object> object1, Map<String,Object> object2)
-			throws ThirdPartyException {
-		
+	public void logUpdate(HistoryRefType type, String refId, AuthenticatedUser aUser, Map<String, Object> object1,
+			Map<String, Object> object2) throws ThirdPartyException {
+
 		HistoryDTO historyDTO = new HistoryDTO();
 		historyDTO.setChanges(compareMapsAndGetChanges(object1, object2));
 		historyDTO.setAction("UPDATE");
@@ -698,44 +703,40 @@ public class CommonInfraServiceImpl
 		historyDTO.setId(UUID.randomUUID().toString());
 		historyDTO.setReferenceId(refId);
 		historyDTO.setReferenceType(type.name());
-		collectionExtService.storeCollectionData(historyCollectionMap.get(type),historyDTO.getId(), historyDTO);
+		collectionExtService.storeCollectionData(historyCollectionMap.get(type), historyDTO.getId(), historyDTO);
 	}
 
 	@Override
 	public List<HistoryDTO> getHistory(HistoryRefType type, String refId) throws ThirdPartyException {
 		ObjectFilter filter = new ObjectFilter("referenceId", Operator.EQUAL, refId);
-		List<HistoryDTO> notificationCollection = collectionExtService
-				.getCollectionData(historyCollectionMap.get(type), null, null, List.of(filter),HistoryDTO.class);
+		List<HistoryDTO> notificationCollection = collectionExtService.getCollectionData(historyCollectionMap.get(type),
+				null, null, List.of(filter), HistoryDTO.class);
 		return notificationCollection;
 	}
 
 	@NoLogging
 	@Override
-	public int configureAuthEmailProvider(String sender,String apikey_sg) throws Exception {
-		return authManagementService.updateEmailProvider(true,sender,apikey_sg);
+	public int configureAuthEmailProvider(String sender, String apikey_sg) throws Exception {
+		return authManagementService.updateEmailProvider(true, sender, apikey_sg);
 	}
-	
 
 	@Override
 	public List<Map<String, String>> getAPIScopes() throws Exception {
 		String audience = propertyHelper.getAuth0ResourceAPIAudience();
-		List<AuthAPIScope> scopes=authManagementService.getAuthAPIInfo(audience).getScopes();
-		List<Map<String, String>> mapp= new ArrayList<Map<String, String>>();
-		for(AuthAPIScope scope:scopes) {
-			mapp.add(Map.of("name",scope.getValue(),"description",scope.getDescription()));
+		List<AuthAPIScope> scopes = authManagementService.getAuthAPIInfo(audience).getScopes();
+		List<Map<String, String>> mapp = new ArrayList<Map<String, String>>();
+		for (AuthAPIScope scope : scopes) {
+			mapp.add(Map.of("name", scope.getValue(), "description", scope.getDescription()));
 		}
 		return mapp;
 	}
 
 	@Override
 	public String getRulesAndRegulationContent() {
-		String owner= propertyHelper.getGithubOrg();
+		String owner = propertyHelper.getGithubOrg();
 		String repo = propertyHelper.getGithubRepo();
 		String discussionId = propertyHelper.getGithubDiscussionId();
-		String body=gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
+		String body = gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
 		return body.replaceAll("\n", "");
 	}
-
-	
-
 }

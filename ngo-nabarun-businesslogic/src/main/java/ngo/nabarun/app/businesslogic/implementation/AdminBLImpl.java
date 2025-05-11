@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +74,7 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 			KeyValue keyValue = new KeyValue();
 			keyValue.setKey(m.get("name"));
 			keyValue.setDescription(m.get("description"));
-			keyValue.setValue(keyValue.getKey()+" ["+keyValue.getDescription()+"]");
+			keyValue.setValue(keyValue.getKey() + " [" + keyValue.getDescription() + "]");
 			return keyValue;
 		}).toList();
 	}
@@ -84,61 +83,59 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 	public Paginate<JobDetail> getJobList(Integer pageIndex, Integer pageSize, JobDetailFilter filter) {
 		return commonDO.retrieveJobs(pageIndex, pageSize, filter).map(BusinessObjectConverter::toJobDetail);
 	}
+
 	
-	@Async
 	@Override
-	public void triggerJob(String triggerId, List<ServiceDetail> triggerDetail) {
+	public void triggerJob(String triggerId, List<ServiceDetail> triggerDetail) throws Exception {
 		for (ServiceDetail trigger : triggerDetail) {
-			JobDTO job = new JobDTO(triggerId, trigger.getName().name());
-			try {
-				if(trigger.getParameters().containsKey("day_of_month_to_skip")) {
-					List<Integer> days = List.of(trigger.getParameters().get("day_of_month_to_skip").split(",")).stream().map(m->Integer.parseInt(m)).collect(Collectors.toList());
-					Calendar cal = Calendar.getInstance();
-					int dom = cal.get(Calendar.DAY_OF_MONTH);
-					if(days.contains(dom)) {
-						continue;
-					}
-				}
-				
-				commonDO.startJob(job, trigger);
-				processJobs(trigger, job);
-			} catch (Exception e) {
-				job.setError(e);
-				log.error("Error in cron service: ", e);
-			} finally {
-				try {
-					commonDO.endJob(job, job.getOutput());
-				} catch (Exception e) {
-					log.error("Error in ending job: ", e);
+			if (trigger.getParameters().containsKey("day_of_month_to_skip")) {
+				List<Integer> days = List.of(trigger.getParameters().get("day_of_month_to_skip").split(",")).stream()
+						.map(m -> Integer.parseInt(m)).collect(Collectors.toList());
+				Calendar cal = Calendar.getInstance();
+				int dom = cal.get(Calendar.DAY_OF_MONTH);
+				if (days.contains(dom)) {
+					continue;
 				}
 			}
+			String name = trigger.getName().name();
+			commonDO.submitJob(triggerId, name, (job) -> {
+				try {
+					processJobs(trigger, job);
+					return true;
+				} catch (Exception e) {
+					job.setError(e);
+					log.error("Error in cron service: ", e);
+					return false;
+				}
+			});			
 		}
 	}
 
-	private void processJobs(ServiceDetail trigger,JobDTO job) throws Exception {
+	private void processJobs(ServiceDetail trigger, JobDTO job) throws Exception {
 		Map<String, String> parameters = trigger.getParameters();
-		Object output= null;
+		Object output = null;
+		job.setInput(trigger);
 		switch (trigger.getName()) {
-		//TODO Schedule this everyday at 7AM 
+		// TODO Schedule this everyday at 7AM
 		case SYNC_SYSTEMS:
 			commonDO.syncSystems(job);
 			break;
-		//TODO Schedule this on 1st day of every month at 7AM
+		// TODO Schedule this on 1st day of every month at 7AM
 		case CREATE_DONATION:
 			UserDetailFilter filters = new UserDetailFilter();
 			filters.setStatus(List.of(ProfileStatus.ACTIVE, ProfileStatus.BLOCKED));
 			List<UserDTO> users = userDO.retrieveAllUsers(null, null, filters).getContent();
 			output = donationDO.createBulkMonthlyDonation(users, job);
 			break;
-		//TODO Schedule Everyday at 7AM after 15th of month
+		// TODO Schedule Everyday at 7AM after 15th of month
 		case DONATION_REMINDER_EMAIL:
 			donationDO.sendDonationReminderEmail(job);
 			break;
-		//TODO Schedule this on 15st day of every month at 7AM
+		// TODO Schedule this on 15st day of every month at 7AM
 		case UPDATE_DONATION:
 			donationDO.convertToPendingDonation(job);
 			break;
-		//TODO Schedule Everyday at 7AM and 7 PM
+		// TODO Schedule Everyday at 7AM and 7 PM
 		case TASK_REMINDER_EMAIL:
 			requestDO.sendTaskReminderEmail(job);
 			break;
@@ -147,7 +144,7 @@ public class AdminBLImpl extends BaseBLImpl implements IAdminBL {
 					: parameters.get("sync_role").equalsIgnoreCase("Y");
 			String user_id = parameters.get("user_id") == null ? null : parameters.get("user_id");
 			String user_email = parameters.get("user_email") == null ? null : parameters.get("user_email");
-			userDO.syncUserDetail(job,syncRole, user_id, user_email);
+			userDO.syncUserDetail(job, syncRole, user_id, user_email);
 			break;
 		default:
 			throw new BusinessException("Invalid Service " + trigger.getName());

@@ -107,36 +107,6 @@ public class DonationDO extends AccountDO {
 		}
 	}
 	
-	
-//	public void autoRaiseRegularDonation(List<UserDTO> users) throws Exception {
-//
-//		Calendar cal = Calendar.getInstance();
-//		cal.setTime(CommonUtils.getSystemDate());
-//		cal.set(Calendar.DAY_OF_MONTH, 1);
-//		Date startDate = cal.getTime();
-//		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-//		Date endDate = cal.getTime();
-//
-//		for (UserDTO user : users) {
-//			if (!CommonUtils.isCurrentMonth(user.getAdditionalDetails().getCreatedOn())
-//					&& !checkIfDonationRaised(user.getProfileId(), startDate, endDate)) {
-//				DonationDetail donationDetail = new DonationDetail();
-//				donationDetail.setDonorDetails(BusinessObjectConverter.toUserDetail(user,businessDomainHelper.getDomainKeyValues()));
-//				donationDetail.setEndDate(endDate);
-//				donationDetail.setIsGuest(false);
-//				donationDetail.setStartDate(startDate);
-//				donationDetail.setDonationType(DonationType.REGULAR);
-//				try {
-//					DonationDTO donation = raiseDonation(donationDetail);
-//					log.info("Automatically raised donation id : " + donation.getId());
-//				} catch (Exception e) {
-//					log.error("Exception occured during automatic donation creation ", e);
-//				}
-//				Thread.sleep(2000);
-//			}
-//		}
-//
-//	}
 
 	public DonationDTO raiseDonation(DonationDetail donationDetail) throws Exception {
 		DonationDTO donationDTO = businessDomainHelper.convertToDonationDTO(donationDetail);
