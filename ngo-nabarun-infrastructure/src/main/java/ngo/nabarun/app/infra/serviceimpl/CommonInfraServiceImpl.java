@@ -49,6 +49,7 @@ import ngo.nabarun.app.infra.core.entity.ApiKeyEntity;
 import ngo.nabarun.app.infra.core.entity.CustomFieldEntity;
 import ngo.nabarun.app.infra.core.entity.DBSequenceEntity;
 import ngo.nabarun.app.infra.core.entity.DashboardCountEntity;
+import ngo.nabarun.app.infra.core.entity.DocumentMappingEntity;
 import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.TicketInfoEntity;
@@ -56,10 +57,13 @@ import ngo.nabarun.app.infra.core.repo.ApiKeyRepository;
 import ngo.nabarun.app.infra.core.repo.CustomFieldRepository;
 import ngo.nabarun.app.infra.core.repo.DBSequenceRepository;
 import ngo.nabarun.app.infra.core.repo.DashboardCountRepository;
+import ngo.nabarun.app.infra.core.repo.DocumentMappingRepository;
 import ngo.nabarun.app.infra.core.repo.DocumentRefRepository;
 import ngo.nabarun.app.infra.core.repo.LogsRepository;
 import ngo.nabarun.app.infra.core.repo.TicketRepository;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
@@ -111,6 +115,9 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 
 	@Autowired
 	private DocumentRefRepository documentRefRepository;
+
+	@Autowired
+	private DocumentMappingRepository documentMappingRepository;
 
 	@Autowired
 	private CustomFieldRepository fieldRepository;
@@ -269,34 +276,34 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 	}
 
 	@Override
-	public DocumentDTO uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType)
+	public DocumentDTO uploadDocument(MultipartFile file, List<DocumentMappingDTO> documentMapping)
 			throws ThirdPartyException {
-		String remotefileName = buildRemoteFileName(file.getOriginalFilename(), docIndexType);
+		String remotefileName = buildRemoteFileName(file.getOriginalFilename(), null);
 		String fileDownloadableUrl = fileStorageService.uploadFile(remotefileName, file);
-		DocumentRefEntity docRef = addDocumentReference(file.getOriginalFilename(), remotefileName, docIndexId,
-				docIndexType.name(), fileDownloadableUrl, file.getContentType());
+		DocumentRefEntity docRef = addDocumentReference(file.getOriginalFilename(), remotefileName, fileDownloadableUrl,
+				file.getContentType());
+		createDocumentIndex(docRef.getId(), documentMapping);
 		return InfraDTOHelper.convertToDocumentDTO(docRef);
 	}
 
 	@Override
-	public DocumentDTO uploadDocument(String originalFileName, String contentType, String docIndexId,
-			DocumentIndexType docIndexType, byte[] content) throws ThirdPartyException {
-		String remotefileName = buildRemoteFileName(originalFileName, docIndexType);
-		String fileDownloadableUrl = fileStorageService.uploadFile(remotefileName, contentType, content);
-		DocumentRefEntity docRef = addDocumentReference(originalFileName, remotefileName, docIndexId,
-				docIndexType.name(), fileDownloadableUrl, contentType);
+	public DocumentDTO uploadDocument(DocumentUploadDTO documentUploadDTO) throws ThirdPartyException {
+		String remotefileName = buildRemoteFileName(documentUploadDTO.getOriginalFileName(), null);
+		String fileDownloadableUrl = fileStorageService.uploadFile(remotefileName, documentUploadDTO.getContentType(),
+				documentUploadDTO.getContent());
+		DocumentRefEntity docRef = addDocumentReference(documentUploadDTO.getOriginalFileName(), remotefileName,
+				fileDownloadableUrl, documentUploadDTO.getContentType());
+		createDocumentIndex(docRef.getId(), documentUploadDTO.getDocumentMapping());
 		return InfraDTOHelper.convertToDocumentDTO(docRef);
 	}
 
-	private DocumentRefEntity addDocumentReference(String originalFileName, String remotefileName, String docIndexId,
-			String docIndexType, String fileDownloadableUrl, String contentType) {
+	private DocumentRefEntity addDocumentReference(String originalFileName, String remotefileName,
+			String fileDownloadableUrl, String contentType) {
 		DocumentRefEntity docRef = new DocumentRefEntity();
 		docRef.setId(UUID.randomUUID().toString());
 		docRef.setRemoteFileName(remotefileName);
 		docRef.setCreatedOn(CommonUtils.getSystemDate());
 		docRef.setDeleted(false);
-		docRef.setDocumentRefId(docIndexId);
-		docRef.setDocumentType(docIndexType);
 		docRef.setDownloadUrl(fileDownloadableUrl);
 		docRef.setFileType(contentType);
 		docRef.setOriginalFileName(originalFileName);
@@ -307,9 +314,11 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 
 	private String buildRemoteFileName(String originalFileName, DocumentIndexType docType) {
 		String extension = FilenameUtils.getExtension(originalFileName);
+		if (docType == null) {
+			return UUID.randomUUID().toString() + "." + extension;
+		}
 		return docType.getDocFolderName() + "/" + UUID.randomUUID().toString() + "."
 				+ (extension == null ? "zip" : extension);
-
 	}
 
 	@Override
@@ -328,23 +337,31 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 		boolean deleted = fileStorageService.removeFileByFilename(remoteFileName);
 		if (deleted) {
 			documentRefRepository.delete(docRef);
+			List<DocumentMappingEntity> mappedDoc=documentMappingRepository.findByDocumentId(docId);
+			documentMappingRepository.deleteAll(mappedDoc);
 		}
+		
 		return deleted;
 	}
 
 	@Override
 	public List<DocumentDTO> getDocumentList(String docRefId, DocumentIndexType documentType) {
-		List<DocumentRefEntity> docList = documentRefRepository.findByDocumentRefIdAndDocumentType(docRefId,
+		List<DocumentMappingEntity> docList = documentMappingRepository.findByDocumentRefIdAndDocumentType(docRefId,
 				documentType.name());
-		return docList.stream().map(m -> InfraDTOHelper.convertToDocumentDTO(m)).toList();
+		return docList.stream().map(m -> InfraDTOHelper.convertToDocumentDTO(m.getDocumentRef())).toList();
 	}
 
 	@Override
-	public DocumentDTO createDocumentIndex(DocumentDTO document) {
-		DocumentRefEntity index = addDocumentReference(document.getOriginalFileName(), document.getRemoteFileName(),
-				document.getDocumentRefId(), document.getDocumentType().name(), document.getDocumentURL(),
-				document.getFileType());
-		return InfraDTOHelper.convertToDocumentDTO(index);
+	public void createDocumentIndex(String documentId, List<DocumentMappingDTO> documentMapping) {
+		for (DocumentMappingDTO docMap : documentMapping) {
+			DocumentMappingEntity docMapEntity = new DocumentMappingEntity();
+			docMapEntity.setId(UUID.randomUUID().toString());
+			docMapEntity.setCreatedOn(CommonUtils.getSystemDate());
+			docMapEntity.setDocumentId(documentId);
+			docMapEntity.setDocumentRefId(docMap.getDocIndexId());
+			docMapEntity.setDocumentType(docMap.getDocIndexType() == null ? null : docMap.getDocIndexType().name());
+			documentMappingRepository.save(docMapEntity);
+		}
 	}
 
 	@Override
@@ -722,5 +739,4 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 		String body = gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
 		return body.replaceAll("\n", "");
 	}
-
 }

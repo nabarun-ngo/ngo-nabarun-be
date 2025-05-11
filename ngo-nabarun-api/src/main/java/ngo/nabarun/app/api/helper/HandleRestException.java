@@ -41,13 +41,14 @@ public class HandleRestException {
 	@ExceptionHandler(value = { Exception.class })
 	@NoLogging
 	public ResponseEntity<ErrorResponse> handleServerExceptions(Exception ex) {
-		//ex.printStackTrace();
+		if(includeErrorDetails) {
+			ex.printStackTrace();
+		}
 		if (ex instanceof BusinessException) {
 			return new ErrorResponse(ex,includeErrorDetails).get(HttpStatus.BAD_REQUEST);
 		}
 		Exception exception=new Exception(DEFAULT_ERROR_MESSAGE);
 		exception.initCause(ex);
-		System.out.println(includeErrorDetails);
 		return new ErrorResponse(exception,includeErrorDetails).get(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 

@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
@@ -43,6 +45,8 @@ import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.JobDTO;
@@ -201,6 +205,14 @@ public class CommonDO {
     // SECTION : OTP VALIDATION
 	//------------------------------------------------------------------------------------------------
 
+	public String generateEventId() {
+		String seqName = "EVENT_SEQUENCE";
+		String pattern = "NEV%sR%s";
+		String ran = PasswordUtils.generateRandomNumber(3);
+		int seq = sequenceInfraService.incrementEntirySequence(seqName);
+		return String.format(pattern, ran, seq);
+	}
+
 	/**
 	 * Generate and send OTP to user
 	 * 
@@ -355,60 +367,107 @@ public class CommonDO {
 		correspondenceInfraService.updateNotification(id, new NotificationDTO(objectMap));
 	}
 
-//	private Map<String, String> prepareDataMap(Map<String, String> countMap) {
-//		Map<String, String> dataMap = new HashMap<>();
-//		if (countMap.containsKey(BusinessConstants.attr_DB_pendingDonationAmount)) {
-//			String donation = countMap.get(BusinessConstants.attr_DB_pendingDonationAmount);
-//			if (donation != null) {
-//				dataMap.put("donationAmount", "₹ " + donation);
-//				dataMap.put("needActionDonation", Double.valueOf(donation) > 0 ? "Y" : "N");
-//			}
-//		}
-//		if (countMap.containsKey(BusinessConstants.attr_DB_accountBalance)) {
-//			String account = countMap.get(BusinessConstants.attr_DB_accountBalance);
-//			if (account != null) {
-//				dataMap.put("needActionAccount", "N");
-//				dataMap.put("accountAmount", "₹ " + account);
-//			}
-//		}
-//
-//		if (countMap.containsKey(BusinessConstants.attr_DB_memberCount)) {
-//			String member = countMap.get(BusinessConstants.attr_DB_memberCount);
-//			if (member != null) {
-//				dataMap.put("needActionMember", "N");
-//				dataMap.put("memberCount", member);
-//			}
-//		}
-//		if (countMap.containsKey(BusinessConstants.attr_DB_noticeCount)) {
-//			String notice = countMap.get(BusinessConstants.attr_DB_noticeCount);
-//			if (notice != null) {
-//				dataMap.put("needActionNotice", "N");
-//				dataMap.put("noticeCount", notice);
-//			}
-//		}
-//		if (countMap.containsKey(BusinessConstants.attr_DB_requestCount)) {
-//			String request = countMap.get(BusinessConstants.attr_DB_requestCount);
-//			if (request != null) {
-//				dataMap.put("needActionRequest", Integer.parseInt(request) > 0 ? "Y" : "N");
-//				dataMap.put("requestCount", request);
-//			}
-//		}
-//		if (countMap.containsKey(BusinessConstants.attr_DB_workCount)) {
-//			String work = countMap.get(BusinessConstants.attr_DB_workCount);
-//			if (work != null) {
-//				dataMap.put("needActionWork", Integer.parseInt(work) > 0 ? "Y" : "N");
-//				dataMap.put("workCount", work + "");
-//			}
-//		}
-//
-//		if (countMap.containsKey(BusinessConstants.attr_DB_notificationCount)) {
-//			String notification = countMap.get(BusinessConstants.attr_DB_notificationCount);
-//			if (notification != null) {
-//				dataMap.put("notificationCount", notification);
-//			}
-//		}
-//		return dataMap;
-//	}
+
+	@Async
+	public void uploadDocument(DocumentDetailUpload file) throws Exception {
+		byte[] content = Base64.decodeBase64(file.getBase64Content());
+		DocumentUploadDTO docDTO = new DocumentUploadDTO();
+		docDTO.setContent(content);
+		docDTO.setContentType(file.getContentType());
+		docDTO.setOriginalFileName(file.getOriginalFileName());
+		docDTO.setDocumentMapping(new ArrayList<>());
+		for (DocumentMapping mapping : file.getDocumentMapping()) {
+			DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+			documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+			documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+			docDTO.getDocumentMapping().add(documentMappingDTO);
+		}
+		documentInfraService.uploadDocument(docDTO);
+	}
+
+	@Async
+	public void uploadDocument(MultipartFile file, List<DocumentMapping> documentMapping) throws Exception {
+		List<DocumentMappingDTO> documentMappingDTOList = new ArrayList<>();
+		for (DocumentMapping mapping : documentMapping) {
+			DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+			documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+			documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+			documentMappingDTOList.add(documentMappingDTO);
+		}
+		documentInfraService.uploadDocument(file, documentMappingDTOList);
+	}
+
+	public URL getDocumentUrl(String docId) throws Exception {
+		String docLinkValidity = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DOCUMENT_LINK_VALIDITY);
+		return documentInfraService.getTempDocumentUrl(docId, Integer.parseInt(docLinkValidity), TimeUnit.SECONDS);
+	}
+
+	public boolean deleteDocument(String docId) throws Exception {
+		return documentInfraService.hardDeleteDocument(docId);
+	}
+
+	@Async
+	public void sendDashboardCounts(String userId) throws Exception {
+		Map<String, String> countMap = sequenceInfraService.getDashboardCounts(userId);
+		Map<String, String> dataMap = prepareDataMap(countMap);
+		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
+				"", "", dataMap);
+	}
+
+	private Map<String, String> prepareDataMap(Map<String, String> countMap) {
+		Map<String, String> dataMap = new HashMap<>();
+		if (countMap.containsKey(BusinessConstants.attr_DB_pendingDonationAmount)) {
+			String donation = countMap.get(BusinessConstants.attr_DB_pendingDonationAmount);
+			if (donation != null) {
+				dataMap.put("donationAmount", "₹ " + donation);
+				dataMap.put("needActionDonation", Double.valueOf(donation) > 0 ? "Y" : "N");
+			}
+		}
+		if (countMap.containsKey(BusinessConstants.attr_DB_accountBalance)) {
+			String account = countMap.get(BusinessConstants.attr_DB_accountBalance);
+			if (account != null) {
+				dataMap.put("needActionAccount", "N");
+				dataMap.put("accountAmount", "₹ " + account);
+			}
+		}
+
+		if (countMap.containsKey(BusinessConstants.attr_DB_memberCount)) {
+			String member = countMap.get(BusinessConstants.attr_DB_memberCount);
+			if (member != null) {
+				dataMap.put("needActionMember", "N");
+				dataMap.put("memberCount", member);
+			}
+		}
+		if (countMap.containsKey(BusinessConstants.attr_DB_noticeCount)) {
+			String notice = countMap.get(BusinessConstants.attr_DB_noticeCount);
+			if (notice != null) {
+				dataMap.put("needActionNotice", "N");
+				dataMap.put("noticeCount", notice);
+			}
+		}
+		if (countMap.containsKey(BusinessConstants.attr_DB_requestCount)) {
+			String request = countMap.get(BusinessConstants.attr_DB_requestCount);
+			if (request != null) {
+				dataMap.put("needActionRequest", Integer.parseInt(request) > 0 ? "Y" : "N");
+				dataMap.put("requestCount", request);
+			}
+		}
+		if (countMap.containsKey(BusinessConstants.attr_DB_workCount)) {
+			String work = countMap.get(BusinessConstants.attr_DB_workCount);
+			if (work != null) {
+				dataMap.put("needActionWork", Integer.parseInt(work) > 0 ? "Y" : "N");
+				dataMap.put("workCount", work + "");
+			}
+		}
+
+		if (countMap.containsKey(BusinessConstants.attr_DB_notificationCount)) {
+			String notification = countMap.get(BusinessConstants.attr_DB_notificationCount);
+			if (notification != null) {
+				dataMap.put("notificationCount", notification);
+			}
+		}
+		return dataMap;
+	}
 
 	@Async
 	public void updateAndSendDashboardCounts(String userId, Function<Object, Map<String, String>> action) {
@@ -487,9 +546,10 @@ public class CommonDO {
 			DocumentIndexType destIndexType) {
 		List<DocumentDTO> docDTos = documentInfraService.getDocumentList(sourceId, sourceIndexType);
 		for (DocumentDTO docDTO : docDTos) {
-			docDTO.setDocumentRefId(destId);
-			docDTO.setDocumentType(destIndexType);
-			documentInfraService.createDocumentIndex(docDTO);
+			DocumentMappingDTO docMapDTO = new DocumentMappingDTO();
+			docMapDTO.setDocIndexId(destId);
+			docMapDTO.setDocIndexType(destIndexType);
+			documentInfraService.createDocumentIndex(docDTO.getDocId(),List.of(docMapDTO));
 		}
 	}
 
@@ -501,12 +561,12 @@ public class CommonDO {
 
 	public void syncSystems(JobDTO job) throws Exception {
 		job.log("[INFO] -----Starting System SYNC -----");
-		String apikey_sg = propertyHelper.getSendGridAPIKey();
-		String sender = propertyHelper.getDefaultEmailSender();
-		job.log("[INFO] -----Syncing Auth0 Email provider -----");
-		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
-		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
-		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
+//		String apikey_sg = propertyHelper.getSendGridAPIKey();
+//		String sender = propertyHelper.getDefaultEmailSender();
+//		job.log("[INFO] -----Syncing Auth0 Email provider -----");
+//		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
+//		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
+//		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
 		job.log("[INFO] -----Ending System SYNC -----");
 	}
 

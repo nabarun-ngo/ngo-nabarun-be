@@ -12,19 +12,28 @@ public class ExpenseDTO {
 	private String id;
 	private String name;
 	private String description;
+	private Date expenseDate;
 	private UserDTO createdBy;
 	private Date createdOn;
-	private Date finalizedOn;
+	private boolean admin;
+	private boolean deligated;
+	private UserDTO paidBy;
+	private UserDTO updatedBy;
+	private Date updatedOn;
 	private UserDTO finalizedBy;
-	private boolean finalized;
+	private ExpenseStatus status;
+	private Date finalizedOn;
+	private UserDTO settledBy;
+	private Date settledOn;
 	private List<ExpenseItemDTO> expenseItems;
 	private Double finalAmount;
-	private String refId;
-	private ExpenseRefType refType;
-	private ExpenseStatus status;
+	private ExpenseRefType expenseRefType;
+	private String expenseRefId;
 	private String txnNumber;
-	private AccountDTO account;
-	private Date expenseDate;
+	private AccountDTO settlementAccount;
+	private UserDTO rejectedBy;
+	private Date rejectedOn;
+	private String remarks;
 
 	@Data
 	public static class ExpenseDTOFilter {
@@ -33,26 +42,16 @@ public class ExpenseDTO {
 		private ExpenseRefType refType;
 		private Date startDate;
 		private Date endDate;
-		private Boolean approved;
-		private Boolean finalized;
-
+		private String payerId;
+		private List<ExpenseStatus> status;
 	}
-	
+
 	@Data
 	public static class ExpenseItemDTO {
 		private String id;
 		private String itemName;
 		private String description;
 		private Double amount;
-		private boolean remove;
-		private AccountDTO account;
-		private UserDTO createdBy;
-		private Date createdOn;
-		private Date date;
-		private ExpenseStatus status;
-		private String txnNumber;
-		private UserDTO confirmedBy;
-
 
 	}
 

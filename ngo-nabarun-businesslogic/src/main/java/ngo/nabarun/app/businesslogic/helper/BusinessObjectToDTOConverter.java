@@ -119,7 +119,7 @@ public class BusinessObjectToDTOConverter {
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setBudget(eventDetail.getEventBudget());
 		eventDTO.setCoverPic(eventDetail.getCoverPicture());
-		eventDTO.setCreatorId(eventDetail.getCreatorName());
+		//eventDTO.setCreatorId(eventDetail.getCreatorName());
 		eventDTO.setDescription(eventDetail.getEventDescription());
 		eventDTO.setDraft(eventDetail.isDraft());
 		eventDTO.setEventDate(eventDetail.getEventDate());

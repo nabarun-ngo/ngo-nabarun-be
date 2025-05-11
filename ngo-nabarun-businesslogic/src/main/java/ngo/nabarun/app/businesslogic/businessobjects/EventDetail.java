@@ -42,78 +42,26 @@ public class EventDetail {
 	@JsonProperty("totalExpenditure")
 	private Double totalExpenditure;
 	
-	@JsonProperty("creatorName")
-	private String creatorName;
+	@JsonProperty("createdBy")
+	private UserDetail createdBy;
 	
 	@Data
 	public static class EventDetailFilter {
 
-		@JsonProperty("eventTitle")
-		private String title;
-
-		@JsonProperty("eventType")
-		private EventType eventType;
-	}
-	
-	@Deprecated
-	@Data
-	public class EventDetailCreate {
+		@JsonProperty("id")
+		private String id;
 		
 		@JsonProperty("eventTitle")
 		private String title;
-		
-		@JsonProperty("eventDescription")
-		private String eventDescription;
-		
-		@JsonProperty("eventDate")
-		@JsonFormat(shape = JsonFormat.Shape.STRING)
-		private Date eventDate;
-		
-		@JsonProperty("eventLocation")
-		private String eventLocation;
 
-		@JsonProperty("base64Image")
-		private String base64Image;
+		@JsonProperty("fromDate")
+		private Date fromDate;
 		
-		@JsonProperty("isDraft")
-		private boolean draft;
+		@JsonProperty("toDate")
+		private Date toDate;
 		
-		@JsonProperty("eventBudget")
-		private Double eventBudget;
-		
-	}
-	
-	@Deprecated
-	@Data
-	public class EventDetailUpdate {
-		
-		@JsonProperty("eventTitle")
-		private String title;
-		
-		@JsonProperty("eventDescription")
-		private String eventDescription;
-		
-		@JsonProperty("eventDate")
-		@JsonFormat(shape = JsonFormat.Shape.STRING)
-		private Date eventDate;
-		
-		@JsonProperty("eventLocation")
-		private String eventLocation;
-
-		@JsonProperty("base64Image")
-		private String base64Image;
-		
-		@JsonProperty("removeCoverPic")
-		private boolean removeCoverPic;
-		
-		@JsonProperty("eventType")
-		private EventType eventType;
-		
-		@JsonProperty("publish")
-		private Boolean publish;
-		
-		@JsonProperty("eventBudget")
-		private Double eventBudget;
+		@JsonProperty("completed")
+		private Boolean completed;
 	}
 	
 	

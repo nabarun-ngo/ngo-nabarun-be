@@ -15,6 +15,7 @@ import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail.UserAction;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
@@ -222,7 +223,10 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			 */
 			if(interview.getFiles() != null && interview.getFiles().length > 0) {
 				for(MultipartFile file:interview.getFiles()) {
-					requestDO.uploadDocument(file, requestDTO.getId(), DocumentIndexType.REQUEST);
+					DocumentMapping documentMapping = new DocumentMapping();
+					documentMapping.setDocIndexId(requestDTO.getId());
+					documentMapping.setDocIndexType(DocumentIndexType.REQUEST);
+					requestDO.uploadDocument(file, List.of(documentMapping));
 				}
 			}
 				
