@@ -367,45 +367,6 @@ public class CommonDO {
 		correspondenceInfraService.updateNotification(id, new NotificationDTO(objectMap));
 	}
 
-
-	@Async
-	public void uploadDocument(DocumentDetailUpload file) throws Exception {
-		byte[] content = Base64.decodeBase64(file.getBase64Content());
-		DocumentUploadDTO docDTO = new DocumentUploadDTO();
-		docDTO.setContent(content);
-		docDTO.setContentType(file.getContentType());
-		docDTO.setOriginalFileName(file.getOriginalFileName());
-		docDTO.setDocumentMapping(new ArrayList<>());
-		for (DocumentMapping mapping : file.getDocumentMapping()) {
-			DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
-			documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
-			documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
-			docDTO.getDocumentMapping().add(documentMappingDTO);
-		}
-		documentInfraService.uploadDocument(docDTO);
-	}
-
-	@Async
-	public void uploadDocument(MultipartFile file, List<DocumentMapping> documentMapping) throws Exception {
-		List<DocumentMappingDTO> documentMappingDTOList = new ArrayList<>();
-		for (DocumentMapping mapping : documentMapping) {
-			DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
-			documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
-			documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
-			documentMappingDTOList.add(documentMappingDTO);
-		}
-		documentInfraService.uploadDocument(file, documentMappingDTOList);
-	}
-
-	public URL getDocumentUrl(String docId) throws Exception {
-		String docLinkValidity = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DOCUMENT_LINK_VALIDITY);
-		return documentInfraService.getTempDocumentUrl(docId, Integer.parseInt(docLinkValidity), TimeUnit.SECONDS);
-	}
-
-	public boolean deleteDocument(String docId) throws Exception {
-		return documentInfraService.hardDeleteDocument(docId);
-	}
-
 	@Async
 	public void sendDashboardCounts(String userId) throws Exception {
 		Map<String, String> countMap = sequenceInfraService.getDashboardCounts(userId);
@@ -501,14 +462,19 @@ public class CommonDO {
 	//------------------------------------------------------------------------------------------------
     // SECTION : FILE UPLOADS 
 	//------------------------------------------------------------------------------------------------
-	public void uploadDocument(DocumentDetailUpload file, String docIndexId, DocumentIndexType docIndexType)
+	public void uploadDocument(MultipartFile file, List<DocumentMapping> documentMapping)
 			throws Exception {
-		submitJob(docIndexId, "Upload file", (job) -> {
+		String ids=String.join(",", documentMapping.stream().map(m->m.getDocIndexId()).toList());
+		submitJob(ids, "Upload file", (job) -> {
 			try {
-				byte[] content = file.getContent() == null ? Base64.decodeBase64(file.getBase64Content())
-						: file.getContent();
-				documentInfraService.uploadDocument(file.getOriginalFileName(), file.getContentType(), docIndexId,
-						docIndexType, content);
+				List<DocumentMappingDTO> documentMappingDTOList = new ArrayList<>();
+				for (DocumentMapping mapping : documentMapping) {
+					DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+					documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+					documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+					documentMappingDTOList.add(documentMappingDTO);
+				}
+				documentInfraService.uploadDocument(file, documentMappingDTOList);
 				return true;
 			} catch (ThirdPartyException e) {
 				job.setError(e);
@@ -517,10 +483,23 @@ public class CommonDO {
 		});
 	}
 
-	public void uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType) throws Exception {
-		submitJob(docIndexId, "Upload file", (job) -> {
+	public void uploadDocument(DocumentDetailUpload file) throws Exception {
+		String ids=String.join(",", file.getDocumentMapping().stream().map(m->m.getDocIndexId()).toList());
+		submitJob(ids, "Upload file", (job) -> {
 			try {
-				documentInfraService.uploadDocument(file, docIndexId, docIndexType);
+				byte[] content = Base64.decodeBase64(file.getBase64Content());
+				DocumentUploadDTO docDTO = new DocumentUploadDTO();
+				docDTO.setContent(content);
+				docDTO.setContentType(file.getContentType());
+				docDTO.setOriginalFileName(file.getOriginalFileName());
+				docDTO.setDocumentMapping(new ArrayList<>());
+				for (DocumentMapping mapping : file.getDocumentMapping()) {
+					DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+					documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+					documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+					docDTO.getDocumentMapping().add(documentMappingDTO);
+				}
+				documentInfraService.uploadDocument(docDTO);				
 				return true;
 			} catch (ThirdPartyException e) {
 				job.setError(e);
