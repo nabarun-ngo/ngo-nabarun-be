@@ -654,8 +654,8 @@ public class BusinessObjectConverter {
 	
 	public static JobDetail toJobDetail(JobDTO job) {
 		JobDetail jobDetail= new JobDetail();
-		jobDetail.setDuration(job.getDuration());		
-		jobDetail.setEnd(job.getEnd());
+		jobDetail.setDuration(job.getEndAt().getTime()-job.getStartAt().getTime());		
+		jobDetail.setEndAt(job.getEndAt());
 		jobDetail.setError(job.getError());
 		jobDetail.setId(job.getId());
 		jobDetail.setInput(jobDetail.getInput());
@@ -664,8 +664,10 @@ public class BusinessObjectConverter {
 		jobDetail.setMemoryAtStart(job.getMemoryAtStart());
 		jobDetail.setName(job.getName());
 		jobDetail.setOutput(jobDetail.getOutput());
-		jobDetail.setQueue(job.getQueue());
-		jobDetail.setStart(job.getStart());
+		jobDetail.setQueue(job.getStartAt().getTime()-job.getSubmitAt().getTime());
+		jobDetail.setStartAt(job.getStartAt());
+		jobDetail.setSubmitAt(job.getSubmitAt());
+
 		jobDetail.setStatus(job.getStatus());
 		jobDetail.setTriggerId(job.getTriggerId());
 		return jobDetail;

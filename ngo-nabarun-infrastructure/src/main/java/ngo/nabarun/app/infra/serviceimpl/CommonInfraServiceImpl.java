@@ -73,6 +73,7 @@ import ngo.nabarun.app.infra.dto.NTokenDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO;
 import ngo.nabarun.app.infra.dto.NotificationDTO.NotificationDTOFilter;
 import ngo.nabarun.app.infra.dto.TicketDTO;
+import ngo.nabarun.app.infra.dto.UserDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 import ngo.nabarun.app.infra.misc.InfraDTOHelper;
@@ -507,23 +508,13 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 
 	@Override
 	public NotificationDTO createAndSendNotification(NotificationDTO notificationDTO) throws Exception {
-		// Map<String, Object> sourceMap = notificationDTO.toSourceMap();
 		if (notificationDTO.getTarget() != null && !notificationDTO.getTarget().isEmpty()) {
-			List<String> userIds = notificationDTO.getTarget().stream().map(m -> m.getUserId())
-					.collect(Collectors.toList());
-			for (String userId : userIds) {
-				List<String> message_ids = sendNotificationMessage(userId, notificationDTO.getTitle(),
-						notificationDTO.getSummary(), notificationDTO.getImage(), notificationDTO.toMap());
-				if (!message_ids.isEmpty()) {
-					notificationDTO.toSourceMap().put("message_ids", message_ids);
-				}
+			for (UserDTO targetUser : notificationDTO.getTarget()) {
+				String id = messageExtService.saveItemInRealtimeDB("notifications/"+targetUser.getUserId(), notificationDTO.toMap());
+				notificationDTO.setId(id);
 			}
-			notificationDTO.setTargetUserIds(userIds);
-			notificationDTO.setId(UUID.randomUUID().toString());
 		}
-		NotificationDTO data = collectionExtService.storeCollectionData(COLLECTION_NOTIFICATION,
-				notificationDTO.getId(), notificationDTO);
-		return data;
+		return notificationDTO;
 	}
 
 	@Override
