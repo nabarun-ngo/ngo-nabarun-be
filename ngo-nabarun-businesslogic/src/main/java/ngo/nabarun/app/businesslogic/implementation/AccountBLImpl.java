@@ -110,7 +110,7 @@ public class AccountBLImpl extends BaseBLImpl implements IAccountBL {
 			businessHelper.throwBusinessExceptionIf(() -> txnDetail.getTxnAmount() > myAccount.getCurrentBalance(),
 					ExceptionEvent.INSUFFICIENT_ACCOUNT_BALANCE);
 		}
-		txnDetail.setTxnDate(CommonUtils.getSystemDate());
+		txnDetail.setTxnDate(txnDetail.getTxnDate() != null ?txnDetail.getTxnDate() : CommonUtils.getSystemDate());
 		TransactionDTO transaction = accountDO.createTransaction(txnDetail, myAccount.getProfile());
 		return BusinessObjectConverter.toTransactionDetail(transaction, true, null);
 	}
