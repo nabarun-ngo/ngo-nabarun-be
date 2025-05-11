@@ -201,7 +201,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 
 	@Override
 	public Page<TransactionDTO> getTransactions(Integer page, Integer size, TransactionDTOFilter filter) {
-		Sort sort = Sort.by(Sort.Direction.DESC, "creationDate");
+		Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
 		Page<TransactionEntity> transactions = null;
 		if (filter != null) {
 
