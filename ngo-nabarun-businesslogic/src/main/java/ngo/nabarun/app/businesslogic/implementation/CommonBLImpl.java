@@ -81,7 +81,6 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 		return commonDO.deleteDocument(docId);
 	}
 
-	@NoLogging
 	@Override
 	public Map<String, List<KeyValue>> getReferenceData(List<RefDataType> names, Map<String, String> attr)
 			throws Exception {

@@ -3,7 +3,6 @@ package ngo.nabarun.app.ext.serviceimpl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,6 +12,7 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
+import com.auth0.json.mgmt.connections.ConnectionsPage;
 import com.auth0.json.mgmt.emailproviders.EmailProvider;
 import com.auth0.json.mgmt.emailproviders.EmailProviderCredentials;
 import com.auth0.json.mgmt.resourceserver.ResourceServer;
@@ -20,10 +20,14 @@ import com.auth0.json.mgmt.tickets.PasswordChangeTicket;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Response;
 import com.auth0.net.TokenRequest;
+import com.auth0.net.client.Auth0HttpClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.helper.PropertyHelper;
+import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.ext.config.Auth0OkHttp3Client;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectConverter;
 import ngo.nabarun.app.ext.helpers.ThirdPartySystem;
@@ -32,6 +36,7 @@ import ngo.nabarun.app.ext.objects.AuthConnection;
 import ngo.nabarun.app.ext.objects.AuthUser;
 import ngo.nabarun.app.ext.objects.AuthUserRole;
 import ngo.nabarun.app.ext.service.IAuthManagementExtService;
+
 
 @Service
 public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService {
@@ -51,7 +56,9 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 			String managementAudience=propertyHelper.getAuth0ManagementAPIAudience();
 			TokenRequest tokenRequest = authAPI.requestToken(managementAudience);
 			tokenHolder = tokenRequest.execute().getBody();
-			managementAPI = ManagementAPI.newBuilder(domain, tokenHolder.getAccessToken()).build();
+
+			Auth0HttpClient client = Auth0OkHttp3Client.newBuilder().build();
+			managementAPI = ManagementAPI.newBuilder(domain, tokenHolder.getAccessToken()).withHttpClient(client).build();
 		}
 		return managementAPI;
 	}
@@ -253,11 +260,19 @@ public class Auth0ManagementExtServiceImpl implements IAuthManagementExtService 
 		}
 	}
 	
-	@Cacheable(value = "auth0_conn")
+	//@Cacheable(value = "auth0_conn")
 	@Override
 	public List<AuthConnection> getConnections() throws ThirdPartyException {
 		try {
-			return initManagementAPI().connections().listAll(null).execute().getBody().getItems().stream().map(m->ObjectConverter.toAuthConnection(m)).toList();
+			
+			ConnectionsPage connections=initManagementAPI().connections().listAll(null).execute().getBody();
+			try {
+				System.err.println(CommonUtils.toJSONString(connections, false));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return connections.getItems().stream().map(m->ObjectConverter.toAuthConnection(m)).toList();
 		} catch (Auth0Exception e) {
 			throw new ThirdPartyException(e, ThirdPartySystem.AUTH0);
 		}

@@ -422,7 +422,7 @@ public class CommonInfraServiceImpl
 				attachmentList);
 	}
 
-	@NoLogging
+	
 	@Override
 	public Map<String, List<KeyValuePair>> getDomainRefConfigs() throws Exception {
 		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_GLOBAL_CONFIG);

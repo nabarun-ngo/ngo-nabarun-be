@@ -159,10 +159,15 @@ public class ObjectConverter {
 	}
 
 	public static AuthConnection toAuthConnection(Connection connection) {
+		String passwordPolicy = null;
+		System.err.println(connection.getOptions());
+		if(connection.getOptions() != null && connection.getOptions().containsKey("passwordPolicy")) {
+			passwordPolicy =  String.valueOf(connection.getOptions().get("passwordPolicy"));
+		}
 		AuthConnection aconn= new AuthConnection();
 		aconn.setId(connection.getId());
 		aconn.setName(connection.getName());
-		aconn.setPasswordPolicy(connection.getOptions().containsKey("passwordPolicy") ? connection.getOptions().get("passwordPolicy").toString() : null);
+		aconn.setPasswordPolicy(passwordPolicy);
 		aconn.setStrategy(connection.getStrategy());
 		aconn.setDatabaseConnection(connection.getName().equalsIgnoreCase("Username-Password-Authentication"));
 		return aconn;
