@@ -116,12 +116,12 @@ public class BusinessDomainHelper {
 	private static final String ITEM_USER_CONNECTIONS__ATTR_ACTIVE = "ACTIVE";
 	private static final String ITEM_IMPORTANT_LINKS = "IMPORTANT_LINKS";
 
-	@NoLogging
+	
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
 		return domainInfraService.getDomainRefConfigs();
 	}
 
-	@NoLogging
+	
 	protected Map<String, List<KeyValuePair>> getDomainLocation() throws Exception {
 		return domainInfraService.getDomainLocationData();
 	}
@@ -130,7 +130,7 @@ public class BusinessDomainHelper {
 		return getDomainKeyValues().get(key);
 	}
 
-	@NoLogging
+	
 	public Map<String, String> getDomainKeyValues() throws Exception {
 		if (domainKeyValue.isEmpty()) {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
