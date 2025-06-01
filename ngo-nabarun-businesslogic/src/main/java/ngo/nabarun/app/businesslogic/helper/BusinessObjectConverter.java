@@ -1,7 +1,6 @@
 package ngo.nabarun.app.businesslogic.helper;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -637,7 +636,7 @@ public class BusinessObjectConverter {
 		}).collect(Collectors.toList());
 		historyDetail.setChanges(changeList);
 		historyDetail.setCreatedBy(historyDTO.getCreatedByName());
-		historyDetail.setCreatedOn(new Date(historyDTO.getCreatedOn()));
+		historyDetail.setCreatedOn(historyDTO.getCreatedOn());
 		return historyDetail;
 	}
 

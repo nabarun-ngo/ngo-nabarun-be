@@ -534,7 +534,7 @@ public class CommonDO {
 
 	public List<HistoryDTO> retrieveHistory(String refId, HistoryRefType historyType) throws Exception {
 		return historyInfraService.getHistory(historyType, refId).stream().sorted((c1, c2) -> {
-			return Long.valueOf(c2.getCreatedOn()).compareTo(Long.valueOf(c1.getCreatedOn()));
+			return Long.valueOf(c2.getCreatedOn().getTime()).compareTo(Long.valueOf(c1.getCreatedOn().getTime()));
 		}).collect(Collectors.toList());
 	}
 
