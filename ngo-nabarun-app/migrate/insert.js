@@ -5,13 +5,63 @@ const usersToInsert = [
         lastName: "TestUser"
     },
     {
-        email: "admin@nabarun.com",
-        firstName: "Admin",
+        email: "secretary@nabarun.com",
+        firstName: "Secretary",
         lastName: "TestUser"
     },
     {
-        email: "user@nabarun.com",
-        firstName: "User",
+        email: "president@nabarun.com",
+        firstName: "President",
+        lastName: "TestUser"
+    },
+    {
+        email: "technicalspecialist@nabarun.com",
+        firstName: "TechnicalSpecialist",
+        lastName: "TestUser"
+    },
+    {
+        email: "groupcoordinator@nabarun.com",
+        firstName: "GroupCoordinator",
+        lastName: "TestUser"
+    },
+    {
+        email: "treasurer@nabarun.com",
+        firstName: "Treasurer",
+        lastName: "TestUser"
+    },
+     {
+        email: "member@nabarun.com",
+        firstName: "Member",
+        lastName: "TestUser"
+    },
+    {
+        email: "assistantcommunitymanager@nabarun.com",
+        firstName: "AssistantCommunityManager",
+        lastName: "TestUser"
+    },
+    {
+        email: "communitymanager@nabarun.com",
+        firstName: "CommunityManager",
+        lastName: "TestUser"
+    },
+    {
+        email: "assistantcashier@nabarun.com",
+        firstName: "AssistantCashier",
+        lastName: "TestUser"
+    },
+    {
+        email: "assistantgroupcoordinator@nabarun.com",
+        firstName: "AssistantGroupCoordinator",
+        lastName: "TestUser"
+    },
+    {
+        email: "assistantsecretary@nabarun.com",
+        firstName: "AssistantSecretary",
+        lastName: "TestUser"
+    },
+    {
+        email: "vicepresident@nabarun.com",
+        firstName: "VicePresident",
         lastName: "TestUser"
     }
 ];
