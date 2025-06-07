@@ -137,7 +137,7 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 //	private IMessageExtService messageExtService;
 
 	// @Autowired
-	// private ICollectionExtService collectionExtService;
+	// private ICollectionExtService collectionExtService; 
 
 	@Autowired
 	private IAuthManagementExtService authManagementService;
