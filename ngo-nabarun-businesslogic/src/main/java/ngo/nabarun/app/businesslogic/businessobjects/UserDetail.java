@@ -97,6 +97,8 @@ public class UserDetail {
 	
 	private Boolean presentAndPermanentAddressSame;
 	
+	private Boolean profileCompleted;
+	
 	@JsonProperty("attributes")
 	private Map<String,Object> attributes;
 	
