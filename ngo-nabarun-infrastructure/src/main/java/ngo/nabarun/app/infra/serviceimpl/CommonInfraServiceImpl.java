@@ -453,7 +453,7 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 		ConfigTemplate[] configList = CommonUtils.jsonToPojo(config.getValue().toString(), ConfigTemplate[].class);
 		Map<String, List<KeyValuePair>> configMap = new HashMap<>();
 		for (ConfigTemplate domConfig : configList) {
-			configMap.put(domConfig.getConfigName(), domConfig.getConfigValues());
+			configMap.put(domConfig.getConfigName(), domConfig.getConfigValues().stream().filter(f->f.isActive()).toList());
 		}
 		return configMap;
 	}

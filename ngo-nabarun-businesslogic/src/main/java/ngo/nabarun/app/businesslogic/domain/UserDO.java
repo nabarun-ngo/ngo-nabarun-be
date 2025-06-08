@@ -229,8 +229,7 @@ public class UserDO extends CommonDO {
 				updatedUserDTO.setImageUrl("");
 			}
 		}
-		if (updatedUserDetails.getAbout() != null && updatedUserDetails.getGender() != null
-				&& updatedUserDetails.getTitle() != null) {
+		if (updatedUserDetails.getProfileCompleted() == Boolean.TRUE){
 			updatedUserDTO.setProfile_updated("Y");
 		}
 		userDTO = userInfraService.updateUser(id, updatedUserDTO);
