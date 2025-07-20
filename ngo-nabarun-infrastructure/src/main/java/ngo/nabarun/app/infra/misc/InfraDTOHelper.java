@@ -22,6 +22,7 @@ import ngo.nabarun.app.common.enums.DonationType;
 import ngo.nabarun.app.common.enums.EventType;
 import ngo.nabarun.app.common.enums.ExpenseRefType;
 import ngo.nabarun.app.common.enums.ExpenseStatus;
+import ngo.nabarun.app.common.enums.HistoryRefType;
 import ngo.nabarun.app.common.enums.JobStatus;
 import ngo.nabarun.app.common.enums.LoginMethod;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
@@ -55,6 +56,7 @@ import ngo.nabarun.app.infra.core.entity.DocumentRefEntity;
 import ngo.nabarun.app.infra.core.entity.DonationEntity;
 import ngo.nabarun.app.infra.core.entity.ExpenseEntity;
 import ngo.nabarun.app.infra.core.entity.ExpenseItemEntity;
+import ngo.nabarun.app.infra.core.entity.HistoryEntity;
 import ngo.nabarun.app.infra.core.entity.JobEntity;
 import ngo.nabarun.app.infra.core.entity.LogsEntity;
 import ngo.nabarun.app.infra.core.entity.NoticeEntity;
@@ -74,6 +76,8 @@ import ngo.nabarun.app.infra.dto.EventDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO;
 import ngo.nabarun.app.infra.dto.ExpenseDTO.ExpenseItemDTO;
 import ngo.nabarun.app.infra.dto.FieldDTO;
+import ngo.nabarun.app.infra.dto.HistoryDTO;
+import ngo.nabarun.app.infra.dto.HistoryDTO.ChangeDTO;
 import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.LogsDTO;
 import ngo.nabarun.app.infra.dto.MeetingDTO;
@@ -382,7 +386,7 @@ public class InfraDTOHelper {
 	public static DocumentDTO convertToDocumentDTO(DocumentRefEntity docRef) {
 		DocumentDTO documentDTO = new DocumentDTO();
 		documentDTO.setDocumentRefId(docRef.getDocumentRefId());
-		documentDTO.setDocumentType(DocumentIndexType.valueOf(docRef.getDocumentType()));
+		documentDTO.setDocumentType(docRef.getDocumentType() == null ? null : DocumentIndexType.valueOf(docRef.getDocumentType()));
 		documentDTO.setFileType(docRef.getFileType());
 		documentDTO.setImage(docRef.getFileType() == null ? false : docRef.getFileType().startsWith("image"));
 		documentDTO.setOriginalFileName(docRef.getOriginalFileName());
@@ -838,13 +842,9 @@ public class InfraDTOHelper {
 	}
 
 	public static JobDTO convertToJobDTO(JobEntity jobEntity) {
-		JobDTO jobDTO = new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
-
-		if (jobEntity.getEnd() != null && jobEntity.getStart() != null) {
-			jobDTO.setDuration(jobEntity.getEnd().getTime() - jobEntity.getStart().getTime());
-		}
-
-		jobDTO.setEnd(jobEntity.getEnd());
+		JobDTO jobDTO= new JobDTO(jobEntity.getTriggerId(), jobEntity.getName());
+		
+		jobDTO.setEndAt(jobEntity.getEnd());
 		jobDTO.setId(jobEntity.getId());
 		jobDTO.setInput(jobEntity.getInput());
 		jobDTO.setLogs(InfraFieldHelper.stringToStringList(jobEntity.getLog()));
@@ -852,11 +852,27 @@ public class InfraDTOHelper {
 		jobDTO.setMemoryAtStart(jobEntity.getMemoryAtStart());
 		if (jobEntity.getOutput() != null) {
 			jobDTO.setOutput(jobEntity.getOutput());
-		}
-
-		jobDTO.setStart(jobEntity.getStart());
+		}		
+		jobDTO.setStartAt(jobEntity.getStart());
 		jobDTO.setStatus(JobStatus.valueOf(jobEntity.getStatus()));
+		
+		jobDTO.setErrorLog("Message : "+jobEntity.getErrorMessage() +"\nCause : "+jobEntity.getErrorCause()+"\nStacktrace : \n"+jobEntity.getStackTrace());		
 		return jobDTO;
+	}
+	
+	public static HistoryDTO convertToHistoryDTO(HistoryEntity history) {
+		HistoryDTO historyDTO = new HistoryDTO();
+		historyDTO.setAction(history.getAction());		
+		historyDTO.setCreatedBy(history.getCreatedBy() );
+		historyDTO.setCreatedById(history.getCreatedById());
+		historyDTO.setCreatedByName(history.getCreatedByName());
+		historyDTO.setCreatedOn(history.getCreatedOn());	
+		historyDTO.setId(history.getId());
+		historyDTO.setReferenceId(history.getReferenceId());
+		historyDTO.setReferenceType(history.getReferenceType() == null ? null : HistoryRefType.valueOf(history.getReferenceType()));
+		ChangeDTO[] changes = CommonUtils.jsonToPojo(history.getChanges(), ChangeDTO[].class);
+		historyDTO.setChanges(List.of(changes));
+		return historyDTO;
 	}
 
 }

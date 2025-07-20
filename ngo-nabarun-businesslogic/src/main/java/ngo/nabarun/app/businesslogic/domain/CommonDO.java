@@ -1,6 +1,7 @@
 package ngo.nabarun.app.businesslogic.domain;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
- 
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,9 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.businesslogic.businessobjects.ApiKeyDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.JobDetail.JobDetailFilter;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
+import ngo.nabarun.app.businesslogic.helper.AsyncJobExecutor;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.common.enums.AdditionalConfigKey;
@@ -38,9 +41,12 @@ import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
 import ngo.nabarun.app.common.util.SecurityUtils;
+import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.infra.dto.ApiKeyDTO;
 import ngo.nabarun.app.infra.dto.CorrespondentDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 import ngo.nabarun.app.infra.dto.EmailTemplateDTO;
 import ngo.nabarun.app.infra.dto.HistoryDTO;
 import ngo.nabarun.app.infra.dto.JobDTO;
@@ -92,10 +98,16 @@ public class CommonDO {
 
 	@Autowired
 	private IJobsInfraService jobInfraService;
-	
+
 	@Autowired
 	private IGlobalDataInfraService dataInfraService;
 
+	@Autowired
+	private AsyncJobExecutor asyncJobExecutor;
+
+	//------------------------------------------------------------------------------------------------
+	// SECTION : ID GENERATION
+	//------------------------------------------------------------------------------------------------
 	/**
 	 * Generate sequential human readable number for notice
 	 * 
@@ -189,6 +201,10 @@ public class CommonDO {
 		return String.format(pattern, ran, seq);
 	}
 	
+	//------------------------------------------------------------------------------------------------
+    // SECTION : OTP VALIDATION
+	//------------------------------------------------------------------------------------------------
+
 	public String generateEventId() {
 		String seqName = "EVENT_SEQUENCE";
 		String pattern = "NEV%sR%s";
@@ -276,6 +292,9 @@ public class CommonDO {
 		}
 	}
 
+	//------------------------------------------------------------------------------------------------
+    // SECTION : EMAIL 
+	//------------------------------------------------------------------------------------------------
 	public int sendEmail(String templateName, List<CorrespondentDTO> recipients, Map<String, Object> objectMap)
 			throws Exception {
 		return sendEmail(null, templateName, recipients, objectMap);
@@ -288,16 +307,25 @@ public class CommonDO {
 		return correspondenceInfraService.sendEmail(senderName, recipients, template.getTemplateId(), template, null);
 	}
 
-	@Async
 	public void sendEmailAsync(String templateName, List<CorrespondentDTO> recipients, Map<String, Object> objectMap,
 			String triggerId, String senderName) throws Exception {
-		JobDTO emailJob = new JobDTO(triggerId, templateName);
-		startJob(emailJob, Map.of("recipients", recipients, "objectMap", objectMap, "senderName",
-				senderName == null ? "" : senderName));
-		int status = sendEmail(senderName, templateName, recipients, objectMap);
-		endJob(emailJob, status);
+
+		submitJob(triggerId, "Send Email - " + templateName, (job) -> {
+			try {
+				job.setInput(Map.of("recipients", recipients, "objectMap", objectMap, "senderName", senderName));
+				int status = sendEmail(senderName, templateName, recipients, objectMap);
+				job.setOutput(status);
+				return true;
+			} catch (Exception e) {
+				job.setError(e);
+				return false;
+			}
+		});
 	}
 
+	//------------------------------------------------------------------------------------------------
+    // SECTION : NOTIFICATIONS & DASHBOARD
+	//------------------------------------------------------------------------------------------------
 	public Paginate<Map<String, String>> getNotifications(Integer index, Integer size) {
 		NotificationDTOFilter filter = new NotificationDTOFilter();
 		filter.setTargetUserId(SecurityUtils.getAuthUserId());
@@ -307,19 +335,24 @@ public class CommonDO {
 		return new Paginate<>(page);
 	}
 
-	public void sendNotification(NotificationDTO template, List<UserDTO> recipients) throws Exception {
-		List<UserDTO> target = recipients.stream().filter(f -> f.getUserId() != null).collect(Collectors.toList());
-		template.setItemClosed(false);
-		template.setNotificationDate(CommonUtils.getSystemDate());
-		template.setTarget(target);
-		correspondenceInfraService.createAndSendNotification(template);
-	}
-
-	public void sendNotification(String templateName, Map<String, Object> objectMap, List<UserDTO> recipients)
+	public void sendNotification(String templateName, Map<String, Object> objectMap, List<UserDTO> recipients,String triggerId)
 			throws Exception {
-		NotificationDTO template = businessDomainHelper.findInterpolateAndConvertToNotificationDTO(templateName,
-				objectMap);
-		sendNotification(template, recipients);
+		submitJob(triggerId, "Send Notification - "+templateName, (job)->{
+			try {
+				NotificationDTO template = businessDomainHelper.findInterpolateAndConvertToNotificationDTO(templateName,
+						objectMap);
+				List<UserDTO> target = recipients.stream().filter(f -> f.getUserId() != null).collect(Collectors.toList());
+				template.setItemClosed(false);
+				template.setNotificationDate(CommonUtils.getSystemDate());
+				template.setTarget(target);
+				correspondenceInfraService.createAndSendNotification(template);
+				return true;	
+			}catch (Exception e) {
+				job.setError(e);
+				return false;	
+			}
+		});
+		
 	}
 
 	public void saveNotificationToken(String userId, String token) throws Exception {
@@ -332,28 +365,6 @@ public class CommonDO {
 
 	public void updateNotification(String id, Map<String, Object> objectMap) throws Exception {
 		correspondenceInfraService.updateNotification(id, new NotificationDTO(objectMap));
-	}
-
-	@Async
-	public void uploadDocument(DocumentDetailUpload file, String docIndexId, DocumentIndexType docIndexType)
-			throws Exception {
-		byte[] content = file.getContent() == null ? Base64.decodeBase64(file.getBase64Content()) : file.getContent();
-		documentInfraService.uploadDocument(file.getOriginalFileName(), file.getContentType(), docIndexId, docIndexType,
-				content);
-	}
-
-	@Async
-	public void uploadDocument(MultipartFile file, String docIndexId, DocumentIndexType docIndexType) throws Exception {
-		documentInfraService.uploadDocument(file, docIndexId, docIndexType);
-	}
-
-	public URL getDocumentUrl(String docId) throws Exception {
-		String docLinkValidity = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DOCUMENT_LINK_VALIDITY);
-		return documentInfraService.getTempDocumentUrl(docId, Integer.parseInt(docLinkValidity), TimeUnit.SECONDS);
-	}
-
-	public boolean deleteDocument(String docId) throws Exception {
-		return documentInfraService.hardDeleteDocument(docId);
 	}
 
 	@Async
@@ -429,17 +440,83 @@ public class CommonDO {
 			}
 
 			if (!userCountMap.isEmpty()) {
-				Map<String, String> updateCountMap = sequenceInfraService.addOrUpdateDashboardCounts(userId,
-						userCountMap);
-				Map<String, String> dataMap = prepareDataMap(updateCountMap);
-				correspondenceInfraService.sendNotificationMessage(userId,
-						"Hey! There are some updates for you from NABARUN.", "", "", dataMap);
+//				Map<String, String> updateCountMap = sequenceInfraService.addOrUpdateDashboardCounts(userId,
+//						userCountMap);
+//				Map<String, String> dataMap = prepareDataMap(updateCountMap);
+//				correspondenceInfraService.sendNotificationMessage(userId,
+//						"Hey! There are some updates for you from NABARUN.", "", "", dataMap);
 			}
 		} catch (Exception e) {
 			log.error("Error sending notification", e);
 		}
 	}
 
+//	@Async
+//	public void sendDashboardCounts(String userId) throws Exception {
+//		Map<String, String> countMap = sequenceInfraService.getDashboardCounts(userId);
+//		Map<String, String> dataMap = prepareDataMap(countMap);
+//		correspondenceInfraService.sendNotificationMessage(userId, "Hey! There are some updates for you from NABARUN.",
+//				"", "", dataMap);
+//	}
+
+	//------------------------------------------------------------------------------------------------
+    // SECTION : FILE UPLOADS 
+	//------------------------------------------------------------------------------------------------
+	public void uploadDocument(MultipartFile file, List<DocumentMapping> documentMapping)
+			throws Exception {
+		String ids=String.join(",", documentMapping.stream().map(m->m.getDocIndexId()).toList());
+		submitJob(ids, "Upload file", (job) -> {
+			try {
+				List<DocumentMappingDTO> documentMappingDTOList = new ArrayList<>();
+				for (DocumentMapping mapping : documentMapping) {
+					DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+					documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+					documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+					documentMappingDTOList.add(documentMappingDTO);
+				}
+				documentInfraService.uploadDocument(file, documentMappingDTOList);
+				return true;
+			} catch (ThirdPartyException e) {
+				job.setError(e);
+				return false;
+			}
+		});
+	}
+
+	public void uploadDocument(DocumentDetailUpload file) throws Exception {
+		String ids=String.join(",", file.getDocumentMapping().stream().map(m->m.getDocIndexId()).toList());
+		submitJob(ids, "Upload file", (job) -> {
+			try {
+				byte[] content = Base64.decodeBase64(file.getBase64Content());
+				DocumentUploadDTO docDTO = new DocumentUploadDTO();
+				docDTO.setContent(content);
+				docDTO.setContentType(file.getContentType());
+				docDTO.setOriginalFileName(file.getOriginalFileName());
+				docDTO.setDocumentMapping(new ArrayList<>());
+				for (DocumentMapping mapping : file.getDocumentMapping()) {
+					DocumentMappingDTO documentMappingDTO = new DocumentMappingDTO();
+					documentMappingDTO.setDocIndexId(mapping.getDocIndexId());
+					documentMappingDTO.setDocIndexType(mapping.getDocIndexType());
+					docDTO.getDocumentMapping().add(documentMappingDTO);
+				}
+				documentInfraService.uploadDocument(docDTO);				
+				return true;
+			} catch (ThirdPartyException e) {
+				job.setError(e);
+				return false;
+			}
+		});
+	}
+
+	public URL getDocumentUrl(String docId) throws Exception {
+		String docLinkValidity = businessDomainHelper.getAdditionalConfig(AdditionalConfigKey.DOCUMENT_LINK_VALIDITY);
+		return documentInfraService.getTempDocumentUrl(docId, Integer.parseInt(docLinkValidity), TimeUnit.SECONDS);
+	}
+
+	public boolean deleteDocument(String docId) throws Exception {
+		return documentInfraService.hardDeleteDocument(docId);
+	}
+	
 	public List<DocumentDTO> getDocuments(String id, DocumentIndexType type) {
 		return documentInfraService.getDocumentList(id, type);
 	}
@@ -448,26 +525,27 @@ public class CommonDO {
 			DocumentIndexType destIndexType) {
 		List<DocumentDTO> docDTos = documentInfraService.getDocumentList(sourceId, sourceIndexType);
 		for (DocumentDTO docDTO : docDTos) {
-			docDTO.setDocumentRefId(destId);
-			docDTO.setDocumentType(destIndexType);
-			documentInfraService.createDocumentIndex(docDTO);
+			DocumentMappingDTO docMapDTO = new DocumentMappingDTO();
+			docMapDTO.setDocIndexId(destId);
+			docMapDTO.setDocIndexType(destIndexType);
+			documentInfraService.createDocumentIndex(docDTO.getDocId(),List.of(docMapDTO));
 		}
 	}
 
 	public List<HistoryDTO> retrieveHistory(String refId, HistoryRefType historyType) throws Exception {
 		return historyInfraService.getHistory(historyType, refId).stream().sorted((c1, c2) -> {
-			return Long.valueOf(c2.getCreatedOn()).compareTo(Long.valueOf(c1.getCreatedOn()));
+			return Long.valueOf(c2.getCreatedOn().getTime()).compareTo(Long.valueOf(c1.getCreatedOn().getTime()));
 		}).collect(Collectors.toList());
 	}
 
 	public void syncSystems(JobDTO job) throws Exception {
 		job.log("[INFO] -----Starting System SYNC -----");
-		String apikey_sg = propertyHelper.getSendGridAPIKey();
-		String sender = propertyHelper.getDefaultEmailSender();
-		job.log("[INFO] -----Syncing Auth0 Email provider -----");
-		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
-		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
-		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
+//		String apikey_sg = propertyHelper.getSendGridAPIKey();
+//		String sender = propertyHelper.getDefaultEmailSender();
+//		job.log("[INFO] -----Syncing Auth0 Email provider -----");
+//		job.log("[INFO] ==> Sender : " + sender + " ==> Apikey : <apiKey>");
+//		int code = systemInfraService.configureAuthEmailProvider(sender, apikey_sg);
+//		job.log("[INFO] ----- Auth0 Email provider Synced. Status Code : " + code + " -----");
 		job.log("[INFO] -----Ending System SYNC -----");
 	}
 
@@ -499,37 +577,11 @@ public class CommonDO {
 		return apiKeyInfraService.getApiKeys(status);
 	}
 
-	public void startJob(JobDTO job, Object ip) throws Exception {
-		job.setStart(CommonUtils.getSystemDate());
-		job.setStatus(JobStatus.IN_PROGRESS);
-		job.setInput(ip);
-		// Run garbage collection to reclaim unused memory
-		// System.gc();
-		Runtime runtime = Runtime.getRuntime();
-		long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / 1024;
-		long freeMemory = runtime.freeMemory() / 1024;
-		long totalMemory = runtime.totalMemory() / 1024;
-		long maxMemory = runtime.maxMemory() / 1024;
-		job.setMemoryAtStart("Total memory (kB): " + totalMemory + " Free memory (kB): " + freeMemory
-				+ " Used memory (kB): " + usedMemory + " Max memory (kB): " + maxMemory);
-		String id = jobInfraService.createOrUpdateJob(job).getId();
-		job.setId(id);
-	}
-
-	public void endJob(JobDTO job, Object op) throws Exception {
-		job.setEnd(CommonUtils.getSystemDate());
-		job.setOutput(op);
-		job.setStatus(JobStatus.COMPLETED);
-		Runtime runtime = Runtime.getRuntime();
-		long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / 1024;
-		long freeMemory = runtime.freeMemory() / 1024;
-		long totalMemory = runtime.totalMemory() / 1024;
-		long maxMemory = runtime.maxMemory() / 1024;
-		job.setMemoryAtEnd("Total memory (kB): " + totalMemory + " Free memory (kB): " + freeMemory
-				+ " Used memory (kB): " + usedMemory + " Max memory (kB): " + maxMemory);
+	public void submitJob(String triggerId, String name, Function<JobDTO, Boolean> function) throws Exception {
+		JobDTO job = new JobDTO(triggerId, name);
+		job.setStatus(JobStatus.QUEUED);
 		job = jobInfraService.createOrUpdateJob(job);
-		// Add failure log count
-		// TODO Send Email if failure log count is non 0 with log details
+		asyncJobExecutor.processJob(job, function);
 	}
 
 	public List<Map<String, String>> getApiScopes() throws Exception {
@@ -554,4 +606,5 @@ public class CommonDO {
 	public String getRulesHTML() {
 		return dataInfraService.getRulesAndRegulationContent();
 	}
+
 }

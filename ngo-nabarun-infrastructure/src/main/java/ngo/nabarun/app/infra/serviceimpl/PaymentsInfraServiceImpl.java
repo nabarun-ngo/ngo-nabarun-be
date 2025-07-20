@@ -201,7 +201,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 
 	@Override
 	public Page<TransactionDTO> getTransactions(Integer page, Integer size, TransactionDTOFilter filter) {
-		Sort sort = Sort.by(Sort.Direction.DESC, "creationDate");
+		Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
 		Page<TransactionEntity> transactions = null;
 		if (filter != null) {
 
@@ -378,7 +378,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 
 	@Override
 	public Page<ExpenseDTO> getExpenses(Integer page, Integer size, ExpenseDTOFilter filter) {
-		Sort sort = Sort.by(Sort.Direction.DESC, "expenseCreatedOn");
+		Sort sort = Sort.by(Sort.Direction.DESC, "expenseDate");
 		Page<ExpenseEntity> expenses = null;
 		if (filter != null) {
 
@@ -394,7 +394,7 @@ public class PaymentsInfraServiceImpl implements ITransactionInfraService, IAcco
 					.optionalAnd(filter.getStatus() != null,
 							() -> qExp.status.in(filter.getStatus().stream().map(m -> m.name()).toList()))
 					.optionalAnd(filter.getStartDate() != null && filter.getEndDate() != null,
-							() -> qExp.expenseCreatedOn.between(filter.getStartDate(), filter.getEndDate()))
+							() -> qExp.expenseDate.between(filter.getStartDate(), filter.getEndDate()))
 					.build();
 			if (page == null || size == null) {
 				List<ExpenseEntity> result = new ArrayList<>();

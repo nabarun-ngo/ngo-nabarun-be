@@ -87,7 +87,7 @@ public class BusinessDomainHelper {
 
 	private static final String ITEM_WORKFLOW_TYPES = "WORKFLOW_TYPES";
 	private static final String ITEM_WORKFLOW_TYPES__ATTR_DEFAULT_STEP = "DEFAULT_STEP";
-	private static final String ITEM_WORKFLOW_TYPES__ATTR_IS_VISIBLE = "IS_VISIBLE";
+	private static final String ITEM_COMMON__ATTR_IS_VISIBLE = "IS_VISIBLE";
 
 	private static final String ITEM_ADDITIONAL_CONFIG = "ADDITIONAL_CONFIG";
 	private static final String ITEM_WORKFLOW_STEPS = "WORKFLOW_STEPS";
@@ -113,15 +113,14 @@ public class BusinessDomainHelper {
 	private static final String ITEM_ADDITIONAL_FIELDS__ATTR_ENCRYPTED = "ENCRYPTED";
 	private static final String ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED = "SYSTEM_GENERATED";
 	private static final String ITEM_USER_CONNECTIONS = "USER_CONNECTIONS";
-	private static final String ITEM_USER_CONNECTIONS__ATTR_ACTIVE = "ACTIVE";
 	private static final String ITEM_IMPORTANT_LINKS = "IMPORTANT_LINKS";
 
-	@NoLogging
+	
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
 		return domainInfraService.getDomainRefConfigs();
 	}
 
-	@NoLogging
+	
 	protected Map<String, List<KeyValuePair>> getDomainLocation() throws Exception {
 		return domainInfraService.getDomainLocationData();
 	}
@@ -130,7 +129,7 @@ public class BusinessDomainHelper {
 		return getDomainKeyValues().get(key);
 	}
 
-	@NoLogging
+	
 	public Map<String, String> getDomainKeyValues() throws Exception {
 		if (domainKeyValue.isEmpty()) {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
@@ -215,12 +214,11 @@ public class BusinessDomainHelper {
 		Map<String, List<KeyValuePair>> locationRef = domainInfraService.getDomainLocationData();
 		obj.put("userTitles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_TITLE)));
 		obj.put("userGenders", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_USER_GENDER)));
-		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE).stream()
-				.filter(m -> m.getAttributes().get("ACTIVE") == Boolean.TRUE).collect(Collectors.toList())));
+		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE)));
 		obj.put("availableRoleGroups",
 				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
 		obj.put("userStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream()
-				.filter(m -> m.getAttributes().get("IS_VISIBLE") == Boolean.TRUE).collect(Collectors.toList())));
+				.filter(m -> m.getAttributes().get(ITEM_COMMON__ATTR_IS_VISIBLE) == Boolean.TRUE).collect(Collectors.toList())));
 
 		List<KeyValuePair> states = locationRef.get(ITEM_STATE_LIST);
 		if (countryCode != null) {
@@ -233,11 +231,7 @@ public class BusinessDomainHelper {
 					&& stateCode.equals(f.getAttributes().get("STATEKEY"))).collect(Collectors.toList());
 		}
 
-		List<KeyValuePair> connections = domainRef.get(ITEM_USER_CONNECTIONS).stream().filter(f -> {
-			Object isActive = f.getAttributes().get(ITEM_USER_CONNECTIONS__ATTR_ACTIVE);
-			return isActive != null && Boolean.valueOf(isActive.toString());
-		}).collect(Collectors.toList());
-
+		List<KeyValuePair> connections = domainRef.get(ITEM_USER_CONNECTIONS);
 		obj.put("countries", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST)));
 		obj.put("phoneCodes", BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST), "DIALCODE"));
 		obj.put("districts", BusinessObjectConverter.toKeyValueList(districts));
@@ -890,7 +884,7 @@ public class BusinessDomainHelper {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
 		obj.put("workflowTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_WORKFLOW_TYPES)));
 		List<KeyValuePair> visibleWFTypeKV = domainRef.get(ITEM_WORKFLOW_TYPES).stream().filter(f -> {
-			Object isVisible = f.getAttributes().get(ITEM_WORKFLOW_TYPES__ATTR_IS_VISIBLE);
+			Object isVisible = f.getAttributes().get(ITEM_COMMON__ATTR_IS_VISIBLE);
 			return isVisible != null && Boolean.valueOf(isVisible.toString());
 		}).collect(Collectors.toList());
 		obj.put("visibleWorkflowTypes", BusinessObjectConverter.toKeyValueList(visibleWFTypeKV));
@@ -914,7 +908,7 @@ public class BusinessDomainHelper {
 			KeyValue kv = new KeyValue();
 			kv.setKey(type.name());
 			kv.setValue(type.getValue());
-			workType.add(kv);
+			workDecision.add(kv);
 		}
 		obj.put("workType", workType);
 		obj.put("workDecision", workDecision);
@@ -923,9 +917,6 @@ public class BusinessDomainHelper {
 
 	public List<LoginMethod> getAvailableLoginMethods() throws Exception {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
-		return domainRef.get(ITEM_USER_CONNECTIONS).stream().filter(f -> {
-			Object isVisible = f.getAttributes().get(ITEM_USER_CONNECTIONS__ATTR_ACTIVE);
-			return isVisible != null && Boolean.valueOf(isVisible.toString());
-		}).map(m -> LoginMethod.valueOf(m.getKey())).collect(Collectors.toList());
+		return domainRef.get(ITEM_USER_CONNECTIONS).stream().map(m -> LoginMethod.valueOf(m.getKey())).collect(Collectors.toList());
 	}
 }

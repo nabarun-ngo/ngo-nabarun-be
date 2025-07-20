@@ -1,10 +1,12 @@
 package ngo.nabarun.app.infra.dto;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ngo.nabarun.app.common.enums.HistoryRefType;
 
 @Data
 public class HistoryDTO {
@@ -17,9 +19,9 @@ public class HistoryDTO {
 	private String createdByName;
 
 	private String referenceId;
-	private String referenceType;
+	private HistoryRefType referenceType;
 	
-	private long createdOn;
+	private Date createdOn;
 	private String action;
 	
 	@Data

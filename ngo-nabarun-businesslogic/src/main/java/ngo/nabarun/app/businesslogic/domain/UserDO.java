@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail.UserDetailFilter;
@@ -25,6 +26,8 @@ import ngo.nabarun.app.common.enums.ProfileStatus;
 import ngo.nabarun.app.common.enums.RoleCode;
 import ngo.nabarun.app.infra.dto.AddressDTO;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 import ngo.nabarun.app.infra.dto.JobDTO;
 import ngo.nabarun.app.infra.dto.PhoneDTO;
 import ngo.nabarun.app.infra.dto.RoleDTO;
@@ -159,7 +162,7 @@ public class UserDO extends CommonDO {
 	 * @param id
 	 * @param updatedUserDetails
 	 * @param updateProfilePic
-	 * @param  
+	 * @param
 	 * @return
 	 * @throws Exception
 	 */
@@ -212,14 +215,21 @@ public class UserDO extends CommonDO {
 			}
 			if (updatedUserDetails.getPictureBase64() != null) {
 				byte[] content = Base64.decodeBase64(updatedUserDetails.getPictureBase64());
-				DocumentDTO doc = documentInfraService.uploadDocument(UUID.randomUUID().toString() + ".png",
-						"image/png", id, DocumentIndexType.PROFILE_PHOTO, content);
+				DocumentUploadDTO documentUploadDTO = new DocumentUploadDTO();
+				documentUploadDTO.setContent(content);
+				documentUploadDTO.setOriginalFileName(UUID.randomUUID().toString() + ".png");
+				documentUploadDTO.setContentType("image/png");
+				DocumentMappingDTO documentMapping = new DocumentMappingDTO();
+				documentMapping.setDocIndexId(id);
+				documentMapping.setDocIndexType(DocumentIndexType.PROFILE_PHOTO);
+				documentUploadDTO.setDocumentMapping(List.of(documentMapping));
+				DocumentDTO doc = documentInfraService.uploadDocument(documentUploadDTO);
 				updatedUserDTO.setImageUrl(doc.getDocumentURL());
 			} else {
 				updatedUserDTO.setImageUrl("");
 			}
 		}
-		if(updatedUserDetails.getAbout() != null && updatedUserDetails.getGender() != null && updatedUserDetails.getTitle() != null) {
+		if (updatedUserDetails.getProfileCompleted() == Boolean.TRUE){
 			updatedUserDTO.setProfile_updated("Y");
 		}
 		userDTO = userInfraService.updateUser(id, updatedUserDTO);

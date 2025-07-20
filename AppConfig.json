@@ -1,0 +1,1941 @@
+[
+  {
+    "KEY": "ADDITIONAL_CONFIG",
+    "VALUES": [
+      {
+        "KEY": "DEFAULT_ROLE_CODE",
+        "VALUE": "MEMBER",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "OTP_TICKET_VALIDITY",
+        "VALUE": "43200",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "OTP_DIGITS",
+        "VALUE": "6",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "DOCUMENT_LINK_VALIDITY",
+        "VALUE": "1800",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "ADDITIONAL_FIELDS",
+    "VALUES": [
+      {
+        "KEY": "firstName",
+        "VALUE": "First name",
+        "DESCRIPTION": "Attribute for join request",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-JOIN_REQUEST_USER",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "lastName",
+        "VALUE": "Last name",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-JOIN_REQUEST_USER",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "email",
+        "VALUE": "Email",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-CHECK_PAYMENT,REQUEST-COLLECT_CASH_PAYMENT,REQUEST-JOIN_REQUEST_USER,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "email",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "dialCode",
+        "VALUE": "Phone code",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-CHECK_PAYMENT,REQUEST-COLLECT_CASH_PAYMENT,REQUEST-JOIN_REQUEST_USER,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "91",
+          "FIELD_TYPE": "select",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "mobileNumber",
+        "VALUE": "Mobile number",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-CHECK_PAYMENT,REQUEST-COLLECT_CASH_PAYMENT,REQUEST-JOIN_REQUEST_USER,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "number",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "hometown",
+        "VALUE": "Home town",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-JOIN_REQUEST_USER",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "reasonForJoining",
+        "VALUE": "Reason for joining Nabarun",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-JOIN_REQUEST_USER",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "textarea",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "howDoUKnowAboutNabarun",
+        "VALUE": "How do you know about Nabarun?",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-JOIN_REQUEST_USER",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "textarea",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "password",
+        "VALUE": "Password",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-JOIN_REQUEST,REQUEST-JOIN_REQUEST_USER",
+          "TYPE": "password",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "TRUE",
+          "ENCRYPTED": "TRUE"
+        }
+      },
+      {
+        "KEY": "paidToAccount",
+        "VALUE": "Paid to account",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-CHECK_PAYMENT,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "name",
+        "VALUE": "Name",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-CHECK_PAYMENT,REQUEST-COLLECT_CASH_PAYMENT,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "amount",
+        "VALUE": "Donation Amount",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-CHECK_PAYMENT,REQUEST-COLLECT_CASH_PAYMENT,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "number",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "info",
+        "VALUE": "Info",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-CHECK_PAYMENT",
+          "TYPE": "text",
+          "MANDATORY": "FALSE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "textarea",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "paymentMethod",
+        "VALUE": "Payment Method",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-CHECK_PAYMENT,REQUEST-COLLECT_CASH_PAYMENT,REQUEST-CHECK_PAYMENT_GUEST",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "CASH,NET_BANKING,UPI",
+          "FIELD_TYPE": "select",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "decision",
+        "VALUE": "Decision",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "WORKITEM-AWAITING_L1_APPROVAL,WORKITEM-AWAITING_L2_APPROVAL,WORKITEM-AWAITING_APPROVAL_MM,WORKITEM-AWAITING_L2_APPROVAL_MM,WORKITEM-PAYMENT_CONFIRMATION_PENDING,WORKITEM-PAYMENT_COLLECTION_PENDING",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "APPROVE,DECLINE",
+          "FIELD_TYPE": "select",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "reasonForLeaving",
+        "VALUE": "Reason for Leaving Nabarun",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-TERMINATION_REQUEST",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "textarea",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "remarks",
+        "VALUE": "Remarks",
+		"ACTIVE" : true,
+        "DESCRIPTION": "",
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "WORKITEM-AWAITING_L1_APPROVAL,WORKITEM-AWAITING_L2_APPROVAL,WORKITEM-NO_PAYMENT,WORKITEM-REJECTED,WORKITEM-AWAITING_APPROVAL_MM,WORKITEM-AWAITING_L2_APPROVAL_MM,WORKITEM-AWAITING_USER_RESPONSE,WORKITEM-PAYMENT_CONFIRMATION_PENDING,WORKITEM-PAYMENT_COLLECTION_PENDING",
+          "TYPE": "text",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "textarea",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "startDate",
+        "VALUE": "Start Date",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-DONATION_PAUSE_REQUEST",
+          "TYPE": "date",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      },
+      {
+        "KEY": "endDate",
+        "VALUE": "End Date",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "REQUEST-DONATION_PAUSE_REQUEST",
+          "TYPE": "date",
+          "MANDATORY": "TRUE",
+          "FIELD_OPTIONS": "",
+          "FIELD_TYPE": "input",
+          "HIDDEN": "FALSE",
+          "ENCRYPTED": "FALSE"
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "USER_TITLES",
+    "VALUES": [
+      {
+        "KEY": "MR",
+        "VALUE": "Mr",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GENDER": "M"
+        }
+      },
+      {
+        "KEY": "MS",
+        "VALUE": "Ms",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GENDER": "F"
+        }
+      },
+      {
+        "KEY": "DR",
+        "VALUE": "Dr",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GENDER": "*"
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "USER_GENDERS",
+    "VALUES": [
+      {
+        "KEY": "M",
+        "VALUE": "Male",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "F",
+        "VALUE": "Female",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "USER_CONNECTIONS",
+    "VALUES": [
+      {
+        "KEY": "EMAIL",
+        "VALUE": "Email",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "SMS",
+        "VALUE": "SMS",
+        "DESCRIPTION": "",
+		"ACTIVE" : false,
+        "ATTRIBUTES": {
+          "ACTIVE": false
+        }
+      },
+      {
+        "KEY": "PASSWORD",
+        "VALUE": "Password",
+		"ACTIVE" : true,
+        "DESCRIPTION": "",
+        "ATTRIBUTES": {
+          "ACTIVE": true
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "USER_ROLES",
+    "VALUES": [
+      {
+        "KEY": "PRESIDENT",
+        "VALUE": "President",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR1",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "VICE_PRESIDENT",
+        "VALUE": "Vice President",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR1",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "SECRETARY",
+        "VALUE": "Secretary",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR2",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "ASST_SECRETARY",
+        "VALUE": "Assistant Secretary",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR2",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "TREASURER",
+        "VALUE": "Treasurer",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "MONEY_MANAGER",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "CASHIER",
+        "VALUE": "Cashier",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "MONEY_MANAGER",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "ASSISTANT_CASHIER",
+        "VALUE": "Assistant Cashier",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "MONEY_MANAGER",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "GROUP_COORDINATOR",
+        "VALUE": "Group Coordinator",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR4",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "ASST_GROUP_COORDINATOR",
+        "VALUE": "Assistant Group Coordinator",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR4",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "TECHNICAL_SPECIALIST",
+        "VALUE": "Technical Specialist",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "ADMIN_GR3",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "COMMUNITY_MANAGER",
+        "VALUE": "Community Manager",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "ASST_COMMUNITY_MANAGER",
+        "VALUE": "Assistant Community Manager",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "GROUP": "",
+          "ACTIVE": true
+        }
+      },
+      {
+        "KEY": "MEMBER",
+        "VALUE": "Member",
+        "DESCRIPTION": "",
+		"ACTIVE" : false,
+        "ATTRIBUTES": {
+          "GROUP": "*",
+          "ACTIVE": false
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "PROFILE_STATUSES",
+    "VALUES": [
+      {
+        "KEY": "ACTIVE",
+        "VALUE": "Active",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "IS_VISIBLE": true
+        }
+      },
+      {
+        "KEY": "INACTIVE",
+        "VALUE": "In active",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "IS_VISIBLE": true
+        }
+      },
+      {
+        "KEY": "BLOCKED",
+        "VALUE": "Blocked",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "IS_VISIBLE": true
+        }
+      },
+      {
+        "KEY": "DELETED",
+        "VALUE": "Deleted",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "IS_VISIBLE": false
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "WORKFLOW_TYPES",
+    "VALUES": [
+      {
+        "KEY": "JOIN_REQUEST",
+        "VALUE": "Onboard User",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "AWAITING_L1_APPROVAL",
+          "SYSTEM_GENERATED": false,
+          "IS_VISIBLE": false
+        }
+      },
+      {
+        "KEY": "JOIN_REQUEST_USER",
+        "VALUE": "Onboard User",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "AWAITING_L1_APPROVAL",
+          "SYSTEM_GENERATED": false,
+          "IS_VISIBLE": true
+        }
+      },
+      {
+        "KEY": "CHECK_PAYMENT_GUEST",
+        "VALUE": "Confirm Payment",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "PAYMENT_CONFIRMATION_PENDING",
+          "SYSTEM_GENERATED": false,
+          "IS_VISIBLE": false
+        }
+      },
+      {
+        "KEY": "CHECK_PAYMENT",
+        "VALUE": "Confirm Payment",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "PAYMENT_CONFIRMATION_PENDING",
+          "SYSTEM_GENERATED": true,
+          "IS_VISIBLE": false
+        }
+      },
+      {
+        "KEY": "COLLECT_CASH_PAYMENT",
+        "VALUE": "Collect Cash Payment",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "PAYMENT_COLLECTION_PENDING",
+          "SYSTEM_GENERATED": false,
+          "IS_VISIBLE": false
+        }
+      },
+      {
+        "KEY": "TERMINATION_REQUEST",
+        "VALUE": "Exit Request",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "AWAITING_L1_APPROVAL",
+          "SYSTEM_GENERATED": false,
+          "IS_VISIBLE": true
+        }
+      },
+      {
+        "KEY": "DONATION_PAUSE_REQUEST",
+        "VALUE": "Pause Donation (Pay later)",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STEP": "AWAITING_APPROVAL_MM",
+          "SYSTEM_GENERATED": false,
+          "IS_VISIBLE": true
+        }
+      },
+      {
+        "KEY": "PROFILE_UPDATE_REQUEST",
+        "VALUE": "Update Self Profile",
+        "DESCRIPTION": "Please goto 'My Profile' or click here <a target='_blank' href='https://google.com'> >> Click on 'Update Profile' >> Fill all mandatory detail >> Click on 'Update' button.",
+        "ACTIVE" : true,
+		"ATTRIBUTES": {
+          "DEFAULT_STEP": "AWAITING_USER_RESPONSE",
+          "SYSTEM_GENERATED": true,
+          "IS_VISIBLE": false
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "WORKFLOW_STEPS",
+    "VALUES": [
+      {
+        "KEY": "PAYMENT_COLLECTION_PENDING",
+        "VALUE": "Awaiting Payment Collection",
+        "DESCRIPTION": "Please connect donor and collect cash payment.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "COLLECT_CASH_PAYMENT",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-COLLECT_CASH_PAYMENT": "NO_ACTION",
+          "STEP_TYPE": "DECISION",
+          "DECISION_MAKER_ROLE_GROUPS": "MONEY_MANAGER",
+          "NEXT_STEP-COLLECT_CASH_PAYMENT-APPROVE": "PAYMENT_COLLECTED",
+          "NEXT_STEP-COLLECT_CASH_PAYMENT-DECLINE": "NO_PAYMENT"
+        }
+      },
+      {
+        "KEY": "PAYMENT_CONFIRMATION_PENDING",
+        "VALUE": "Awaiting Payment Confirmation",
+        "DESCRIPTION": "Please check and confirm the payment.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "CHECK_PAYMENT,CHECK_PAYMENT_GUEST",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-CHECK_PAYMENT": "NO_ACTION",
+          "CURRENT_ACTION-CHECK_PAYMENT_GUEST": "NO_ACTION",
+          "STEP_TYPE": "DECISION",
+          "DECISION_MAKER_ROLE_GROUPS": "MONEY_MANAGER",
+          "NEXT_STEP-CHECK_PAYMENT-APPROVE": "PAYMENT_COLLECTED",
+          "NEXT_STEP-CHECK_PAYMENT-DECLINE": "NO_PAYMENT",
+          "NEXT_STEP-CHECK_PAYMENT_GUEST-APPROVE": "PAYMENT_COLLECTED",
+          "NEXT_STEP-CHECK_PAYMENT_GUEST-DECLINE": "NO_PAYMENT"
+        }
+      },
+      {
+        "KEY": "PAYMENT_COLLECTED",
+        "VALUE": "Payment Collected",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "COLLECT_CASH_PAYMENT,CHECK_PAYMENT,CHECK_PAYMENT_GUEST",
+          "IS_FINAL_STEP": true,
+          "CURRENT_ACTION-COLLECT_CASH_PAYMENT": "ENTRY_GUEST_DONATION",
+          "CURRENT_ACTION-CHECK_PAYMENT": "NO_ACTION",
+          "CURRENT_ACTION-CHECK_PAYMENT_GUEST": "ENTRY_GUEST_DONATION",
+          "STEP_TYPE": "NA"
+        }
+      },
+      {
+        "KEY": "NO_PAYMENT",
+        "VALUE": "Payment Not Done",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "COLLECT_CASH_PAYMENT,CHECK_PAYMENT",
+          "IS_FINAL_STEP": true,
+          "CURRENT_ACTION-COLLECT_CASH_PAYMENT": "PAYMENY_NOT_FOUND",
+          "CURRENT_ACTION-CHECK_PAYMENT": "PAYMENY_NOT_FOUND",
+          "STEP_TYPE": "NA"
+        }
+      },
+      {
+        "KEY": "AWAITING_L1_APPROVAL",
+        "VALUE": "Awaiting Approval (Level 1)",
+        "DESCRIPTION": "Please do needful actions and confirm request approval.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "JOIN_REQUEST,JOIN_REQUEST_USER,TERMINATION_REQUEST",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-JOIN_REQUEST": "NO_ACTION",
+          "CURRENT_ACTION-JOIN_REQUEST_USER": "NO_ACTION",
+          "CURRENT_ACTION-TERMINATION_REQUEST": "NO_ACTION",
+          "STEP_TYPE": "DECISION",
+          "DECISION_MAKER_ROLE_GROUPS": "ADMIN_GR1,ADMIN_GR2,ADMIN_GR3,ADMIN_GR4",
+          "NEXT_STEP-JOIN_REQUEST-APPROVE": "AWAITING_L2_APPROVAL",
+          "NEXT_STEP-JOIN_REQUEST-DECLINE": "REJECTED",
+          "NEXT_STEP-JOIN_REQUEST_USER-APPROVE": "AWAITING_L2_APPROVAL",
+          "NEXT_STEP-JOIN_REQUEST_USER-DECLINE": "REJECTED",
+          "NEXT_STEP-TERMINATION_REQUEST-APPROVE": "AWAITING_L2_APPROVAL_MM",
+          "NEXT_STEP-TERMINATION_REQUEST-DECLINE": "REJECTED"
+        }
+      },
+      {
+        "KEY": "AWAITING_L2_APPROVAL",
+        "VALUE": "Awaiting Approval (Level 2)",
+        "DESCRIPTION": "Please do needful actions and confirm request approval.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "JOIN_REQUEST,JOIN_REQUEST_USER",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-JOIN_REQUEST": "NO_ACTION",
+          "CURRENT_ACTION-JOIN_REQUEST_USER": "NO_ACTION",
+          "CURRENT_ACTION-TERMINATION_REQUEST": "NO_ACTION",
+          "STEP_TYPE": "DECISION",
+          "DECISION_MAKER_ROLE_GROUPS": "ADMIN_GR1,ADMIN_GR2,ADMIN_GR3,ADMIN_GR4",
+          "NEXT_STEP-JOIN_REQUEST-APPROVE": "APPROVED_ONBOARDING",
+          "NEXT_STEP-JOIN_REQUEST-DECLINE": "REJECTED",
+          "NEXT_STEP-JOIN_REQUEST_USER-APPROVE": "APPROVED_ONBOARDING",
+          "NEXT_STEP-JOIN_REQUEST_USER-DECLINE": "REJECTED"
+        }
+      },
+      {
+        "KEY": "AWAITING_L2_APPROVAL_MM",
+        "VALUE": "Awaiting Approval (Level 2)",
+        "DESCRIPTION": "Please do needful actions and confirm request approval.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "TERMINATION_REQUEST",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-TERMINATION_REQUEST": "NO_ACTION",
+          "STEP_TYPE": "DECISION",
+          "DECISION_MAKER_ROLE_GROUPS": "MONEY_MANAGER",
+          "NEXT_STEP-TERMINATION_REQUEST-APPROVE": "APPROVED_EXIT",
+          "NEXT_STEP-TERMINATION_REQUEST-DECLINE": "REJECTED"
+        }
+      },
+      {
+        "KEY": "APPROVED_ONBOARDING",
+        "VALUE": "Approved (User Onboarded)",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "JOIN_REQUEST,JOIN_REQUEST_USER",
+          "STEP_TYPE": "NA",
+          "CURRENT_ACTION-JOIN_REQUEST": "ONBOARD_USER",
+          "CURRENT_ACTION-JOIN_REQUEST_USER": "ONBOARD_USER",
+          "IS_FINAL_STEP": true
+        }
+      },
+      {
+        "KEY": "APPROVED_EXIT",
+        "VALUE": "Approved (User Exit)",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "TERMINATION_REQUEST",
+          "STEP_TYPE": "NA",
+          "CURRENT_ACTION-TERMINATION_REQUEST": "EXIT_USER",
+          "IS_FINAL_STEP": true
+        }
+      },
+      {
+        "KEY": "REJECTED",
+        "VALUE": "Rejected",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "JOIN_REQUEST,JOIN_REQUEST_USER,TERMINATION_REQUEST,DONATION_PAUSE_REQUEST",
+          "CURRENT_ACTION-JOIN_REQUEST": "NO_ACTION",
+          "CURRENT_ACTION-JOIN_REQUEST_USER": "NO_ACTION",
+          "STEP_TYPE": "NA",
+          "IS_FINAL_STEP": true
+        }
+      },
+      {
+        "KEY": "AWAITING_APPROVAL_MM",
+        "VALUE": "Awaiting Approval",
+        "DESCRIPTION": "Please do needful actions and confirm request approval.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "DONATION_PAUSE_REQUEST",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-DONATION_PAUSE_REQUEST": "NO_ACTION",
+          "STEP_TYPE": "DECISION",
+          "DECISION_MAKER_ROLE_GROUPS": "MONEY_MANAGER",
+          "NEXT_STEP-DONATION_PAUSE_REQUEST-APPROVE": "APPROVED_DONATION_PAUSE",
+          "NEXT_STEP-DONATION_PAUSE_REQUEST-DECLINE": "REJECTED"
+        }
+      },
+      {
+        "KEY": "APPROVED_DONATION_PAUSE",
+        "VALUE": "Approved (Donation Pause)",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "DONATION_PAUSE_REQUEST",
+          "CURRENT_ACTION-DONATION_PAUSE_REQUEST": "PROCESS_DONATION_PAUSE",
+          "STEP_TYPE": "NA",
+          "IS_FINAL_STEP": true
+        }
+      },
+      {
+        "KEY": "CANCELLED",
+        "VALUE": "Cancelled",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "",
+          "STEP_TYPE": "NA",
+          "IS_FINAL_STEP": true
+        }
+      },
+      {
+        "KEY": "AWAITING_USER_RESPONSE",
+        "VALUE": "Awaiting User Input",
+        "DESCRIPTION": "Please response as per 'Request Description' under Request Detail.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "PROFILE_UPDATE_REQUEST",
+          "IS_FINAL_STEP": false,
+          "CURRENT_ACTION-PROFILE_UPDATE_REQUEST": "NO_ACTION",
+          "STEP_TYPE": "USER_INPUT",
+          "DECISION_MAKER_ROLE_GROUPS": "",
+          "NEXT_STEP-PROFILE_UPDATE_REQUEST": "COMPLETED"
+        }
+      },
+      {
+        "KEY": "COMPLETED",
+        "VALUE": "Completed",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "APPLICABLE_FOR": "PROFILE_UPDATE_REQUEST",
+          "STEP_TYPE": "NA",
+          "IS_FINAL_STEP": true
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "ACCOUNT_TYPES",
+    "VALUES": [
+      {
+        "KEY": "PRINCIPAL",
+        "VALUE": "Treasure",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "GENERAL",
+        "VALUE": "General",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "DONATION",
+        "VALUE": "Donation",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "PUBLIC_DONATION",
+        "VALUE": "Public",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "ACCOUNT_STATUSES",
+    "VALUES": [
+      {
+        "KEY": "ACTIVE",
+        "VALUE": "Active",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INACTIVE",
+        "VALUE": "In active",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "BLOCKED",
+        "VALUE": "Blocked",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "TRANSACTION_TYPES",
+    "VALUES": [
+      {
+        "KEY": "DONATION",
+        "VALUE": "Donation Transactions",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "EXPENSE",
+        "VALUE": "Expense Transactions",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "NONE",
+        "VALUE": "Other Transactions",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "EXPENSE_STATUSES",
+    "VALUES": [
+      {
+        "KEY": "DRAFT",
+        "VALUE": "Draft",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "SUBMITTED",
+        "VALUE": "Submitted",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "FINALIZED",
+        "VALUE": "Finalized",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "SETTLED",
+        "VALUE": "Settled",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "REJECTED",
+        "VALUE": "Rejected",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "DONATION_TYPES",
+    "VALUES": [
+      {
+        "KEY": "REGULAR",
+        "VALUE": "Regular",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_AMOUNT": "120",
+          "DEFAULT_STATUS": "RAISED"
+        }
+      },
+      {
+        "KEY": "ONETIME",
+        "VALUE": "One Time",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "DEFAULT_STATUS": "RAISED"
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "DONATION_STATUSES",
+    "VALUES": [
+      {
+        "KEY": "RAISED",
+        "VALUE": "Raised",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "PAID,PENDING,PAY_LATER,CANCELLED",
+          "NEXT_STATUS-ONETIME": "PAID,CANCELLED",
+          "APPLICABLE_FOR": "REGULAR,ONETIME",
+          "IS_FINAL_STATUS": false
+        }
+      },
+      {
+        "KEY": "PAID",
+        "VALUE": "Paid",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "UPDATE_MISTAKE",
+          "NEXT_STATUS-ONETIME": "UPDATE_MISTAKE",
+          "APPLICABLE_FOR": "REGULAR,ONETIME",
+          "IS_FINAL_STATUS": true
+        }
+      },
+      {
+        "KEY": "UPDATE_MISTAKE",
+        "VALUE": "Wrong Payment Update",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "RAISED",
+          "NEXT_STATUS-ONETIME": "RAISED",
+          "APPLICABLE_FOR": "REGULAR,ONETIME",
+          "IS_FINAL_STATUS": false
+        }
+      },
+      {
+        "KEY": "PENDING",
+        "VALUE": "Pending",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "PAID,PAY_LATER,PAYMENT_FAILED,CANCELLED",
+          "NEXT_STATUS-ONETIME": "",
+          "APPLICABLE_FOR": "REGULAR",
+          "IS_FINAL_STATUS": false
+        }
+      },
+      {
+        "KEY": "PAYMENT_FAILED",
+        "VALUE": "Payment Failed",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "PAID,PENDING,CANCELLED",
+          "NEXT_STATUS-ONETIME": "PAID,PENDING,CANCELLED",
+          "APPLICABLE_FOR": "REGULAR,ONETIME",
+          "IS_FINAL_STATUS": false
+        }
+      },
+      {
+        "KEY": "PAY_LATER",
+        "VALUE": "Pay Later",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "PAID,CANCELLED",
+          "NEXT_STATUS-ONETIME": "",
+          "APPLICABLE_FOR": "REGULAR",
+          "IS_FINAL_STATUS": false
+        }
+      },
+      {
+        "KEY": "CANCELLED",
+        "VALUE": "Cancelled",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "NEXT_STATUS-REGULAR": "",
+          "NEXT_STATUS-ONETIME": "",
+          "APPLICABLE_FOR": "REGULAR,ONETIME",
+          "IS_FINAL_STATUS": true
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "PAYMENT_METHODS",
+    "VALUES": [
+      {
+        "KEY": "CASH",
+        "VALUE": "Cash",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "NETBANKING",
+        "VALUE": "Net Banking",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "UPI",
+        "VALUE": "UPI",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "UPI_OPTIONS",
+    "VALUES": [
+      {
+        "KEY": "GPAY",
+        "VALUE": "Google Pay",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "PAYTM",
+        "VALUE": "PayTM",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "PHONEPE",
+        "VALUE": "PhonePe",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "BHARATPAY",
+        "VALUE": "Bharat Pay",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "UPI_OTH",
+        "VALUE": "Other",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "PASSWORD_COMPLEXITY_OPTIONS",
+    "VALUES": [
+      {
+        "KEY": "NONE",
+        "VALUE": "^(?=.*).{1,}$",
+        "DESCRIPTION": "PASSWORD POLICY : Your password should contains at least 1 character of any type.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "LOW",
+        "VALUE": "^(?=.*).{6,}$",
+        "DESCRIPTION": "PASSWORD POLICY : Your password should contains at least 6 characters.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "FAIR",
+        "VALUE": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$",
+        "DESCRIPTION": "PASSWORD POLICY : Your password should contains at least 8 characters including a lower-case letter, an upper-case letter, and a number.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "GOOD",
+        "VALUE": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$",
+        "DESCRIPTION": "PASSWORD POLICY : Your password should contains at least 8 characters including a lower-case letter, an upper-case letter, a number, a special character (such as !@#$%^&*).",
+        "ACTIVE" : true,
+		"ATTRIBUTES": {}
+      },
+      {
+        "KEY": "EXCILLENT",
+        "VALUE": "",
+        "DESCRIPTION": "PASSWORD POLICY : Your password should contains at least 10 characters including a lower-case letter, an upper-case letter, a number, a special character (such as !@#$%^&*). Not more than 2 identical characters in a row (for example, 111 is not allowed).",
+        "ACTIVE" : true,
+		"ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "NABARUN_ORG_INFO",
+    "VALUES": [
+      {
+        "KEY": "EMAIL_ADDRESS",
+        "VALUE": "nabarunbangla18@gmail.com ",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "LOCATION",
+        "VALUE": "Barrackpore, West Bengal, India ",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "CONTACT_NO",
+        "VALUE": "+91 9007611531",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INSTAGRAM_LINK",
+        "VALUE": "",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "FACEBOOK_LINK",
+        "VALUE": "https://www.facebook.com/nabarunNGO?mibextid=ZbWKwL",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "TWITTER_LINK",
+        "VALUE": "",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "YOUTUBE_LINK",
+        "VALUE": "",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "LOGIN_URL",
+        "VALUE": "https://wengonabarun.web.app",
+        "DESCRIPTION": "http://localhost:4201/login",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "LOCATION_MAP_URL",
+        "VALUE": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29434.72255207933!2d88.3485661446766!3d22.75274830558569!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f89aefcc6fe3a7%3A0x6a6d434ac504dbc5!2sBarrackpore%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1703413581213!5m2!1sen!2sin",
+        "DESCRIPTION": "",
+        "ACTIVE" : true,
+		"ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "NABARUN_RULES_REGULATIONS",
+    "VALUES": [
+      {
+        "KEY": "1",
+        "VALUE": "NABARUN is a fully charitable and non profit organization, here everything is depend upon the members. So, if anyone wants to help us by any suggestion, any idea or any planning related to our group or upcoming work or about our social media handles then he/she can write those to nabarunbangla18@gmail.com.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "2",
+        "VALUE": "Their must be a group meeting in every month end and several important meetings can occur before any field work. So, if anyone misses that meeting, it's his/her responsibility to get updated with all those necessary information.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "3",
+        "VALUE": "Those members are only added by the group coordinators (after sharing wp number by the person wants to add them) and they are welcomed by only the person wants to add him/her and by the group coordinator.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "4",
+        "VALUE": "Several persons are assigned for the duties in the group, but they are not given any benefits for doing those. The only thing for which they are managing their time from everything is the love and dedication towards this group. So, every member must respect them and in their field their decisions are always the final.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "5",
+        "VALUE": "Proper courtesy and good as well as friendly behavior is expected from every members in the group. Remember your behavior should not hurt others.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "6",
+        "VALUE": "Unnecessary talks, unrelated posts must be avoided in the group, only group work related conversations are appreciated.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "7",
+        "VALUE": "Group members should clear their donation within 15th of every month and their payments are approved after giving screenshots in the group.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "8",
+        "VALUE": "If any member is having any problem or query related to group then he/she must consult with the group coordinators within the group. He/she will not bother other members by personal text.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "BUSINESS_EXCEPTION_MESSAGES",
+    "VALUES": [
+      {
+        "KEY": "GENERIC_ERROR",
+        "VALUE": "Something went wrong. Please try after sometime.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "EMAIL_ALREADY_IN_USE",
+        "VALUE": "Email is already in use.Please try with different email.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "PASSWORD_NOT_COMPLIANT",
+        "VALUE": "Password is not compliant as per Password Policy.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INACTIVE_USER_DONATION",
+        "VALUE": "Donation can be raised only for an active user.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "REGULAR_DONATION_EXISTS",
+        "VALUE": "A regular donation already exists between selected start date and end date.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "NO_AMOUNT_CHANGE_PAID",
+        "VALUE": "Amount cannot be changed while updating status as PAID.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INACTIVE_USER_ACCOUNT",
+        "VALUE": "Account can be created only for an active user.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "OTP_EXPIRED",
+        "VALUE": "One Time Password has been expired. Please try again from begining.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INVALID_OTP",
+        "VALUE": "One Time Password is incorrect. Please try again.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "TITLE_GENDER_MISALIGNED",
+        "VALUE": "Title and Gender is not aligned.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INSUFFICIENT_ACCESS",
+        "VALUE": "Sorry!! You dont have access to perform this action.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "UNRESOLVED_DONATION_EXISTS",
+        "VALUE": "Few outstanding donation exists for the user. If they are already paid then mark then as PAID else CANCEL them and try again.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "ACCOUNT_WITH_BALANCE_EXISTS",
+        "VALUE": "This user has some account with non zero account balance. Please ask user to transfer the balance and try again.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "INSUFFICIENT_ACCOUNT_BALANCE",
+        "VALUE": "You do not have sufficient balance in the source account.",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  },
+  {
+    "KEY": "EMAIL_TEMPLATE_CONFIG",
+    "VALUES": [
+      {
+        "KEY": "ON_DONATION_CREATE_REGULAR",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Donation Raised!",
+          "body.header.heading": "Donation Raised!",
+          "body.header.subHeading": "Dear <donation.donor.name>, Your donation of ₹<donation.amount> has been raised.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Donation Details",
+          "body.content.details[0].fields[0].name": "Donation Id",
+          "body.content.details[0].fields[0].value": "<donation.id>",
+          "body.content.details[0].fields[1].name": "Donation Type",
+          "body.content.details[0].fields[1].value": "<donation.type>",
+          "body.content.details[0].fields[2].name": "Donation Amount",
+          "body.content.details[0].fields[2].value": "<donation.amount>",
+          "body.content.details[0].fields[3].name": "Donation Period",
+          "body.content.details[0].fields[3].value": "<donation.startDate> - <donation.endDate>",
+          "body.content.details[0].fields[4].name": "Donation Status",
+          "body.content.details[0].fields[4].value": "<donation.status>",
+          "body.content.paragraph2_blue": "Kindly pay the donation amount within 15 th of this month and notify in our web portal. Also send a supporting screenshot in our official WhatsApp group.",
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": null,
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal . If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_DONATION_UPDATE",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Donation Updated!",
+          "body.header.heading": "Donation Updated!",
+          "body.header.subHeading": "Dear <donation.donor.name>, Your donation of ₹<donation.amount> has been updated.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Donation Details",
+          "body.content.details[0].fields[0].name": "Donation Id",
+          "body.content.details[0].fields[0].value": "<donation.id>",
+          "body.content.details[0].fields[1].name": "Donation Type",
+          "body.content.details[0].fields[1].value": "<donation.type>",
+          "body.content.details[0].fields[2].name": "Donation Amount",
+          "body.content.details[0].fields[2].value": "<donation.amount>",
+          "body.content.details[0].fields[3].name": "Donation Period",
+          "body.content.details[0].fields[3].value": "<donation.startDate> - <donation.endDate>",
+          "body.content.details[0].fields[4].name": "Donation Status",
+          "body.content.details[0].fields[4].value": "<donation.status>",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": null,
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal . If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_OTP_REQUEST",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Verify Email!",
+          "body.header.heading": "Verify Email!",
+          "body.header.subHeading": "Dear <ticket.ticketUserName>, We have recieved an email verification request during <ticket.ticketScope>.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "One Time Password Details",
+          "body.content.details[0].fields[0].name": "One Time Password",
+          "body.content.details[0].fields[0].value": "<ticket.otp>",
+          "body.content.details[0].fields[1].name": "Expire On",
+          "body.content.details[0].fields[1].value": "<ticket.expireOn>",
+          "body.content.details[0].fields[2].name": "Purpose",
+          "body.content.details[0].fields[2].value": "<ticket.ticketScope>",
+          "body.content.paragraph2_blue": "Kindly use this one time password before it expires.",
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "If you have not requested then do not share this one time password and inform us immediately.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal . If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_PUBLIC_QUERY",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Let's Connect : <interview.subject>",
+          "body.header.heading": "Let's Connect",
+          "body.header.subHeading": null,
+          "body.content.salutation": "Dear Nabarun,",
+          "body.content.paragraph1_blue": "I hope this message finds you well. I would like to get in touch with you regarding the below.",
+          "body.content.details[0].fields[0].name": "Subject",
+          "body.content.details[0].fields[0].value": "<interview.subject>",
+          "body.content.details[0].fields[1].name": "Message",
+          "body.content.details[0].fields[1].value": "<interview.message>",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": "You can connect me either in my email address <interview.email> or mobile number <interview.contactNumber>.",
+          "body.content.paragraph4_orange": "Looking forward to hearing from you.",
+          "body.content.signature": "Thanks,\n<interview.firstName>",
+          "body.content.disclaimer": null,
+          "body.footer.footer": null
+        }
+      },
+      {
+        "KEY": "ON_REQUEST_CREATION",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Request : <request.id>",
+          "body.header.heading": "Request Created",
+          "body.header.subHeading": "Dear <request.requester.name>, Your request has been successfully submitted with us.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Request Detail",
+          "body.content.details[0].fields[0].name": "Request Id",
+          "body.content.details[0].fields[0].value": "<request.id>",
+          "body.content.details[0].fields[1].name": "Request Type",
+          "body.content.details[0].fields[1].value": "<request.type>",
+          "body.content.details[0].fields[2].name": "Request Description",
+          "body.content.details[0].fields[2].value": "<request.description>",
+          "body.content.details[0].fields[3].name": "Request Status",
+          "body.content.details[0].fields[3].value": "<request.status>",
+          "body.content.details[0].fields[4].name": "Requested On",
+          "body.content.details[0].fields[4].value": "<request.createdOn>",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "We will connect you shortly.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal. If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_REQUEST_CREATION_DELEGATED",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Request : <request.id>",
+          "body.header.heading": "Request Created",
+          "body.header.subHeading": "Dear <request.requester.name>, Your request has been successfully submitted with us.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Request Detail",
+          "body.content.details[0].fields[0].name": "Request Id",
+          "body.content.details[0].fields[0].value": "<request.id>",
+          "body.content.details[0].fields[1].name": "Request Type",
+          "body.content.details[0].fields[1].value": "<request.type>",
+          "body.content.details[0].fields[2].name": "Request Description",
+          "body.content.details[0].fields[2].value": "<request.description>",
+          "body.content.details[0].fields[3].name": "Request Status",
+          "body.content.details[0].fields[3].value": "<request.status>",
+          "body.content.details[0].fields[4].name": "Requested On",
+          "body.content.details[0].fields[4].value": "<request.createdOn>",
+          "body.content.details[0].fields[5].name": "Requested By (On behalf of you)",
+          "body.content.details[0].fields[5].value": "<request.delegatedRequester.name> (<request.delegatedRequester.email>)",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "We will connect you shortly.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal. If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_REQUEST_CLOSURE",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Request : <request.id>",
+          "body.header.heading": "Request Resolved",
+          "body.header.subHeading": "Dear <request.requester.name>, Your request has been resolved.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Request Detail",
+          "body.content.details[0].fields[0].name": "Request Id",
+          "body.content.details[0].fields[0].value": "<request.id>",
+          "body.content.details[0].fields[1].name": "Request Type",
+          "body.content.details[0].fields[1].value": "<request.type>",
+          "body.content.details[0].fields[2].name": "Request Description",
+          "body.content.details[0].fields[2].value": "<request.description>",
+          "body.content.details[0].fields[3].name": "Request Status",
+          "body.content.details[0].fields[3].value": "<request.status>",
+          "body.content.details[0].fields[4].name": "Resolved On",
+          "body.content.details[0].fields[4].value": "<request.resolvedOn>",
+          "body.content.details[0].fields[5].name": "Remarks",
+          "body.content.details[0].fields[5].value": "<request.remarks>",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "If you have any query please feel free to connect us.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal. If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_WORK_CREATION",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "New Work Item : <workItem.id>",
+          "body.header.heading": "Work Item Pending",
+          "body.header.subHeading": "Hello, Please find the work item details which is pending with you.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Work Detail",
+          "body.content.details[0].fields[0].name": "Work Id",
+          "body.content.details[0].fields[0].value": "<workItem.id>",
+          "body.content.details[0].fields[1].name": "Work Type",
+          "body.content.details[0].fields[1].value": "<workItem.type>",
+          "body.content.details[0].fields[2].name": "Work Description",
+          "body.content.details[0].fields[2].value": "<workItem.description>",
+          "body.content.details[0].fields[3].name": "Request Id",
+          "body.content.details[0].fields[3].value": "<workItem.workSourceId>",
+          "body.content.details[0].fields[4].name": "Request Type",
+          "body.content.details[0].fields[4].value": "<workItem.workSourceType>",
+          "body.content.details[0].fields[5].name": "Request Status",
+          "body.content.details[0].fields[5].value": "<workItem.workItemName>",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "Please login to our website and take action as soon as possible.",
+          "body.content.signature": "Thanks,\nWebsite Admin",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal. If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_WORK_UPDATE",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "Currentlynot being used",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "Request : <workItem.workSourceId>",
+          "body.header.heading": "Request Updated",
+          "body.header.subHeading": "Hello, Your request has been updated. Plase find the details below.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details[0].heading": "Work Detail",
+          "body.content.details[0].fields[0].name": "Work Id",
+          "body.content.details[0].fields[0].value": "<workItem.id>",
+          "body.content.details[0].fields[1].name": "Work Description",
+          "body.content.details[0].fields[1].value": "<workItem.description>",
+          "body.content.details[0].fields[2].name": "Request Id",
+          "body.content.details[0].fields[2].value": "<workItem.workSourceId>",
+          "body.content.details[0].fields[3].name": "Request Type",
+          "body.content.details[0].fields[3].value": "<workItem.type>",
+          "body.content.details[0].fields[4].name": "Request Status",
+          "body.content.details[0].fields[4].value": "<workItem.workItemName>",
+          "body.content.details[0].fields[5].name": "Remarks",
+          "body.content.details[0].fields[5].value": "<workItem.remarks>",
+          "body.content.paragraph2_blue": null,
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "Please login to our website and take action as soon as possible.",
+          "body.content.signature": "Thanks,\nWebsite Admin",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal. If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_DONATION_REMINDER",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "Pending Donations!",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "NABARUN : Pending Donations!",
+          "body.header.heading": "Pending Donations!",
+          "body.header.subHeading": "Dear <user.name>, You have some pending donation(s). Please see below for more details.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details": null,
+          "body.content.paragraph2_blue": null,
+          "body.content.table[0].heading": "Pending Donations",
+          "body.content.table[0].colWidth": "33",
+          "body.content.table[0].dataString": "[[\"Donation Month\",\"Donation Amount\",\"Donation Status\"], <donations:{d | [\"<d.donationMonth>\", \"<d.amount>\", \"<d.status>\"]}; separator=\", \">]",
+          "body.content.paragraph3_blue": "Kindly pay the donations earliest and send screenshot to our official WhatsApp group.",
+          "body.content.paragraph4_orange": "Please ignore this email if you have already PAID. In case you have any query or need any assistance, please feel free to reach our Cashier/Assistant Cashier.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal . If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_USER_ONBOARDING",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "Welcome email",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "NABARUN : Welcome aboard",
+          "body.header.heading": "Welcome aboard",
+          "body.header.subHeading": "<user.name>, Welcome to NABARUN",
+          "body.content.salutation": "Dear <user.name>,",
+          "body.content.paragraph1_blue": "We are much pleased to inform you that now you are a member of NABARUN. Let's hold our hands tightly and spread happiness together. <br> Here is your account details-",
+          "body.content.details[0].heading": "Account Details",
+          "body.content.details[0].fields[0].name": "Portal Link",
+          "body.content.details[0].fields[0].value": "<user.portalLink>",
+          "body.content.details[0].fields[1].name": "Account Email",
+          "body.content.details[0].fields[1].value": "<user.email>",
+          "body.content.details[0].fields[2].name": "Account Password",
+          "body.content.details[0].fields[2].value": "<user.password>",
+          "body.content.paragraph2_blue": "Please login to our portal using the above account details earliest. In case of any issue please connect us.",
+          "body.content.table": null,
+          "body.content.paragraph3_blue": null,
+          "body.content.paragraph4_orange": "You might be asked to verify your email and set your password in case it's not done earlier.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal . If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      },
+      {
+        "KEY": "ON_WORKITEM_REMINDER",
+        "VALUE": "d-674713a213744e999faa7990e74ffc32",
+        "DESCRIPTION": "Pending WorkItems!",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "subject": "NABARUN : Pending WorkItems - <currentDate>",
+          "body.header.heading": "Pending WorkItems!",
+          "body.header.subHeading": "Dear <user.name>, You have some workitems(s) pending for your action / approval. Please see below for more details.",
+          "body.content.salutation": null,
+          "body.content.paragraph1_blue": null,
+          "body.content.details": null,
+          "body.content.paragraph2_blue": null,
+          "body.content.table[0].heading": "Pending WorkItems",
+          "body.content.table[0].colWidth": "25",
+          "body.content.table[0].dataString": "[[\"Work ID\",\"Work Type\",\"Assigned To\",\"Pending since\"], <workItems:{w | [\"<w.id>\", \"<w.workType>\", \"<w.assignedTo>\", \"<w.createdOn>\"]}; separator=\", \">]",
+          "body.content.paragraph3_blue": "Kindly follow the steps to complete the work - Login to our portal >> Goto 'My WorkList' >> Goto Pending tab >> Search Work id >> complete it as per instruction.",
+          "body.content.paragraph4_orange": "Please ignore this email if you have already completed. In case you have any query or need any assistance, please feel free to reach our Technical Specialist.",
+          "body.content.signature": "Thanks,\nTeam Nabarun",
+          "body.content.disclaimer": "Please Note that this is an auto-generated email. Kindly do not reply.",
+          "body.footer.footer": "You’re receiving this email because your email is registered at our online portal . If you are not sure why you’re receiving this, please contact us through our ."
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "NOTIFICATION_TEMPLATE_CONFIG",
+    "VALUES": [
+      {
+        "KEY": "ON_PUBLIC_QUERY",
+        "VALUE": "New Query",
+        "DESCRIPTION": "There is an query email awaiting your response. Please check your mailbox.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "TYPE": "FYI",
+          "ACTION": "",
+          "ACTION_LINK": "",
+          "IMAGE_URL": ""
+        }
+      },
+      {
+        "KEY": "ON_WORK_CREATION",
+        "VALUE": "New Work Item",
+        "DESCRIPTION": "Work item <workItem.id> for <workItem.workflowType> is pending with you.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "TYPE": "FYA",
+          "ACTION": "GOTO_WORKLIST",
+          "ACTION_LINK": "",
+          "IMAGE_URL": ""
+        }
+      },
+      {
+        "KEY": "ON_WORK_CLOSURE",
+        "VALUE": "Work Item Closed",
+        "DESCRIPTION": "Work item <workItem.id> for <workItem.workflowType> is <workItem.decision.value> by <workItem.decisionMaker.name>.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "TYPE": "FYI",
+          "ACTION": "",
+          "ACTION_LINK": "",
+          "IMAGE_URL": ""
+        }
+      },
+      {
+        "KEY": "ON_WORK_REMINDER",
+        "VALUE": "Work Pending",
+        "DESCRIPTION": "There are few work items pending with you.",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {
+          "TYPE": "FYA",
+          "ACTION": "GOTO_WORKLIST",
+          "ACTION_LINK": "",
+          "IMAGE_URL": ""
+        }
+      }
+    ]
+  },
+  {
+    "KEY": "IMPORTANT_LINKS",
+    "VALUES": [
+      {
+        "KEY": "Google Firebase",
+        "VALUE": "https://console.firebase.google.com/",
+        "DESCRIPTION": "Google Firebase hosts Frontend application, Firestore store all histories and configurations, Cloud messageing used to implement notification system.",
+        "ACTIVE" : true,
+		"ATTRIBUTES": {}
+      },
+      {
+        "KEY": "Google Cloud Platform(GCP)",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+        "ACTIVE" : true,
+		"ATTRIBUTES": {}
+      },
+      {
+        "KEY": "Redis Dashboard",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "Doppler Dashboard",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "Auth0 Dashboard",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "SendGrid Dashboard",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },
+      {
+        "KEY": "Jira",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      },{
+        "KEY": "Github",
+        "VALUE": "https://console.cloud.google.com/welcome",
+        "DESCRIPTION": "Google Cloud Platform hosts Backend application (Spring Boot).",
+		"ACTIVE" : true,
+        "ATTRIBUTES": {}
+      }
+    ]
+  }
+]

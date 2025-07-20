@@ -11,11 +11,12 @@ public class JobDetail {
 	private String id;
 	private String name;
 	private JobStatus status ;
-	private Date start;
-	private Date end;
+	private Date submitAt;
+	private Date startAt;
+	private Date endAt;
 	private Object input;
 	private Object output;
-	private int queue;
+	private long queue;
 	private Exception error;
 	private List<String> logs;
 	private String triggerId;

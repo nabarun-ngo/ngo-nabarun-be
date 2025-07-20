@@ -5,18 +5,17 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.app.common.enums.JobStatus;
 import ngo.nabarun.app.common.util.CommonUtils;
 
-@Slf4j
 @Data
 public class JobDTO {
 	private String id;
 	private String name;
 	private JobStatus status ;
-	private Date start;
-	private Date end;
+	private Date startAt;
+	private Date endAt;
+	private Date submitAt;
 	private Object input;
 	private Object output;
 	private int queue;
@@ -25,7 +24,7 @@ public class JobDTO {
 	private String triggerId;
 	private String memoryAtStart;
 	private String memoryAtEnd;
-	private long duration;
+	private String errorLog;
 
 	public JobDTO(String triggerId,String name){
 		this.triggerId=triggerId;
@@ -41,7 +40,7 @@ public class JobDTO {
 		}
 		String timestamp=CommonUtils.getFormattedDateString(CommonUtils.getSystemDate(), "yyyy-MM-dd HH:mm:ss");
 		logs.add(timestamp+" "+msg);
-		log.info(msg);
+		//log.info(msg);
 	}
 	
 	@Data

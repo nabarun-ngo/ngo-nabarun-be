@@ -10,11 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.infra.dto.DocumentDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentMappingDTO;
+import ngo.nabarun.app.infra.dto.DocumentDTO.DocumentUploadDTO;
 
 @Service
 public interface IDocumentInfraService {
 	
-	DocumentDTO uploadDocument(MultipartFile files, String docIndexId, DocumentIndexType docIndexType) throws ThirdPartyException;
+	DocumentDTO uploadDocument(MultipartFile file, List<DocumentMappingDTO> documentMapping) throws ThirdPartyException;
 
 	URL getTempDocumentUrl(String docId,long duration,TimeUnit timeunit) throws ThirdPartyException;
 
@@ -23,10 +25,9 @@ public interface IDocumentInfraService {
 	List<DocumentDTO> getDocumentList(String docRefId,DocumentIndexType documentType);
 
 	
-	DocumentDTO uploadDocument(String originalFileName, String contentType, String docIndexId,
-			DocumentIndexType docIndexType, byte[] content) throws ThirdPartyException;
+	DocumentDTO uploadDocument(DocumentUploadDTO documentUploadDTO) throws ThirdPartyException;
 
-	DocumentDTO createDocumentIndex(DocumentDTO document);
+	void createDocumentIndex(String documentId,List<DocumentMappingDTO> documentMapping);
 
 	
 }

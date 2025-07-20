@@ -35,6 +35,9 @@ public class ConfigTemplate implements Serializable{
 		@JsonProperty("DESCRIPTION")
 		private String description;
 		
+		@JsonProperty("ACTIVE")
+		private boolean active;
+		
 		@JsonProperty("ATTRIBUTES")
 		private Map<String,Object> attributes;
 

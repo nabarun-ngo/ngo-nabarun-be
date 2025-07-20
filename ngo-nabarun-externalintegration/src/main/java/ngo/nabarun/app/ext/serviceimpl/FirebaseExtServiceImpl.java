@@ -25,6 +25,8 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.cloud.StorageClient;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -37,7 +39,6 @@ import com.google.firebase.remoteconfig.ParameterValueType;
 import com.google.firebase.remoteconfig.Template;
 import com.google.gson.Gson;
 
-import ngo.nabarun.app.common.annotation.NoLogging;
 import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.ext.exception.ThirdPartyException;
 import ngo.nabarun.app.ext.helpers.ObjectFilter;
@@ -103,9 +104,8 @@ public class FirebaseExtServiceImpl
 		return blob.signUrl(duration, unit);
 	}
 
-	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG")
+	@Cacheable(value = "domain_global_config",key="'all_value'")
 	@Override
-	@NoLogging
 	public List<RemoteConfig> getRemoteConfigs() throws ThirdPartyException {
 		List<RemoteConfig> firebaseConfig = new ArrayList<>();
 		try {
@@ -117,12 +117,6 @@ public class FirebaseExtServiceImpl
 				rc.setDescription(parameter.getValue().getDescription());
 				rc.setType(parameter.getValue().getValueType().name());
 				String jsonValue = gson.toJson(parameter.getValue().getDefaultValue());
-				// String jsonValue =
-				// CommonUtils.convertToType(parameter.getValue().getDefaultValue(), new
-				// TypeReference<String>() {});
-
-				// Map<String, String> mapValue=CommonUtils.convertToType(jsonValue, new
-				// TypeReference<Map<String,String>>() {});
 				@SuppressWarnings("unchecked")
 				Map<String, String> mapValue = gson.fromJson(jsonValue, Map.class);
 				rc.setValue(mapValue.get("value"));
@@ -150,9 +144,8 @@ public class FirebaseExtServiceImpl
 
 	}
 
-	//@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key = "#configKey")
+	@Cacheable(value = "DOMAIN_GLOBAL_CONFIG", key = "#configKey")
 	@Override
-	@NoLogging
 	public RemoteConfig getRemoteConfig(String configKey) throws ThirdPartyException {
 		return getRemoteConfigs().stream().filter(f -> f.getName().equalsIgnoreCase(configKey)).findFirst().get();
 	}
@@ -188,8 +181,8 @@ public class FirebaseExtServiceImpl
 	}
 
 	@Override
-	public <T> List<T> getCollectionData(String collectionName, Integer page, Integer size,
-			List<ObjectFilter> filters,Class <T> valueType) throws ThirdPartyException {
+	public <T> List<T> getCollectionData(String collectionName, Integer page, Integer size, List<ObjectFilter> filters,
+			Class<T> valueType) throws ThirdPartyException {
 		Firestore db = FirestoreClient.getFirestore();
 		List<T> collections = new ArrayList<>();
 		try {
@@ -216,7 +209,7 @@ public class FirebaseExtServiceImpl
 			List<QueryDocumentSnapshot> documents = documentQuery.get().get().getDocuments();
 			for (QueryDocumentSnapshot document : documents) {
 				if (document.exists()) {
-					//document.getData()
+					// document.getData()
 					collections.add(document.toObject(valueType));
 				}
 			}
@@ -228,8 +221,7 @@ public class FirebaseExtServiceImpl
 	}
 
 	@Override
-	public <T> T storeCollectionData(String collectionName,String id, T item)
-			throws ThirdPartyException {
+	public <T> T storeCollectionData(String collectionName, String id, T item) throws ThirdPartyException {
 
 		try {
 			Firestore db = FirestoreClient.getFirestore();
@@ -239,7 +231,6 @@ public class FirebaseExtServiceImpl
 		}
 		return item;
 	}
-
 
 	@Override
 	public Map<String, Object> updateCollectionData(String collectionName, String id, Map<String, Object> items)
@@ -283,6 +274,19 @@ public class FirebaseExtServiceImpl
 			}
 		}
 		return msgIds;
+	}
+
+	@Override
+	public String saveItemInRealtimeDB(String dbRefURL, Object data) throws ThirdPartyException {
+		try {
+			DatabaseReference ref = FirebaseDatabase.getInstance().getReference(dbRefURL);
+			String id = UUID.randomUUID().toString();
+			System.err.println(ref.getKey());
+			ref.child(id).setValueAsync(data);
+			return id;
+		} catch (Exception e) {
+			throw new ThirdPartyException(e, ThirdPartySystem.FIREBASE);
+		}
 	}
 
 }
