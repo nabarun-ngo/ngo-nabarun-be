@@ -2,6 +2,8 @@ package ngo.nabarun.app.businesslogic.businessobjects;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -52,11 +54,13 @@ public class EventDetail {
 		private String id;
 		
 		@JsonProperty("eventTitle")
-		private String title;
+		private String eventTitle;
 
+		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		@JsonProperty("fromDate")
 		private Date fromDate;
 		
+		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		@JsonProperty("toDate")
 		private Date toDate;
 		

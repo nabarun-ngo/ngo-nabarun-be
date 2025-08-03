@@ -26,7 +26,7 @@ public class SocialEventBLImpl implements ISocialEventBL {
 		EventDTOFilter eventDTOFilter = null;
 		if(filter != null) {
 			eventDTOFilter = new EventDTOFilter();
-			eventDTOFilter.setTitle(filter.getTitle());
+			eventDTOFilter.setTitle(filter.getEventTitle());
 			eventDTOFilter.setId(filter.getId());
 			eventDTOFilter.setFromDate(filter.getFromDate());
 			eventDTOFilter.setToDate(filter.getToDate());
