@@ -114,6 +114,8 @@ public class BusinessDomainHelper {
 	private static final String ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED = "SYSTEM_GENERATED";
 	private static final String ITEM_USER_CONNECTIONS = "USER_CONNECTIONS";
 	private static final String ITEM_IMPORTANT_LINKS = "IMPORTANT_LINKS";
+	private static final String ITEM_POLICY_LINKS = "POLICY_LINKS";
+	private static final String ITEM_USER_GUIDE_LINKS = "USER_GUIDE_LINKS";
 
 	
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
@@ -679,7 +681,16 @@ public class BusinessDomainHelper {
 	 */
 	public List<KeyValue> getNabarunOrgInfo() throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_ORG_INFO);
-		System.out.println(kvFields);
+		return BusinessObjectConverter.toKeyValueList(kvFields);
+	}
+
+	public List<KeyValue> getPolicyDocs() throws Exception {
+		List<KeyValuePair> kvFields = getDomainConfig(ITEM_POLICY_LINKS);
+		return BusinessObjectConverter.toKeyValueList(kvFields);
+	}
+
+	public List<KeyValue> getUserGuideDocs() throws Exception {
+		List<KeyValuePair> kvFields = getDomainConfig(ITEM_USER_GUIDE_LINKS);
 		return BusinessObjectConverter.toKeyValueList(kvFields);
 	}
 

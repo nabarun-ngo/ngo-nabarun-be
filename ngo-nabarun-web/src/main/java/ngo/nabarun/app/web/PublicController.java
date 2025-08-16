@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,6 +41,45 @@ public class PublicController {
 		model.addAttribute("VERSION", CommonUtils.getAppVersion()); 
 		return "index";
 	}
+	
+	  @GetMapping("/policy/{page:(?:privacy-policy|terms-of-use|disclaimer|copyright)}")
+	  public ModelAndView policy(@PathVariable String page) throws Exception {
+		ModelAndView modelAndView = new ModelAndView("policy");
+		Map<String, Object> pageDataMap=publicBl.getPageData(List.of("policy"));
+		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+			modelAndView.addObject(data.getKey(), data.getValue());
+		}
+		switch (page) {
+			case "privacy-policy":
+				modelAndView.addObject("pageName", "Privacy Policy");
+				modelAndView.addObject("breadcrumb", List.of( "Home", "Privacy Policy"));
+				modelAndView.addObject("description", "This Privacy Policy outlines how we handle your personal information.");
+				modelAndView.addObject("url", pageDataMap.get("POLICY_PRIVACY_POLICY"));
+				break;
+			case "terms-of-use":
+				modelAndView.addObject("pageName", "Terms of Use");
+				modelAndView.addObject("breadcrumb", List.of( "Home", "Terms of Use" ));
+				modelAndView.addObject("description", "These Terms of Use govern your use of our website and services.");
+				modelAndView.addObject("url", pageDataMap.get("POLICY_TERMS_OF_USE"));
+				break;
+			case "disclaimer":
+				modelAndView.addObject("pageName", "Disclaimer");
+				modelAndView.addObject("breadcrumb", List.of( "Home", "Disclaimer" ));
+				modelAndView.addObject("description", "This Disclaimer outlines the limitations of our liability.");
+				modelAndView.addObject("url", pageDataMap.get("POLICY_DISCLAIMER"));
+				break;
+			case "copyright":
+				modelAndView.addObject("pageName", "Copyright");
+				modelAndView.addObject("breadcrumb", List.of( "Home", "Copyright" ));
+				modelAndView.addObject("description", "This Copyright notice outlines the ownership of content on our website.");
+				modelAndView.addObject("url", pageDataMap.get("POLICY_COPYRIGHT"));
+				break;
+			default:
+				throw new BusinessException("Invalid page requested: " + page);
+		}
+		
+		return modelAndView;
+	}
 
 	@PostMapping("/signup")
 	public ModelAndView signUp(@ModelAttribute("interview") InterviewDetail interview) throws Exception {
@@ -61,7 +101,7 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
+		Map<String, Object> pageDataMap=publicBl.getPageData(List.of("policy"));
 		for(Entry<String, Object> data:pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
