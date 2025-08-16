@@ -95,9 +95,9 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 		if (interview.getActionName() == UserAction.SUBMIT_BASIC_INFO) {
 			//List<String> rules = businessHelper.getRules().stream().map(m -> m.getValue()).toList();
 			//interview.setRules(rules);
-			String rules=commonDO.getRulesHTML();
-			System.out.println(rules);
-			interview.setRulesHTML(rules);
+			//String rules=commonDO.getRulesHTML();
+			//System.out.println(rules);
+			//interview.setRulesHTML(rules);
 			interview.setStage("1");
 			interview.getBreadCrumb().add("Rules and Regulations");
 		} else if (interview.getActionName() == UserAction.ACCEPT_RULES) {
