@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.ImportantLinks;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
@@ -37,5 +38,7 @@ public interface ICommonBL {
 	List<DocumentDetail> getDocuments(String id, DocumentIndexType type);
 
 	void manageNotification(AuthenticatedUser user,String action,Map<String, Object> payload) throws Exception;
+
+	ImportantLinks getUsefulLinks() throws Exception;
 
 }
