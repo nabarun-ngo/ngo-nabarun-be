@@ -18,6 +18,7 @@ import ngo.nabarun.app.businesslogic.ICommonBL;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
+import ngo.nabarun.app.businesslogic.businessobjects.ImportantLinks;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
@@ -154,5 +155,9 @@ public class CommonController {
 		return new SuccessResponse<Void>().get(HttpStatus.OK);
 	}
 	
-	
+	@Operation(summary = "Retrieve useful links")
+	@GetMapping("/useful-links")
+	public ResponseEntity<SuccessResponse<ImportantLinks>> getUsefulLinks() throws Exception {
+		return new SuccessResponse<ImportantLinks>().payload(commonBL.getUsefulLinks()).get(HttpStatus.OK);
+	}
 }
