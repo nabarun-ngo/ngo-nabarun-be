@@ -101,21 +101,32 @@ public class ConfluenceService {
      */
     public String getPageContentHtml(long pageId) throws Exception {
         String url = confluenceBaseUrl + "/rest/api/content/" + pageId + "?expand=body.storage";
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", buildAuthHeader());
-        conn.setRequestProperty("Accept", "application/json");
-        int status = conn.getResponseCode();
-        if (status != 200) {
+        }
+    
+        try (java.io.InputStream is = conn.getInputStream();
+             java.io.InputStreamReader reader = new java.io.InputStreamReader(is);
+             java.io.BufferedReader br = new java.io.BufferedReader(reader)) {
+        
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+        
+            // Use regex with proper JSON escaping awareness
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"value\":\"((?:\\\\.|[^\\\\\"])*)\"");
+            java.util.regex.Matcher matcher = pattern.matcher(response.toString());
+        
+            if (matcher.find()) {
+                String html = matcher.group(1)
+                    .replaceAll("\\\\u003c", "<")
+                    .replaceAll("\\\\u003e", ">")
+                    .replace("\\\"", "\"");
+                return html;
+            }
             return null;
         }
-        java.io.InputStream is = conn.getInputStream();
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        String response = s.hasNext() ? s.next() : "";
-        is.close();
-        // Simple JSON extraction (consider using a real JSON library for production)
-        int idx = response.indexOf("\"value\":\"");
-        if (idx < 0) return null;
+    }
         int start = idx + 9;
         int end = response.indexOf("\"", start);
         if (end < 0) end = response.length();
