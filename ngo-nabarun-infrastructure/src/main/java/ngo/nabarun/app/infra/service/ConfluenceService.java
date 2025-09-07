@@ -84,7 +84,14 @@ public class ConfluenceService {
     }
 
     private String escapeJson(String src) {
-        return src.replace("\"", "\\\"");
+        if (src == null) return "";
+        return src.replace("\\", "\\\\")
+                 .replace("\"", "\\\"")
+                 .replace("\n", "\\n")
+                 .replace("\r", "\\r")
+                 .replace("\t", "\\t")
+                 .replace("\b", "\\b")
+                 .replace("\f", "\\f");
     }
 
     /**
