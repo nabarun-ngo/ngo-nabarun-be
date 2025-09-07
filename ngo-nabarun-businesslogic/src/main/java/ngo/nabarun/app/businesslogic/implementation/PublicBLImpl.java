@@ -82,6 +82,26 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			e.printStackTrace();
 		}
 		
+		if(dataFilter != null && dataFilter.contains("policy")) {
+			try {
+				for (KeyValue keyValue : businessHelper.getPolicyDocs()) {
+					pageDataMap.put(keyValue.getKey(), keyValue.getValue());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(dataFilter != null && dataFilter.contains("userguide")) {
+			try {
+				for (KeyValue keyValue : businessHelper.getUserGuideDocs()) {
+					pageDataMap.put(keyValue.getKey(), keyValue.getValue());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		return pageDataMap;
 
 	}
