@@ -156,7 +156,7 @@ public class CommonController {
 	}
 	
 	@Operation(summary = "Retrieve useful links")
-	@GetMapping("/useful-links")
+	@GetMapping(value="/useful-links",produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SuccessResponse<ImportantLinks>> getUsefulLinks() throws Exception {
 		return new SuccessResponse<ImportantLinks>().payload(commonBL.getUsefulLinks()).get(HttpStatus.OK);
 	}
