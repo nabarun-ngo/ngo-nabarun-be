@@ -26,7 +26,6 @@ import ngo.nabarun.app.businesslogic.domain.AccountDO;
 import ngo.nabarun.app.businesslogic.domain.RequestDO;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
 import ngo.nabarun.app.businesslogic.helper.BusinessConstants;
-import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
 import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
@@ -48,9 +47,6 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 
 	@Autowired
 	private RequestDO requestDO;
-	
-	@Autowired
-	private BusinessDomainHelper domainHelper;
 
 	@Override
 	public Map<String, Object> getPageData(List<String> dataFilter) {
@@ -60,27 +56,23 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 				UserDetailFilter filter = new UserDetailFilter();
 				filter.setPublicFlag(true);
 				List<UserDetail> users = userDO.retrieveAllUsers(null, null, filter)
-						.map(m->{
-							try {
-								return BusinessObjectConverter.toPublicUserDetail(m,domainHelper.getDomainKeyValues());
-							} catch (Exception e) {
-								e.printStackTrace();
-								return BusinessObjectConverter.toPublicUserDetail(m,null);
-							}
-						}).getContent();
+						.map(m-> BusinessObjectConverter.toPublicUserDetail(m,null)).getContent();
 				pageDataMap.put("profiles", users);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		
-		try {
-			for (KeyValue keyValue : businessHelper.getNabarunOrgInfo()) {
-				pageDataMap.put(keyValue.getKey(), keyValue.getValue());
+		if(dataFilter != null && dataFilter.contains("metadata")) {
+			try {
+				for (KeyValue keyValue : businessHelper.getNabarunOrgInfo()) {
+					pageDataMap.put(keyValue.getKey(), keyValue.getValue());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		
 		
 		if(dataFilter != null && dataFilter.contains("policy")) {
 			try {

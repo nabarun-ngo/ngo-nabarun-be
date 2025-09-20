@@ -31,17 +31,14 @@ import ngo.nabarun.app.common.util.CommonUtils;
 @SessionAttributes(names = { "interview" })
 public class PublicController {
 
-	// private static Map<String, Object> content;
+	private static Map<String, Object> content;
 
 	@Autowired
 	private IPublicBL publicBl;
 
-	@Autowired
-	private PropertyHelper prop;
-
-//	public PublicController() {
-//		content = loadContent();
-//	}
+	public PublicController(PropertyHelper prop) {
+		content = loadContent(prop);
+	}
 
 	@GetMapping({ "/", "/signup", "/contact", "/donate" })
 	public String homePage(Model model) {
@@ -50,9 +47,8 @@ public class PublicController {
 			model.addAttribute(data.getKey(), data.getValue());
 		}
 		model.addAttribute("interview", new InterviewDetail());
-		model.addAttribute("LOGIN_URL", prop.getAppLoginURL());
 		model.addAttribute("VERSION", CommonUtils.getAppVersion());
-		model.addAttribute("content", loadContent());
+		model.addAttribute("content", content);
 		return "index";
 	}
 
@@ -93,7 +89,7 @@ public class PublicController {
 		default:
 			throw new BusinessException("Invalid page requested: " + page);
 		}
-		modelAndView.addObject("content", loadContent());
+		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
@@ -121,7 +117,7 @@ public class PublicController {
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", loadContent());
+		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
@@ -148,7 +144,7 @@ public class PublicController {
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", loadContent());
+		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
@@ -177,16 +173,16 @@ public class PublicController {
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", loadContent());
+		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
-	private static Map<String, Object> loadContent() {
+	private Map<String, Object> loadContent(PropertyHelper prop) {
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
 		Resource resource = resourceLoader.getResource("classpath:content.json");
 		try (InputStream inputStream = resource.getInputStream()) {
 			String json = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-			Map<String, String> replacements = Map.of("##LOGIN_URL##", "https://nabarun-test.web.app");
+			Map<String, String> replacements = Map.of("##LOGIN_URL##", prop.getAppLoginURL());
 			for (var entry : replacements.entrySet()) {
 				json = json.replace(entry.getKey(), entry.getValue());
 			}

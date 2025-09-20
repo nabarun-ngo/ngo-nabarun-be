@@ -56,7 +56,8 @@
 			"subject": "Subject",
 			"message": "Message",
 			"submit": "Send Message"
-		}
+		},
+		"locationLink":"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29434.72255207933!2d88.3485661446766!3d22.75274830558569!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f89aefcc6fe3a7%3A0x6a6d434ac504dbc5!2sBarrackpore%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1703413581213!5m2!1sen!2sin"
 	},
 	"donate": {
 		"sectionTitle": "Make a Donation",
@@ -403,7 +404,7 @@
 		"followLinks": [
 			{
 				"icon": "fab fa-facebook-f",
-				"url": "https://www.facebook.com/nabarunbangla/"
+				"url": "https://www.facebook.com/nabarunNGO?mibextid=ZbWKwL"
 			}
 		],
 		"basicInfo": {
