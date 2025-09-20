@@ -1,64 +1,148 @@
-<div  th:fragment="footer" th:remove="tag">
-<div class="container-fluid bg-dark text-white-50 footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container py-5">
-        <div class="row g-5">
-            <div class="col-lg-3 col-md-6">
-                <h1 class="fw-bold text-primary mb-4">NABA<span class="text-white">RUN</span></h1>
-                <p>Nabarun is a fully charitable non profit organization working seamlessly on social development.
-                </p>
-                <div class="d-flex pt-2">
-                    <a class="btn btn-square me-1" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}" th:href="${TWITTER_LINK}"><i class="fab fa-twitter"></i></a>
-                    <a class="btn btn-square me-1" target="_blank" th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}"><i class="fab fa-facebook-f"></i></a>
-                    <a class="btn btn-square me-1" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}" th:href="${YOUTUBE_LINK}"><i class="fab fa-youtube"></i></a>
-                    <a class="btn btn-square me-0" target="_blank" th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <h5 class="text-light mb-4">Contacts</h5>
-                <p th:text="${LOCATION}"><i class="fa fa-map-marker-alt me-3"></i>
+<div th:fragment="footer" th:remove="tag">
+    <footer class="modern-footer mt-5">
+        <div class="footer-main">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <!-- Brand Section -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-brand">
+                            <div class="brand-logo mb-4">
+                                <img src="/img/logo.png" alt="NABARUN Logo" class="footer-logo">
+                                <h2 class="brand-text">NABA<span class="text-accent">RUN</span></h2>
+                            </div>
+                            <p class="footer-description mb-4">
+                                Empowering communities through compassionate action since 2018. 
+                                Together, we create lasting change and build hope for a better tomorrow.
+                            </p>
+                            
+                            <!-- Social Media Links -->
+                            <div class="social-links">
+                                <h6 class="text-white mb-3">Connect With Us</h6>
+                                <div class="social-icons">
+                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}" th:href="${TWITTER_LINK}">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}" th:href="${YOUTUBE_LINK}">
+                                        <i class="fab fa-youtube"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
-                </p>
-                <p th:text="${CONTACT_NO}"><i class="fa fa-phone-alt me-3"></i>
+                    <!-- Quick Links -->
+                    <div class="col-lg-2 col-md-6">
+                        <div class="footer-section">
+                            <h5 class="footer-heading mb-4">Quick Links</h5>
+                            <ul class="footer-links">
+                                <li><a href="/#about"><i class="fas fa-chevron-right me-2"></i>About Us</a></li>
+                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Our Services</a></li>
+                                <li><a href="/#team"><i class="fas fa-chevron-right me-2"></i>Our Team</a></li>
+                                <li><a href="/#join"><i class="fas fa-chevron-right me-2"></i>Join Us</a></li>
+                                <li><a href="/#donate"><i class="fas fa-chevron-right me-2"></i>Donate</a></li>
+                            </ul>
+                        </div>
+                    </div>
                     
-                </p>
-                <p th:text="${EMAIL_ADDRESS}"><i class="fa fa-envelope me-3"></i>
+                    <!-- Our Work -->
+                    <div class="col-lg-2 col-md-6">
+                        <div class="footer-section">
+                            <h5 class="footer-heading mb-4">Our Work</h5>
+                            <ul class="footer-links">
+                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Education</a></li>
+                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Healthcare</a></li>
+                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Clean Water</a></li>
+                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Animal Welfare</a></li>
+                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Disaster Relief</a></li>
+                            </ul>
+                        </div>
+                    </div>
                     
-                </p>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <h5 class="text-light mb-4">Quick Links</h5>
-                <a class="btn btn-link" href="/#about">About Us</a>
-                <a class="btn btn-link" href="/#contact">Contact Us</a>
-                <a class="btn btn-link" href="/#services">Our Services</a>
-                <a class="btn btn-link" href="/#join">Join us</a>
-                <a class="btn btn-link" href="/#donate">Donate us</a>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <h5 class="text-light mb-4">Newsletter</h5>
-                <p>Please subscribe to our newsletter to get updated.</p>
-                <div class="position-relative mx-auto" style="max-width: 400px;">
-                    <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
-                    <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">Subscribe</button>
+                    <!-- Contact & Newsletter -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-section">
+                            <h5 class="footer-heading mb-4">Get In Touch</h5>
+                            
+                            <!-- Contact Information -->
+                            <div class="contact-info mb-4">
+                                <div class="contact-item d-flex align-items-start mb-3">
+                                    <div class="contact-icon me-3">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div class="contact-text">
+                                        <span th:text="${LOCATION}">Location</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-item d-flex align-items-start mb-3" th:if="${not #strings.isEmpty(CONTACT_NO)}">
+                                    <div class="contact-icon me-3">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <div class="contact-text">
+                                        <a th:href="'tel:' + ${CONTACT_NO}" th:text="${CONTACT_NO}">Phone</a>
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-item d-flex align-items-start">
+                                    <div class="contact-icon me-3">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="contact-text">
+                                        <a th:href="'mailto:' + ${EMAIL_ADDRESS}" th:text="${EMAIL_ADDRESS}">Email</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Newsletter -->
+                            <div class="newsletter-section">
+                                <h6 class="text-white mb-3">Stay Updated</h6>
+                                <p class="newsletter-text mb-3">Subscribe to receive updates about our latest projects and impact stories.</p>
+                                <div class="newsletter-form">
+                                    <div class="input-group">
+                                        <input type="email" class="form-control newsletter-input" placeholder="Enter your email">
+                                        <button class="btn btn-primary newsletter-btn" type="button">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container-fluid copyright">
-        <div class="container">
-            <div class="row">
-				<div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-				    Version : <a th:text="${VERSION}"></a>
-				</div>
-                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a >NABARUN</a>, All Right Reserved.
-                </div>
-                <div class="col-md-4 text-center text-md-end">
-                    <!--/*** This template is free as long as you keep the footer authors credit link/attribution link/backlink. If you'd like to use the template without the footer author�s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                    Designed By <a href="https://htmlcodex.com">HTML Codex</a> 
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="copyright-text">
+                            <p class="mb-0">&copy; 2024 <span class="text-accent fw-bold">NABARUN</span>. All rights reserved.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="footer-legal text-md-end">
+                            <a href="/policy/privacy-policy" class="legal-link me-3">Privacy Policy</a>
+                            <a href="/policy/terms-of-use" class="legal-link me-3">Terms of Use</a>
+                            <span class="version-info" th:if="${VERSION}">
+                                <i class="fas fa-code-branch me-1"></i>v<span th:text="${VERSION}">1.0</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button class="back-to-top-btn" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
 </div>

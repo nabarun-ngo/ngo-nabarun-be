@@ -1,86 +1,260 @@
-<div class="container-fluid donate my-5 py-5 scroll-margin" th:fragment="donate" id="donate" data-parallax="scroll"
-	data-image-src="img/nbrn/pic5.jpeg">
-	<div class="container py-5">
-		<div class="row g-5 align-items-center">
-			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Donate
-					Now</div>
-				<h1 class="display-6 text-white mb-5">Thanks For The Results
-					Achieved With You</h1>
-				<!--<p class="text-white-50 mb-0">Please fill this form to donate us.</p>-->
-			</div>
-			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-				<div class="h-100 bg-white p-5">
-					<form id="donationForm" th:action="@{/donate}" method="post" th:object="${interview}"
-						autocomplete="off">
-						<input type="hidden" name="X-Cloud-Trace-Context" th:value="${#dates.createNow().getTime()}">
-						<div class="row g-3">
-							<div class="col-12">
-								<div class="form-floating">
-									<input type="text" class="form-control bg-light border-0" th:field="*{firstName}"
-										id="name" placeholder="Your Name"> <label for="name">Your
-										Name</label>
-								</div>
-							</div>
-							<div class="col-12">
-								<div class="form-floating">
-									<input type="email" class="form-control bg-light border-0" th:field="*{email}"
-										id="email" placeholder="Your Email"> <label for="email">Your Email</label>
-								</div>
-							</div>
-							<div class="col-md-2">
-								<div class="form-floating">
-									<select class="form-control bg-light border-0" id="phonecode"
-										th:field="*{dialCode}">
-										<option value="91" selected>+91</option>
-										<option value="92">+92</option>
-									</select> <label for="phonecode">Code</label>
-								</div>
-							</div>
-							<div class="col-md-10">
-								<div class="form-floating">
-									<input type="number" class="form-control bg-light border-0" id="mobileno"
-										placeholder="Your Mobile Number" th:field="*{contactNumber}"> <label
-										for="mobileNo">Your
-										Mobile Number</label>
-								</div>
-							</div>
-							<div class="col-12">
-								<div class="form-floating">
-									<input type="number" class="form-control bg-light border-0" id="amount"
-										placeholder="Donation Amount" th:field="*{amount}"> <label for="amount">Donation
-										Amount</label>
-								</div>
-							</div>
-							<!--<div class="col-12">
-								<div class="btn-group d-flex justify-content-around">
-									<input type="radio" class="btn-check" name="btnradio"
-										id="btnradio1" checked> 
-										
-									<label
-										class="btn btn-light py-3" for="btnradio1">₹100</label> <input
-										type="radio" class="btn-check" name="btnradio" id="btnradio2">
-									<label class="btn btn-light py-3" for="btnradio2">₹500</label> <input
-										type="radio" class="btn-check" name="btnradio" id="btnradio3">
-									<label class="btn btn-light py-3" for="btnradio3">₹Any</label>
-									
-								</div>
-							</div>-->
-							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_PAYMENT_INFO'">
-							<div class="col-12">
-								<button type="submit" class="btn btn-primary px-5" style="height: 60px;">
-									Donate Now
-									<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
-										<i class="fa fa-arrow-right"></i>
-									</div>
-								</button>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+<div class="donation-section my-5 py-5 scroll-margin" th:fragment="donate" id="donate">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 700px;">
+            <div class="d-inline-block rounded-pill bg-gradient-accent text-white py-2 px-4 mb-3">
+                <i class="fas fa-donate me-2"></i>Make a Donation
+            </div>
+            <h1 class="display-5 mb-4 text-dark">Every Contribution Creates Hope</h1>
+            <p class="lead text-muted">Your generosity directly impacts lives and builds stronger communities. Join thousands of donors in making a meaningful difference.</p>
+        </div>
+        
+        <div class="row g-5 align-items-stretch">
+            <!-- Impact Stats & Information -->
+            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                <div class="donation-info-card h-100">
+                    <div class="impact-header mb-4">
+                        <h2 class="text-white mb-3">Your Impact in Numbers</h2>
+                        <p class="text-white-75 mb-4">See how your contribution directly translates into positive change in our communities.</p>
+                    </div>
+                    
+                    <!-- Impact Grid -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="impact-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="text-white">₹500</h3>
+                                    <p class="text-white-75 mb-0">Educates 1 child for a month</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="impact-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="text-white">₹1000</h3>
+                                    <p class="text-white-75 mb-0">Provides medical care for 5 people</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="impact-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-tint"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="text-white">₹2000</h3>
+                                    <p class="text-white-75 mb-0">Clean water access for 1 family</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="impact-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="text-white">₹5000</h3>
+                                    <p class="text-white-75 mb-0">Supports community development</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trust Indicators -->
+                    <div class="trust-indicators">
+                        <div class="trust-item d-flex align-items-center mb-3">
+                            <div class="trust-icon me-3">
+                                <i class="fas fa-shield-alt text-accent"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">100% Transparent</h6>
+                                <p class="text-white-75 mb-0">Complete visibility into how your money is used</p>
+                            </div>
+                        </div>
+                        <div class="trust-item d-flex align-items-center mb-3">
+                            <div class="trust-icon me-3">
+                                <i class="fas fa-certificate text-accent"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">Verified NGO</h6>
+                                <p class="text-white-75 mb-0">Registered and certified charitable organization</p>
+                            </div>
+                        </div>
+                        <div class="trust-item d-flex align-items-center">
+                            <div class="trust-icon me-3">
+                                <i class="fas fa-users text-accent"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">Community Driven</h6>
+                                <p class="text-white-75 mb-0">Supported by thousands of generous donors</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Donation Form -->
+            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.3s">
+                <div class="donation-form-card h-100">
+                    <div class="form-header mb-4">
+                        <h3 class="text-dark mb-2">Make Your Donation</h3>
+                        <p class="text-muted">Every rupee counts towards creating positive change</p>
+                    </div>
+                    
+                    <form id="donationForm" th:action="@{/donate}" method="post" th:object="${interview}" autocomplete="off">
+                        <input type="hidden" name="X-Cloud-Trace-Context" th:value="${#dates.createNow().getTime()}">
+                        
+                        <!-- Quick Amount Selection -->
+                        <div class="quick-amounts mb-4">
+                            <p class="form-label text-dark fw-semibold mb-3">Choose Amount</p>
+                            <div class="amount-buttons d-flex flex-wrap gap-2 mb-3">
+                                <button type="button" class="amount-btn" data-amount="500">₹500</button>
+                                <button type="button" class="amount-btn" data-amount="1000">₹1000</button>
+                                <button type="button" class="amount-btn" data-amount="2000">₹2000</button>
+                                <button type="button" class="amount-btn" data-amount="5000">₹5000</button>
+                                <button type="button" class="amount-btn" data-amount="10000">₹10000</button>
+                                <button type="button" class="amount-btn custom-amount">Other</button>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <!-- Custom Amount Input -->
+                            <div class="col-12">
+                                <div class="modern-input-group">
+                                    <label for="amount" class="form-label text-dark fw-semibold">
+                                        <i class="fas fa-rupee-sign me-2 text-primary"></i>Donation Amount
+                                    </label>
+                                    <input type="number" class="form-control modern-input" id="amount" 
+                                           placeholder="Enter amount in ₹" th:field="*{amount}" min="100">
+                                </div>
+                            </div>
+                            
+                            <!-- Personal Information -->
+                            <div class="col-12">
+                                <div class="modern-input-group">
+                                    <label for="name" class="form-label text-dark fw-semibold">
+                                        <i class="fas fa-user me-2 text-primary"></i>Full Name
+                                    </label>
+                                    <input type="text" class="form-control modern-input" th:field="*{firstName}" 
+                                           id="name" placeholder="Enter your full name">
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="modern-input-group">
+                                    <label for="email" class="form-label text-dark fw-semibold">
+                                        <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                                    </label>
+                                    <input type="email" class="form-control modern-input" th:field="*{email}" 
+                                           id="email" placeholder="your@email.com">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="modern-input-group">
+                                    <label for="phonecode" class="form-label text-dark fw-semibold">Code</label>
+                                    <select class="form-control modern-input" id="phonecode" th:field="*{dialCode}">
+                                        <option value="91" selected>+91</option>
+                                        <option value="92">+92</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="modern-input-group">
+                                    <label for="mobileno" class="form-label text-dark fw-semibold">
+                                        <i class="fas fa-phone me-2 text-primary"></i>Mobile Number
+                                    </label>
+                                    <input type="number" class="form-control modern-input" id="mobileno" 
+                                           placeholder="Your mobile number" th:field="*{contactNumber}">
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_PAYMENT_INFO'">
+                            
+                            <!-- Submit Button -->
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg w-100 donation-submit-btn">
+                                    <i class="fas fa-heart me-2"></i>Donate Now
+                                    <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                                <p class="text-center text-muted mt-2 mb-0">
+                                    <i class="fas fa-lock me-1"></i>Secure payment processing
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Donor Testimonials -->
+        <div class="donor-testimonials mt-5 pt-5 wow fadeInUp" data-wow-delay="0.5s">
+            <div class="text-center mb-5">
+                <h3 class="text-dark mb-3">What Our Donors Say</h3>
+                <p class="text-muted">Join thousands who have experienced the joy of giving</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="text-muted mb-3">"Seeing the direct impact of my donation through their transparent reporting gives me confidence to contribute regularly."</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-user-circle text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-dark mb-0">Priya Sharma</h6>
+                                    <small class="text-muted">Regular Donor</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="text-muted mb-3">"NABARUN's work in our community has been transformational. Proud to support such a dedicated organization."</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-user-circle text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-dark mb-0">Rajesh Kumar</h6>
+                                    <small class="text-muted">Corporate Donor</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="text-muted mb-3">"Every small contribution counts. I've seen children in my village get better education because of this NGO."</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-user-circle text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-dark mb-0">Anita Devi</h6>
+                                    <small class="text-muted">Community Member</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="container-xxl py-5 scroll-margin" th:fragment="completePayment" id="completepayment"
