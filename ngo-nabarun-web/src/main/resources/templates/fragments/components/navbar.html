@@ -3,27 +3,24 @@
 	<div
 		class="top-bar text-white-50 row gx-0 align-items-center d-none d-lg-flex">
 		<div class="col-lg-8 px-5 text-start">
-			<small><i class="fa fa-map-marker-alt me-2"></i>[[${LOCATION}]]</small>
-			<small class="ms-4" ><i class="fa fa-envelope me-2"></i>[[${EMAIL_ADDRESS}]]</small>
-			<!--<small class="ms-4" ><i class="fa fa-phone-alt me-2"></i>[[${CONTACT_NO}]]</small>-->
+			<small><i class="fa fa-map-marker-alt me-2"></i>[[${content.navbar.basicInfo.location}]]</small>
+			<small class="ms-4"><i class="fa fa-envelope me-2"></i>[[${content.navbar.basicInfo.email}]]</small>
+			<small class="ms-4"><i class="fa fa-phone-alt me-2"></i>[[${content.navbar.basicInfo.phone}]]</small>
 		</div>
 		<div class="col-lg-4 px-5 text-end">
-			<small>Follow us:</small> 
-			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}"><i class="fab fa-facebook-f"></i></a> 
-			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}" th:href="${TWITTER_LINK}"><i class="fab fa-twitter"></i></a> 
-			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}" th:href="${YOUTUBE_LINK}"><i class="fab fa-youtube"></i></a> 
-			<a class="text-white-50 ms-3" target="_blank" th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}"><i class="fab fa-instagram"></i></a>
+			<small th:text="${content.navbar.followUs}"></small>
+			<a th:each="follow : ${content.navbar.followLinks}" class="text-white-50 ms-3" target="_blank" th:href="${follow.url}">
+				<i th:class="${follow.icon}"></i>
+			</a> 
 		</div>
 	</div>
 
 	<nav
 		class="navbar navbar-expand-lg navbar-dark py-lg-0 px-lg-5 wow fadeIn"
 		data-wow-delay="0.1s">
-		<a href="/" class="navbar-brand ms-4 ms-lg-0"> <img src="/img/logo.png"
+		<a href="/" class="navbar-brand ms-4 ms-lg-0"> <img th:src="@{${content.navbar.brand.logo}}"
 			style="max-height: 70px;">
-			<h1 class="fw-bold text-primary m-0">
-				NABA<span class="text-white">RUN</span>
-			</h1>
+			<h1 class="fw-bold text-primary m-0" th:text="${content.navbar.brand.name}"></h1>
 		</a>
 		<button type="button" class="navbar-toggler me-4"
 			data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -31,40 +28,29 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarCollapse">
 			<div class="navbar-nav ms-auto p-4 p-lg-0">
-				<a href="/#"
-					class="nav-item nav-link <%= active_nav === 'home' && 'active' %>">Home</a>
-				<a href="/#about"
-					class="nav-item nav-link <%= active_nav === 'about' && 'active' %>">About</a>
-				<a href="/#services"
-					class="nav-item nav-link <%= active_nav === 'services' && 'active' %>">Services</a>
-				<a href="/#join"
-					class="nav-item nav-link <%= active_nav === 'gallery' && 'active' %>">Join Us</a> 
-				<a href="/#contact"
-					class="nav-item nav-link <%= active_nav === 'contact' && 'active' %>">Contact Us</a>
-				<a href="/#donate"
-					class="nav-item nav-link d-flex d-lg-none <%= active_nav === 'donate' && 'active' %>">Donate Now</a>
+				<a th:each="link : ${content.navbar.links}"
+					th:href="${link.url}" th:text="${link.label}" 
+					th:attr="target=${link.external != null && link.external == true} ? '_blank' : '_self'"
+					class="nav-item nav-link"></a>
+				<a th:href="${content.navbar.donate.url}"
+					class="nav-item nav-link d-flex d-lg-none" th:text="${content.navbar.donate.label}"></a>
 				<div class="nav-item dropdown">
-					<a href="#"
-						class="nav-link dropdown-toggle <%= active_nav === 'more' && 'active' %>"
-						data-bs-toggle="dropdown">More</a>
+					<a
+						class="nav-link dropdown-toggle"
+						data-bs-toggle="dropdown" th:text="${content.navbar.more.label}"></a>
 					<div class="dropdown-menu m-0">
-						<!-- <a href="/blog" class="dropdown-item">Blog</a> 
-						<a href="/gallery"
-							class="dropdown-item">Gallery</a>  -->
-							<a th:if="${LOGIN_URL != null}"
-							th:href="${LOGIN_URL}" target="_blank"
-							class="dropdown-item">Login</a>
-						 <a href="/policy/privacy-policy" class="dropdown-item">Privacy Policy</a>
-						 <a href="/policy/terms-of-use" class="dropdown-item">Terms of Use</a>
-						 <a href="/policy/disclaimer" class="dropdown-item">Disclaimer</a>
-						 <a href="/policy/copyright" class="dropdown-item">Copyright & Content Policy</a>
-
+						<a th:each="link : ${content.navbar.more.links}"
+                            th:href="${link.url}" 
+							th:text="${link.label}" 
+							th:attr="target=${link.external != null && link.external == true} ? '_blank' : '_self'" 
+							class="dropdown-item"></a>
 					</div>
 				</div>
 			</div>
 			<div class="d-none d-lg-flex ms-2">
-				<a class="btn btn-outline-primary py-2 px-3" href="/#donate">
-					Donate Now
+				<a class="btn btn-outline-primary py-2 px-3" 
+				th:href="${content.navbar.donate.url}"
+				th:text="${content.navbar.donate.label}">
 					<div
 						class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 						<i class="fa fa-arrow-right"></i>

@@ -1,53 +1,60 @@
-<div class="container-xxl py-5 scroll-margin" th:fragment="service"
-	id="services">
+<div class="container-xxl py-5 scroll-margin" th:fragment="service" id="services">
 	<div class="container">
-		<div class="text-center mx-auto mb-5 wow fadeInUp"
-			data-wow-delay="0.1s" style="max-width: 500px;">
-			<div
-				class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">What
-				We Do</div>
-			<h1 class="display-6 mb-5">Learn More What We Do And Get
-				Involved</h1>
+		<!-- Section Header -->
+		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 700px;">
+			<div class="d-inline-block rounded-pill bg-gradient-secondary text-white py-2 px-4 mb-3">
+				<i class="fas fa-hands-helping me-2"></i><span th:text="${content.services.sectionTitle}"></span>
+			</div>
+			<h1 class="display-5 mb-4" th:text="${content.services.title}"></h1>
+			<p class="lead text-muted" th:text="${content.services.description}"></p>
 		</div>
+
+		<!-- Services Grid -->
 		<div class="row g-4 justify-content-center">
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-				<div class="service-item bg-white text-center h-100 p-4 p-xl-5">
-					<img class="img-fluid mb-4" src="img/icon-1.png" alt="">
-					<h4 class="mb-3">Child Education</h4>
-					<p class="mb-4">We are working on Child Education.</p>
-					<a class="btn btn-outline-primary px-3" href=""> See More
-						<div
-							class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
-							<i class="fa fa-arrow-right"></i>
+			<!-- Service Item -->
+			<div class="col-lg-4 col-md-6 wow fadeInUp" th:each="service, iterStat : ${content.services.serviceItems}" th:data-wow-delay="${(iterStat.index * 0.2) + 0.1} + 's'">
+				<div class="service-card h-100">
+					<div class="service-icon">
+						<i th:class="${service.icon}"></i>
+					</div>
+					<div class="service-content">
+						<h4 class="service-title mb-3" th:text="${service.title}"></h4>
+						<p class="service-description mb-4" th:text="${service.description}"></p>
+						<div class="service-features mb-4">
+							<div class="feature-item d-flex align-items-center mb-2" th:each="feature : ${service.features}">
+								<i class="fas fa-check-circle text-accent me-2"></i>
+								<span class="text-muted" th:text="${feature}"></span>
+							</div>
 						</div>
-					</a>
+						<a class="btn btn-outline-primary w-100" th:href="${service.button.url}">
+							<i class="fas fa-info-circle me-2"></i><span th:text="${service.button.label}"></span>
+						</a>
+					</div>
+					<div class="service-overlay">
+						<div class="overlay-content">
+							<h5 class="text-white mb-3" th:text="${service.overlay.title}"></h5>
+							<div class="impact-stats">
+								<div class="stat">
+									<h4 class="text-white" th:text="${service.overlay.stat.value}"></h4>
+									<p class="text-white-50" th:text="${service.overlay.stat.label}"></p>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-				<div class="service-item bg-white text-center h-100 p-4 p-xl-5">
-					<img class="img-fluid mb-4" src="img/icon-2.png" alt="">
-					<h4 class="mb-3">Medical Treatment</h4>
-					<p class="mb-4">We are working on Medical Treatment.</p>
-					<a class="btn btn-outline-primary px-3" href=""> See More
-						<div
-							class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
-							<i class="fa fa-arrow-right"></i>
-						</div>
+		</div>
+
+		<!-- Call to Action -->
+		<div class="text-center mt-5 wow fadeInUp" data-wow-delay="1.3s">
+			<div class="cta-card">
+				<h3 class="text-white mb-3" th:text="${content.services.cta.title}"></h3>
+				<p class="text-white-50 mb-4" th:text="${content.services.cta.description}"></p>
+				 <div class="d-flex flex-wrap gap-3 justify-content-center">
+					<a th:each="button : ${content.services.cta.buttons}" th:class="${button.primary} ? 'btn btn-light btn-lg' : 'btn btn-outline-light btn-lg'" th:href="${button.url}">
+						<i th:class="${button.icon} + ' me-2'"></i><span th:text="${button.label}"></span>
 					</a>
-				</div>
-			</div>
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-				<div class="service-item bg-white text-center h-100 p-4 p-xl-5">
-					<img class="img-fluid mb-4" src="img/icon-3.png" alt="">
-					<h4 class="mb-3">Pure Drinking Water</h4>
-					<p class="mb-4">We are working on Pure Drinking Water</p>
-					<a class="btn btn-outline-primary px-3" href=""> See More
-						<div
-							class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
-							<i class="fa fa-arrow-right"></i>
-						</div>
-					</a>
-				</div>
+				</div> 
 			</div>
 		</div>
 	</div>
