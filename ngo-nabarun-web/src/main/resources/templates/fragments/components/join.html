@@ -1,11 +1,11 @@
 <div class="container-fluid py-5 scroll-margin" th:fragment="join" id="join" data-parallax="scroll"
-	data-image-src="img/nbrn/pic5.jpeg">
+	data-image-src="/img/nbrn/pic5.jpeg">
 	<div class="container">
 		<div class="row g-5 align-items-center">
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Be
+				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3" th:text="${content.join.sectionTitle}">Be
 					A Part Of Us</div>
-				<h1 class="display-6 text-white mb-5">We Welcome You To Join Us
+				<h1 class="display-6 text-white mb-5" th:text="${content.join.title}">We Welcome You To Join Us
 					In This Great Initiative</h1>
 
 			</div>
@@ -18,23 +18,21 @@
 							<div class="col-md-6">
 								<div class="form-floating">
 									<input type="text" class="form-control bg-light border-0" id="firstname"
-										placeholder="Your First Name" th:field="*{firstName}"> <label
-										for="firstname">Your
-										First Name</label>
+										th:placeholder="${content.join.form.firstName}" th:field="*{firstName}"> <label
+										for="firstname" th:text="${content.join.form.firstName}"></label>
 								</div>
 							</div>
 							<div class="col-md-6">
 								<div class="form-floating">
 									<input type="text" class="form-control bg-light border-0" id="lastname"
-										placeholder="Your Last Name" th:field="*{lastName}"> <label for="lastname">Your
-										Last Name</label>
+										th:placeholder="${content.join.form.lastName}" th:field="*{lastName}"> <label for="lastname" th:text="${content.join.form.lastName}"></label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
 									<input type="email" class="form-control bg-light border-0" id="email"
-										placeholder="Your Email" th:field="*{email}">
-									<label for="email">Your Email</label>
+										th:placeholder="${content.join.form.email}" th:field="*{email}">
+									<label for="email" th:text="${content.join.form.email}"></label>
 								</div>
 							</div>
 							<div class="col-md-2">
@@ -43,47 +41,43 @@
 										th:field="*{dialCode}">
 										<option value="91" selected>+91</option>
 										<option value="92">+92</option>
-									</select> <label for="phonecode">Code</label>
+									</select> <label for="phonecode" th:text="${content.join.form.code}"></label>
 								</div>
 							</div>
 							<div class="col-md-10">
 								<div class="form-floating">
 									<input type="number" class="form-control bg-light border-0" id="mobileno"
-										placeholder="Your Mobile Number" th:field="*{contactNumber}"> <label
-										for="mobileNo">Your
-										Mobile Number</label>
+										th:placeholder="${content.join.form.mobile}" th:field="*{contactNumber}"> <label
+										for="mobileNo" th:text="${content.join.form.mobile}"></label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
 									<input type="text" class="form-control bg-light border-0" id="location"
-										placeholder="Where are you from?" th:field="*{hometown}"> <label
-										for="location">Where
-										are you from?</label>
+										th:placeholder="${content.join.form.location}" th:field="*{hometown}"> <label
+										for="location" th:text="${content.join.form.location}"></label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
 									<textarea rows="4" class="form-control bg-light border-0" id="howDoUKnow"
-										placeholder="How did you know about Nabarun?"
+										th:placeholder="${content.join.form.howDoUKnow}"
 										th:field="*{howDoUKnowAboutNabarun}"></textarea>
-									<label for="howDoUKnowAboutNabarun">How did you know about
-										Nabarun?</label>
+									<label for="howDoUKnowAboutNabarun" th:text="${content.join.form.howDoUKnow}"></label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
 									<textarea rows="4" class="form-control bg-light border-0" id="whyDoUWantToJoin"
-										placeholder="Why you want to join Nabarun?"
+										th:placeholder="${content.join.form.whyDoUWantToJoin}"
 										th:field="*{reasonForJoining}"></textarea>
-									<label for="whyDoUWantToJoin">Why you want to join
-										Nabarun?</label>
+									<label for="whyDoUWantToJoin" th:text="${content.join.form.whyDoUWantToJoin}"></label>
 								</div>
 							</div>
 							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_BASIC_INFO'">
 							<div class="col-12">
 								<button type="submit" id="joinNow" class="btn btn-primary px-5" style="height: 60px;">
-									Join Now
+									<span th:text="${content.join.form.submit}"></span>
 									<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 										<i class="fa fa-arrow-right"></i>
 									</div>
@@ -102,11 +96,13 @@
 
 
 
+
+
 <div class="container-xxl py-5 scroll-margin" th:fragment="joiningrules" id="joiningrules" th:if="${stage == '1'}">
 	<div class="container">
 		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:utext="${errorMessage}"></div>
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5">Please Read Rules And Regulations Carefully</h1>
+			<h1 class="display-6 mb-5" th:text="${content.join.rules.title}">Please Read Rules And Regulations Carefully</h1>
 		</div>
 		<div class="row g-4 justify-content-center">
 			<div class="px-2">
@@ -123,10 +119,10 @@
 						<div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
 							<i class="fa fa-arrow-left"></i>
 						</div>
-						Disagree
+						<span th:text="${content.join.rules.disagree}"></span>
 					</button>
 					<button type="submit" class="btn btn-outline-primary btn-primary py-2 px-3 m-2 w-25">
-						Agree and Continue
+						<span th:text="${content.join.rules.agree}"></span>
 						<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 							<i class="fa fa-arrow-right"></i>
 						</div>
@@ -142,11 +138,13 @@
 
 
 
+
+
 <div class="container-xxl py-5 scroll-margin" th:fragment="setAccountPassword" id="setAccountPassword"
 	th:if="${stage == '2'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5">Set Login details</h1>
+			<h1 class="display-6 mb-5" th:text="${content.join.password.title}">Set Login details</h1>
 			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 		</div>
 		<div class="row g-4 justify-content-center">
@@ -161,29 +159,29 @@
 							<div class="col-12">
 								<div class="form-floating">
 									<input type="email" class="form-control bg-light border-0" id="loginemail"
-										placeholder="Login Email" th:field="*{email}">
-									<label for="email">Login Email</label>
+										th:placeholder="${content.join.password.email}" th:field="*{email}">
+									<label for="email" th:text="${content.join.password.email}"></label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
 									<input type="password" class="form-control bg-light border-0" id="password"
-										placeholder="Login Password" th:field="*{password}">
-									<label for="password">Login Password</label>
+										th:placeholder="${content.join.password.password}" th:field="*{password}">
+									<label for="password" th:text="${content.join.password.password}"></label>
 								</div>
 							</div>
 							<div class="col-12">
 								<div class="form-floating">
 									<input type="password" class="form-control bg-light border-0" id="confirmpassword"
-										placeholder="Confirm Login Password" th:field="*{confirmPassword}">
-									<label for="confirmpassword">Confirm Login Password</label>
+										th:placeholder="${content.join.password.confirmPassword}" th:field="*{confirmPassword}">
+									<label for="confirmpassword" th:text="${content.join.password.confirmPassword}"></label>
 								</div>
 							</div>
 							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_LOGIN_DETAIL'">
 							<div class="col-12">
 
 								<button type="submit" id="joinNow" class="btn btn-primary px-5" style="height: 60px;">
-									Proceed
+									<span th:text="${content.join.password.proceed}"></span>
 									<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 										<i class="fa fa-arrow-right"></i>
 									</div>
@@ -206,16 +204,18 @@
 
 
 
+
+
 <div class="container-xxl py-5 scroll-margin" th:fragment="otpvalidation" id="otpvalidation" th:if="${stage == '3'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5">Verify Email and Submit</h1>
+			<h1 class="display-6 mb-5" th:text="${content.join.otp.title}">Verify Email and Submit</h1>
 			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 			<form th:action="@{/signup}" method="post" th:object="${interview}">
 				<input type="hidden" name="actionName" id="actionName" th:value="'RESEND_OTP'">
 				<div class="d-flex justify-content-center m-2">
 					<button type="submit" class="btn btn-outline-primary btn-primary py-2 px-3 m-2">
-						Resend
+						<span th:text="${content.join.otp.resend}"></span>
 						<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 							<i class="fa fa-arrow-right"></i>
 						</div>
@@ -234,18 +234,18 @@
 							<div class="col-12">
 								<div class="form-floating">
 									<input type="password" class="form-control bg-light border-0" id="otp"
-										placeholder="One Time Password" th:field="*{onetimePassword}">
-									<label for="otp">One Time Password</label>
+										th:placeholder="${content.join.otp.otp}" th:field="*{onetimePassword}">
+									<label for="otp" th:text="${content.join.otp.otp}"></label>
 								</div>
 							</div>
 							<div class="col-12">
-								<div class="g-recaptcha" th:attr="data-sitekey='#{siteKey}'"></div>
+								<div class="g-recaptcha" th:attr="data-sitekey='${siteKey}'"></div>
 							</div>
 							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_OTP'">
 							<div class="col-12">
 
 								<button type="submit" id="joinNow" class="btn btn-primary px-5" style="height: 60px;">
-									Submit
+									<span th:text="${content.join.otp.submit}"></span>
 									<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 										<i class="fa fa-arrow-right"></i>
 									</div>
@@ -262,6 +262,7 @@
 		</div>
 	</div>
 </div>
+
 
 
 
@@ -283,7 +284,7 @@
 				<div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
 					<i class="fa fa-arrow-left"></i>
 				</div>
-				Go Back To Home
+				<span th:text="${content.join.postSubmission.goBack}"></span>
 			</a>
 		</div>
 		<script type="text/javascript">

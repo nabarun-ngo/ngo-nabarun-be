@@ -4,10 +4,10 @@
         <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
             <div class="d-inline-flex align-items-center rounded-pill bg-gradient-primary text-white py-2 px-4 mb-4">
                 <i class="fas fa-users me-2"></i>
-                <span class="fw-600 text-uppercase letter-spacing-1">Our Team</span>
+                <span class="fw-600 text-uppercase letter-spacing-1" th:text="${content.team.sectionTitle}">Our Team</span>
             </div>
-            <h2 class="display-5 mb-3 text-gradient-primary">Meet Our Passionate Champions</h2>
-            <p class="lead text-muted">Dedicated individuals working tirelessly to create positive change in our communities</p>
+            <h2 class="display-5 mb-3 text-gradient-primary" th:text="${content.team.title}">Meet Our Passionate Champions</h2>
+            <p class="lead text-muted" th:text="${content.team.description}">Dedicated individuals working tirelessly to create positive change in our communities</p>
         </div>
         
         <!-- Modern Team Grid ${0.1 + iterStat.index * 0.1}s-->
@@ -46,14 +46,14 @@
                             <div class="member-role mb-3">
                                 <span class="role-badge" th:text="${profile.getRoleString()}"></span>
                             </div>
-                            <p class="member-bio text-muted mb-3">Passionate about creating meaningful impact in communities through dedicated service and unwavering commitment.</p>
+                            <p class="member-bio text-muted mb-3" th:text="${content.team.member.bio}">Passionate about creating meaningful impact in communities through dedicated service and unwavering commitment.</p>
                         </div>
                         
                         <!-- Contact Button -->
                         <div class="member-actions">
                             <button class="btn btn-outline-primary btn-sm contact-member-btn" type="button">
                                 <i class="fas fa-envelope me-2"></i>
-                                Get in Touch
+                                <span th:text="${content.team.member.contact}">Get in Touch</span>
                             </button>
                         </div>
                     </div>
@@ -69,16 +69,16 @@
             <div class="col-12">
                 <div class="team-cta-card text-center wow fadeInUp" data-wow-delay="0.5s">
                     <div class="cta-content">
-                        <h3 class="text-white mb-3">Want to Join Our Mission?</h3>
-                        <p class="text-white-75 mb-4 lead">We're always looking for passionate individuals who share our vision of making a positive impact.</p>
+                        <h3 class="text-white mb-3" th:text="${content.team.cta.title}">Want to Join Our Mission?</h3>
+                        <p class="text-white-75 mb-4 lead" th:text="${content.team.cta.description}">We're always looking for passionate individuals who share our vision of making a positive impact.</p>
                         <div class="d-flex gap-3 justify-content-center flex-wrap">
-                            <a href="#contact" class="btn btn-light btn-lg">
+                            <a th:href="${content.team.cta.buttons[0].url}" class="btn btn-light btn-lg">
                                 <i class="fas fa-handshake me-2"></i>
-                                Volunteer With Us
+                                <span th:text="${content.team.cta.buttons[0].label}">Volunteer With Us</span>
                             </a>
-                            <a href="#careers" class="btn btn-outline-light btn-lg">
+                            <a th:href="${content.team.cta.buttons[1].url}" class="btn btn-outline-light btn-lg">
                                 <i class="fas fa-briefcase me-2"></i>
-                                View Careers
+                                <span th:text="${content.team.cta.buttons[1].label}">View Careers</span>
                             </a>
                         </div>
                     </div>
@@ -87,3 +87,4 @@
         </div>
     </div>
 </div>
+

@@ -3,253 +3,40 @@
 		<!-- Section Header -->
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 700px;">
 			<div class="d-inline-block rounded-pill bg-gradient-secondary text-white py-2 px-4 mb-3">
-				<i class="fas fa-hands-helping me-2"></i>Our Services
+				<i class="fas fa-hands-helping me-2"></i><span th:text="${content.services.sectionTitle}"></span>
 			</div>
-			<h1 class="display-5 mb-4">Making a Difference Through Action</h1>
-			<p class="lead text-muted">We focus on key areas where we can create the most meaningful impact in communities that need it most.</p>
+			<h1 class="display-5 mb-4" th:text="${content.services.title}"></h1>
+			<p class="lead text-muted" th:text="${content.services.description}"></p>
 		</div>
 
 		<!-- Services Grid -->
 		<div class="row g-4 justify-content-center">
-			<!-- Child Education Service -->
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+			<!-- Service Item -->
+			<div class="col-lg-4 col-md-6 wow fadeInUp" th:each="service, iterStat : ${content.services.serviceItems}" th:data-wow-delay="${(iterStat.index * 0.2) + 0.1} + 's'">
 				<div class="service-card h-100">
 					<div class="service-icon">
-						<i class="fas fa-graduation-cap"></i>
+						<i th:class="${service.icon}"></i>
 					</div>
 					<div class="service-content">
-						<h4 class="service-title mb-3">Child Education</h4>
-						<p class="service-description mb-4">Empowering young minds through quality education, school supplies, and scholarship programs to break the cycle of poverty and create brighter futures.</p>
+						<h4 class="service-title mb-3" th:text="${service.title}"></h4>
+						<p class="service-description mb-4" th:text="${service.description}"></p>
 						<div class="service-features mb-4">
-							<div class="feature-item d-flex align-items-center mb-2">
+							<div class="feature-item d-flex align-items-center mb-2" th:each="feature : ${service.features}">
 								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">School supplies distribution</span>
-							</div>
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Scholarship programs</span>
-							</div>
-							<div class="feature-item d-flex align-items-center">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">After-school support</span>
+								<span class="text-muted" th:text="${feature}"></span>
 							</div>
 						</div>
-						<a class="btn btn-outline-primary w-100" href="/#contact">
-							<i class="fas fa-info-circle me-2"></i>Learn More
+						<a class="btn btn-outline-primary w-100" th:href="${service.button.url}">
+							<i class="fas fa-info-circle me-2"></i><span th:text="${service.button.label}"></span>
 						</a>
 					</div>
 					<div class="service-overlay">
 						<div class="overlay-content">
-							<h5 class="text-white mb-3">Education Impact</h5>
+							<h5 class="text-white mb-3" th:text="${service.overlay.title}"></h5>
 							<div class="impact-stats">
 								<div class="stat">
-									<h4 class="text-white">200+</h4>
-									<p class="text-white-50">Children Supported</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Medical Treatment Service -->
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-				<div class="service-card h-100">
-					<div class="service-icon">
-						<i class="fas fa-heartbeat"></i>
-					</div>
-					<div class="service-content">
-						<h4 class="service-title mb-3">Medical Treatment</h4>
-						<p class="service-description mb-4">Providing essential healthcare services, medical camps, and treatment support for those who cannot afford proper medical care, especially in remote areas.</p>
-						<div class="service-features mb-4">
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Free medical camps</span>
-							</div>
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Medicine distribution</span>
-							</div>
-							<div class="feature-item d-flex align-items-center">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Emergency assistance</span>
-							</div>
-						</div>
-						<a class="btn btn-outline-primary w-100" href="/#contact">
-							<i class="fas fa-info-circle me-2"></i>Learn More
-						</a>
-					</div>
-					<div class="service-overlay">
-						<div class="overlay-content">
-							<h5 class="text-white mb-3">Healthcare Impact</h5>
-							<div class="impact-stats">
-								<div class="stat">
-									<h4 class="text-white">150+</h4>
-									<p class="text-white-50">Patients Treated</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Clean Water Service -->
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-				<div class="service-card h-100">
-					<div class="service-icon">
-						<i class="fas fa-tint"></i>
-					</div>
-					<div class="service-content">
-						<h4 class="service-title mb-3">Clean Water Access</h4>
-						<p class="service-description mb-4">Ensuring access to clean, safe drinking water through well construction, water purification systems, and community education about water hygiene.</p>
-						<div class="service-features mb-4">
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Water well construction</span>
-							</div>
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Purification systems</span>
-							</div>
-							<div class="feature-item d-flex align-items-center">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Hygiene education</span>
-							</div>
-						</div>
-						<a class="btn btn-outline-primary w-100" href="/#contact">
-							<i class="fas fa-info-circle me-2"></i>Learn More
-						</a>
-					</div>
-					<div class="service-overlay">
-						<div class="overlay-content">
-							<h5 class="text-white mb-3">Water Impact</h5>
-							<div class="impact-stats">
-								<div class="stat">
-									<h4 class="text-white">500+</h4>
-									<p class="text-white-50">People Served</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Community Development Service -->
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
-				<div class="service-card h-100">
-					<div class="service-icon">
-						<i class="fas fa-home"></i>
-					</div>
-					<div class="service-content">
-						<h4 class="service-title mb-3">Community Development</h4>
-						<p class="service-description mb-4">Building stronger communities through infrastructure development, skill training programs, and sustainable livelihood initiatives for long-term growth.</p>
-						<div class="service-features mb-4">
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Skill development programs</span>
-							</div>
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Infrastructure support</span>
-							</div>
-							<div class="feature-item d-flex align-items-center">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Livelihood programs</span>
-							</div>
-						</div>
-						<a class="btn btn-outline-primary w-100" href="/#contact">
-							<i class="fas fa-info-circle me-2"></i>Learn More
-						</a>
-					</div>
-					<div class="service-overlay">
-						<div class="overlay-content">
-							<h5 class="text-white mb-3">Development Impact</h5>
-							<div class="impact-stats">
-								<div class="stat">
-									<h4 class="text-white">100+</h4>
-									<p class="text-white-50">Families Empowered</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Animal Welfare Service -->
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.9s">
-				<div class="service-card h-100">
-					<div class="service-icon">
-						<i class="fas fa-paw"></i>
-					</div>
-					<div class="service-content">
-						<h4 class="service-title mb-3">Animal Welfare</h4>
-						<p class="service-description mb-4">Caring for street animals through rescue operations, medical treatment, vaccination drives, and finding them loving homes while promoting animal rights.</p>
-						<div class="service-features mb-4">
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Animal rescue operations</span>
-							</div>
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Veterinary care</span>
-							</div>
-							<div class="feature-item d-flex align-items-center">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Adoption programs</span>
-							</div>
-						</div>
-						<a class="btn btn-outline-primary w-100" href="/#contact">
-							<i class="fas fa-info-circle me-2"></i>Learn More
-						</a>
-					</div>
-					<div class="service-overlay">
-						<div class="overlay-content">
-							<h5 class="text-white mb-3">Animal Care Impact</h5>
-							<div class="impact-stats">
-								<div class="stat">
-									<h4 class="text-white">300+</h4>
-									<p class="text-white-50">Animals Rescued</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Disaster Relief Service -->
-			<div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="1.1s">
-				<div class="service-card h-100">
-					<div class="service-icon">
-						<i class="fas fa-shield-alt"></i>
-					</div>
-					<div class="service-content">
-						<h4 class="service-title mb-3">Disaster Relief</h4>
-						<p class="service-description mb-4">Providing immediate emergency response and long-term recovery support during natural disasters, helping communities rebuild and recover stronger.</p>
-						<div class="service-features mb-4">
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Emergency response</span>
-							</div>
-							<div class="feature-item d-flex align-items-center mb-2">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Relief supplies</span>
-							</div>
-							<div class="feature-item d-flex align-items-center">
-								<i class="fas fa-check-circle text-accent me-2"></i>
-								<span class="text-muted">Recovery support</span>
-							</div>
-						</div>
-						<a class="btn btn-outline-primary w-100" href="/#contact">
-							<i class="fas fa-info-circle me-2"></i>Learn More
-						</a>
-					</div>
-					<div class="service-overlay">
-						<div class="overlay-content">
-							<h5 class="text-white mb-3">Relief Impact</h5>
-							<div class="impact-stats">
-								<div class="stat">
-									<h4 class="text-white">50+</h4>
-									<p class="text-white-50">Emergency Responses</p>
+									<h4 class="text-white" th:text="${service.overlay.stat.value}"></h4>
+									<p class="text-white-50" th:text="${service.overlay.stat.label}"></p>
 								</div>
 							</div>
 						</div>
@@ -261,14 +48,11 @@
 		<!-- Call to Action -->
 		<div class="text-center mt-5 wow fadeInUp" data-wow-delay="1.3s">
 			<div class="cta-card">
-				<h3 class="text-white mb-3">Ready to Make a Difference?</h3>
-				<p class="text-white-50 mb-4">Join us in our mission to create positive change in communities around the world.</p>
+				<h3 class="text-white mb-3" th:text="${content.services.cta.title}"></h3>
+				<p class="text-white-50 mb-4" th:text="${content.services.cta.description}"></p>
 				<div class="d-flex flex-wrap gap-3 justify-content-center">
-					<a class="btn btn-light btn-lg" href="/#donate">
-						<i class="fas fa-donate me-2"></i>Donate Now
-					</a>
-					<a class="btn btn-outline-light btn-lg" href="/#join">
-						<i class="fas fa-users me-2"></i>Volunteer With Us
+					<a th:each="button : ${content.services.cta.buttons}" th:class="${button.primary} ? 'btn btn-light btn-lg' : 'btn btn-outline-light btn-lg'" th:href="${button.url}">
+						<i th:class="${button.icon} + ' me-2'"></i><span th:text="${button.label}"></span>
 					</a>
 				</div>
 			</div>
