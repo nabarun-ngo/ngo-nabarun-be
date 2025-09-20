@@ -1,6 +1,7 @@
 package ngo.nabarun.app.web;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +31,7 @@ import ngo.nabarun.app.common.util.CommonUtils;
 @SessionAttributes(names = { "interview" })
 public class PublicController {
 
-	private static Map<String, Object> content;
+	// private static Map<String, Object> content;
 
 	@Autowired
 	private IPublicBL publicBl;
@@ -44,14 +45,14 @@ public class PublicController {
 
 	@GetMapping({ "/", "/signup", "/contact", "/donate" })
 	public String homePage(Model model) {
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of ("profiles"));
+		Map<String, Object> pageDataMap = publicBl.getPageData(List.of("profiles"));
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			model.addAttribute(data.getKey(), data.getValue());
 		}
 		model.addAttribute("interview", new InterviewDetail());
 		model.addAttribute("LOGIN_URL", prop.getAppLoginURL());
 		model.addAttribute("VERSION", CommonUtils.getAppVersion());
-		model.addAttribute("content",  loadContent());
+		model.addAttribute("content", loadContent());
 		return "index";
 	}
 
@@ -92,7 +93,7 @@ public class PublicController {
 		default:
 			throw new BusinessException("Invalid page requested: " + page);
 		}
-		modelAndView.addObject("content", content);
+		modelAndView.addObject("content", loadContent());
 		return modelAndView;
 	}
 
@@ -147,7 +148,7 @@ public class PublicController {
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", content);
+		modelAndView.addObject("content", loadContent());
 		return modelAndView;
 	}
 
@@ -176,7 +177,7 @@ public class PublicController {
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", content);
+		modelAndView.addObject("content", loadContent());
 		return modelAndView;
 	}
 
@@ -184,9 +185,14 @@ public class PublicController {
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
 		Resource resource = resourceLoader.getResource("classpath:content.json");
 		try (InputStream inputStream = resource.getInputStream()) {
-			return CommonUtils.getObjectMapper().readValue(inputStream, new TypeReference<Map<String, Object>>() {
+			String json = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+			Map<String, String> replacements = Map.of("##LOGIN_URL##", "https://nabarun-test.web.app");
+			for (var entry : replacements.entrySet()) {
+				json = json.replace(entry.getKey(), entry.getValue());
+			}
+			return CommonUtils.getObjectMapper().readValue(json, new TypeReference<Map<String, Object>>() {
 			});
-		}catch (Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Failed to load content.json file", e);
 		}
 	}
