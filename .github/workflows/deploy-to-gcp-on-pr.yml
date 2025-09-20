@@ -1,4 +1,4 @@
-name: 'PR Merged: Release, Deploy to GCP (GAE), Sync Env'
+name: 'PR: Build, Release & Deploy'
 on:
   pull_request:
     paths-ignore:
@@ -17,7 +17,7 @@ jobs:
    uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Build-Test.yml@main
    with:
       platform: "java"
-      command: "mvn clean install"
+      command: "clean install"
       
   create_release:
     if: github.event.pull_request.merged == true
