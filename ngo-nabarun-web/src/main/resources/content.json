@@ -532,12 +532,14 @@
         {
           "label": "Donate Now",
           "url": "/#donate",
-          "icon": "fas fa-donate"
+          "icon": "fas fa-donate",
+          "primary": true
         },
         {
           "label": "Volunteer With Us",
           "url": "/#join",
-          "icon": "fas fa-users"
+          "icon": "fas fa-users",
+          "primary": false
         }
       ]
     }
@@ -557,12 +559,14 @@
         {
           "label": "Volunteer With Us",
           "url": "#contact",
-          "icon": "fas fa-handshake"
+          "icon": "fas fa-handshake",
+		  "primary": true
         },
         {
-          "label": "View Careers",
-          "url": "#careers",
-          "icon": "fas fa-briefcase"
+          "label": "Donate Now",
+          "url": "#donate",
+          "icon": "fas fa-donate",
+		  "primary": false
         }
       ]
     }

@@ -1,170 +1,185 @@
 <div class="donation-section my-5 py-5 scroll-margin" th:fragment="donate" id="donate">
-    <div class="container">
-        <!-- Section Header -->
-        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 700px;">
-            <div class="d-inline-block rounded-pill bg-gradient-accent text-white py-2 px-4 mb-3">
-                <i class="fas fa-donate me-2"></i><span th:text="${content.donate.sectionTitle}"></span>
-            </div>
-            <h1 class="display-5 mb-4 text-dark" th:text="${content.donate.title}"></h1>
-            <p class="lead text-muted" th:text="${content.donate.description}"></p>
-        </div>
-        
-        <div class="row g-5 align-items-stretch">
-            <!-- Impact Stats & Information -->
-            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-                <div class="donation-info-card h-100">
-                    <div class="impact-header mb-4">
-                        <h2 class="text-white mb-3" th:text="${content.donate.impact.title}"></h2>
-                        <p class="text-white-75 mb-4" th:text="${content.donate.impact.description}"></p>
-                    </div>
-                    
-                    <!-- Impact Grid -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6" th:each="stat : ${content.donate.impact.stats}">
-                            <div class="impact-stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-graduation-cap"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <h3 class="text-white" th:text="${stat.amount}"></h3>
-                                    <p class="text-white-75 mb-0" th:text="${stat.description}"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Trust Indicators -->
-                    <div class="trust-indicators">
-                        <div class="trust-item d-flex align-items-center mb-3" th:each="indicator : ${content.donate.trust.indicators}">
-                            <div class="trust-icon me-3">
-                                <i class="fas fa-shield-alt text-accent"></i>
-                            </div>
-                            <div>
-                                <h6 class="text-white mb-1" th:text="${indicator.title}"></h6>
-                                <p class="text-white-75 mb-0" th:text="${indicator.description}"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Donation Form -->
-            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.3s">
-                <div class="donation-form-card h-100">
-                    <div class="form-header mb-4">
-                        <h3 class="text-dark mb-2" th:text="${content.donate.form.title}"></h3>
-                        <p class="text-muted" th:text="${content.donate.form.description}"></p>
-                    </div>
-                    
-                    <form id="donationForm" th:action="@{/donate}" method="post" th:object="${interview}" autocomplete="off">
-                        <input type="hidden" name="X-Cloud-Trace-Context" th:value="${#dates.createNow().getTime()}">
-                        
-                        <!-- Quick Amount Selection -->
-                        <div class="quick-amounts mb-4">
-                            <p class="form-label text-dark fw-semibold mb-3" th:text="${content.donate.form.quickAmountTitle}"></p>
-                            <div class="amount-buttons d-flex flex-wrap gap-2 mb-3">
-                                <button type="button" class="amount-btn" th:each="amount : ${content.donate.form.quickAmounts}" th:data-amount="${#strings.replace(amount, '₹', '')}" th:text="${amount}"></button>
-                            </div>
-                        </div>
-                        
-                        <div class="row g-3">
-                            <!-- Custom Amount Input -->
-                            <div class="col-12">
-                                <div class="modern-input-group">
-                                    <label for="amount" class="form-label text-dark fw-semibold">
-                                        <i class="fas fa-rupee-sign me-2 text-primary"></i><span th:text="${content.donate.form.amountLabel}"></span>
-                                    </label>
-                                    <input type="number" class="form-control modern-input" id="amount" 
-                                           th:placeholder="${content.donate.form.amountPlaceholder}" th:field="*{amount}" min="100">
-                                </div>
-                            </div>
-                            
-                            <!-- Personal Information -->
-                            <div class="col-12">
-                                <div class="modern-input-group">
-                                    <label for="name" class="form-label text-dark fw-semibold">
-                                        <i class="fas fa-user me-2 text-primary"></i><span th:text="${content.donate.form.nameLabel}"></span>
-                                    </label>
-                                    <input type="text" class="form-control modern-input" th:field="*{firstName}" 
-                                           id="name" th:placeholder="${content.donate.form.namePlaceholder}">
-                                </div>
-                            </div>
-                            
-                            <div class="col-12">
-                                <div class="modern-input-group">
-                                    <label for="email" class="form-label text-dark fw-semibold">
-                                        <i class="fas fa-envelope me-2 text-primary"></i><span th:text="${content.donate.form.emailLabel}"></span>
-                                    </label>
-                                    <input type="email" class="form-control modern-input" th:field="*{email}" 
-                                           id="email" th:placeholder="${content.donate.form.emailPlaceholder}">
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="modern-input-group">
-                                    <label for="phonecode" class="form-label text-dark fw-semibold" th:text="${content.donate.form.codeLabel}"></label>
-                                    <select class="form-control modern-input" id="phonecode" th:field="*{dialCode}">
-                                        <option value="91" selected>+91</option>
-                                        <option value="92">+92</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-8">
-                                <div class="modern-input-group">
-                                    <label for="mobileno" class="form-label text-dark fw-semibold">
-                                        <i class="fas fa-phone me-2 text-primary"></i><span th:text="${content.donate.form.mobileLabel}"></span>
-                                    </label>
-                                    <input type="number" class="form-control modern-input" id="mobileno" 
-                                           th:placeholder="${content.donate.form.mobilePlaceholder}" th:field="*{contactNumber}">
-                                </div>
-                            </div>
-                            
-                            <input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_PAYMENT_INFO'">
-                            
-                            <!-- Submit Button -->
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg w-100 donation-submit-btn">
-                                    <i class="fas fa-heart me-2"></i><span th:text="${content.donate.form.submit}"></span>
-                                    <i class="fas fa-arrow-right ms-2"></i>
-                                </button>
-                                <p class="text-center text-muted mt-2 mb-0">
-                                    <i class="fas fa-lock me-1"></i><span th:text="${content.donate.form.secure}"></span>
-                                </p>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Donor Testimonials -->
-        <div th:if="${content.donate.testimonials.enabled}" class="donor-testimonials mt-5 pt-5 wow fadeInUp" data-wow-delay="0.5s">
-            <div class="text-center mb-5">
-                <h3 class="text-dark mb-3" th:text="${content.donate.testimonials.title}"></h3>
-                <p class="text-muted" th:text="${content.donate.testimonials.description}"></p>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-md-4" th:each="quote : ${content.donate.testimonials.quotes}">
-                    <div class="testimonial-card">
-                        <div class="testimonial-content">
-                            <p class="text-muted mb-3" th:text="${quote.quote}"></p>
-                            <div class="testimonial-author">
-                                <div class="author-avatar">
-                                    <i class="fas fa-user-circle text-primary"></i>
-                                </div>
-                                <div>
-                                    <h6 class="text-dark mb-0" th:text="${quote.author}"></h6>
-                                    <small class="text-muted" th:text="${quote.role}"></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="container">
+		<!-- Section Header -->
+		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 700px;">
+			<div class="d-inline-block rounded-pill bg-gradient-accent text-white py-2 px-4 mb-3">
+				<i class="fas fa-donate me-2"></i><span th:text="${content.donate.sectionTitle}"></span>
+			</div>
+			<h1 class="display-5 mb-4 text-dark" th:text="${content.donate.title}"></h1>
+			<p class="lead text-muted" th:text="${content.donate.description}"></p>
+		</div>
+
+		<div class="row g-5 align-items-stretch">
+			<!-- Impact Stats & Information -->
+			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+				<div class="donation-info-card h-100">
+					<div class="impact-header mb-4">
+						<h2 class="text-white mb-3" th:text="${content.donate.impact.title}"></h2>
+						<p class="text-white-75 mb-4" th:text="${content.donate.impact.description}"></p>
+					</div>
+
+					<!-- Impact Grid -->
+					<div class="row g-3 mb-4">
+						<div class="col-md-6" th:each="stat : ${content.donate.impact.stats}">
+							<div class="impact-stat-card">
+								<div class="stat-icon">
+									<i class="fas fa-graduation-cap"></i>
+								</div>
+								<div class="stat-content">
+									<h3 class="text-white" th:text="${stat.amount}"></h3>
+									<p class="text-white-75 mb-0" th:text="${stat.description}"></p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Trust Indicators -->
+					<div class="trust-indicators">
+						<div class="trust-item d-flex align-items-center mb-3"
+							th:each="indicator : ${content.donate.trust.indicators}">
+							<div class="trust-icon me-3">
+								<i class="fas fa-shield-alt text-accent"></i>
+							</div>
+							<div>
+								<h6 class="text-white mb-1" th:text="${indicator.title}"></h6>
+								<p class="text-white-75 mb-0" th:text="${indicator.description}"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Donation Form -->
+			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.3s">
+				<div class="donation-form-card h-100">
+					<div class="form-header mb-4">
+						<h3 class="text-dark mb-2" th:text="${content.donate.form.title}"></h3>
+						<p class="text-muted" th:text="${content.donate.form.description}"></p>
+					</div>
+
+					<form id="donationForm" th:action="@{/donate}" method="post" th:object="${interview}"
+						autocomplete="off">
+						<input type="hidden" name="X-Cloud-Trace-Context" th:value="${#dates.createNow().getTime()}">
+
+						<!-- Quick Amount Selection -->
+						<div class="quick-amounts mb-4">
+							<p class="form-label text-dark fw-semibold mb-3"
+								th:text="${content.donate.form.quickAmountTitle}"></p>
+							<div class="amount-buttons d-flex flex-wrap gap-2 mb-3">
+								<button type="button" class="amount-btn"
+									th:each="amount : ${content.donate.form.quickAmounts}"
+									th:data-amount="${#strings.replace(amount, '₹', '')}" th:text="${amount}"></button>
+							</div>
+						</div>
+
+						<div class="row g-3">
+							<!-- Custom Amount Input -->
+							<div class="col-12">
+								<div class="modern-input-group">
+									<label for="amount" class="form-label text-dark fw-semibold">
+										<i class="fas fa-rupee-sign me-2 text-primary"></i><span
+											th:text="${content.donate.form.amountLabel}"></span>
+									</label>
+									<input type="number" class="form-control modern-input" id="amount"
+										th:placeholder="${content.donate.form.amountPlaceholder}" th:field="*{amount}"
+										min="100">
+								</div>
+							</div>
+
+							<!-- Personal Information -->
+							<div class="col-12">
+								<div class="modern-input-group">
+									<label for="name" class="form-label text-dark fw-semibold">
+										<i class="fas fa-user me-2 text-primary"></i><span
+											th:text="${content.donate.form.nameLabel}"></span>
+									</label>
+									<input type="text" class="form-control modern-input" th:field="*{firstName}"
+										id="name" th:placeholder="${content.donate.form.namePlaceholder}">
+								</div>
+							</div>
+
+							<div class="col-12">
+								<div class="modern-input-group">
+									<label for="email" class="form-label text-dark fw-semibold">
+										<i class="fas fa-envelope me-2 text-primary"></i><span
+											th:text="${content.donate.form.emailLabel}"></span>
+									</label>
+									<input type="email" class="form-control modern-input" th:field="*{email}" id="email"
+										th:placeholder="${content.donate.form.emailPlaceholder}">
+								</div>
+							</div>
+
+							<div class="col-md-4">
+								<div class="modern-input-group">
+									<label for="phonecode" class="form-label text-dark fw-semibold"
+										th:text="${content.donate.form.codeLabel}"></label>
+									<select class="form-control modern-input" id="phonecode" th:field="*{dialCode}">
+										<option value="91" selected>+91</option>
+										<option value="92">+92</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-8">
+								<div class="modern-input-group">
+									<label for="mobileno" class="form-label text-dark fw-semibold">
+										<i class="fas fa-phone me-2 text-primary"></i><span
+											th:text="${content.donate.form.mobileLabel}"></span>
+									</label>
+									<input type="number" class="form-control modern-input" id="mobileno"
+										th:placeholder="${content.donate.form.mobilePlaceholder}"
+										th:field="*{contactNumber}">
+								</div>
+							</div>
+
+							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_PAYMENT_INFO'">
+
+							<!-- Submit Button -->
+							<div class="col-12 mt-4">
+								<button type="submit" class="btn btn-primary btn-lg w-100 donation-submit-btn">
+									<i class="fas fa-heart me-2"></i><span
+										th:text="${content.donate.form.submit}"></span>
+									<i class="fas fa-arrow-right ms-2"></i>
+								</button>
+								<p class="text-center text-muted mt-2 mb-0">
+									<i class="fas fa-lock me-1"></i><span
+										th:text="${content.donate.form.secure}"></span>
+								</p>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Donor Testimonials -->
+		<div th:if="${content.donate.testimonials.enabled}" class="donor-testimonials mt-5 pt-5 wow fadeInUp"
+			data-wow-delay="0.5s">
+			<div class="text-center mb-5">
+				<h3 class="text-dark mb-3" th:text="${content.donate.testimonials.title}"></h3>
+				<p class="text-muted" th:text="${content.donate.testimonials.description}"></p>
+			</div>
+
+			<div class="row g-4">
+				<div class="col-md-4" th:each="quote : ${content.donate.testimonials.quotes}">
+					<div class="testimonial-card">
+						<div class="testimonial-content">
+							<p class="text-muted mb-3" th:text="${quote.quote}"></p>
+							<div class="testimonial-author">
+								<div class="author-avatar">
+									<i class="fas fa-user-circle text-primary"></i>
+								</div>
+								<div>
+									<h6 class="text-dark mb-0" th:text="${quote.author}"></h6>
+									<small class="text-muted" th:text="${quote.role}"></small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="container-xxl py-5 scroll-margin" th:fragment="completePayment" id="completepayment"
@@ -203,15 +218,16 @@
 										<div class="row">
 											<div class="col-12 mb-2">
 												<p class="h5 mb-2" th:text="${content.donate.payment.cash.description}">
-													to collect your donation.</p>
+												</p>
 											</div>
 											<input type="hidden" name="actionName" id="actionName"
 												th:value="'SUBMIT_REQUEST'">
 											<input type="hidden" name="paymentMethod" id="paymentMethod"
 												th:value="'CASH'">
 											<div class="col-12 mb-2" th:if="${!#lists.isEmpty(interview.accounts)}">
-												<button type="submit" class="btn btn-primary w-100" th:text="${content.donate.payment.cash.submit}">
-													</button>
+												<button type="submit" class="btn btn-primary w-100"
+													th:text="${content.donate.payment.cash.submit}">
+												</button>
 											</div>
 										</div>
 									</form>
@@ -224,7 +240,7 @@
 							<a class="btn btn-primary p-2 w-100 h-100 d-flex align-items-center justify-content-between"
 								data-bs-toggle="collapse" href="#collapseUPI" role="button" aria-expanded="true"
 								aria-controls="collapseUPI">
-								<span class="fw-bold" th:text="${content.donate.payment.upi.title}">UPI</span>
+								<span class="fw-bold" th:text="${content.donate.payment.upi.title}"></span>
 
 							</a>
 						</p>
@@ -242,7 +258,7 @@
 										<div class="row">
 											<div class="col-12 mb-2">
 												<p class="h5 mb-2" th:text="${content.donate.payment.upi.description}">
-													amount and confirm payment.</p>
+												</p>
 											</div>
 
 											<div class="col-12" th:if="${#lists.isEmpty(interview.accounts)}">
@@ -286,7 +302,8 @@
 																name="paidToAccountId"
 																class="form-check-input check-item-1"
 																th:value="${item.id}" />
-															<label for="paidToAcc" class="form-check-label " th:text="${content.donate.payment.upi.paid_confirmation}"></label>
+															<label for="paidToAcc" class="form-check-label "
+																th:text="${content.donate.payment.upi.paid_confirmation}"></label>
 														</div>
 													</div>
 
@@ -300,7 +317,8 @@
 											<div class="mt-1 mb-2">
 												<div class="form-floating">
 													<input type="file" class="form-control" id="file"
-														th:field="*{files}" multiple required> <label for="file" th:text="${content.donate.payment.upi.file_label}"></label>
+														th:field="*{files}" multiple required> <label for="file"
+														th:text="${content.donate.payment.upi.file_label}"></label>
 												</div>
 											</div>
 
@@ -323,7 +341,7 @@
 							<a class="btn btn-primary p-2 w-100 h-100 d-flex align-items-center justify-content-between"
 								data-bs-toggle="collapse" href="#collapseBank" role="button" aria-expanded="true"
 								aria-controls="collapseBank">
-								<span class="fw-bold" th:text="${content.donate.payment.bank.title}">Bank Account</span>
+								<span class="fw-bold" th:text="${content.donate.payment.bank.title}"></span>
 							</a>
 						</p>
 						<div class="collapse p-3 pt-0" id="collapseBank" aria-labelledby="cardBankHeading"
@@ -339,7 +357,8 @@
 											th:value="${#dates.createNow().getTime()}">
 										<div class="row">
 											<div class="col-12 mb-2">
-												<p class="h5 mb-2" th:text="${content.donate.payment.bank.description}"></p>
+												<p class="h5 mb-2" th:text="${content.donate.payment.bank.description}">
+												</p>
 											</div>
 
 											<div class="col-12" th:if="${#lists.isEmpty(interview.accounts)}">
@@ -375,7 +394,8 @@
 														<input type="checkbox" id="paidToAcc2" name="paidToAccountId"
 															class="form-check-input check-item-2"
 															th:value="${item.id}" />
-														<label for="paidToAcc" class="form-check-label" th:text="${content.donate.payment.bank.paid_confirmation}"></label>
+														<label for="paidToAcc" class="form-check-label"
+															th:text="${content.donate.payment.bank.paid_confirmation}"></label>
 													</div>
 												</div>
 												<div class="col-12 mt-2 mb-2"
@@ -387,7 +407,8 @@
 											<div class="mt-1 mb-2">
 												<div class="form-floating">
 													<input type="file" class="form-control" id="file"
-														th:field="*{files}" multiple required> <label for="file" th:text="${content.donate.payment.bank.file_label}"></label>
+														th:field="*{files}" multiple required> <label for="file"
+														th:text="${content.donate.payment.bank.file_label}"></label>
 												</div>
 											</div>
 											<input type="hidden" name="actionName" id="actionName"
@@ -396,8 +417,7 @@
 												th:value="'NETBANKING'">
 											<div class="col-12 mb-2" th:if="${!#lists.isEmpty(interview.accounts)}">
 												<button type="submit" class="btn btn-primary w-100" id="sub_bt2"
-													disabled th:text="${content.donate.payment.bank.submit}">Confirm
-													Payment</button>
+													disabled th:text="${content.donate.payment.bank.submit}"></button>
 											</div>
 										</div>
 									</form>
@@ -414,17 +434,14 @@
 
 
 <div th:fragment="donation_summary">
-	<p class="h4 mb-2" th:text="${content.donate.payment.summary.title}">Donation Summary</p>
-	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.name}">Donor Name : </span><span class="c-green"
+	<p class="h4 mb-2" th:text="${content.donate.payment.summary.title}"></p>
+	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.name}"></span><span class="c-green"
 			th:text="${interview.firstName}"></span></p>
-	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.email}">Donor Email : </span><span class="c-green"
+	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.email}"></span><span class="c-green"
 			th:text="${interview.email}"></span></p>
-	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.number}">Donor Number : </span><span class="c-green"
-			th:text="${interview.dialCode}+${interview.contactNumber}"></span>
+	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.number}"></span><span
+			class="c-green" th:text="${interview.dialCode}+${interview.contactNumber}"></span>
 	</p>
-	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.amount}">Donation Amount : </span><span class="c-green"
-			th:text="'₹ '+${interview.amount}"></span></p>
+	<p class="mb-1"><span class="fw-bold" th:text="${content.donate.payment.summary.amount}"></span><span
+			class="c-green" th:text="'₹ '+${interview.amount}"></span></p>
 </div>
-
-
-

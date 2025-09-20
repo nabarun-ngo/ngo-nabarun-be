@@ -11,14 +11,14 @@
 					<div class="row g-3">
 						<div class="col-md-12">
 							<div class="form-floating">
-								<input type="text" class="form-control" id="name" placeholder="Your Name"
+								<input type="text" class="form-control" id="name"
 									th:field="*{firstName}">
 								<label for="name" th:text="${content.contact.form.name}"></label>
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-floating">
-								<input type="email" class="form-control" id="email" placeholder="Your Email"
+								<input type="email" class="form-control" id="email"
 									th:field="*{email}">
 								<label for="email" th:text="${content.contact.form.email}"></label>
 							</div>
@@ -26,19 +26,19 @@
 						<div class="col-md-6">
 								<div class="form-floating">
 									<input type="number" class="form-control"
-										id="mobileno" placeholder="Your Mobile Number"
+										id="mobileno"
 										th:field="*{contactNumber}"> <label for="mobileNo" th:text="${content.contact.form.mobile}"></label>
 								</div>
 							</div>
 						<div class="col-12">
 							<div class="form-floating">
-								<input type="text" class="form-control" id="subject" placeholder="Subject" th:field="*{subject}">
+								<input type="text" class="form-control" id="subject" th:field="*{subject}">
 								<label for="subject" th:text="${content.contact.form.subject}"></label>
 							</div>
 						</div>
 						<div class="col-12">
 							<div class="form-floating">
-								<textarea class="form-control" placeholder="Leave a message here" id="message" th:field="*{message}"
+								<textarea class="form-control" id="message" th:field="*{message}"
 									style="height: 100px"></textarea>
 								<label for="message" th:text="${content.contact.form.message}"></label>
 							</div>

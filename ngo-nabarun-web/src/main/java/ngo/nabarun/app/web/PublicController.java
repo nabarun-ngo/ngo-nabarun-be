@@ -44,7 +44,7 @@ public class PublicController {
 
 	@GetMapping({ "/", "/signup", "/contact", "/donate" })
 	public String homePage(Model model) {
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of("profiles"));
+		Map<String, Object> pageDataMap = publicBl.getPageData(List.of ("profiles"));
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			model.addAttribute(data.getKey(), data.getValue());
 		}

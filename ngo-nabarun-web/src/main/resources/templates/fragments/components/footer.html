@@ -1,139 +1,154 @@
 <div th:fragment="footer" th:remove="tag">
-    <footer class="modern-footer mt-5">
-        <div class="footer-main">
-            <div class="container py-5">
-                <div class="row g-5">
-                    <!-- Brand Section -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-brand">
-                            <div class="brand-logo mb-4">
-                                <img src="/img/logo.png" alt="NABARUN Logo" class="footer-logo">
-                                <h2 class="brand-text">NABA<span class="text-accent">RUN</span></h2>
-                            </div>
-                                                        <p class="footer-description mb-4" th:text="${content.footer.brand.description}">
-                                Empowering communities through compassionate action since 2018. 
-                                Together, we create lasting change and build hope for a better tomorrow.
-                            </p>
-                            
-                            <!-- Social Media Links -->
-                            <div class="social-links">
-                                <h6 class="text-white mb-3">Connect With Us</h6>
-                                <div class="social-icons">
-                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}" th:href="${TWITTER_LINK}">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}">
-                                        <i class="fab fa-instagram"></i>
-                                    </a>
-                                    <a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}" th:href="${YOUTUBE_LINK}">
-                                        <i class="fab fa-youtube"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Quick Links -->
-                    <div class="col-lg-2 col-md-6">
-                        <div class="footer-section">
-                            <h5 class="footer-heading mb-4" th:text="${content.footer.quickLinks.title}">Quick Links</h5>
-                            <ul class="footer-links">
-                                <li th:each="link : ${content.footer.quickLinks.links}"><a th:href="${link.url}"><i class="fas fa-chevron-right me-2"></i><span th:text="${link.label}"></span></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <!-- Our Work -->
-                    <div class="col-lg-2 col-md-6">
-                        <div class="footer-section">
-                            <h5 class="footer-heading mb-4" th:text="${content.footer.ourWork.title}">Our Work</h5>
-                            <ul class="footer-links">
-                                <li th:each="link : ${content.footer.ourWork.links}"><a th:href="${link.url}"><i class="fas fa-chevron-right me-2"></i><span th:text="${link.label}"></span></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <!-- Contact & Newsletter -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-section">
-                            <h5 class="footer-heading mb-4">Get In Touch</h5>
-                            
-                            <!-- Contact Information -->
-                            <div class="contact-info mb-4">
-                                <div class="contact-item d-flex align-items-start mb-3">
-                                    <div class="contact-icon me-3">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                    </div>
-                                    <div class="contact-text">
-                                        <span th:text="${LOCATION}">Location</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="contact-item d-flex align-items-start mb-3" th:if="${not #strings.isEmpty(CONTACT_NO)}">
-                                    <div class="contact-icon me-3">
-                                        <i class="fas fa-phone-alt"></i>
-                                    </div>
-                                    <div class="contact-text">
-                                        <a th:href="'tel:' + ${CONTACT_NO}" th:text="${CONTACT_NO}">Phone</a>
-                                    </div>
-                                </div>
-                                
-                                <div class="contact-item d-flex align-items-start">
-                                    <div class="contact-icon me-3">
-                                        <i class="fas fa-envelope"></i>
-                                    </div>
-                                    <div class="contact-text">
-                                        <a th:href="'mailto:' + ${EMAIL_ADDRESS}" th:text="${EMAIL_ADDRESS}">Email</a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Newsletter -->
-                            <div class="newsletter-section">
-                                <h6 class="text-white mb-3" th:text="${content.footer.newsletter.title}">Stay Updated</h6>
-                                <p class="newsletter-text mb-3" th:text="${content.footer.newsletter.description}">Subscribe to receive updates about our latest projects and impact stories.</p>
-                                <div class="newsletter-form">
-                                    <div class="input-group">
-                                        <input type="email" class="form-control newsletter-input" th:placeholder="${content.footer.newsletter.placeholder}">
-                                        <button class="btn btn-primary newsletter-btn" type="button" th:utext="${content.footer.newsletter.button}">
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <div class="copyright-text">
-                            <p class="mb-0" th:utext="${content.footer.bottom.copyright}">&copy; 2024 <span class="text-accent fw-bold">NABARUN</span>. All rights reserved.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="footer-legal text-md-end">
-                            <a href="/policy/privacy-policy" class="legal-link me-3">Privacy Policy</a>
-                            <a href="/policy/terms-of-use" class="legal-link me-3">Terms of Use</a>
-                            <span class="version-info" th:if="${VERSION}">
-                                <i class="fas fa-code-branch me-1"></i>v<span th:text="${VERSION}">1.0</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    
-    <!-- Back to Top Button -->
-    <button class="back-to-top-btn" id="backToTop">
-        <i class="fas fa-chevron-up"></i>
-    </button>
+	<footer class="modern-footer mt-5">
+		<div class="footer-main">
+			<div class="container py-5">
+				<div class="row g-5">
+					<!-- Brand Section -->
+					<div class="col-lg-4 col-md-6">
+						<div class="footer-brand">
+							<div class="brand-logo mb-4">
+								<img src="/img/logo.png" alt="NABARUN Logo" class="footer-logo">
+								<h2 class="brand-text" th:text="${content.footer.brand.name}"></h2>
+							</div>
+							<p class="footer-description mb-4" th:text="${content.footer.brand.description}">
+
+							</p>
+
+							<!-- Social Media Links -->
+							<div class="social-links">
+								<h6 class="text-white mb-3" th:text="${content.footer.social.title}"></h6>
+								<div class="social-icons">
+									<a class="social-icon" target="_blank"
+										th:if="${not #strings.isEmpty(FACEBOOK_LINK)}" th:href="${FACEBOOK_LINK}">
+										<i class="fab fa-facebook-f"></i>
+									</a>
+									<a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(TWITTER_LINK)}"
+										th:href="${TWITTER_LINK}">
+										<i class="fab fa-twitter"></i>
+									</a>
+									<a class="social-icon" target="_blank"
+										th:if="${not #strings.isEmpty(INSTAGRAM_LINK)}" th:href="${INSTAGRAM_LINK}">
+										<i class="fab fa-instagram"></i>
+									</a>
+									<a class="social-icon" target="_blank" th:if="${not #strings.isEmpty(YOUTUBE_LINK)}"
+										th:href="${YOUTUBE_LINK}">
+										<i class="fab fa-youtube"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Quick Links -->
+					<div class="col-lg-2 col-md-6">
+						<div class="footer-section">
+							<h5 class="footer-heading mb-4" th:text="${content.footer.quickLinks.title}">
+							</h5>
+							<ul class="footer-links">
+								<li th:each="link : ${content.footer.quickLinks.links}"><a th:href="${link.url}"><i
+											class="fas fa-chevron-right me-2"></i><span
+											th:text="${link.label}"></span></a></li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Our Work -->
+					<div class="col-lg-2 col-md-6">
+						<div class="footer-section">
+							<h5 class="footer-heading mb-4" th:text="${content.footer.ourWork.title}"></h5>
+							<ul class="footer-links">
+								<li th:each="link : ${content.footer.ourWork.links}"><a th:href="${link.url}"><i
+											class="fas fa-chevron-right me-2"></i><span
+											th:text="${link.label}"></span></a></li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Contact & Newsletter -->
+					<div class="col-lg-4 col-md-6">
+						<div class="footer-section">
+							<h5 class="footer-heading mb-4" th:text="${content.footer.getInTouch.title}"></h5>
+
+							<!-- Contact Information -->
+							<div class="contact-info mb-4">
+								<div class="contact-item d-flex align-items-start mb-3">
+									<div class="contact-icon me-3">
+										<i class="fas fa-map-marker-alt"></i>
+									</div>
+									<div class="contact-text">
+										<span th:text="${LOCATION}"></span>
+									</div>
+								</div>
+
+								<div class="contact-item d-flex align-items-start mb-3"
+									th:if="${not #strings.isEmpty(CONTACT_NO)}">
+									<div class="contact-icon me-3">
+										<i class="fas fa-phone-alt"></i>
+									</div>
+									<div class="contact-text">
+										<a th:href="'tel:' + ${CONTACT_NO}" th:text="${CONTACT_NO}"></a>
+									</div>
+								</div>
+
+								<div class="contact-item d-flex align-items-start">
+									<div class="contact-icon me-3">
+										<i class="fas fa-envelope"></i>
+									</div>
+									<div class="contact-text">
+										<a th:href="'mailto:' + ${EMAIL_ADDRESS}" th:text="${EMAIL_ADDRESS}"></a>
+									</div>
+								</div>
+							</div>
+
+							<!-- Newsletter -->
+							<div class="newsletter-section">
+								<h6 class="text-white mb-3" th:text="${content.footer.newsletter.title}">
+								</h6>
+								<p class="newsletter-text mb-3" th:text="${content.footer.newsletter.description}">
+								</p>
+								<div class="newsletter-form">
+									<div class="input-group">
+										<input type="email" class="form-control newsletter-input"
+											th:placeholder="${content.footer.newsletter.placeholder}">
+										<button class="btn btn-primary newsletter-btn" type="button"
+											th:utext="${content.footer.newsletter.button}">
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-md-6">
+						<div class="copyright-text">
+							<p class="mb-0" th:utext="${content.footer.bottom.copyright}"></p>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="footer-legal text-md-end">
+							<a href="/policy/privacy-policy" class="legal-link me-3"
+								th:text="${content.footer.bottom.legal[0].label}"></a>
+							<a href="/policy/terms-of-use" class="legal-link me-3"
+								th:text="${content.footer.bottom.legal[1].label}"></a>
+							<span class="version-info" th:if="${VERSION}">
+								<i class="fas fa-code-branch me-1"></i>v<span th:text="${VERSION}"></span>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- Back to Top Button -->
+	<button class="back-to-top-btn" id="backToTop">
+		<i class="fas fa-chevron-up"></i>
+	</button>
 </div>

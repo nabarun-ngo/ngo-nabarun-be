@@ -3,10 +3,8 @@
 	<div class="container">
 		<div class="row g-5 align-items-center">
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3" th:text="${content.join.sectionTitle}">Be
-					A Part Of Us</div>
-				<h1 class="display-6 text-white mb-5" th:text="${content.join.title}">We Welcome You To Join Us
-					In This Great Initiative</h1>
+				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3" th:text="${content.join.sectionTitle}"></div>
+				<h1 class="display-6 text-white mb-5" th:text="${content.join.title}"></h1>
 
 			</div>
 
@@ -102,7 +100,7 @@
 	<div class="container">
 		<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}" th:utext="${errorMessage}"></div>
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5" th:text="${content.join.rules.title}">Please Read Rules And Regulations Carefully</h1>
+			<h1 class="display-6 mb-5" th:text="${content.join.rules.title}"></h1>
 		</div>
 		<div class="row g-4 justify-content-center">
 			<div class="px-2">
@@ -144,7 +142,7 @@
 	th:if="${stage == '2'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5" th:text="${content.join.password.title}">Set Login details</h1>
+			<h1 class="display-6 mb-5" th:text="${content.join.password.title}"></h1>
 			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 		</div>
 		<div class="row g-4 justify-content-center">
@@ -209,7 +207,7 @@
 <div class="container-xxl py-5 scroll-margin" th:fragment="otpvalidation" id="otpvalidation" th:if="${stage == '3'}">
 	<div class="container">
 		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
-			<h1 class="display-6 mb-5" th:text="${content.join.otp.title}">Verify Email and Submit</h1>
+			<h1 class="display-6 mb-5" th:text="${content.join.otp.title}"></h1>
 			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
 			<form th:action="@{/signup}" method="post" th:object="${interview}">
 				<input type="hidden" name="actionName" id="actionName" th:value="'RESEND_OTP'">
