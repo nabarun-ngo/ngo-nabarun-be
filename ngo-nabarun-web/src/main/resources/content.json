@@ -1,0 +1,578 @@
+{
+  "about": {
+    "sectionTitle": "About Us",
+    "title": "We Help People In Need",
+    "description": "NABARUN is a Non-Profit Charitable social development society founded by passionate college students in 2018. We work across various sectors of society, focusing on social upliftment to support underprivileged and marginalized communities in rural areas.",
+    "experience": {
+      "years": "6+",
+      "label": "Years of Impact"
+    },
+    "stats": [
+      {
+        "icon": "fas fa-users",
+        "value": "500+",
+        "label": "Lives Touched"
+      },
+      {
+        "icon": "fas fa-hands-helping",
+        "value": "50+",
+        "label": "Projects"
+      }
+    ],
+    "missionPoints": [
+      {
+        "icon": "fas fa-heart",
+        "title": "Community Care",
+        "description": "Supporting orphans, senior citizens, and those facing medical challenges"
+      },
+      {
+        "icon": "fas fa-paw",
+        "title": "Animal Welfare",
+        "description": "Providing proper care and shelter for street animals in need"
+      },
+      {
+        "icon": "fas fa-graduation-cap",
+        "title": "Education & Development",
+        "description": "Empowering communities through education and skill development programs"
+      }
+    ],
+    "founderMessage": {
+      "quote": "Nabarun is not just an organization; it's a beacon of hope, dedicated to making a positive impact in the world. Together, we strive to tackle pressing issues, uplift communities, and create lasting change.",
+      "name": "Mriganka Shekhar Pal",
+      "title": "Founder & Director"
+    },
+    "cta": {
+      "contact": "Contact Us",
+      "donate": "Support Our Cause"
+    }
+  },
+  "contact": {
+    "sectionTitle": "Contact Us",
+    "title": "If You Have Any Query, Please Contact Us",
+    "form": {
+      "name": "Your Name",
+      "email": "Your Email",
+      "mobile": "Your Mobile Number",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send Message"
+    }
+  },
+  "donate": {
+    "sectionTitle": "Make a Donation",
+    "title": "Every Contribution Creates Hope",
+    "description": "Your generosity directly impacts lives and builds stronger communities. Join thousands of donors in making a meaningful difference.",
+    "impact": {
+      "title": "Your Impact in Numbers",
+      "description": "See how your contribution directly translates into positive change in our communities.",
+      "stats": [
+        {
+          "amount": "\u20b9500",
+          "description": "Educates 1 child for a month"
+        },
+        {
+          "amount": "\u20b91000",
+          "description": "Provides medical care for 5 people"
+        },
+        {
+          "amount": "\u20b92000",
+          "description": "Clean water access for 1 family"
+        },
+        {
+          "amount": "\u20b95000",
+          "description": "Supports community development"
+        }
+      ]
+    },
+    "trust": {
+      "indicators": [
+        {
+          "title": "100% Transparent",
+          "description": "Complete visibility into how your money is used"
+        },
+        {
+          "title": "Verified NGO",
+          "description": "Registered and certified charitable organization"
+        },
+        {
+          "title": "Community Driven",
+          "description": "Supported by thousands of generous donors"
+        }
+      ]
+    },
+    "form": {
+      "title": "Make Your Donation",
+      "description": "Every rupee counts towards creating positive change",
+      "quickAmountTitle": "Choose Amount",
+      "quickAmounts": [
+        "\u20b9500",
+        "\u20b91000",
+        "\u20b92000",
+        "\u20b95000",
+        "\u20b910000",
+        "Other"
+      ],
+      "amountLabel": "Donation Amount",
+      "amountPlaceholder": "Enter amount in \u20b9",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "your@email.com",
+      "codeLabel": "Code",
+      "mobileLabel": "Mobile Number",
+      "mobilePlaceholder": "Your mobile number",
+      "submit": "Donate Now",
+      "secure": "Secure payment processing"
+    },
+    "testimonials": {
+      "title": "What Our Donors Say",
+      "description": "Join thousands who have experienced the joy of giving",
+      "quotes": [
+        {
+          "quote": "Seeing the direct impact of my donation through their transparent reporting gives me confidence to contribute regularly.",
+          "author": "Priya Sharma",
+          "role": "Regular Donor"
+        },
+        {
+          "quote": "NABARUN's work in our community has been transformational. Proud to support such a dedicated organization.",
+          "author": "Rajesh Kumar",
+          "role": "Corporate Donor"
+        },
+        {
+          "quote": "Every small contribution counts. I've seen children in my village get better education because of this NGO.",
+          "author": "Anita Devi",
+          "role": "Community Member"
+        }
+      ]
+    },
+    "payment": {
+      "title": "Payment Methods",
+      "cash": {
+        "title": "Cash",
+        "description": "Please submit this request. Our team will connect you to collect your donation.",
+        "submit": "Submit Request"
+      },
+      "upi": {
+        "title": "UPI",
+        "description": "Please scan the QR code(s) to transfer the donation amount and confirm payment.",
+        "paid_confirmation": "I have successfully paid the donation amount to above UPI.",
+        "file_label": "Please select any supporting files (prefrerably UPI screenshots)",
+        "submit": "Confirm Payment"
+      },
+      "bank": {
+        "title": "Bank Account",
+        "description": "Please transfer the donation amount to below account(s) and confirm payment.",
+        "paid_confirmation": "I have successfully paid the donation amount to above bank account.",
+        "file_label": "Please select any supporting files (prefrerably transaction recipt)",
+        "submit": "Confirm Payment"
+      },
+      "summary": {
+        "title": "Donation Summary",
+        "name": "Donor Name :",
+        "email": "Donor Email :",
+        "number": "Donor Number :",
+        "amount": "Donation Amount :"
+      }
+    }
+  },
+  "footer": {
+    "brand": {
+      "name": "NABARUN",
+      "description": "Empowering communities through compassionate action since 2018. Together, we create lasting change and build hope for a better tomorrow."
+    },
+    "social": {
+      "title": "Connect With Us"
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "links": [
+        {
+          "label": "About Us",
+          "url": "/#about"
+        },
+        {
+          "label": "Our Services",
+          "url": "/#services"
+        },
+        {
+          "label": "Our Team",
+          "url": "/#team"
+        },
+        {
+          "label": "Join Us",
+          "url": "/#join"
+        },
+        {
+          "label": "Donate",
+          "url": "/#donate"
+        }
+      ]
+    },
+    "ourWork": {
+      "title": "Our Work",
+      "links": [
+        {
+          "label": "Education",
+          "url": "/#services"
+        },
+        {
+          "label": "Healthcare",
+          "url": "/#services"
+        },
+        {
+          "label": "Clean Water",
+          "url": "/#services"
+        },
+        {
+          "label": "Animal Welfare",
+          "url": "/#services"
+        },
+        {
+          "label": "Disaster Relief",
+          "url": "/#services"
+        }
+      ]
+    },
+    "getInTouch": {
+      "title": "Get In Touch"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "description": "Subscribe to receive updates about our latest projects and impact stories.",
+      "placeholder": "Enter your email",
+      "button": "<i class=\"fas fa-paper-plane\"></i>"
+    },
+    "bottom": {
+      "copyright": "&copy; 2024 NABARUN. All rights reserved.",
+      "legal": [
+        {
+          "label": "Privacy Policy",
+          "url": "/policy/privacy-policy"
+        },
+        {
+          "label": "Terms of Use",
+          "url": "/policy/terms-of-use"
+        }
+      ]
+    }
+  },
+  "carousel": [
+    {
+      "image": "img/nbrn/pic1.jpg",
+      "alt": "NGO helping community",
+      "title": "Let's Change The World With Humanity",
+      "quote": {
+        "text": "\"It's not how much we give, but how much love we put into giving.\"",
+        "author": "- Mother Teresa"
+      },
+      "buttons": [
+        {
+          "label": "Learn More",
+          "url": "/#about",
+          "icon": "fas fa-arrow-right",
+          "primary": true
+        },
+        {
+          "label": "Donate Now",
+          "url": "/#donate",
+          "icon": "fas fa-heart",
+          "primary": false
+        }
+      ]
+    },
+    {
+      "image": "img/nbrn/pic2.jpg",
+      "alt": "NGO community service",
+      "title": "Together We Can Save More Lives",
+      "quote": {
+        "text": "\"The best way to find yourself is to lose yourself in the service of others.\"",
+        "author": "- Mahatma Gandhi"
+      },
+      "buttons": [
+        {
+          "label": "Our Services",
+          "url": "/#services",
+          "icon": "fas fa-hands-helping",
+          "primary": true
+        },
+        {
+          "label": "Join Us",
+          "url": "/#join",
+          "icon": "fas fa-users",
+          "primary": false
+        }
+      ]
+    }
+  ],
+  "join": {
+    "sectionTitle": "Be A Part Of Us",
+    "title": "We Welcome You To Join Us In This Great Initiative",
+    "form": {
+      "firstName": "Your First Name",
+      "lastName": "Your Last Name",
+      "email": "Your Email",
+      "code": "Code",
+      "mobile": "Your Mobile Number",
+      "location": "Where are you from?",
+      "howDoUKnow": "How did you know about Nabarun?",
+      "whyDoUWantToJoin": "Why you want to join Nabarun?",
+      "submit": "Join Now"
+    },
+    "rules": {
+      "title": "Please Read Rules And Regulations Carefully",
+      "agree": "Agree and Continue",
+      "disagree": "Disagree"
+    },
+    "password": {
+      "title": "Set Login details",
+      "email": "Login Email",
+      "password": "Login Password",
+      "confirmPassword": "Confirm Login Password",
+      "proceed": "Proceed"
+    },
+    "otp": {
+      "title": "Verify Email and Submit",
+      "resend": "Resend",
+      "otp": "One Time Password",
+      "submit": "Submit"
+    },
+    "postSubmission": {
+      "thankYou": "Thank You",
+      "goBack": "Go Back To Home"
+    }
+  },
+  "navbar": {
+    "brand": {
+      "name": "NABARUN",
+      "logo": "/img/logo.png"
+    },
+    "links": [
+      {
+        "label": "Home",
+        "url": "/#"
+      },
+      {
+        "label": "About",
+        "url": "/#about"
+      },
+      {
+        "label": "Services",
+        "url": "/#services"
+      },
+      {
+        "label": "Join Us",
+        "url": "/#join"
+      },
+      {
+        "label": "Contact Us",
+        "url": "/#contact"
+      }
+    ],
+    "donate": {
+      "label": "Donate Now",
+      "url": "/#donate"
+    },
+    "more": {
+      "label": "More",
+      "links": [
+        {
+          "label": "Login",
+          "url": "${LOGIN_URL}",
+          "external": true,
+          "condition": "${LOGIN_URL != null}"
+        },
+        {
+          "label": "Privacy Policy",
+          "url": "/policy/privacy-policy"
+        },
+        {
+          "label": "Terms of Use",
+          "url": "/policy/terms-of-use"
+        },
+        {
+          "label": "Disclaimer",
+          "url": "/policy/disclaimer"
+        },
+        {
+          "label": "Copyright & Content Policy",
+          "url": "/policy/copyright"
+        }
+      ]
+    },
+    "followUs": "Follow us:"
+  },
+  "services": {
+    "sectionTitle": "Our Services",
+    "title": "Making a Difference Through Action",
+    "description": "We focus on key areas where we can create the most meaningful impact in communities that need it most.",
+    "serviceItems": [
+      {
+        "icon": "fas fa-graduation-cap",
+        "title": "Child Education",
+        "description": "Empowering young minds through quality education, school supplies, and scholarship programs to break the cycle of poverty and create brighter futures.",
+        "features": [
+          "School supplies distribution",
+          "Scholarship programs",
+          "After-school support"
+        ],
+        "button": {
+          "label": "Learn More",
+          "url": "/#contact"
+        },
+        "overlay": {
+          "title": "Education Impact",
+          "stat": {
+            "value": "200+",
+            "label": "Children Supported"
+          }
+        }
+      },
+      {
+        "icon": "fas fa-heartbeat",
+        "title": "Medical Treatment",
+        "description": "Providing essential healthcare services, medical camps, and treatment support for those who cannot afford proper medical care, especially in remote areas.",
+        "features": [
+          "Free medical camps",
+          "Medicine distribution",
+          "Emergency assistance"
+        ],
+        "button": {
+          "label": "Learn More",
+          "url": "/#contact"
+        },
+        "overlay": {
+          "title": "Healthcare Impact",
+          "stat": {
+            "value": "150+",
+            "label": "Patients Treated"
+          }
+        }
+      },
+      {
+        "icon": "fas fa-tint",
+        "title": "Clean Water Access",
+        "description": "Ensuring access to clean, safe drinking water through well construction, water purification systems, and community education about water hygiene.",
+        "features": [
+          "Water well construction",
+          "Purification systems",
+          "Hygiene education"
+        ],
+        "button": {
+          "label": "Learn More",
+          "url": "/#contact"
+        },
+        "overlay": {
+          "title": "Water Impact",
+          "stat": {
+            "value": "500+",
+            "label": "People Served"
+          }
+        }
+      },
+      {
+        "icon": "fas fa-home",
+        "title": "Community Development",
+        "description": "Building stronger communities through infrastructure development, skill training programs, and sustainable livelihood initiatives for long-term growth.",
+        "features": [
+          "Skill development programs",
+          "Infrastructure support",
+          "Livelihood programs"
+        ],
+        "button": {
+          "label": "Learn More",
+          "url": "/#contact"
+        },
+        "overlay": {
+          "title": "Development Impact",
+          "stat": {
+            "value": "100+",
+            "label": "Families Empowered"
+          }
+        }
+      },
+      {
+        "icon": "fas fa-paw",
+        "title": "Animal Welfare",
+        "description": "Caring for street animals through rescue operations, medical treatment, vaccination drives, and finding them loving homes while promoting animal rights.",
+        "features": [
+          "Animal rescue operations",
+          "Veterinary care",
+          "Adoption programs"
+        ],
+        "button": {
+          "label": "Learn More",
+          "url": "/#contact"
+        },
+        "overlay": {
+          "title": "Animal Care Impact",
+          "stat": {
+            "value": "300+",
+            "label": "Animals Rescued"
+          }
+        }
+      },
+      {
+        "icon": "fas fa-shield-alt",
+        "title": "Disaster Relief",
+        "description": "Providing immediate emergency response and long-term recovery support during natural disasters, helping communities rebuild and recover stronger.",
+        "features": [
+          "Emergency response",
+          "Relief supplies",
+          "Recovery support"
+        ],
+        "button": {
+          "label": "Learn More",
+          "url": "/#contact"
+        },
+        "overlay": {
+          "title": "Relief Impact",
+          "stat": {
+            "value": "50+",
+            "label": "Emergency Responses"
+          }
+        }
+      }
+    ],
+    "cta": {
+      "title": "Ready to Make a Difference?",
+      "description": "Join us in our mission to create positive change in communities around the world.",
+      "buttons": [
+        {
+          "label": "Donate Now",
+          "url": "/#donate",
+          "icon": "fas fa-donate"
+        },
+        {
+          "label": "Volunteer With Us",
+          "url": "/#join",
+          "icon": "fas fa-users"
+        }
+      ]
+    }
+  },
+  "team": {
+    "sectionTitle": "Our Team",
+    "title": "Meet Our Passionate Champions",
+    "description": "Dedicated individuals working tirelessly to create positive change in our communities",
+    "member": {
+      "bio": "Passionate about creating meaningful impact in communities through dedicated service and unwavering commitment.",
+      "contact": "Get in Touch"
+    },
+    "cta": {
+      "title": "Want to Join Our Mission?",
+      "description": "We're always looking for passionate individuals who share our vision of making a positive impact.",
+      "buttons": [
+        {
+          "label": "Volunteer With Us",
+          "url": "#contact",
+          "icon": "fas fa-handshake"
+        },
+        {
+          "label": "View Careers",
+          "url": "#careers",
+          "icon": "fas fa-briefcase"
+        }
+      ]
+    }
+  }
+}

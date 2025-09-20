@@ -2,8 +2,8 @@
 	<div class="container">
 		<div class="row g-5">
 			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Contact Us</div>
-				<h1 class="display-6 mb-5">If You Have Any Query, Please Contact Us</h1>
+				<div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3" th:text="${content.contact.sectionTitle}"></div>
+				<h1 class="display-6 mb-5" th:text="${content.contact.title}"></h1>
 				<!--                                 <p class="mb-4">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done. <a href="https://htmlcodex.com/contact-form">Download Now</a>.</p>
  -->
 				<form id="ContactUsForm" th:action="@{/contact}" method="post" th:object="${interview}"
@@ -13,40 +13,39 @@
 							<div class="form-floating">
 								<input type="text" class="form-control" id="name" placeholder="Your Name"
 									th:field="*{firstName}">
-								<label for="name">Your Name</label>
+								<label for="name" th:text="${content.contact.form.name}"></label>
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-floating">
 								<input type="email" class="form-control" id="email" placeholder="Your Email"
 									th:field="*{email}">
-								<label for="email">Your Email</label>
+								<label for="email" th:text="${content.contact.form.email}"></label>
 							</div>
 						</div>
 						<div class="col-md-6">
 								<div class="form-floating">
 									<input type="number" class="form-control"
 										id="mobileno" placeholder="Your Mobile Number"
-										th:field="*{contactNumber}"> <label for="mobileNo">Your
-										Mobile Number</label>
+										th:field="*{contactNumber}"> <label for="mobileNo" th:text="${content.contact.form.mobile}"></label>
 								</div>
 							</div>
 						<div class="col-12">
 							<div class="form-floating">
 								<input type="text" class="form-control" id="subject" placeholder="Subject" th:field="*{subject}">
-								<label for="subject">Subject</label>
+								<label for="subject" th:text="${content.contact.form.subject}"></label>
 							</div>
 						</div>
 						<div class="col-12">
 							<div class="form-floating">
 								<textarea class="form-control" placeholder="Leave a message here" id="message" th:field="*{message}"
 									style="height: 100px"></textarea>
-								<label for="message">Message</label>
+								<label for="message" th:text="${content.contact.form.message}"></label>
 							</div>
 						</div>
 						<div class="col-12">
 							<button type="submit" class="btn btn-primary py-2 px-3 me-3">
-								Send Message
+								<span th:text="${content.contact.form.submit}"></span>
 								<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
 									<i class="fa fa-arrow-right"></i>
 								</div>
