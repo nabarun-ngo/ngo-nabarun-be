@@ -10,7 +10,7 @@
                                 <img src="/img/logo.png" alt="NABARUN Logo" class="footer-logo">
                                 <h2 class="brand-text">NABA<span class="text-accent">RUN</span></h2>
                             </div>
-                            <p class="footer-description mb-4">
+                                                        <p class="footer-description mb-4" th:text="${content.footer.brand.description}">
                                 Empowering communities through compassionate action since 2018. 
                                 Together, we create lasting change and build hope for a better tomorrow.
                             </p>
@@ -39,13 +39,9 @@
                     <!-- Quick Links -->
                     <div class="col-lg-2 col-md-6">
                         <div class="footer-section">
-                            <h5 class="footer-heading mb-4">Quick Links</h5>
+                            <h5 class="footer-heading mb-4" th:text="${content.footer.quickLinks.title}">Quick Links</h5>
                             <ul class="footer-links">
-                                <li><a href="/#about"><i class="fas fa-chevron-right me-2"></i>About Us</a></li>
-                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Our Services</a></li>
-                                <li><a href="/#team"><i class="fas fa-chevron-right me-2"></i>Our Team</a></li>
-                                <li><a href="/#join"><i class="fas fa-chevron-right me-2"></i>Join Us</a></li>
-                                <li><a href="/#donate"><i class="fas fa-chevron-right me-2"></i>Donate</a></li>
+                                <li th:each="link : ${content.footer.quickLinks.links}"><a th:href="${link.url}"><i class="fas fa-chevron-right me-2"></i><span th:text="${link.label}"></span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -53,13 +49,9 @@
                     <!-- Our Work -->
                     <div class="col-lg-2 col-md-6">
                         <div class="footer-section">
-                            <h5 class="footer-heading mb-4">Our Work</h5>
+                            <h5 class="footer-heading mb-4" th:text="${content.footer.ourWork.title}">Our Work</h5>
                             <ul class="footer-links">
-                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Education</a></li>
-                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Healthcare</a></li>
-                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Clean Water</a></li>
-                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Animal Welfare</a></li>
-                                <li><a href="/#services"><i class="fas fa-chevron-right me-2"></i>Disaster Relief</a></li>
+                                <li th:each="link : ${content.footer.ourWork.links}"><a th:href="${link.url}"><i class="fas fa-chevron-right me-2"></i><span th:text="${link.label}"></span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -101,13 +93,12 @@
                             
                             <!-- Newsletter -->
                             <div class="newsletter-section">
-                                <h6 class="text-white mb-3">Stay Updated</h6>
-                                <p class="newsletter-text mb-3">Subscribe to receive updates about our latest projects and impact stories.</p>
+                                <h6 class="text-white mb-3" th:text="${content.footer.newsletter.title}">Stay Updated</h6>
+                                <p class="newsletter-text mb-3" th:text="${content.footer.newsletter.description}">Subscribe to receive updates about our latest projects and impact stories.</p>
                                 <div class="newsletter-form">
                                     <div class="input-group">
-                                        <input type="email" class="form-control newsletter-input" placeholder="Enter your email">
-                                        <button class="btn btn-primary newsletter-btn" type="button">
-                                            <i class="fas fa-paper-plane"></i>
+                                        <input type="email" class="form-control newsletter-input" th:placeholder="${content.footer.newsletter.placeholder}">
+                                        <button class="btn btn-primary newsletter-btn" type="button" th:utext="${content.footer.newsletter.button}">
                                         </button>
                                     </div>
                                 </div>
@@ -124,7 +115,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <div class="copyright-text">
-                            <p class="mb-0">&copy; 2024 <span class="text-accent fw-bold">NABARUN</span>. All rights reserved.</p>
+                            <p class="mb-0" th:utext="${content.footer.bottom.copyright}">&copy; 2024 <span class="text-accent fw-bold">NABARUN</span>. All rights reserved.</p>
                         </div>
                     </div>
                     <div class="col-md-6">

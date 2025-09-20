@@ -105,15 +105,16 @@
       "description": "Every rupee counts towards creating positive change",
       "quickAmountTitle": "Choose Amount",
       "quickAmounts": [
-        "\u20b9500",
-        "\u20b91000",
-        "\u20b92000",
-        "\u20b95000",
-        "\u20b910000",
+        "₹100",
+        "₹200",
+        "₹500",
+        "₹1000",
+        "₹2000",
+        "₹5000",
         "Other"
       ],
       "amountLabel": "Donation Amount",
-      "amountPlaceholder": "Enter amount in \u20b9",
+      "amountPlaceholder": "Enter amount in ₹",
       "nameLabel": "Full Name",
       "namePlaceholder": "Enter your full name",
       "emailLabel": "Email Address",
@@ -125,6 +126,7 @@
       "secure": "Secure payment processing"
     },
     "testimonials": {
+      "enabled": false,
       "title": "What Our Donors Say",
       "description": "Join thousands who have experienced the joy of giving",
       "quotes": [
@@ -132,16 +134,6 @@
           "quote": "Seeing the direct impact of my donation through their transparent reporting gives me confidence to contribute regularly.",
           "author": "Priya Sharma",
           "role": "Regular Donor"
-        },
-        {
-          "quote": "NABARUN's work in our community has been transformational. Proud to support such a dedicated organization.",
-          "author": "Rajesh Kumar",
-          "role": "Corporate Donor"
-        },
-        {
-          "quote": "Every small contribution counts. I've seen children in my village get better education because of this NGO.",
-          "author": "Anita Devi",
-          "role": "Community Member"
         }
       ]
     },

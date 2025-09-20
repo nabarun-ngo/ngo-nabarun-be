@@ -38,13 +38,9 @@ public class PublicController {
 	@Autowired
 	private PropertyHelper prop;
 
-	public PublicController() {
-		try {
-			content = loadContent();
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to load content.json file");
-		}
-	}
+//	public PublicController() {
+//		content = loadContent();
+//	}
 
 	@GetMapping({ "/", "/signup", "/contact", "/donate" })
 	public String homePage(Model model) {
@@ -55,7 +51,7 @@ public class PublicController {
 		model.addAttribute("interview", new InterviewDetail());
 		model.addAttribute("LOGIN_URL", prop.getAppLoginURL());
 		model.addAttribute("VERSION", CommonUtils.getAppVersion());
-		model.addAttribute("content", content);
+		model.addAttribute("content",  loadContent());
 		return "index";
 	}
 
@@ -124,7 +120,7 @@ public class PublicController {
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", content);
+		modelAndView.addObject("content", loadContent());
 		return modelAndView;
 	}
 
@@ -184,12 +180,14 @@ public class PublicController {
 		return modelAndView;
 	}
 
-	private static Map<String, Object> loadContent() throws Exception {
+	private static Map<String, Object> loadContent() {
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
 		Resource resource = resourceLoader.getResource("classpath:content.json");
 		try (InputStream inputStream = resource.getInputStream()) {
 			return CommonUtils.getObjectMapper().readValue(inputStream, new TypeReference<Map<String, Object>>() {
 			});
+		}catch (Exception e) {
+			throw new RuntimeException("Failed to load content.json file", e);
 		}
 	}
 }
