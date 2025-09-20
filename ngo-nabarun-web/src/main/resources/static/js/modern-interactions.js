@@ -340,13 +340,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-                ${message}
-            </div>
-        `;
-        
+    
+        // Create content container
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'notification-content';
+    
+        // Create and append icon
+        const icon = document.createElement('i');
+        icon.className = `fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2`;
+        contentDiv.appendChild(icon);
+    
+        // Safely append text content
+        contentDiv.appendChild(document.createTextNode(message));
+    
+        // Append content to notification
+        notification.appendChild(contentDiv);
+    
         // Add to page
         document.body.appendChild(notification);
         
