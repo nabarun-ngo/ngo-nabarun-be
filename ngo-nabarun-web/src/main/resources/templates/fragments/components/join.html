@@ -210,14 +210,9 @@
 					<form id="passwordForm" th:action="@{/signup}" method="post" th:object="${interview}">
 						<div class="row g-3">
 							<div class="col-12">
-								<!-- <div class="form-floating">
-									<input type="email" class="form-control bg-light border-0" id="loginemail"
-										th:placeholder="${content.join.password.email}" th:field="*{email}">
-									<label for="email" th:text="${content.join.password.email}"></label>
-								</div> -->
 								<div class="modern-input-group">
 									<label for="email" class="form-label text-dark fw-semibold">
-										<i class="fas fa-email me-2 text-primary"></i><span
+										<i class="fas fa-envelope me-2 text-primary"></i><span
 											th:text="${content.join.password.email}"></span>
 									</label>
 									<input type="email" class="form-control modern-input" id="email"
@@ -225,11 +220,6 @@
 								</div>
 							</div>
 							<div class="col-12">
-								<!-- <div class="form-floating">
-									<input type="password" class="form-control bg-light border-0" id="password"
-										th:placeholder="${content.join.password.password}" th:field="*{password}">
-									<label for="password" th:text="${content.join.password.password}"></label>
-								</div> -->
 								<div class="modern-input-group">
 									<label for="password" class="form-label text-dark fw-semibold">
 										<i class="fas fa-key me-2 text-primary"></i><span
