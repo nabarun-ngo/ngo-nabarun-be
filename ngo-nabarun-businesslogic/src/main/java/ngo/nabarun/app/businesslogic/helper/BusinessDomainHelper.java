@@ -69,8 +69,6 @@ public class BusinessDomainHelper {
 	private static final String ITEM_UPI_OPTIONS = "UPI_OPTIONS";
 	private static final String ITEM_ADDITIONAL_FIELDS = "ADDITIONAL_FIELDS";
 	private static final String ITEM_PASSWORD_COMPLEXITY_OPTIONS = "PASSWORD_COMPLEXITY_OPTIONS";
-	private static final String ITEM_NABARUN_ORG_INFO = "NABARUN_ORG_INFO";
-	private static final String ITEM_NABARUN_RULES_REGULATIONS = "NABARUN_RULES_REGULATIONS";
 	private static final String ITEM_BUSINESS_EXCEPTION_MESSAGES = "BUSINESS_EXCEPTION_MESSAGES";
 	private static final String ITEM_EMAIL_TEMPLATE_CONFIG = "EMAIL_TEMPLATE_CONFIG";
 	private static final String ITEM_NOTIFICATION_TEMPLATE_CONFIG = "NOTIFICATION_TEMPLATE_CONFIG";
@@ -674,17 +672,6 @@ public class BusinessDomainHelper {
 		return field.getValue();
 	}
 
-	/**
-	 * get all basic info about Nabarun as list of KeyValue pair
-	 * 
-	 * @return list of KeyValue pair
-	 * @throws Exception
-	 */
-	public List<KeyValue> getNabarunOrgInfo() throws Exception {
-		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_ORG_INFO);
-		return BusinessObjectConverter.toKeyValueList(kvFields);
-	}
-
 	public List<KeyValue> getPolicyDocs() throws Exception {
 		List<KeyValuePair> kvFields = getDomainConfig(ITEM_POLICY_LINKS);
 		return BusinessObjectConverter.toKeyValueList(kvFields);
@@ -695,23 +682,6 @@ public class BusinessDomainHelper {
 		return BusinessObjectConverter.toKeyValueList(kvFields);
 	}
 
-	/*
-	 * *****************************************************************************
-	 * ******************* RULES AND REGULATION
-	 * *****************************************************************************
-	 * *******************
-	 */
-
-	/**
-	 * Get list of all rules and regulation
-	 * 
-	 * @return list of KeyValue pair
-	 * @throws Exception
-	 */
-	public List<KeyValue> getRules() throws Exception {
-		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_RULES_REGULATIONS);
-		return BusinessObjectConverter.toKeyValueList(kvFields);
-	}
 
 	/*
 	 * *****************************************************************************
@@ -958,6 +928,10 @@ public class BusinessDomainHelper {
 
 	public List<LinkCategoryDetail> getUserGuideLinks() throws Exception {
 		return getLinks(ITEM_USER_GUIDE_LINKS);
+	}
+
+	public String getDomainJsonContent(boolean isPublic) throws Exception {
+		return domainInfraService.getDomainJsonContent(isPublic);
 	}
 
 }

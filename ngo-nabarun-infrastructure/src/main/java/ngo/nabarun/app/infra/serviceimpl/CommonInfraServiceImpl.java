@@ -154,16 +154,9 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 
 	private static final String DOMAIN_GLOBAL_CONFIG = "DOMAIN_GLOBAL_CONFIG";
 
-	// private static final String COLLECTION_NOTIFICATION = "notifications";
-
-	// private static final String COLLECTION_NOTIFICATION_TOKEN =
-	// "notification_tokens";
-
 	private static final String DOMAIN_LOCATION_DATA = "DOMAIN_LOCATION_DATA";
 
-	// private static final Map<HistoryRefType, String> historyCollectionMap = new
-	// HashMap<>(
-	// Map.of(HistoryRefType.DONATION, "donation_change_history"));
+	private static final String DOMAIN_CONTENT_PUBLIC = "DOMAIN_CONTENT_PUBLIC";
 
 	@Override
 	public int getEntiryLastSequence(String seqName) {
@@ -468,6 +461,13 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 		}
 		return configMap;
 	}
+	
+	@Override
+	public String getDomainJsonContent(boolean isPublic) throws Exception {
+		RemoteConfig config = remoteConfigService.getRemoteConfig(DOMAIN_CONTENT_PUBLIC);
+		return config.getValue().toString();
+	}
+
 
 	public FieldDTO addOrUpdateCustomField(FieldDTO fieldDTO) {
 		CustomFieldEntity entity = fieldDTO.getFieldId() == null ? new CustomFieldEntity()
@@ -735,12 +735,12 @@ public class CommonInfraServiceImpl implements ICountsInfraService, ITicketInfra
 		return mapp;
 	}
 
-	@Override
-	public String getRulesAndRegulationContent() {
-		String owner = propertyHelper.getGithubOrg();
-		String repo = propertyHelper.getGithubRepo();
-		String discussionId = propertyHelper.getGithubDiscussionId();
-		String body = gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
-		return body.replaceAll("\n", "");
-	}
+//	@Override
+//	public String getRulesAndRegulationContent() {
+//		String owner = propertyHelper.getGithubOrg();
+//		String repo = propertyHelper.getGithubRepo();
+//		String discussionId = propertyHelper.getGithubDiscussionId();
+//		String body = gitHubExtService.getGitHubDiscussion(owner, repo, discussionId).getBodyHtml();
+//		return body.replaceAll("\n", "");
+//	}
 }

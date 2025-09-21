@@ -59,7 +59,6 @@ import ngo.nabarun.app.infra.service.IApiKeyInfraService;
 import ngo.nabarun.app.infra.service.ICorrespondenceInfraService;
 import ngo.nabarun.app.infra.service.ICountsInfraService;
 import ngo.nabarun.app.infra.service.IDocumentInfraService;
-import ngo.nabarun.app.infra.service.IGlobalDataInfraService;
 import ngo.nabarun.app.infra.service.IHistoryInfraService;
 import ngo.nabarun.app.infra.service.IJobsInfraService;
 import ngo.nabarun.app.infra.service.ISystemInfraService;
@@ -98,9 +97,6 @@ public class CommonDO {
 
 	@Autowired
 	private IJobsInfraService jobInfraService;
-
-	@Autowired
-	private IGlobalDataInfraService dataInfraService;
 
 	@Autowired
 	private AsyncJobExecutor asyncJobExecutor;
@@ -602,9 +598,4 @@ public class CommonDO {
 		Page<JobDTO> page = jobInfraService.getJobList(pageIndex, pageSize, filterDTO);
 		return new Paginate<JobDTO>(page);
 	}
-
-	public String getRulesHTML() {
-		return dataInfraService.getRulesAndRegulationContent();
-	}
-
 }

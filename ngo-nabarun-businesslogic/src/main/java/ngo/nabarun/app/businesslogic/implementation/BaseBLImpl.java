@@ -6,15 +6,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.AccountDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.WorkDetail;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
@@ -147,8 +144,7 @@ public class BaseBLImpl {
 				break;
 			}
 		}
-		Optional<KeyValue> loginURL = businessHelper.getNabarunOrgInfo().stream()
-				.filter(f -> f.getKey().equalsIgnoreCase("LOGIN_URL")).findFirst();
+		String loginURL = propertyHelper.getAppLoginURL();
 		List<CorrespondentDTO> corrDTO = new ArrayList<>();
 		corrDTO.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).email(email).name(firstName)
 				.build());
@@ -157,7 +153,7 @@ public class BaseBLImpl {
 		user.put("email", email);
 		user.put("password", sendPassword ? password : "[Password entered in online form]");
 		if (!loginURL.isEmpty()) {
-			user.put("portalLink", loginURL.get().getValue());
+			user.put("portalLink", loginURL);
 		}
 		userDO.sendEmailAsync(BusinessConstants.EMAILTEMPLATE__ON_USER_ONBOARDING, corrDTO, Map.of("user", user),workflow.getId(),null);
 	}
