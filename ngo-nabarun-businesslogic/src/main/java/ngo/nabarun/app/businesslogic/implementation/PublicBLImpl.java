@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
@@ -17,7 +18,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail.UserAction;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
@@ -31,7 +31,9 @@ import ngo.nabarun.app.common.enums.AccountType;
 import ngo.nabarun.app.common.enums.AdditionalFieldKey;
 import ngo.nabarun.app.common.enums.DocumentIndexType;
 import ngo.nabarun.app.common.enums.EmailRecipientType;
+import ngo.nabarun.app.common.enums.PublicPage;
 import ngo.nabarun.app.common.enums.RoleCode;
+import ngo.nabarun.app.common.helper.PropertyHelper;
 import ngo.nabarun.app.common.enums.RequestType;
 import ngo.nabarun.app.common.util.CommonUtils;
 import ngo.nabarun.app.common.util.PasswordUtils;
@@ -48,54 +50,56 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 	@Autowired
 	private RequestDO requestDO;
 
+	@Autowired
+	private PropertyHelper prop;
+
+	private static List<UserDetail> users;
+
 	@Override
-	public Map<String, Object> getPageData(List<String> dataFilter) {
+	public Map<String, Object> getPageData(PublicPage pageName) throws Exception {
 		Map<String, Object> pageDataMap = new HashMap<>();
-		if(dataFilter != null && dataFilter.contains("profiles")) {
-			try {
-				UserDetailFilter filter = new UserDetailFilter();
-				filter.setPublicFlag(true);
-				List<UserDetail> users = userDO.retrieveAllUsers(null, null, filter)
-						.map(m-> BusinessObjectConverter.toPublicUserDetail(m,null)).getContent();
-				pageDataMap.put("profiles", users);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
+		pageDataMap.put("VERSION", CommonUtils.getAppVersion());
+		pageDataMap.put("content", getPageContent(prop));
+
+		switch (pageName) {
+		case HOME:
+			pageDataMap.put("interview", new InterviewDetail());
+			pageDataMap.put("profiles", getTeamProfiles());
+			pageDataMap.put("phoneCodes", businessHelper.getPhoneCodes());
+			break;
+		case POLICY:
+		case JOIN:
+			businessHelper.getPolicyDocs()
+			.forEach(kv -> pageDataMap.put(kv.getKey(), kv.getValue()));
+			break;
+		default:
+			break;
 		}
-		
-		if(dataFilter != null && dataFilter.contains("metadata")) {
-			try {
-				for (KeyValue keyValue : businessHelper.getNabarunOrgInfo()) {
-					pageDataMap.put(keyValue.getKey(), keyValue.getValue());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		
-		if(dataFilter != null && dataFilter.contains("policy")) {
-			try {
-				for (KeyValue keyValue : businessHelper.getPolicyDocs()) {
-					pageDataMap.put(keyValue.getKey(), keyValue.getValue());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		if(dataFilter != null && dataFilter.contains("userguide")) {
-			try {
-				for (KeyValue keyValue : businessHelper.getUserGuideDocs()) {
-					pageDataMap.put(keyValue.getKey(), keyValue.getValue());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
 		return pageDataMap;
 
+	}
+
+	private List<UserDetail> getTeamProfiles() throws Exception {
+		if (users == null) {
+			UserDetailFilter filter = new UserDetailFilter();
+			filter.setPublicFlag(true);
+			users = userDO.retrieveAllUsers(null, null, filter)
+					.map(m -> BusinessObjectConverter.toPublicUserDetail(m, null)).getContent();
+		}
+		return users;
+	}
+
+	private Map<String, Object> getPageContent(PropertyHelper prop) throws Exception {
+		String content = businessHelper.getDomainJsonContent(true);
+		Map<String, String> replacements = new HashMap<>();
+		replacements.put("##LOGIN_URL##", prop.getAppLoginURL());
+
+		for (var entry : replacements.entrySet()) {
+			content = content.replace(entry.getKey(), entry.getValue());
+		}
+		return CommonUtils.getObjectMapper().readValue(content, new TypeReference<Map<String, Object>>() {
+		});
 	}
 
 	@Override
@@ -105,14 +109,13 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.getBreadCrumb().add("Home");
 		}
 		if (interview.getActionName() == UserAction.SUBMIT_BASIC_INFO) {
-			//List<String> rules = businessHelper.getRules().stream().map(m -> m.getValue()).toList();
-			//interview.setRules(rules);
-			//String rules=commonDO.getRulesHTML();
-			//System.out.println(rules);
-			//interview.setRulesHTML(rules);
 			interview.setStage("1");
 			interview.getBreadCrumb().add("Rules and Regulations");
 		} else if (interview.getActionName() == UserAction.ACCEPT_RULES) {
+			
+			interview.setStage("1A");
+			interview.getBreadCrumb().add("Additional Details");
+		} else if (interview.getActionName() == UserAction.SUBMIT_ADDITIONAL_DETAIL) {
 			String description = businessHelper.getPasswordPolicyDescription(userDO.getPasswordPolicy());
 			interview.setMessage(description);
 			interview.setStage("2");
@@ -131,7 +134,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 					ExceptionEvent.PASSWORD_NOT_COMPLIANT);
 
 			String token = requestDO.sendOTP(name, email, mobileNo, "Sign up", null);
-			interview.setMessage("One Time Password has been sent to <b id='id'>" + email+"</b>");
+			interview.setMessage("One Time Password has been sent to <b id='id'>" + email + "</b>");
 			interview.setOtpToken(token);
 			interview.setSiteKey(propertyHelper.getGoogleRecaptchaSiteKey());
 			interview.setStage("3");
@@ -150,8 +153,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.hometown, interview.getHometown()));
-			addFieldList.add(
-					new AdditionalField(AdditionalFieldKey.reasonForJoining, interview.getReasonForJoining()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.reasonForJoining, interview.getReasonForJoining()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.howDoUKnowAboutNabarun,
 					interview.getHowDoUKnowAboutNabarun()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.password, interview.getPassword()));
@@ -178,7 +180,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.setMessage("Thank you for your interest. Your request number is <b id='id'>" + requestDTO.getId()
 					+ "</b>. We will connect you very shortly.");
 		}
-		
+
 		return interview;
 	}
 
@@ -208,11 +210,9 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber()));
-			addFieldList
-					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount())));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount())));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod()));
-			addFieldList
-					.add(new AdditionalField(AdditionalFieldKey.paidToAccount, interview.getPaidToAccountId()));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.paidToAccount, interview.getPaidToAccountId()));
 
 			RequestDetail request = new RequestDetail();
 			request.setDescription("Please check and confirm payment.");
@@ -226,22 +226,22 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			requester.setEmail(interview.getEmail());
 			request.setRequester(requester);
 
-			RequestDTO requestDTO=requestDO.createRequest(request, true, null, (t, u) -> {
+			RequestDTO requestDTO = requestDO.createRequest(request, true, null, (t, u) -> {
 				return performWorkflowAction(t, u);
 			});
 
 			/*
 			 * 
 			 */
-			if(interview.getFiles() != null && interview.getFiles().length > 0) {
-				for(MultipartFile file:interview.getFiles()) {
+			if (interview.getFiles() != null && interview.getFiles().length > 0) {
+				for (MultipartFile file : interview.getFiles()) {
 					DocumentMapping documentMapping = new DocumentMapping();
 					documentMapping.setDocIndexId(requestDTO.getId());
 					documentMapping.setDocIndexType(DocumentIndexType.REQUEST);
 					requestDO.uploadDocument(file, List.of(documentMapping));
 				}
 			}
-				
+
 			interview.setStage("POST_SUBMIT");
 			interview.getBreadCrumb().add("Payment Completed");
 			interview.setMessage("Your request number is <b id='id'>" + requestDTO.getId()
@@ -253,8 +253,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.email, interview.getEmail()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.dialCode, interview.getDialCode()));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.mobileNumber, interview.getContactNumber()));
-			addFieldList
-					.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount())));
+			addFieldList.add(new AdditionalField(AdditionalFieldKey.amount, String.valueOf(interview.getAmount())));
 			addFieldList.add(new AdditionalField(AdditionalFieldKey.paymentMethod, interview.getPaymentMethod()));
 
 			RequestDetail request = new RequestDetail();
@@ -269,7 +268,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			requester.setEmail(interview.getEmail());
 			request.setRequester(requester);
 
-			RequestDTO requestDTO=requestDO.createRequest(request, true, null, (t, u) -> {
+			RequestDTO requestDTO = requestDO.createRequest(request, true, null, (t, u) -> {
 				return performWorkflowAction(t, u);
 			});
 
@@ -287,12 +286,6 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.getBreadCrumb().add("Home");
 		}
 		List<CorrespondentDTO> recipients = new ArrayList<>();
-		Optional<KeyValue> orgEmail = businessHelper.getNabarunOrgInfo().stream()
-				.filter(f -> "EMAIL_ADDRESS".equalsIgnoreCase(f.getKey())).findFirst();
-		if (!orgEmail.isEmpty()) {
-			recipients.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO)
-					.email(orgEmail.get().getValue()).build());
-		}
 
 		recipients
 				.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.CC).name(interview.getFirstName())
@@ -301,15 +294,15 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 				List.of(RoleCode.PRESIDENT, RoleCode.VICE_PRESIDENT, RoleCode.SECRETARY, RoleCode.ASST_SECRETARY,
 						RoleCode.GROUP_COORDINATOR, RoleCode.ASST_GROUP_COORDINATOR, RoleCode.TECHNICAL_SPECIALIST));
 		for (UserDTO user : users) {
-			recipients.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.BCC).name(user.getName())
+			recipients.add(CorrespondentDTO.builder().emailRecipientType(EmailRecipientType.TO).name(user.getName())
 					.email(user.getEmail()).mobile(user.getPhoneNumber()).build());
 		}
 		/**
 		 * Sending notification and email
 		 */
 		requestDO.sendEmailAsync(BusinessConstants.EMAILTEMPLATE__PUBLIC_QUERY, recipients,
-				Map.of("interview", interview),interview.getEmail(),interview.getFirstName());
-		requestDO.sendNotification(BusinessConstants.NOTIFICATION__PUBLIC_QUERY, Map.of(), users,"New Query");
+				Map.of("interview", interview), interview.getEmail(), interview.getFirstName());
+		requestDO.sendNotification(BusinessConstants.NOTIFICATION__PUBLIC_QUERY, Map.of(), users, "New Query");
 
 		interview.setStage("POST_SUBMIT");
 		interview.getBreadCrumb().add("Request Submitted");

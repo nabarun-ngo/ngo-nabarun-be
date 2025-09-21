@@ -14,62 +14,62 @@
 						autocomplete="off">
 						<div class="row g-3">
 							<div class="col-md-6">
-								<div class="form-floating">
-									<input type="text" class="form-control bg-light border-0" id="firstname"
-										th:placeholder="${content.join.form.firstName}" th:field="*{firstName}"> <label
-										for="firstname" th:text="${content.join.form.firstName}"></label>
+								<div class="modern-input-group">
+									<label for="firstname" class="form-label text-dark fw-semibold">
+										<i class="fas fa-user me-2 text-primary"></i><span
+											th:text="${content.join.form.firstName}"></span>
+									</label>
+									<input type="text" class="form-control modern-input" id="firstname"
+										th:placeholder="${content.join.form.firstName}" th:field="*{firstName}">
 								</div>
 							</div>
 							<div class="col-md-6">
-								<div class="form-floating">
-									<input type="text" class="form-control bg-light border-0" id="lastname"
-										th:placeholder="${content.join.form.lastName}" th:field="*{lastName}"> <label for="lastname" th:text="${content.join.form.lastName}"></label>
+								<div class="modern-input-group">
+									<label for="lastname" class="form-label text-dark fw-semibold">
+										<i class="fas fa-user me-2 text-primary"></i><span
+											th:text="${content.join.form.lastName}"></span>
+									</label>
+									<input type="text" class="form-control modern-input" id="lastname"
+										th:placeholder="${content.join.form.lastName}" th:field="*{lastName}">
 								</div>
 							</div>
 							<div class="col-12">
-								<div class="form-floating">
-									<input type="email" class="form-control bg-light border-0" id="email"
+								<div class="modern-input-group">
+									<label for="email" class="form-label text-dark fw-semibold">
+										<i class="fas fa-envelope me-2 text-primary"></i><span
+											th:text="${content.join.form.email}"></span>
+									</label>
+									<input type="email" class="form-control modern-input" id="email"
 										th:placeholder="${content.join.form.email}" th:field="*{email}">
-									<label for="email" th:text="${content.join.form.email}"></label>
 								</div>
 							</div>
-							<div class="col-md-2">
-								<div class="form-floating">
-									<select class="form-control bg-light border-0" id="phonecode"
-										th:field="*{dialCode}">
-										<option value="91" selected>+91</option>
-										<option value="92">+92</option>
-									</select> <label for="phonecode" th:text="${content.join.form.code}"></label>
+							<div class="col-md-4">
+								<div class="modern-input-group">
+									<label for="phonecode" class="form-label text-dark fw-semibold"
+										th:text="${content.join.form.code}"></label>
+									<select class="form-control modern-input" id="phonecode" th:field="*{dialCode}">
+										<option th:each="phoneCode : ${phoneCodes}" th:value="${phoneCode.getKey()}" selected>[[${phoneCode.getValue()}]]</option>
+									</select>
 								</div>
 							</div>
-							<div class="col-md-10">
-								<div class="form-floating">
-									<input type="number" class="form-control bg-light border-0" id="mobileno"
-										th:placeholder="${content.join.form.mobile}" th:field="*{contactNumber}"> <label
-										for="mobileNo" th:text="${content.join.form.mobile}"></label>
-								</div>
-							</div>
-							<div class="col-12">
-								<div class="form-floating">
-									<input type="text" class="form-control bg-light border-0" id="location"
-										th:placeholder="${content.join.form.location}" th:field="*{hometown}"> <label
-										for="location" th:text="${content.join.form.location}"></label>
+							<div class="col-md-8">
+								<div class="modern-input-group">
+									<label for="mobileno" class="form-label text-dark fw-semibold">
+										<i class="fas fa-phone me-2 text-primary"></i><span
+											th:text="${content.join.form.mobile}"></span>
+									</label>
+									<input type="number" class="form-control modern-input" id="mobileno"
+										th:placeholder="${content.join.form.mobile}" th:field="*{contactNumber}">
 								</div>
 							</div>
 							<div class="col-12">
-								<div class="form-floating">
-									<textarea rows="4" class="form-control bg-light border-0" id="howDoUKnow"
-										th:placeholder="${content.join.form.howDoUKnow}"
-										th:field="*{howDoUKnowAboutNabarun}"></textarea>
-									<label for="howDoUKnowAboutNabarun" th:text="${content.join.form.howDoUKnow}"></label>
-								</div>
-							</div>
-							<div class="col-12">
-								<div class="form-floating">
-									<textarea rows="4" class="form-control bg-light border-0" id="whyDoUWantToJoin"
-										th:placeholder="${content.join.form.whyDoUWantToJoin}"
-										th:field="*{reasonForJoining}"></textarea>
-									<label for="whyDoUWantToJoin" th:text="${content.join.form.whyDoUWantToJoin}"></label>
+								<div class="modern-input-group">
+									<label for="location" class="form-label text-dark fw-semibold">
+										<i class="fas fa-map-marker-alt me-2 text-primary"></i><span
+											th:text="${content.join.form.location}"></span>
+									</label>
+									<input type="text" class="form-control modern-input" id="location"
+										th:placeholder="${content.join.form.location}" th:field="*{hometown}">
 								</div>
 							</div>
 							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_BASIC_INFO'">
@@ -136,7 +136,62 @@
 
 
 
+<div class="container-xxl py-5 scroll-margin" th:fragment="additionalDetails" id="additionalDetails"
+	th:if="${stage == '1A'}">
+	<div class="container">
+		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 1000px;">
+			<h1 class="display-6 mb-5" th:text="${content.join.additionalDetails.title}"></h1>
+			<p class="mb-0 alert alert-info" th:if="${successMessage !=null}" th:utext="${successMessage}"></p>
+		</div>
+		<div class="row g-4 justify-content-center">
+			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+				<div class="h-100 bg-secondary p-5">
+					<div class="alert alert-danger" role="alert" th:if="${errorMessage !=null}"
+						th:utext="${errorMessage}"></div>
+					<form id="additionalForm" th:action="@{/signup}" method="post" th:object="${interview}">
+						<div class="row g-3">
+							<div class="col-12">
+								<div class="modern-input-group">
+									<label for="howDoUKnow" class="form-label text-dark fw-semibold">
+										<i class="fas fa-question-circle me-2 text-primary"></i><span
+											th:text="${content.join.additionalDetails.howDoUKnow}"></span>
+									</label>
+									<textarea rows="4" class="form-control modern-input" id="howDoUKnow"
+										th:placeholder="${content.join.additionalDetails.howDoUKnow}"
+										th:field="*{howDoUKnowAboutNabarun}"></textarea>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="modern-input-group">
+									<label for="whyDoUWantToJoin" class="form-label text-dark fw-semibold">
+										<i class="fas fa-question-circle me-2 text-primary"></i><span
+											th:text="${content.join.additionalDetails.whyDoUWantToJoin}"></span>
+									</label>
+									<textarea rows="4" class="form-control modern-input" id="whyDoUWantToJoin"
+										th:placeholder="${content.join.additionalDetails.whyDoUWantToJoin}"
+										th:field="*{reasonForJoining}"></textarea>
+								</div>
+							</div>
+							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_ADDITIONAL_DETAIL'">
+							<div class="col-12">
+								<button type="submit" id="addnlDet" class="btn btn-primary px-5" style="height: 60px;">
+									<span th:text="${content.join.additionalDetails.proceed}"></span>
+									<div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
+										<i class="fa fa-arrow-right"></i>
+									</div>
+								</button>
+							</div>
 
+						</div>
+
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
 
 <div class="container-xxl py-5 scroll-margin" th:fragment="setAccountPassword" id="setAccountPassword"
 	th:if="${stage == '2'}">
@@ -155,24 +210,33 @@
 					<form id="passwordForm" th:action="@{/signup}" method="post" th:object="${interview}">
 						<div class="row g-3">
 							<div class="col-12">
-								<div class="form-floating">
-									<input type="email" class="form-control bg-light border-0" id="loginemail"
+								<div class="modern-input-group">
+									<label for="email" class="form-label text-dark fw-semibold">
+										<i class="fas fa-envelope me-2 text-primary"></i><span
+											th:text="${content.join.password.email}"></span>
+									</label>
+									<input type="email" class="form-control modern-input" id="email"
 										th:placeholder="${content.join.password.email}" th:field="*{email}">
-									<label for="email" th:text="${content.join.password.email}"></label>
 								</div>
 							</div>
 							<div class="col-12">
-								<div class="form-floating">
-									<input type="password" class="form-control bg-light border-0" id="password"
+								<div class="modern-input-group">
+									<label for="password" class="form-label text-dark fw-semibold">
+										<i class="fas fa-key me-2 text-primary"></i><span
+											th:text="${content.join.password.password}"></span>
+									</label>
+									<input type="password" class="form-control modern-input" id="password"
 										th:placeholder="${content.join.password.password}" th:field="*{password}">
-									<label for="password" th:text="${content.join.password.password}"></label>
 								</div>
 							</div>
 							<div class="col-12">
-								<div class="form-floating">
-									<input type="password" class="form-control bg-light border-0" id="confirmpassword"
+								<div class="modern-input-group">
+									<label for="confirmpassword" class="form-label text-dark fw-semibold">
+										<i class="fas fa-key me-2 text-primary"></i><span
+											th:text="${content.join.password.confirmPassword}"></span>
+									</label>
+									<input type="password" class="form-control modern-input" id="confirmpassword"
 										th:placeholder="${content.join.password.confirmPassword}" th:field="*{confirmPassword}">
-									<label for="confirmpassword" th:text="${content.join.password.confirmPassword}"></label>
 								</div>
 							</div>
 							<input type="hidden" name="actionName" id="actionName" th:value="'SUBMIT_LOGIN_DETAIL'">

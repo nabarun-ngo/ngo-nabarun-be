@@ -14,6 +14,6 @@ public interface IGlobalDataInfraService {
 
 	//List<KeyValue> getBankAccounts();//razorpay
 	
-	String getRulesAndRegulationContent();
+	String getDomainJsonContent(boolean isPublic) throws Exception;
 
 }

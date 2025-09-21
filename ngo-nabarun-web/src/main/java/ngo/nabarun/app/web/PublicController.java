@@ -1,15 +1,10 @@
 package ngo.nabarun.app.web;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,43 +14,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
-import ngo.nabarun.app.common.helper.PropertyHelper;
-import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.enums.PublicPage;
 
 @Controller
 @SessionAttributes(names = { "interview" })
 public class PublicController {
 
-	private static Map<String, Object> content;
-
 	@Autowired
 	private IPublicBL publicBl;
 
-	public PublicController(PropertyHelper prop) {
-		content = loadContent(prop);
-	}
-
 	@GetMapping({ "/", "/signup", "/contact", "/donate" })
-	public String homePage(Model model) {
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of("profiles"));
+	public String homePage(Model model) throws Exception {
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.HOME);
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			model.addAttribute(data.getKey(), data.getValue());
 		}
-		model.addAttribute("interview", new InterviewDetail());
-		model.addAttribute("VERSION", CommonUtils.getAppVersion());
-		model.addAttribute("content", content);
 		return "index";
 	}
 
 	@GetMapping("/policy/{page:(?:privacy-policy|terms-of-use|disclaimer|copyright)}")
 	public ModelAndView policy(@PathVariable String page) throws Exception {
 		ModelAndView modelAndView = new ModelAndView("policy");
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of("policy"));
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.POLICY);
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
@@ -89,7 +72,6 @@ public class PublicController {
 		default:
 			throw new BusinessException("Invalid page requested: " + page);
 		}
-		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
@@ -113,11 +95,10 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of("policy"));
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.JOIN);
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
@@ -140,11 +121,10 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of());
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.HOME);
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", content);
 		return modelAndView;
 	}
 
@@ -169,27 +149,10 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap = publicBl.getPageData(List.of());
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.DONATION);
 		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
-		modelAndView.addObject("content", content);
 		return modelAndView;
-	}
-
-	private Map<String, Object> loadContent(PropertyHelper prop) {
-		ResourceLoader resourceLoader = new DefaultResourceLoader();
-		Resource resource = resourceLoader.getResource("classpath:content.json");
-		try (InputStream inputStream = resource.getInputStream()) {
-			String json = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-			Map<String, String> replacements = Map.of("##LOGIN_URL##", prop.getAppLoginURL());
-			for (var entry : replacements.entrySet()) {
-				json = json.replace(entry.getKey(), entry.getValue());
-			}
-			return CommonUtils.getObjectMapper().readValue(json, new TypeReference<Map<String, Object>>() {
-			});
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to load content.json file", e);
-		}
 	}
 }

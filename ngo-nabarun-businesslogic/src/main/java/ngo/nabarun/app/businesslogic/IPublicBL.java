@@ -1,11 +1,11 @@
 package ngo.nabarun.app.businesslogic;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
+import ngo.nabarun.app.common.enums.PublicPage;
 
 @Service
 public interface IPublicBL {
@@ -16,7 +16,6 @@ public interface IPublicBL {
 
 	InterviewDetail contact(InterviewDetail interview) throws Exception;
 
-	Map<String, Object> getPageData(List<String> dataFilter);
-	//Map<String, Object> getPageData();
-
+	Map<String, Object> getPageData(PublicPage pageName) throws Exception;
+	
 }
