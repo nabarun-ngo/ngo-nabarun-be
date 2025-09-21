@@ -5,6 +5,7 @@
 	<div th:replace="fragments/components/header :: header"></div>
 	<!-- <div th:replace="fragments/components/join :: join"></div> -->
 	<div th:if="${stage == '1'}" th:replace="fragments/components/join :: joiningrules"></div>
+	<div th:if="${stage == '1A'}" th:replace="fragments/components/join :: additionalDetails"></div>
 	<div th:if="${stage == '2'}" th:replace="fragments/components/join :: setAccountPassword"></div>
 	<div th:if="${stage == '3'}" th:replace="fragments/components/join :: otpvalidation"></div>
 	<div th:if="${stage == 'POST_SUBMIT'}" th:replace="fragments/components/join :: postsubmission"></div>

@@ -18,7 +18,6 @@ import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail.UserAction;
 import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
 import ngo.nabarun.app.businesslogic.businessobjects.DonationSummary.PayableAccDetail;
-import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.RequestDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UPIDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.UserDetail;
@@ -54,9 +53,6 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 	@Autowired
 	private PropertyHelper prop;
 
-	private List<KeyValue> policy;
-
-	private static String content;
 	private static List<UserDetail> users;
 
 	@Override
@@ -70,12 +66,12 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 		case HOME:
 			pageDataMap.put("interview", new InterviewDetail());
 			pageDataMap.put("profiles", getTeamProfiles());
+			pageDataMap.put("phoneCodes", businessHelper.getPhoneCodes());
 			break;
 		case POLICY:
-			if (policy == null) {
-				policy = businessHelper.getPolicyDocs();
-			}
-			policy.forEach(kv -> pageDataMap.put(kv.getKey(), kv.getValue()));
+		case JOIN:
+			businessHelper.getPolicyDocs()
+			.forEach(kv -> pageDataMap.put(kv.getKey(), kv.getValue()));
 			break;
 		default:
 			break;
@@ -95,9 +91,7 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 	}
 
 	private Map<String, Object> getPageContent(PropertyHelper prop) throws Exception {
-		if (content == null) {
-			content = businessHelper.getDomainJsonContent(true);
-		}
+		String content = businessHelper.getDomainJsonContent(true);
 		Map<String, String> replacements = new HashMap<>();
 		replacements.put("##LOGIN_URL##", prop.getAppLoginURL());
 
@@ -118,6 +112,10 @@ public class PublicBLImpl extends BaseBLImpl implements IPublicBL {
 			interview.setStage("1");
 			interview.getBreadCrumb().add("Rules and Regulations");
 		} else if (interview.getActionName() == UserAction.ACCEPT_RULES) {
+			
+			interview.setStage("1A");
+			interview.getBreadCrumb().add("Additional Details");
+		} else if (interview.getActionName() == UserAction.SUBMIT_ADDITIONAL_DETAIL) {
 			String description = businessHelper.getPasswordPolicyDescription(userDO.getPasswordPolicy());
 			interview.setMessage(description);
 			interview.setStage("2");

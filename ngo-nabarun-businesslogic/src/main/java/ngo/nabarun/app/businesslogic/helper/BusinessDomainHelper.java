@@ -241,6 +241,11 @@ public class BusinessDomainHelper {
 
 		return obj;
 	}
+	
+	public List<KeyValue> getPhoneCodes() throws Exception{
+		Map<String, List<KeyValuePair>> locationRef = domainInfraService.getDomainLocationData();
+		return BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST), "DIALCODE");
+	}
 
 	/**
 	 * Converts
