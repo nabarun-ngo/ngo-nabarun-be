@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+
+<div layout:fragment="content" th:remove="tag">
+	<div th:replace="fragments/components/header :: header"></div>
+	<!-- <div th:replace="fragments/components/join :: join"></div> -->
+	<div th:replace="fragments/components/misc :: policies"></div>
+</div>
+
+</html>

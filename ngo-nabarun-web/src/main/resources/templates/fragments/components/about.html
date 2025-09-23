@@ -1,33 +1,89 @@
 <div class="container-xxl py-5 scroll-margin" th:fragment="about" id="about">
-    <div class="container">
-        <div class="row g-5">
-            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="position-relative overflow-hidden h-100" style="min-height: 400px;">
-                    <img class="position-absolute w-100 h-100 pt-5 pe-5" src="img/nbrn/pic4.jpg" alt="" style="object-fit: cover;">
-                    <img class="position-absolute top-0 end-0 bg-white ps-2 pb-2" src="img/about-2.jpg" alt="" style="width: 200px; height: 200px;">
-                </div>
-            </div>
-            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                <div class="h-100">
-                    <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">About Us</div>
-                    <h1 class="display-6 mb-5">We Help People In Need</h1>
-                    <p class="mb-5">NABARUN, is a Non-Profit Charitable social development society founded by a group of college students in the year 2018. We started our work in various sectors of the society. We are working in the development of social upliftment to
-                        support the underprivileged and marginalized people in rural areas where they are going through difficulties to survive. We are focused on one of the key responsibilities which is taking care of orphans, senior citizens, cancer
-                        patients, handicapped people who have been deprived by the economic and social systems of the society and providing proper care to the street animals.</p>
-                    <div class="bg-light border-bottom border-5 border-primary rounded p-4 mb-4">
-                        <p class="text-dark mb-2"> I am delighted to welcome you to our community-driven non-governmental organization. Nabarun is not just an organization; it's a beacon of hope, dedicated to making a positive impact in the world.</p>
-						<p class="text-dark mb-2">Together, we strive to tackle pressing issues, uplift communities, and create lasting change. With your support and dedication, I am confident that we can achieve remarkable things.</p>
-                     	<p class="text-dark mb-2">Thank you for your interest on this meaningful journey. Let's work together to build a brighter future for all.</p>
-                        <span class="text-primary weight-bold">Mriganka Shekhar Pal,<br/>Founder</span>
-                    </div>
-                    <a class="btn btn-outline-primary py-2 px-3" href="/contact-us">
-                Contact Us
-                <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
-                    <i class="fa fa-arrow-right"></i>
-                </div>
-            </a>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="container">
+		<!-- Section Header -->
+		<div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+			<div class="d-inline-block rounded-pill bg-gradient-primary text-white py-2 px-4 mb-3">
+				<i class="fas fa-heart me-2"></i><span th:text="${content.about.sectionTitle}"></span>
+			</div>
+			<h2 class="display-6 mb-4" th:text="${content.about.title}"></h2>
+			<p class="lead text-muted mb-4" th:text="${content.about.description}"></p>
+		</div>
+
+		<div class="row g-5 align-items-center">
+			<!-- Image Section with Modern Card -->
+			<div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+				<div class="about-image-card position-relative">
+					<div class="main-image-wrapper">
+						<img class="img-fluid rounded-4 shadow-lg" src="img/nbrn/pic4.jpg" alt="NGO Community Work"
+							style="width: 100%; height: 650px; object-fit: cover;">
+						<div class="experience-badge">
+							<div class="badge-content text-center">
+								<h3 class="text-white mb-1" th:text="${content.about.experience.years}"></h3>
+								<p class="text-white-50 mb-0" th:text="${content.about.experience.label}"></p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Floating Stats Cards -->
+					<div class="stats-cards">
+						<div class="stat-card" th:each="stat : ${content.about.stats}">
+							<i th:class="${stat.icon} + ' text-primary mb-2'"></i>
+							<h4 class="text-dark mb-1" th:text="${stat.value}"></h4>
+							<p class="text-muted mb-0" th:text="${stat.label}"></p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Content Section -->
+			<div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+				<div class="about-content">
+
+					<!-- Mission Points -->
+					<div class="mission-points mb-5">
+						<div class="mission-point d-flex align-items-start mb-3"
+							th:each="point : ${content.about.missionPoints}">
+							<div class="icon-wrapper me-3">
+								<i th:class="${point.icon} + ' text-primary'"></i>
+							</div>
+							<div>
+								<h5 class="text-dark mb-1" th:text="${point.title}"></h5>
+								<p class="text-muted mb-0" th:text="${point.description}"></p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Founder Message Card -->
+					<div class="founder-message-card mb-4">
+						<div class="card-content">
+							<div class="quote-icon">
+								<i class="fas fa-quote-left text-primary"></i>
+							</div>
+							<p class="mb-3" th:text="${content.about.founderMessage.quote}"></p>
+
+							<div class="founder-info d-flex align-items-center">
+								<div class="founder-avatar me-3">
+									<i class="fas fa-user-circle text-primary"></i>
+								</div>
+								<div>
+									<h6 class="text-primary mb-0" th:text="${content.about.founderMessage.name}"></h6>
+									<small class="text-muted" th:text="${content.about.founderMessage.title}"></small>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Call to Action -->
+					<div class="d-flex flex-wrap gap-3">
+						<a class="btn btn-primary btn-lg" href="/#contact">
+							<i class="fas fa-envelope me-2"></i><span th:text="${content.about.cta.contact}"></span>
+						</a>
+						<a class="btn btn-outline-primary btn-lg" href="/#donate">
+							<i class="fas fa-donate me-2"></i><span th:text="${content.about.cta.donate}"></span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

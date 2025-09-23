@@ -16,8 +16,10 @@ import ngo.nabarun.app.businesslogic.businessobjects.AdditionalField;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentDetailUpload;
 import ngo.nabarun.app.businesslogic.businessobjects.DocumentDetail.DocumentMapping;
+import ngo.nabarun.app.businesslogic.businessobjects.ImportantLinks;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
 import ngo.nabarun.app.businesslogic.businessobjects.Paginate;
+import ngo.nabarun.app.businesslogic.businessobjects.LinkCategoryDetail;
 import ngo.nabarun.app.businesslogic.domain.CommonDO;
 import ngo.nabarun.app.businesslogic.helper.BusinessDomainHelper;
 import ngo.nabarun.app.businesslogic.helper.BusinessObjectConverter;
@@ -162,6 +164,14 @@ public class CommonBLImpl extends BaseBLImpl implements ICommonBL {
 				.collect(Collectors.toList());
 	}
 
-	
+	@Override
+	public ImportantLinks getUsefulLinks() throws Exception {
+		ImportantLinks links = new ImportantLinks();
+		List<LinkCategoryDetail> policyLinks = businessHelper.getPolicyLinks();
+		List<LinkCategoryDetail> userGuideLinks = businessHelper.getUserGuideLinks();
+		links.setPolicies(policyLinks);
+		links.setUserGuides(userGuideLinks);
+        return links;
+    }
 
 }

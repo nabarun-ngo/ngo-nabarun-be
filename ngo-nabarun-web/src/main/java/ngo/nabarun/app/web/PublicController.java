@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,29 +17,62 @@ import org.springframework.web.servlet.ModelAndView;
 import ngo.nabarun.app.businesslogic.IPublicBL;
 import ngo.nabarun.app.businesslogic.businessobjects.InterviewDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
-import ngo.nabarun.app.common.helper.PropertyHelper;
-import ngo.nabarun.app.common.util.CommonUtils;
+import ngo.nabarun.app.common.enums.PublicPage;
 
 @Controller
-@SessionAttributes(names = { "interview"})
+@SessionAttributes(names = { "interview" })
 public class PublicController {
 
 	@Autowired
 	private IPublicBL publicBl;
-	
-	@Autowired
-	private PropertyHelper prop;
-	
-	@GetMapping({"/","/signup","/contact","/donate"})
-	public String homePage(Model model) {
-		Map<String, Object> pageDataMap=publicBl.getPageData(List.of("profiles"));
-		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+
+	@GetMapping({ "/", "/signup", "/contact", "/donate" })
+	public String homePage(Model model) throws Exception {
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.HOME);
+		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			model.addAttribute(data.getKey(), data.getValue());
 		}
-		model.addAttribute("interview", new InterviewDetail());
-		model.addAttribute("LOGIN_URL", prop.getAppLoginURL()); 
-		model.addAttribute("VERSION", CommonUtils.getAppVersion()); 
 		return "index";
+	}
+
+	@GetMapping("/policy/{page:(?:privacy-policy|terms-of-use|disclaimer|copyright)}")
+	public ModelAndView policy(@PathVariable String page) throws Exception {
+		ModelAndView modelAndView = new ModelAndView("policy");
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.POLICY);
+		for (Entry<String, Object> data : pageDataMap.entrySet()) {
+			modelAndView.addObject(data.getKey(), data.getValue());
+		}
+		switch (page) {
+		case "privacy-policy":
+			modelAndView.addObject("pageName", "Privacy Policy");
+			modelAndView.addObject("breadcrumb", List.of("Home", "Privacy Policy"));
+			modelAndView.addObject("description",
+					"This Privacy Policy outlines how we handle your personal information.");
+			modelAndView.addObject("url", pageDataMap.get("POLICY_PRIVACY_POLICY"));
+			break;
+		case "terms-of-use":
+			modelAndView.addObject("pageName", "Terms of Use");
+			modelAndView.addObject("breadcrumb", List.of("Home", "Terms of Use"));
+			modelAndView.addObject("description", "These Terms of Use govern your use of our website and services.");
+			modelAndView.addObject("url", pageDataMap.get("POLICY_TERMS_OF_USE"));
+			break;
+		case "disclaimer":
+			modelAndView.addObject("pageName", "Disclaimer");
+			modelAndView.addObject("breadcrumb", List.of("Home", "Disclaimer"));
+			modelAndView.addObject("description", "This Disclaimer outlines the limitations of our liability.");
+			modelAndView.addObject("url", pageDataMap.get("POLICY_DISCLAIMER"));
+			break;
+		case "copyright":
+			modelAndView.addObject("pageName", "Copyright");
+			modelAndView.addObject("breadcrumb", List.of("Home", "Copyright"));
+			modelAndView.addObject("description",
+					"This Copyright notice outlines the ownership of content on our website.");
+			modelAndView.addObject("url", pageDataMap.get("POLICY_COPYRIGHT"));
+			break;
+		default:
+			throw new BusinessException("Invalid page requested: " + page);
+		}
+		return modelAndView;
 	}
 
 	@PostMapping("/signup")
@@ -61,13 +95,13 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
-		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.JOIN);
+		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
 		return modelAndView;
 	}
-	
+
 	@PostMapping("/contact")
 	public ModelAndView contactUs(@ModelAttribute("interview") InterviewDetail interview) throws Exception {
 		ModelAndView modelAndView = new ModelAndView("stages");
@@ -87,16 +121,16 @@ public class PublicController {
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
-		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.HOME);
+		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
 		return modelAndView;
 	}
-	
-	@PostMapping(path="/donate")
+
+	@PostMapping(path = "/donate")
 	public ModelAndView donate(@ModelAttribute("interview") InterviewDetail interview) throws Exception {
-		//System.out.println(files);
+		// System.out.println(files);
 		ModelAndView modelAndView = new ModelAndView("stages");
 		modelAndView.addObject("interview", interview);
 		try {
@@ -109,19 +143,16 @@ public class PublicController {
 			modelAndView.addObject("siteKey", interview.getSiteKey());
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			System.err.println(e);
 			modelAndView.addObject("stage", interview.getStage());
 			modelAndView.addObject("errorMessage", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 			modelAndView.addObject("successMessage", interview.getMessage());
 			modelAndView.addObject("pageName", interview.getBreadCrumb().get(interview.getBreadCrumb().size() - 1));
 			modelAndView.addObject("breadcrumb", interview.getBreadCrumb());
 		}
-		Map<String, Object> pageDataMap=publicBl.getPageData(List.of());
-		for(Entry<String, Object> data:pageDataMap.entrySet()) {
+		Map<String, Object> pageDataMap = publicBl.getPageData(PublicPage.DONATION);
+		for (Entry<String, Object> data : pageDataMap.entrySet()) {
 			modelAndView.addObject(data.getKey(), data.getValue());
 		}
 		return modelAndView;
 	}
-
-	
 }

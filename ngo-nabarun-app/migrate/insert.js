@@ -94,7 +94,7 @@ if(!cashierAccount) {
     if (!cashierUser) {
         print("Cashier user not found. Please ensure the user exists before creating the account.");
     }
-    db.accounts.insert({
+    db.accounts.insertOne({
         _id: 'NACC202410724287A01TEST',
         currentBalance: 0.0,
         openingBalance: 0.0,
@@ -115,7 +115,7 @@ if(!cashierAccount) {
 
 const testEvent = db.events.findOne({title: "Test Event"});
 if (!testEvent) {
-    db.events.insert({
+    db.events.insertOne({
         title: "Test Event",
         description: "Test Event",
         eventDate: new Date("2025-03-16T06:41:57.759Z"),

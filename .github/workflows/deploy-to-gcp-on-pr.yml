@@ -1,9 +1,9 @@
-name: 'PR Merged: Release, Deploy to GCP (GAE), Sync Env'
+name: 'PR: Build, Release & Deploy'
 on:
   pull_request:
     paths-ignore:
     - '.github/**'
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened,closed]
     branches:
     - master
     - stage
@@ -13,11 +13,11 @@ permissions:
 
 jobs:
   build:
-   name: Build and Test
+   name: Build Spring Boot App
    uses: nabarun-ngo/ngo-nabarun-templates/.github/workflows/Build-Test.yml@main
    with:
       platform: "java"
-      command: "mvn clean install"
+      command: "clean install"
       
   create_release:
     if: github.event.pull_request.merged == true
@@ -41,7 +41,8 @@ jobs:
             "be_tag_name": "${{ needs.create_release.outputs.tag_name }}",
             "target_env": "${{ github.base_ref == 'master' && 'prod' || 'stage' }}",
             "auth0_sync" : ${{ contains(join(fromJSON(toJSON(github.event.pull_request.labels)).name, ','),'auth0') }},
-            "run_smoke_test" : true
+            "run_smoke_test" : true ,
+            "pr_number": "PR#${{github.event.pull_request.number}}"
           } 
     secrets:
       token: ${{ secrets.PAT }}

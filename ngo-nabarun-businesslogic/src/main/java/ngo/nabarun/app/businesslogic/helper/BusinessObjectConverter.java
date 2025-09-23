@@ -56,33 +56,17 @@ import ngo.nabarun.app.infra.dto.WorkDTO;
 import ngo.nabarun.app.infra.misc.ConfigTemplate.KeyValuePair;
 
 public class BusinessObjectConverter {
-	// private static SimpleDateFormat dateFormat = new
-	// SimpleDateFormat("dd/MM/yyyy");
+
 
 	public static UserDetail toPublicUserDetail(UserDTO userDTO, Map<String, String> domainKeyValue) {
+		UserDetail details = toUserDetail(userDTO, domainKeyValue);
 		UserDetail userDetails = new UserDetail();
-		userDetails.setEmail(userDTO.getEmail());
-		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
-				: "https://ui-avatars.com/api/?name="+userDTO.getFirstName()+"+"+userDTO.getLastName()+"&background=random");
-		String title = userDTO.getTitle() == null ? ""
-				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
-						? domainKeyValue.get(userDTO.getTitle()) + " "
-						: userDTO.getTitle() + " ";
-		if (userDTO.getName() != null) {
-			userDetails.setFullName(title + userDTO.getName());
-		} else {
-			String firstName = userDTO.getFirstName() == null ? "" : userDTO.getFirstName() + " ";
-			String middleName = userDTO.getMiddleName() == null ? "" : userDTO.getMiddleName() + " ";
-			String lastName = userDTO.getLastName() == null ? "" : userDTO.getLastName();
-			userDetails.setFullName(title + firstName + middleName + lastName);
-		}
-
-		if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
-			userDetails.setRoles(userDTO.getRoles().stream().map(m -> UserRole.builder().roleName(m.getName())
-					.roleCode(m.getCode()).description(m.getDescription()).roleId(m.getId()).build()).toList());
-			userDetails.setRoleString(String.join(", ", userDTO.getRoles().stream().map(m -> m.getName()).toList()));
-		}
-		userDetails.setSocialMediaLinks(toUserSocialMedia(userDTO.getSocialMedias()));
+		userDetails.setEmail(details.getEmail());
+		userDetails.setPicture(details.getPicture());
+		userDetails.setFullName(details.getFullName());
+		userDetails.setRoleString(details.getRoleString());
+		userDetails.setAbout(details.getAbout());
+		userDetails.setSocialMediaLinks(details.getSocialMediaLinks());
 		return userDetails;
 
 	}
@@ -111,15 +95,20 @@ public class BusinessObjectConverter {
 						: null);
 		userDetails.setMiddleName(userDTO.getMiddleName());
 		userDetails.setPicture(userDTO.getImageUrl() != null ? userDTO.getImageUrl()
-				: "https://ui-avatars.com/api/?name="+userDTO.getFirstName()+"+"+userDTO.getLastName()+"&background=random");
+				: "https://ui-avatars.com/api/?name=" + userDTO.getFirstName() + "+" + userDTO.getLastName()
+						+ "&background=random");
 		userDetails.setStatus(userDTO.getStatus());
 		userDetails.setTitle(userDTO.getTitle());
 		userDetails.setUserId(userDTO.getUserId());
 		userDetails.setLoginMethod(userDTO.getLoginProviders());
-//		String title = userDTO.getTitle() == null ? ""
-//				: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
-//						? domainKeyValue.get(userDTO.getTitle())+ " " 
-//						: userDTO.getTitle() + " ";
+
+		if (domainKeyValue != null) {
+			String title = userDTO.getTitle() == null ? ""
+					: domainKeyValue != null && domainKeyValue.containsKey(userDTO.getTitle())
+							? domainKeyValue.get(userDTO.getTitle()) + " "
+							: userDTO.getTitle() + " ";
+			userDetails.setTitle(title);
+		}
 		if (userDTO.getName() != null) {
 			userDetails.setFullName(userDTO.getName());
 		} else {
@@ -481,7 +470,7 @@ public class BusinessObjectConverter {
 
 		return requesterDTO;
 	}
-	
+
 	public static UserDTO toUserDTO(AuthenticatedUser authUser) {
 		UserDTO requesterDTO = new UserDTO();
 		requesterDTO.setProfileId(authUser == null ? null : authUser.getId());
@@ -557,35 +546,36 @@ public class BusinessObjectConverter {
 	}
 
 	public static ExpenseDetail toExpenseDetail(ExpenseDTO expenseDTO) {
-        ExpenseDetail expenseDetail = new ExpenseDetail();
-        expenseDetail.setId(expenseDTO.getId());
-        expenseDetail.setName(expenseDTO.getName());
-        expenseDetail.setDescription(expenseDTO.getDescription());
-        expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
-        expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(),null));
-        expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
-        expenseDetail.setAdmin(expenseDTO.isAdmin());
-        expenseDetail.setDeligated(expenseDTO.isDeligated());
-        expenseDetail.setPaidBy(toUserDetail(expenseDTO.getPaidBy(),null));
-        expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(),null));
-        expenseDetail.setStatus(expenseDTO.getStatus());
-        expenseDetail.setFinalizedOn(expenseDTO.getFinalizedOn());
-        expenseDetail.setSettledBy(toUserDetail(expenseDTO.getSettledBy(),null));
-        expenseDetail.setSettledOn(expenseDTO.getSettledOn());
-        if(expenseDTO.getExpenseItems() != null) {
-            expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream().map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
-        }
-        expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
-        expenseDetail.setExpenseRefType(expenseDTO.getExpenseRefType());
-        expenseDetail.setExpenseRefId(expenseDTO.getExpenseRefId());
-        expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
-        if(expenseDTO.getSettlementAccount() != null) {
-            expenseDetail.setSettlementAccount(toAccountDetail(expenseDTO.getSettlementAccount()));
-        }
-        expenseDetail.setRemarks(expenseDTO.getRemarks());
-        expenseDetail.setRejectedOn(expenseDTO.getRejectedOn());
-        expenseDetail.setRejectedBy(toUserDetail(expenseDTO.getRejectedBy(),null));
-        
+		ExpenseDetail expenseDetail = new ExpenseDetail();
+		expenseDetail.setId(expenseDTO.getId());
+		expenseDetail.setName(expenseDTO.getName());
+		expenseDetail.setDescription(expenseDTO.getDescription());
+		expenseDetail.setExpenseDate(expenseDTO.getExpenseDate());
+		expenseDetail.setCreatedBy(toUserDetail(expenseDTO.getCreatedBy(), null));
+		expenseDetail.setCreatedOn(expenseDTO.getCreatedOn());
+		expenseDetail.setAdmin(expenseDTO.isAdmin());
+		expenseDetail.setDeligated(expenseDTO.isDeligated());
+		expenseDetail.setPaidBy(toUserDetail(expenseDTO.getPaidBy(), null));
+		expenseDetail.setFinalizedBy(toUserDetail(expenseDTO.getFinalizedBy(), null));
+		expenseDetail.setStatus(expenseDTO.getStatus());
+		expenseDetail.setFinalizedOn(expenseDTO.getFinalizedOn());
+		expenseDetail.setSettledBy(toUserDetail(expenseDTO.getSettledBy(), null));
+		expenseDetail.setSettledOn(expenseDTO.getSettledOn());
+		if (expenseDTO.getExpenseItems() != null) {
+			expenseDetail.setExpenseItems(expenseDTO.getExpenseItems().stream()
+					.map(BusinessObjectConverter::toExpenseItemDetail).collect(Collectors.toList()));
+		}
+		expenseDetail.setFinalAmount(expenseDTO.getFinalAmount());
+		expenseDetail.setExpenseRefType(expenseDTO.getExpenseRefType());
+		expenseDetail.setExpenseRefId(expenseDTO.getExpenseRefId());
+		expenseDetail.setTxnNumber(expenseDTO.getTxnNumber());
+		if (expenseDTO.getSettlementAccount() != null) {
+			expenseDetail.setSettlementAccount(toAccountDetail(expenseDTO.getSettlementAccount()));
+		}
+		expenseDetail.setRemarks(expenseDTO.getRemarks());
+		expenseDetail.setRejectedOn(expenseDTO.getRejectedOn());
+		expenseDetail.setRejectedBy(toUserDetail(expenseDTO.getRejectedBy(), null));
+
 		return expenseDetail;
 
 	}
@@ -597,15 +587,15 @@ public class BusinessObjectConverter {
 		itemDetail.setId(itemDTO.getId());
 		itemDetail.setItemName(itemDTO.getItemName());
 		return itemDetail;
-		
+
 	}
 
 	public static HistoryDetail toHistoryDetail(HistoryDTO historyDTO) {
 		HistoryDetail historyDetail = new HistoryDetail();
 		historyDetail.setId(historyDTO.getId());
-		historyDetail.setTitle((historyDTO.getReferenceType()+" "+historyDTO.getAction()).toUpperCase());
-		List<ChangeDetail> changeList=historyDTO.getChanges().stream().map(changeDTO -> {
-			ChangeDetail change= new ChangeDetail();
+		historyDetail.setTitle((historyDTO.getReferenceType() + " " + historyDTO.getAction()).toUpperCase());
+		List<ChangeDetail> changeList = historyDTO.getChanges().stream().map(changeDTO -> {
+			ChangeDetail change = new ChangeDetail();
 //			if(changeObj.from && changeObj.to){
 //			    return '';
 //			  }
@@ -618,15 +608,18 @@ public class BusinessObjectConverter {
 			switch (changeDTO.getChangeType()) {
 			case "changed":
 				change.setChange(true);
-				change.setMessage("<b>"+changeDTO.getFieldname()+"</b> field value changed from <b>"+changeDTO.getFrom()+"</b>  to <b>"+changeDTO.getTo()+"</b>.");
+				change.setMessage("<b>" + changeDTO.getFieldname() + "</b> field value changed from <b>"
+						+ changeDTO.getFrom() + "</b>  to <b>" + changeDTO.getTo() + "</b>.");
 				break;
 			case "added":
 				change.setAdd(true);
-				change.setMessage("<b>"+changeDTO.getFieldname()+"</b> field value set as <b>"+changeDTO.getTo()+"</b>.");
+				change.setMessage(
+						"<b>" + changeDTO.getFieldname() + "</b> field value set as <b>" + changeDTO.getTo() + "</b>.");
 				break;
 			case "removed":
 				change.setRemove(true);
-				change.setMessage("<b>"+changeDTO.getFieldname()+"</b> field value removed. Earlier it was <b>"+changeDTO.getFrom()+"</b>.");
+				change.setMessage("<b>" + changeDTO.getFieldname() + "</b> field value removed. Earlier it was <b>"
+						+ changeDTO.getFrom() + "</b>.");
 				break;
 			}
 			change.setFieldName(changeDTO.getFieldname());
@@ -641,7 +634,7 @@ public class BusinessObjectConverter {
 	}
 
 	public static ApiKeyDetail toApiKeyDetail(ApiKeyDTO apiKeyDTO, String apiKey) {
-		ApiKeyDetail apiKeyDetail= new ApiKeyDetail();
+		ApiKeyDetail apiKeyDetail = new ApiKeyDetail();
 		apiKeyDetail.setExpireable(apiKeyDTO.isExpireable());
 		apiKeyDetail.setExpiryDate(apiKeyDTO.getExpiryDate());
 		apiKeyDetail.setId(apiKeyDTO.getId());
@@ -650,10 +643,10 @@ public class BusinessObjectConverter {
 		apiKeyDetail.setApiKey(apiKey);
 		return apiKeyDetail;
 	}
-	
+
 	public static JobDetail toJobDetail(JobDTO job) {
-		JobDetail jobDetail= new JobDetail();
-		jobDetail.setDuration(job.getEndAt().getTime()-job.getStartAt().getTime());		
+		JobDetail jobDetail = new JobDetail();
+		jobDetail.setDuration(job.getEndAt().getTime() - job.getStartAt().getTime());
 		jobDetail.setEndAt(job.getEndAt());
 		jobDetail.setError(job.getError());
 		jobDetail.setId(job.getId());
@@ -663,7 +656,7 @@ public class BusinessObjectConverter {
 		jobDetail.setMemoryAtStart(job.getMemoryAtStart());
 		jobDetail.setName(job.getName());
 		jobDetail.setOutput(jobDetail.getOutput());
-		jobDetail.setQueue(job.getStartAt().getTime()-job.getSubmitAt().getTime());
+		jobDetail.setQueue(job.getStartAt().getTime() - job.getSubmitAt().getTime());
 		jobDetail.setStartAt(job.getStartAt());
 		jobDetail.setSubmitAt(job.getSubmitAt());
 

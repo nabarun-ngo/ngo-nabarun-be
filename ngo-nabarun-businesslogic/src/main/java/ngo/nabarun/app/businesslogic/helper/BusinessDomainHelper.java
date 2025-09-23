@@ -19,6 +19,7 @@ import org.stringtemplate.v4.ST;
 
 import ngo.nabarun.app.businesslogic.businessobjects.DonationDetail;
 import ngo.nabarun.app.businesslogic.businessobjects.KeyValue;
+import ngo.nabarun.app.businesslogic.businessobjects.LinkCategoryDetail;
 import ngo.nabarun.app.businesslogic.exception.BusinessCondition;
 import ngo.nabarun.app.businesslogic.exception.BusinessException;
 import ngo.nabarun.app.businesslogic.exception.BusinessException.ExceptionEvent;
@@ -68,8 +69,6 @@ public class BusinessDomainHelper {
 	private static final String ITEM_UPI_OPTIONS = "UPI_OPTIONS";
 	private static final String ITEM_ADDITIONAL_FIELDS = "ADDITIONAL_FIELDS";
 	private static final String ITEM_PASSWORD_COMPLEXITY_OPTIONS = "PASSWORD_COMPLEXITY_OPTIONS";
-	private static final String ITEM_NABARUN_ORG_INFO = "NABARUN_ORG_INFO";
-	private static final String ITEM_NABARUN_RULES_REGULATIONS = "NABARUN_RULES_REGULATIONS";
 	private static final String ITEM_BUSINESS_EXCEPTION_MESSAGES = "BUSINESS_EXCEPTION_MESSAGES";
 	private static final String ITEM_EMAIL_TEMPLATE_CONFIG = "EMAIL_TEMPLATE_CONFIG";
 	private static final String ITEM_NOTIFICATION_TEMPLATE_CONFIG = "NOTIFICATION_TEMPLATE_CONFIG";
@@ -101,7 +100,7 @@ public class BusinessDomainHelper {
 	private static final String ITEM_ACCOUNT_TYPE = "ACCOUNT_TYPES";
 	private static final String ITEM_ACCOUNT_STATUS = "ACCOUNT_STATUSES";
 	private static final String ITEM_EXPENSE_STATUS = "EXPENSE_STATUSES";
-	private static final String ITEM_TRANSACTION_TYPE= "TRANSACTION_TYPES";
+	private static final String ITEM_TRANSACTION_TYPE = "TRANSACTION_TYPES";
 	private static final String ITEM_PROFILE_STATUSES = "PROFILE_STATUSES";
 	private static final String ITEM_COUNTRY_LIST = "COUNTRY_LIST";
 	private static final String ITEM_STATE_LIST = "STATE_LIST";
@@ -114,13 +113,14 @@ public class BusinessDomainHelper {
 	private static final String ITEM_WORKFLOW_TYPES__ATTR_SYSTEM_GENERATED = "SYSTEM_GENERATED";
 	private static final String ITEM_USER_CONNECTIONS = "USER_CONNECTIONS";
 	private static final String ITEM_IMPORTANT_LINKS = "IMPORTANT_LINKS";
+	private static final String ITEM_POLICY_LINKS = "POLICY_LINKS";
+	private static final String ITEM_POLICY_LINKS__ATTR_CATEGORY = "CATEGORY";
+	private static final String ITEM_USER_GUIDE_LINKS = "USER_GUIDE_LINKS";
 
-	
 	protected Map<String, List<KeyValuePair>> getDomainConfigs() throws Exception {
 		return domainInfraService.getDomainRefConfigs();
 	}
 
-	
 	protected Map<String, List<KeyValuePair>> getDomainLocation() throws Exception {
 		return domainInfraService.getDomainLocationData();
 	}
@@ -129,7 +129,6 @@ public class BusinessDomainHelper {
 		return getDomainKeyValues().get(key);
 	}
 
-	
 	public Map<String, String> getDomainKeyValues() throws Exception {
 		if (domainKeyValue.isEmpty()) {
 			Map<String, List<KeyValuePair>> configs = getDomainConfigs();
@@ -217,8 +216,10 @@ public class BusinessDomainHelper {
 		obj.put("availableRoles", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE)));
 		obj.put("availableRoleGroups",
 				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_AVAILABLE_ROLE_GROUP)));
-		obj.put("userStatuses", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream()
-				.filter(m -> m.getAttributes().get(ITEM_COMMON__ATTR_IS_VISIBLE) == Boolean.TRUE).collect(Collectors.toList())));
+		obj.put("userStatuses",
+				BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_PROFILE_STATUSES).stream()
+						.filter(m -> m.getAttributes().get(ITEM_COMMON__ATTR_IS_VISIBLE) == Boolean.TRUE)
+						.collect(Collectors.toList())));
 
 		List<KeyValuePair> states = locationRef.get(ITEM_STATE_LIST);
 		if (countryCode != null) {
@@ -239,6 +240,11 @@ public class BusinessDomainHelper {
 		obj.put("loginMethods", BusinessObjectConverter.toKeyValueList(connections));
 
 		return obj;
+	}
+	
+	public List<KeyValue> getPhoneCodes() throws Exception{
+		Map<String, List<KeyValuePair>> locationRef = domainInfraService.getDomainLocationData();
+		return BusinessObjectConverter.toKeyValueList(locationRef.get(ITEM_COUNTRY_LIST), "DIALCODE");
 	}
 
 	/**
@@ -671,35 +677,16 @@ public class BusinessDomainHelper {
 		return field.getValue();
 	}
 
-	/**
-	 * get all basic info about Nabarun as list of KeyValue pair
-	 * 
-	 * @return list of KeyValue pair
-	 * @throws Exception
-	 */
-	public List<KeyValue> getNabarunOrgInfo() throws Exception {
-		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_ORG_INFO);
-		System.out.println(kvFields);
+	public List<KeyValue> getPolicyDocs() throws Exception {
+		List<KeyValuePair> kvFields = getDomainConfig(ITEM_POLICY_LINKS);
 		return BusinessObjectConverter.toKeyValueList(kvFields);
 	}
 
-	/*
-	 * *****************************************************************************
-	 * ******************* RULES AND REGULATION
-	 * *****************************************************************************
-	 * *******************
-	 */
-
-	/**
-	 * Get list of all rules and regulation
-	 * 
-	 * @return list of KeyValue pair
-	 * @throws Exception
-	 */
-	public List<KeyValue> getRules() throws Exception {
-		List<KeyValuePair> kvFields = getDomainConfig(ITEM_NABARUN_RULES_REGULATIONS);
+	public List<KeyValue> getUserGuideDocs() throws Exception {
+		List<KeyValuePair> kvFields = getDomainConfig(ITEM_USER_GUIDE_LINKS);
 		return BusinessObjectConverter.toKeyValueList(kvFields);
 	}
+
 
 	/*
 	 * *****************************************************************************
@@ -871,7 +858,7 @@ public class BusinessDomainHelper {
 		obj.put("transactionRefTypes", BusinessObjectConverter.toKeyValueList(domainRef.get(ITEM_TRANSACTION_TYPE)));
 		return obj;
 	}
-	
+
 	public Map<String, List<KeyValue>> getAdminRefData() throws Exception {
 		Map<String, List<KeyValue>> obj = new HashMap<>();
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
@@ -917,6 +904,39 @@ public class BusinessDomainHelper {
 
 	public List<LoginMethod> getAvailableLoginMethods() throws Exception {
 		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
-		return domainRef.get(ITEM_USER_CONNECTIONS).stream().map(m -> LoginMethod.valueOf(m.getKey())).collect(Collectors.toList());
+		return domainRef.get(ITEM_USER_CONNECTIONS).stream().map(m -> LoginMethod.valueOf(m.getKey()))
+				.collect(Collectors.toList());
 	}
+
+	public List<LinkCategoryDetail> getLinks(String name) throws Exception {
+		Map<String, List<KeyValuePair>> domainRef = getDomainConfigs();
+		List<KeyValuePair> policyLinks = domainRef.get(name);
+		Map<String, List<KeyValuePair>> grouped = new HashMap<>();
+		for (KeyValuePair kv : policyLinks) {
+			Object catObj = kv.getAttributes().get(ITEM_POLICY_LINKS__ATTR_CATEGORY);
+			String category = catObj == null ? "Others" : catObj.toString();
+			grouped.computeIfAbsent(category, k -> new ArrayList<>()).add(kv);
+		}
+		List<LinkCategoryDetail> linkCache = new ArrayList<>();
+		for (String category : grouped.keySet()) {
+			LinkCategoryDetail categoryDetail = new LinkCategoryDetail();
+			categoryDetail.setName(category);
+			categoryDetail.setDocuments(BusinessObjectConverter.toKeyValueList(grouped.get(category)));
+			linkCache.add(categoryDetail);
+		}
+		return linkCache;
+	}
+
+	public List<LinkCategoryDetail> getPolicyLinks() throws Exception {
+		return getLinks(ITEM_POLICY_LINKS);
+	}
+
+	public List<LinkCategoryDetail> getUserGuideLinks() throws Exception {
+		return getLinks(ITEM_USER_GUIDE_LINKS);
+	}
+
+	public String getDomainJsonContent(boolean isPublic) throws Exception {
+		return domainInfraService.getDomainJsonContent(isPublic);
+	}
+
 }
