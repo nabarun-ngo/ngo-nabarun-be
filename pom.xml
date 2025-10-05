@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ngo.nabarun</groupId>
+    <artifactId>ngo-nabarun-be</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>ngo-nabarun-be</name>
+    <properties>
+        <java.version>17</java.version>
+        <spring.boot.version>3.5.6</spring.boot.version>
+    </properties>
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-dependencies</artifactId>
+          <version>${spring.boot.version}</version>
+          <type>pom</type>
+          <scope>import</scope>
+        </dependency>
+      </dependencies>
+    </dependencyManagement>
+    <modules>
+        <module>ngo-nabarun-domain</module>
+        <module>ngo-nabarun-application</module>
+        <module>ngo-nabarun-infra</module>
+        <module>ngo-nabarun-common</module>
+        <module>ngo-nabarun-web</module>
+    </modules>
+</project>
