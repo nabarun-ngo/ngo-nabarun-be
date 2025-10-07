@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import ngo.nabarun.application.event.IAMUserCreated;
 import ngo.nabarun.application.port.IAMPort;
@@ -28,8 +30,9 @@ public class UserEventListener {
 		//userRepoPort.updateUser();
 	}
 
-	@EventListener
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handle(UserCreatedEvent event) {
+		System.out.println("Hello User created "+ event.user().getFirstName());
 		User user = iamPort.createUser(event.user());
 		eventPublisher.publishEvent(new IAMUserCreated(user));
 	}

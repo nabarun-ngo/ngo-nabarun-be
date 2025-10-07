@@ -3,6 +3,7 @@ package ngo.nabarun.application.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ngo.nabarun.application.dto.command.UserCommand.UserCreateCommand;
 import ngo.nabarun.application.dto.result.UserResult;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
 	
+	@Transactional
 	@Override
 	public UserResult createUser(UserCreateCommand command) {
 		UserCreate create= mapper.toCreateDomain(command);
@@ -35,7 +37,8 @@ public class UserServiceImpl implements UserService{
 			throw new BusinessException(ExceptionEvent.EMAIL_ALREADY_IN_USE);
 		}
 		user=userRepository.createUser(user);
-		eventPublisher.publishEvent(new UserCreatedEvent(user,"mongo"));
+		eventPublisher.publishEvent(new UserCreatedEvent(user));
+		
 		return mapper.toResult(user);
 	}
 	
