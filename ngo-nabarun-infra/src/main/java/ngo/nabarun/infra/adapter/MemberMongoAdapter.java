@@ -1,8 +1,8 @@
 
 package ngo.nabarun.infra.adapter;
 
-import ngo.nabarun.domain.model.Member;
-import ngo.nabarun.domain.repository.MemberRepository;
+import ngo.nabarun.domain.member.Member;
+import ngo.nabarun.domain.member.MemberRepository;
 import ngo.nabarun.infra.mongo.entity.MemberEntity;
 import ngo.nabarun.infra.mongo.repo.MemberMongoRepository;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 
-package ngo.nabarun.domain.model;
+package ngo.nabarun.domain.member;
 
 import java.time.Instant;
-import java.util.Objects;
+
 
 public class Member {
     private final String id;
@@ -22,16 +22,5 @@ public class Member {
     public String getEmail() { return email; }
     public Instant getJoinedAt() { return joinedAt; }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Member)) return false;
-        Member member = (Member) o;
-        return Objects.equals(id, member.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    
 }

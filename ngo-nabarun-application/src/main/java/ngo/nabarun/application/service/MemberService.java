@@ -1,13 +1,23 @@
 
 package ngo.nabarun.application.service;
 
-import ngo.nabarun.domain.model.Member;
-import ngo.nabarun.domain.repository.MemberRepository;
+import ngo.nabarun.common.props.PropertyHelper;
+import ngo.nabarun.domain.member.Member;
+import ngo.nabarun.domain.member.MemberRepository;
+
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    
+    @Autowired
+	private PropertyHelper propertyHelper;
+
 
     public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;

@@ -1,5 +1,5 @@
 
-package ngo.nabarun.application.dto;
+package ngo.nabarun.application.dto.result;
 
 import java.time.Instant;
 

@@ -1,7 +1,6 @@
 
-package ngo.nabarun.domain.repository;
+package ngo.nabarun.domain.member;
 
-import ngo.nabarun.domain.model.Member;
 import java.util.List;
 import java.util.Optional;
 
