@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ngo.nabarun.application.AdditionalFieldKey;
 import ngo.nabarun.application.dto.command.UserCommand.UserCreateCommand;
 import ngo.nabarun.application.service.UserService;
-import ngo.nabarun.common.event.CustomEventHandler;
 import ngo.nabarun.domain.request.enums.RequestType;
 import ngo.nabarun.domain.request.event.RequestWorkflowFulfilledEvent;
+import ngo.nabarun.event.handler.AppEventHandler;
 
-public class RequestWorkflowFulfilledEventHandler implements CustomEventHandler<RequestWorkflowFulfilledEvent> {
+public class RequestWorkflowFulfilledEventHandler implements AppEventHandler<RequestWorkflowFulfilledEvent> {
 
     @Autowired private UserService userRepo;
 

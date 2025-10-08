@@ -1,48 +1,47 @@
 package ngo.nabarun.infra.adapter;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ngo.nabarun.application.dto.result.OutboxEventResult;
-import ngo.nabarun.application.port.OutboxEventPort;
+import ngo.nabarun.infra.mapper.InfraOutboxMapper;
 import ngo.nabarun.infra.mongo.repo.OutboxEventRepository;
-import ngo.nabarun.infra.outbox.OutboxProcessor;
-import ngo.nabarun.infra.outbox.OutboxStatus;
-
+import ngo.nabarun.outbox.domain.EventOutbox;
+import ngo.nabarun.outbox.domain.enums.OutboxStatus;
+import ngo.nabarun.outbox.domain.port.EventOutboxRepositoryPort;
 
 @Service
-public class OutboxEventAdapter implements OutboxEventPort{
-	
-	@Autowired private OutboxProcessor outboxProcessor;
-	
-	@Autowired private OutboxEventRepository obEventRepo;
+public class OutboxEventAdapter implements EventOutboxRepositoryPort {
+
+	@Autowired
+	private OutboxEventRepository outboxRepo;
+
+	@Autowired
+	private InfraOutboxMapper outboxMapper;
 
 	@Override
-	public void retryEvent(String id) {
-		outboxProcessor.processById(id);
+	public Optional<EventOutbox> findById(String id) {
+		return outboxRepo.findById(id).map(outboxMapper::toEventOutbox);
 	}
 
 	@Override
-	public void retryPendingEvents() {
-		outboxProcessor.retryPendingEvents(10);		
+	public EventOutbox save(EventOutbox event) {
+		var entity = outboxMapper.toOutboxEventEntity(event);
+		entity = outboxRepo.save(entity);
+		return outboxMapper.toEventOutbox(entity);
 	}
 
 	@Override
-	public List<OutboxEventResult> fetchOutboxEvents() {
-		// TODO Auto-generated method stub
-		return null;
+	@Deprecated
+	public void updateStatus(String id, OutboxStatus status) {
+		
 	}
 
 	@Override
-	public List<OutboxEventResult> fetchDeliveredEvents() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<EventOutbox> findByStatusOrderByCreatedAtAsc(OutboxStatus pending) {
+		return outboxRepo.findByStatusOrderByCreatedAtAsc(pending).stream().map(outboxMapper::toEventOutbox).toList();
 	}
-
-
-	
-	
 
 }

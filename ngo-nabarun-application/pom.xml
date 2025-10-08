@@ -22,12 +22,13 @@
 			<artifactId>ngo-nabarun-common</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		
 		<!--Spring Dependencies-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 		<!--Other Dependencies-->
-		
+
 	</dependencies>
 </project>

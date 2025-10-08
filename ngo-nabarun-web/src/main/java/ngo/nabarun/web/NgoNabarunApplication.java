@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import ngo.nabarun.outbox.config.EnableEventOutbox;
+
 @SpringBootApplication(scanBasePackages = {
     "ngo.nabarun.web",
     "ngo.nabarun.application",
@@ -17,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 })
 @EnableRetry
 @EnableAsync
+@EnableEventOutbox
 public class NgoNabarunApplication {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(NgoNabarunApplication.class);

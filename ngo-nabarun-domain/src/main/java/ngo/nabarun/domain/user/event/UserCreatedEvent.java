@@ -1,8 +1,8 @@
 package ngo.nabarun.domain.user.event;
 
-import ngo.nabarun.common.event.CustomEvent;
+import ngo.nabarun.event.AppEvent;
 
-public record UserCreatedEvent(String id,String userId) implements CustomEvent {
+public record UserCreatedEvent(String id,String userId) implements AppEvent {
 	
 }
 

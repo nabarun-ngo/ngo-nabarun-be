@@ -41,32 +41,33 @@ public class CommonUtil {
 	}
 
 	public static <T> T defaultIfNull(T newValue, T currentValue) {
-	    return newValue != null ? newValue : currentValue;
+		return newValue != null ? newValue : currentValue;
 	}
 
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 		Set<Object> seen = ConcurrentHashMap.newKeySet();
 		return t -> seen.add(keyExtractor.apply(t));
 	}
-	
+
 	public static boolean isNotNull(Object obj) {
-		if(obj == null) return false;
-		if(obj instanceof String) {
+		if (obj == null)
+			return false;
+		if (obj instanceof String) {
 			String str = (String) obj;
 			return str.trim().length() > 0;
 		}
 		return true;
 	}
-	
+
 	public static boolean isNotNull(Object... objs) {
-		for(Object obj:objs) {
-			if(!isNotNull(obj)) {
+		for (Object obj : objs) {
+			if (!isNotNull(obj)) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	public static boolean isNullOrEmpty(String str) {
 		return !isNotNull(str);
 	}
@@ -104,38 +105,42 @@ public class CommonUtil {
 		return objectMapper.convertValue(object, type);
 	}
 
-	
 	public static <T> T convertToType(Object object, Class<T> type) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 		return objectMapper.convertValue(object, type);
 	}
-	
-	public static String toJSONString(Object obj,boolean pretty) throws JsonProcessingException {
-		if(pretty) {
-			return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+
+	public static String toJSONString(Object obj, boolean pretty) {
+
+		try {
+			if (pretty) {
+				return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+			}
+			return objectMapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			return (String) obj;
 		}
-		return objectMapper.writeValueAsString(obj);
 	}
-	
+
 	public static boolean areEqual(Object oldValue, Object newValue) {
-        if (oldValue == null) {
-            return newValue == null;
-        } else {
-            return oldValue.equals(newValue);
-        }
-    }
-	
-	public static String getEnvProperty(String key,String defaultValue) {
-		String value= System.getenv(key) == null ? System.getProperty(key) : System.getenv(key);
+		if (oldValue == null) {
+			return newValue == null;
+		} else {
+			return oldValue.equals(newValue);
+		}
+	}
+
+	public static String getEnvProperty(String key, String defaultValue) {
+		String value = System.getenv(key) == null ? System.getProperty(key) : System.getenv(key);
 		return value == null ? defaultValue : value;
 	}
 
 	public static String getEnvProperty(String key) {
-		return getEnvProperty(key,null);
+		return getEnvProperty(key, null);
 	}
 
-	public static ObjectMapper getObjectMapper(){
+	public static ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}
 

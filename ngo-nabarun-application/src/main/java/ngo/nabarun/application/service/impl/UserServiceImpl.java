@@ -15,7 +15,6 @@ import ngo.nabarun.application.dto.result.UserResult;
 import ngo.nabarun.application.mapper.AppUserMapper;
 import ngo.nabarun.application.port.IAMPort;
 import ngo.nabarun.application.service.UserService;
-import ngo.nabarun.common.event.CustomEventPublisher;
 import ngo.nabarun.domain.BusinessException;
 import ngo.nabarun.domain.BusinessException.ExceptionEvent;
 import ngo.nabarun.domain.user.enums.UserStatus;
@@ -26,6 +25,7 @@ import ngo.nabarun.domain.user.model.User;
 import ngo.nabarun.domain.user.port.RoleMetadataPort;
 import ngo.nabarun.domain.user.port.UserRepositoryPort;
 import ngo.nabarun.domain.user.vo.RoleUpdateResult;
+import ngo.nabarun.event.publisher.AppEventPublisher;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 	private IAMPort iamPort;
 
 	@Autowired
-	private CustomEventPublisher eventPublisher;
+	private AppEventPublisher eventPublisher;
 
 	@Override
 	@Transactional

@@ -16,13 +16,13 @@ public class OutboxEventEntity {
     private String id;
     private String eventType;    // fully-qualified class name
     private String payload;      // JSON
-    private OutboxStatus status = OutboxStatus.PENDING;
-    private int retryCount = 0;
-    private int maxAttempts = 5;
+    private OutboxStatus status;
+    private int retryCount;
+    private int maxAttempts;
 	@Indexed(name = "createdAt", expireAfter = "10d")
     private Date createdAt = new Date();
-    private Date lastTriedAt;
-    private Date processedAt;
     private String errorMessage;
-
+	private Date processFailedAt;
+	private Date processStartAt;
+	private Date processEndAt;
 }

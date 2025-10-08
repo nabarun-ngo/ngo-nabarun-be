@@ -18,6 +18,10 @@
 			<version>1.0.0</version>
 		</dependency>
 		<!--Other Dependencies-->
-
+		<dependency>
+			<groupId>ngo.nabarun</groupId>
+			<artifactId>outbox-spring-boot-starter</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 	</dependencies>
 </project>
