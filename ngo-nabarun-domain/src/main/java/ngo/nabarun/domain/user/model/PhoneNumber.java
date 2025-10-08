@@ -1,11 +1,15 @@
 package ngo.nabarun.domain.user.model;
 
-import lombok.Data;
+import lombok.Value;
+import lombok.Builder;
 
-@Data
+@Value
+@Builder(toBuilder = true)
 public class PhoneNumber {
-	
-	private String phoneCode;
-	private String phoneNumber;
+    String phoneCode;
+    String phoneNumber;
 
+    public String normalized() {
+        return (phoneCode == null ? "" : phoneCode) + "-" + (phoneNumber == null ? "" : phoneNumber);
+    }
 }

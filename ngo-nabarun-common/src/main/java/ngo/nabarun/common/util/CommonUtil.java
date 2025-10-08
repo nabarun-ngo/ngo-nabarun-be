@@ -66,6 +66,10 @@ public class CommonUtil {
 		}
 		return true;
 	}
+	
+	public static boolean isNullOrEmpty(String str) {
+		return !isNotNull(str);
+	}
 
 	public static byte[] toByteArray(URL url) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

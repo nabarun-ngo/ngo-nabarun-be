@@ -9,8 +9,10 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+
 import ngo.nabarun.domain.user.enums.LoginMethod;
 import ngo.nabarun.domain.user.model.PhoneNumber;
+import ngo.nabarun.domain.user.model.Role;
 import ngo.nabarun.domain.user.model.User;
 import ngo.nabarun.infra.mongo.entity.UserEntity;
 
@@ -71,6 +73,19 @@ public interface InfraUserMapper {
     @Mapping(target = "loginMethod", source = "loginMethods", qualifiedByName = "mapLoginMethodsToDomain")
     User toDomain(UserEntity userEntity);
 
+    
+    @Mapping(source = "givenName", target = "firstName")  
+    @Mapping(source = "familyName", target = "lastName")  
+    @Mapping(source = "createdAt", target = "createdOn")  
+    User toDomain(com.auth0.json.mgmt.users.User authUser);
+
+    
+    @Mapping(source = "name", target = "roleCode")  
+    @Mapping(source = "id", target = "roleId")  
+    Role toDomainRole(com.auth0.json.mgmt.roles.Role authRole);
+    
+    
+    
     // ----------------------
     // Custom Mapping Methods
     // ----------------------
@@ -91,9 +106,7 @@ public interface InfraUserMapper {
     default PhoneNumber mapPhoneNumberToDomain(String number) {
         if (number == null || !number.contains("-")) return null;
         String[] parts = number.split("-", 2);
-        PhoneNumber phoneNumber = new PhoneNumber();
-        phoneNumber.setPhoneCode(parts[0]);
-        phoneNumber.setPhoneNumber(parts[1]);
+        PhoneNumber phoneNumber = PhoneNumber.builder().phoneCode(parts[0]).phoneNumber(parts[1]).build();
         return phoneNumber;
     }
 

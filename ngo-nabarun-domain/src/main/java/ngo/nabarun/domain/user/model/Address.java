@@ -1,15 +1,17 @@
 package ngo.nabarun.domain.user.model;
 
-import lombok.Data;
+import lombok.Value;
+import lombok.Builder;
 
-@Data
+@Value
+@Builder(toBuilder = true)
 public class Address {
-	private String addressLine1;
-	private String addressLine2;
-	private String addressLine3;
-	private String hometown;
-	private String zipCode;
-	private String state;
-	private String district;
-	private String country;
+    String addressLine1;
+    String addressLine2;
+    String addressLine3;
+    String hometown;
+    String zipCode;
+    String state;
+    String district;
+    String country;
 }

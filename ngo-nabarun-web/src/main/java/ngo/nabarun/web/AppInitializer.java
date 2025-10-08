@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import ngo.nabarun.common.util.CommonUtil;
 import ngo.nabarun.doppler.api.ConfigsApi;
 import ngo.nabarun.doppler.model.Secret;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +24,7 @@ public class AppInitializer implements ApplicationContextInitializer<Configurabl
     private static boolean arePropertiesLoaded = false;
 
     @Override
-    public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
+    public void initialize(ConfigurableApplicationContext applicationContext) {
     	initializeProperties(applicationContext);
     }
 

@@ -3,6 +3,8 @@ package ngo.nabarun.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication(scanBasePackages = {
     "ngo.nabarun.web",
@@ -13,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     "ngo.nabarun.infra.mapper",
 
 })
+@EnableRetry
+@EnableAsync
 public class NgoNabarunApplication {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(NgoNabarunApplication.class);

@@ -1,17 +1,12 @@
 package ngo.nabarun.domain.user.model;
 
-import java.util.UUID;
-
-import lombok.Getter;
-
-@Getter
-public class Role {
-	
-	private UUID id;
-	private String name;
-	private String code;
-	private String group;
-
-
+//@Value
+//@Builder(toBuilder = true)
+public record Role (
+	String id,
+	String roleName,
+	String roleDisplayName,
+	String roleCode,
+	String roleId) {
 
 }

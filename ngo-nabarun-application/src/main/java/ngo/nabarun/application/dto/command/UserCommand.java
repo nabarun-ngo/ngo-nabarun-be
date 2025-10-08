@@ -9,7 +9,6 @@ import ngo.nabarun.domain.user.enums.UserStatus;
 import ngo.nabarun.domain.user.model.Address;
 import ngo.nabarun.domain.user.model.Link;
 import ngo.nabarun.domain.user.model.PhoneNumber;
-import ngo.nabarun.domain.user.model.Role;
 
 public class UserCommand {
 	
@@ -34,7 +33,7 @@ public class UserCommand {
 	
 	@Data
 	public static class UserUpdateCommand {
-		private List<Role> roles;	
+		private List<String> roleCodes;	
     	private Boolean isActiveDonor;	
     	private String userId;	
     	private UserStatus status;
@@ -48,6 +47,7 @@ public class UserCommand {
 		private String email;
 		private String phoneCode;
 		private String phoneNumber;
+		private boolean emailverified;
 
 	}
 

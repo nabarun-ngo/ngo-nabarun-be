@@ -34,7 +34,7 @@ public class LoggingConfig {
 	 */
 	@Pointcut("execution(* *(..)) &&" + "(" + "    within(ngo.nabarun.web..*) ||"
 			+ "    within(ngo.nabarun.domain..*) ||" + "    within(ngo.nabarun.infra..*) ||"
-			+ "    within(ngo.nabarun.application..*) ||" + "    within(ngo.nabarun.common..*)||"
+			+ "    within(ngo.nabarun.application..*) ||" + "    within(ngo.nabarun.commonNA..*)||"//trying to turn off logging in common
 			+ "    within(com.auth0.net.client..*)" + ")" + "&&"
 			+ "!@annotation(ngo.nabarun.web.config.LoggingConfig.NoLogging)")
 	public void applicationPackagePointcut() {

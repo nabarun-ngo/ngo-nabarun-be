@@ -1,10 +1,12 @@
 package ngo.nabarun.infra.mongo.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
@@ -72,4 +74,8 @@ public class UserEntity{
 	private String loginMethods;
 	
 	private Boolean profileCompleted;
+	
+	
+	@DocumentReference(lookup = "{'profileId':?#{#self._id} }")
+	private List<UserRoleEntity> roles;
 }

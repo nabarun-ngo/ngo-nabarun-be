@@ -1,8 +1,9 @@
 package ngo.nabarun.application;
 import ngo.nabarun.common.props.PropertyKey;
 
-public enum AppKeys implements PropertyKey{
+public enum ConfigKey implements PropertyKey{
 	ENVIRONMENT,
+	DEFAULT_ROLE_CODE,
 	ENABLE_TOKEN_MOCKING_FOR_TEST,
 	GOOGLE_CLIENT_SECRET,
 	AUTH0_MANAGEMENT_CLIENT_ID,
