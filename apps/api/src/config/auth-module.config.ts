@@ -1,6 +1,6 @@
 import { AuthModule } from "@nabarun-ngo/nestjs-shared-auth";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 import { USER_MODULE } from "./user-module.config";
 
 function throttleProfile(
@@ -44,7 +44,7 @@ export const AUTH_MODULE = AuthModule.forRootAsync({
                 open: throttleProfile(config, Configkey.THROTTLE_OPEN_LIMIT, Configkey.THROTTLE_OPEN_TTL_MS, 10, 60_000),
                 protected: throttleProfile(config, Configkey.THROTTLE_PROTECTED_LIMIT, Configkey.THROTTLE_PROTECTED_TTL_MS, 300, 60_000),
             },
-            enabled:true
+            enabled: true
         },
     }),
 });

@@ -1,7 +1,7 @@
 import { QUEUE_MODULE } from "./queue-module.config";
 import { CorrespondenceModule } from "@nabarun-ngo/nestjs-shared-correspondence";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 import { isProd } from "@nabarun-ngo/nestjs-shared-core";
 import { USER_MODULE } from "./user-module.config";
 

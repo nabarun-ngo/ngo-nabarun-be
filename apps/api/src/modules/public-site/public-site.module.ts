@@ -7,10 +7,6 @@ import { SubmitDynamicPublicFormHandler } from './application/commands/submit-dy
 import { SubscribeNewsletterHandler } from './application/commands/subscribe-newsletter/subscribe-newsletter.handler';
 import { GetPublicWorkflowFormDefinitionHandler } from './application/queries/get-public-workflow-form-definition/get-public-workflow-form-definition.handler';
 import { GetDynamicPublicFormDefinitionHandler } from './application/queries/get-dynamic-public-form-definition/get-dynamic-public-form-definition.handler';
-import { PUBLIC_SITE_STATIC_CONTENT_PORT } from './domain/ports/public-site-static-content.port';
-import { PUBLIC_SITE_DYNAMIC_CONTENT_PORT } from './domain/ports/public-site-dynamic-content.port';
-import { PublicSiteStaticContentAdapter } from './infrastructure/adapters/public-site-static-content.adapter';
-import { PublicSiteDynamicContentAdapter } from './infrastructure/adapters/public-site-dynamic-content.adapter';
 import { NoOpNewsletterSubscriptionAdapter } from './infrastructure/adapters/noop-newsletter-subscription.adapter';
 import { NEWSLETTER_SUBSCRIPTION_PORT } from './domain/ports/newsletter-subscription.port';
 import { PublicSiteContentsController } from './presentation/controllers/public-site-contents.controller';
@@ -44,17 +40,9 @@ export class PublicSiteModule {
       imports,
       submittedById,
       publicWorkflows,
-      staticContent:{
-        namespace,
-        key,
-      },
     } = options;
     const runtimeOptions: PublicSiteOptions = {
       publicWorkflows,
-      staticContent:{
-        namespace,
-        key,
-      },
       submittedById: submittedById ?? PUBLIC_SITE_DEFAULT_SUBMITTED_BY_ID,
     };
 
@@ -68,14 +56,6 @@ export class PublicSiteModule {
       ],
       providers: [
         { provide: PUBLIC_SITE_OPTIONS, useValue: runtimeOptions },
-        {
-          provide: PUBLIC_SITE_STATIC_CONTENT_PORT,
-          useClass: PublicSiteStaticContentAdapter,
-        },
-        {
-          provide: PUBLIC_SITE_DYNAMIC_CONTENT_PORT,
-          useClass: PublicSiteDynamicContentAdapter,
-        },
         {
           provide: NEWSLETTER_SUBSCRIPTION_PORT,
           useClass: NoOpNewsletterSubscriptionAdapter,

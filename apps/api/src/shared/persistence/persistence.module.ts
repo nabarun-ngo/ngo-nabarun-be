@@ -32,29 +32,29 @@ import {
   IWorkflowOutboxRepository,
   IWorkflowTokenRepository,
 } from '@nabarun-ngo/nestjs-shared-workflow';
-import { ApiKeyPrismaRepository } from './auth/api-key.prisma-repository';
-import { PermissionPrismaRepository } from './auth/permission.prisma-repository';
-import { RoleGroupPrismaRepository } from './auth/role-group.prisma-repository';
-import { RolePrismaRepository } from './auth/role.prisma-repository';
-import { UserRoleGroupPrismaRepository } from './auth/user-role-group.prisma-repository';
-import { UserRolePrismaRepository } from './auth/user-role.prisma-repository';
-import { PrismaCommentRepository } from './comment/comment.prisma-repository';
-import { NotificationPrismaRepository } from './correspondence/notification.prisma-repository';
-import { ResourceSubscriptionPrismaRepository } from './correspondence/resource-subscription.prisma-repository';
-import { UserNotificationPrismaRepository } from './correspondence/user-notification.prisma-repository';
-import { FormPrismaRepository } from './custom-forms/form.prisma-repository';
-import { FormSubmissionPrismaRepository } from './custom-forms/form-submission.prisma-repository';
-import { DocumentPrismaRepository } from './dms/document.prisma-repository';
-import { JsonDocumentPrismaRepository } from './json-store/json-document.prisma-repository';
-import { OAuthAccountPrismaRepository } from './token-vault/oauth-account.prisma-repository';
-import { OAuthTokenPrismaRepository } from './token-vault/oauth-token.prisma-repository';
-import { WorkflowEventLogPrismaRepository } from './workflow/workflow-event-log.prisma-repository';
-import { WorkflowIdempotencyPrismaRepository } from './workflow/workflow-idempotency.prisma-repository';
-import { WorkflowInboxPrismaRepository } from './workflow/workflow-inbox.prisma-repository';
-import { WorkflowInstancePrismaRepository } from './workflow/workflow-instance.prisma-repository';
-import { WorkflowOutboxPrismaRepository } from './workflow/workflow-outbox.prisma-repository';
-import { WorkflowTokenPrismaRepository } from './workflow/workflow-token.prisma-repository';
-import { PostgresAdvisoryLockingAdapter } from './locking/postgres-advisory-locking.adapter';
+import { ApiKeyPrismaRepository } from './auth/repositories/api-key.prisma-repository';
+import { PermissionPrismaRepository } from './auth/repositories/permission.prisma-repository';
+import { RoleGroupPrismaRepository } from './auth/repositories/role-group.prisma-repository';
+import { RolePrismaRepository } from './auth/repositories/role.prisma-repository';
+import { UserRoleGroupPrismaRepository } from './auth/repositories/user-role-group.prisma-repository';
+import { UserRolePrismaRepository } from './auth/repositories/user-role.prisma-repository';
+import { PrismaCommentRepository } from './comment/repositories/comment.prisma-repository';
+import { NotificationPrismaRepository } from './correspondence/repositories/notification.prisma-repository';
+import { ResourceSubscriptionPrismaRepository } from './correspondence/repositories/resource-subscription.prisma-repository';
+import { UserNotificationPrismaRepository } from './correspondence/repositories/user-notification.prisma-repository';
+import { FormPrismaRepository } from './custom-forms/repositories/form.prisma-repository';
+import { FormSubmissionPrismaRepository } from './custom-forms/repositories/form-submission.prisma-repository';
+import { DocumentPrismaRepository } from './dms/repositories/document.prisma-repository';
+import { JsonDocumentPrismaRepository } from './json-store/repositories/json-document.prisma-repository';
+import { OAuthAccountPrismaRepository } from './token-vault/repositories/oauth-account.prisma-repository';
+import { OAuthTokenPrismaRepository } from './token-vault/repositories/oauth-token.prisma-repository';
+import { WorkflowEventLogPrismaRepository } from './workflow/repositories/workflow-event-log.prisma-repository';
+import { WorkflowIdempotencyPrismaRepository } from './workflow/repositories/workflow-idempotency.prisma-repository';
+import { WorkflowInboxPrismaRepository } from './workflow/repositories/workflow-inbox.prisma-repository';
+import { WorkflowInstancePrismaRepository } from './workflow/repositories/workflow-instance.prisma-repository';
+import { WorkflowOutboxPrismaRepository } from './workflow/repositories/workflow-outbox.prisma-repository';
+import { WorkflowTokenPrismaRepository } from './workflow/repositories/workflow-token.prisma-repository';
+import { PostgresAdvisoryLockingAdapter } from './locking/adapter/postgres-advisory-locking.adapter';
 
 export interface PersistenceModuleOptions {
   /** Pass the same QueueModule.forRoot/forRootAsync dynamic module used by the app. */

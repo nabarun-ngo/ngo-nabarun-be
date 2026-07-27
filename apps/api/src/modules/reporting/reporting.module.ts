@@ -3,7 +3,6 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DiscoveryModule } from '@nestjs/core';
 import { IReportRepository } from './domain/repositories/report.repository';
 import { IReportDefinitionsPort } from './domain/ports/report-definitions.port';
-import { ReportPrismaRepository } from '../../shared/persistence/reporting/report.prisma-repository';
 import { ReportDefinitionsAdapter } from './infrastructure/adapters/report-definitions.adapter';
 import { ReportingDmsFacade } from './infrastructure/adapters/reporting-dms.facade';
 import { ReportRegistryService } from './application/services/report-registry.service';
@@ -20,6 +19,7 @@ import { GetReportInputsHandler } from './application/queries/get-report-inputs/
 import { StartReportGenerationHandler } from './application/commands/start-report-generation/start-report-generation.handler';
 import { RegenerateReportHandler } from './application/commands/regenerate-report/regenerate-report.handler';
 import { DeleteReportHandler } from './application/commands/delete-report/delete-report.handler';
+import { ReportPrismaRepository } from '../../shared/persistence/reporting/repositories/report.prisma-repository';
 
 const QUERY_HANDLERS = [
   GetRegisteredReportsHandler,

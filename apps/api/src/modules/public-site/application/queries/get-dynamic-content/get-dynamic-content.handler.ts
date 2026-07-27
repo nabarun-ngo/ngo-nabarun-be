@@ -2,7 +2,6 @@ import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import {
   IPublicSiteDynamicContentPort,
-  PUBLIC_SITE_DYNAMIC_CONTENT_PORT,
 } from '../../../domain/ports/public-site-dynamic-content.port';
 import { PublicSiteDynamicContent } from '../../../public-site.schema';
 import { GetDynamicContentQuery } from './get-dynamic-content.query';
@@ -12,7 +11,7 @@ export class GetDynamicContentHandler
   implements IQueryHandler<GetDynamicContentQuery, PublicSiteDynamicContent>
 {
   constructor(
-    @Inject(PUBLIC_SITE_DYNAMIC_CONTENT_PORT)
+    @Inject(IPublicSiteDynamicContentPort)
     private readonly content: IPublicSiteDynamicContentPort,
   ) {}
 

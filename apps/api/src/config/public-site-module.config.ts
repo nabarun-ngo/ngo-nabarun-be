@@ -8,9 +8,5 @@ export const PUBLIC_SITE_MODULE = PublicSiteModule.forRoot({
   publicWorkflows: {
     contact: { definitionId: 'CONTACT_REQUEST' },
     membership: { definitionId: 'JOIN_REQUEST' },
-  },
-  staticContent:{
-    namespace: 'public-site',
-    key: 'static-content',
-  },
+  }
 });

@@ -12,7 +12,6 @@ export type { CustomFormsModuleAsyncOptions } from './custom-forms.module';
 export {
   CustomFormsOptionsSchema,
   DEFAULT_CUSTOM_FORMS_CACHE_TTL_MS,
-  CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE,
 } from './custom-forms.schema';
 export type { FormFieldStoredValue } from './infrastructure/utilities/form-field-stored-value.util';
 export {

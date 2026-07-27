@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 import { USER_MODULE } from "./user-module.config";
 import { DMS_MODULE } from "./dms-module.config";
 import { WORKFLOW_MODULE } from "./workflow-module.config";

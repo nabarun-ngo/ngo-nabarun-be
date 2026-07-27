@@ -10,7 +10,7 @@ import {
 import { DonationRaisedEvent } from '../../domain/events/donation-raised.event';
 import { IDonationRepository } from '../../domain/repositories/donation.repository';
 import { DonationMapper } from '../mappers/donation.mapper';
-import { EmailTemplateKey } from '../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 /**
  * Resolves DonationRaisedEvent to a donor notification. Enriches the thin domain
@@ -21,15 +21,14 @@ import { EmailTemplateKey } from '../../../../shared/email-template-key';
 @Injectable()
 @CorrespondenceEventResolver()
 export class DonationRaisedCorrespondenceResolver
-  implements ICorrespondenceEventResolver<DonationRaisedEvent>
-{
+  implements ICorrespondenceEventResolver<DonationRaisedEvent> {
   readonly eventType = DonationRaisedEvent;
   private readonly logger = new Logger(DonationRaisedCorrespondenceResolver.name);
 
   constructor(
     @Inject(IDonationRepository)
     private readonly donationRepository: IDonationRepository,
-  ) {}
+  ) { }
 
   async resolve(event: DonationRaisedEvent): Promise<NotificationSpec[] | null> {
     const donation = await this.donationRepository.findById(event.donationId);

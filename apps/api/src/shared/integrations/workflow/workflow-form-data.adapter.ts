@@ -11,7 +11,7 @@ import {
   WorkflowFormDataSnapshot,
 } from '@nabarun-ngo/nestjs-shared-workflow';
 
-import { EntityType } from '../../entity-type.enum';
+import { EntityType } from '../../enums/entity-type.enum';
 
 /** Permissions used for workflow-engine internal form delegation. */
 const WORKFLOW_FORM_SERVICE_PERMISSIONS = [
@@ -23,7 +23,7 @@ const WORKFLOW_FORM_SERVICE_PERMISSIONS = [
 
 @Injectable()
 export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
-  constructor(private readonly customFormsFacade: CustomFormsFacade) {}
+  constructor(private readonly customFormsFacade: CustomFormsFacade) { }
 
   async getFormData(params: {
     instanceId: string;

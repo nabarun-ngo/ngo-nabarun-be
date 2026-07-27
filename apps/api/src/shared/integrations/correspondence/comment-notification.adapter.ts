@@ -9,7 +9,7 @@ import {
   NotificationSpec,
   NotificationType,
 } from '@nabarun-ngo/nestjs-shared-correspondence';
-import { EmailTemplateKey } from '../../email-template-key';
+import { EmailTemplateKey } from '../../enums/email-template-key';
 
 /**
  * Host adapter implementing the comment context's outbound notification port. Owns
@@ -18,7 +18,7 @@ import { EmailTemplateKey } from '../../email-template-key';
  */
 @Injectable()
 export class CommentNotificationAdapter implements ICommentNotificationPort {
-  constructor(private readonly correspondence: CorrespondenceFacade) {}
+  constructor(private readonly correspondence: CorrespondenceFacade) { }
 
   async notifyMention(d: CommentMentionNotification): Promise<void> {
     const spec: NotificationSpec = {

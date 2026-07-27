@@ -17,7 +17,6 @@ export const DEFAULT_CUSTOM_FORMS_CACHE_TTL_MS = 2_592_000_000;
  * Json Store namespace for static select/multiselect options.
  * Document key = form field definition id; payload shape validated in the host app.
  */
-export const CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE = 'custom-forms.field-options';
 
 export const CustomFormsOptionsSchema = z.object({
   allowedEntityTypes: z

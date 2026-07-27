@@ -1,6 +1,6 @@
 import { DmsModule } from "@nabarun-ngo/nestjs-shared-dms";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 
 export const DMS_MODULE = DmsModule.forRootAsync({
     imports: [ConfigModule],

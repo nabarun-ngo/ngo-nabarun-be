@@ -37,7 +37,7 @@ import { HealthModule } from './modules/health/health.module';
     AUTH_MODULE,
     OBS_MODULE,
     QUEUE_MODULE,
-    IntegrationsModule.forRoot({ imports: [QUEUE_MODULE, WORKFLOW_MODULE] }),
+    IntegrationsModule.forRoot({ imports: [QUEUE_MODULE, WORKFLOW_MODULE, USER_MODULE, PROJECT_MODULE] }),
     DMS_MODULE,
     COMMENT_MODULE,
     CronModule.forRoot({

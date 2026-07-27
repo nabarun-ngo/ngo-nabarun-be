@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
-import { Configkey } from '../../../../shared/config-keys';
+import { Configkey } from '../../../../shared/enums/config-keys';
 
 const WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 300;
 
@@ -14,7 +14,7 @@ const WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 300;
 export class FathomWebhookGuard implements CanActivate {
   private readonly logger = new Logger(FathomWebhookGuard.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();

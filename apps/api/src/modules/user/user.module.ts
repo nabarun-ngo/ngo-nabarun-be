@@ -11,7 +11,7 @@ import { IUserReferenceDataPort } from './application/ports/user-reference-data.
 
 import { IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 
-import { UserPrismaRepository } from '../../shared/persistence/user/user.prisma-repository';
+import { UserPrismaRepository } from '../../shared/persistence/user/repositories/user.prisma-repository';
 import { Auth0IdentityAdapter } from './infrastructure/external/auth0-identity.adapter';
 import { UserLookupAdapter } from './infrastructure/adapters/user-lookup.adapter';
 import { UserDonationScheduleReadAdapter } from './infrastructure/adapters/user-donation-schedule-read.adapter';

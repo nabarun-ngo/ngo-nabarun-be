@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CustomFormsFacade } from '@nabarun-ngo/nestjs-shared-custom-forms';
-import { EntityType } from '../../../../../shared/entity-type.enum';
+import { EntityType } from '../../../../../shared/enums/entity-type.enum';
 import {
   mapPublishedFormToPublicDto,
   PublicFormDefinitionDto,
@@ -9,9 +9,8 @@ import { GetDynamicPublicFormDefinitionQuery } from './get-dynamic-public-form-d
 
 @QueryHandler(GetDynamicPublicFormDefinitionQuery)
 export class GetDynamicPublicFormDefinitionHandler
-  implements IQueryHandler<GetDynamicPublicFormDefinitionQuery, PublicFormDefinitionDto>
-{
-  constructor(private readonly customFormsFacade: CustomFormsFacade) {}
+  implements IQueryHandler<GetDynamicPublicFormDefinitionQuery, PublicFormDefinitionDto> {
+  constructor(private readonly customFormsFacade: CustomFormsFacade) { }
 
   async execute(
     query: GetDynamicPublicFormDefinitionQuery,

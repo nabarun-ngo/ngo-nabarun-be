@@ -16,9 +16,9 @@ import {
   LinksReferenceDataPayloadSchema,
 } from '../../../modules/links/links.schema';
 import {
-  CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE,
   CustomFormFieldOptionsPayloadSchema,
-} from '../../persistence/custom-forms/custom-form-field-options.schema';
+} from '../../persistence/custom-forms/schema/custom-form-field-options.schema';
+import { JsonStoreNameSpace } from '../../enums/json-store-namespaces';
 
 export type JsonStoreSchemaRegistry = Record<string, z.ZodType>;
 
@@ -37,8 +37,8 @@ export const JSON_STORE_SCHEMA_REGISTRY: JsonStoreSchemaRegistry = {
   'links:link-open-types': LinksReferenceDataPayloadSchema,
   'links:app-link-types': LinksReferenceDataPayloadSchema,
   'links:link-categories': LinksReferenceDataPayloadSchema,
-  'public-site': PublicSiteStaticContentSchema,
-  [CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE]: CustomFormFieldOptionsPayloadSchema,
+  [JsonStoreNameSpace.PublicSite]: PublicSiteStaticContentSchema,
+  [JsonStoreNameSpace.CustomFormFieldOptions]: CustomFormFieldOptionsPayloadSchema,
 };
 
 export function resolveJsonStoreSchema(

@@ -1,7 +1,7 @@
 import { ObservabilityModule } from "@nabarun-ngo/nestjs-shared-observability";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { isProd } from "@nabarun-ngo/nestjs-shared-core";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 
 export const OBS_MODULE = ObservabilityModule.forRootAsync({
     imports: [ConfigModule],

@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UserModule } from "../modules/user/user.module";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 import { WORKFLOW_MODULE } from "./workflow-module.config";
 
 export const USER_MODULE = UserModule.forRootAsync({

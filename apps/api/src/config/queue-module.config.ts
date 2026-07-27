@@ -1,6 +1,6 @@
 import { QueueModule } from "@nabarun-ngo/nestjs-shared-queue";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 
 export const QUEUE_MODULE = QueueModule.forRootAsync({
     imports: [ConfigModule],

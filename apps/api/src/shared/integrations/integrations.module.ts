@@ -4,7 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { JsonStoreModule } from '@nabarun-ngo/nestjs-shared-json-store';
 import { GOOGLE_SCOPES, TokenVaultModule } from '@nabarun-ngo/nestjs-shared-token-vault';
 import { COMMENT_NOTIFICATION_PORT } from '@nabarun-ngo/nestjs-shared-comment';
-import { Configkey } from '../config-keys';
+import { Configkey } from '../enums/config-keys';
 import { CORRESPONDENCE_MODULE } from '../../config/correspondence-module.config';
 import { CACHE_PORT_PROVIDER } from './cache/cache-port.adapter';
 import { CRON_JOB_STORE_PROVIDER } from './cron/json-store-cron-job.adapter';
@@ -29,6 +29,10 @@ import { IProjectReferenceDataPort } from '../../modules/project/application/por
 import { ProjectReferenceDataAdapter } from './project/project-reference-data.adapter';
 import { IMeetingCalendarPort } from '../../modules/meeting/application/ports/meeting-calendar.port';
 import { GoogleCalendarMeetingAdapter } from './meeting/google-calendar-meeting.adapter';
+import { IPublicSiteStaticContentPort } from '../../modules/public-site/domain/ports/public-site-static-content.port';
+import { PublicSiteStaticContentAdapter } from './public-site/public-site-static-content.adapter';
+import { IPublicSiteDynamicContentPort } from '../../modules/public-site/domain/ports/public-site-dynamic-content.port';
+import { PublicSiteDynamicContentAdapter } from './public-site/public-site-dynamic-content.adapter';
 
 const PORT_PROVIDERS = [
   CACHE_PORT_PROVIDER,
@@ -48,6 +52,8 @@ const PORT_PROVIDERS = [
   // Comment context's outbound notification port → CorrespondenceFacade adapter.
   // Exported globally so CommentModule's handlers resolve it without a wrapper module.
   { provide: COMMENT_NOTIFICATION_PORT, useClass: CommentNotificationAdapter },
+  { provide: IPublicSiteStaticContentPort, useClass: PublicSiteStaticContentAdapter },
+  { provide: IPublicSiteDynamicContentPort, useClass: PublicSiteDynamicContentAdapter },
 ];
 
 const WORKFLOW_HANDLERS = [

@@ -5,7 +5,7 @@ import {
   NotificationSpec,
 } from '@nabarun-ngo/nestjs-shared-correspondence';
 import { UserDeletedEvent } from '../../domain/events/user-deleted.event';
-import { EmailTemplateKey } from '../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 /**
  * Pure resolver: sends a deactivation email. `overrideEmails` bypasses
@@ -14,8 +14,7 @@ import { EmailTemplateKey } from '../../../../shared/email-template-key';
 @Injectable()
 @CorrespondenceEventResolver()
 export class UserDeletedCorrespondenceResolver
-  implements ICorrespondenceEventResolver<UserDeletedEvent>
-{
+  implements ICorrespondenceEventResolver<UserDeletedEvent> {
   readonly eventType = UserDeletedEvent;
 
   resolve(event: UserDeletedEvent): NotificationSpec[] | null {

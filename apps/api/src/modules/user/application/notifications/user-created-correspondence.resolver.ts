@@ -5,7 +5,7 @@ import {
   NotificationSpec,
 } from '@nabarun-ngo/nestjs-shared-correspondence';
 import { UserCreatedEvent } from '../../domain/events/user-created.event';
-import { EmailTemplateKey } from '../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 /**
  * Pure resolver: sends a welcome email only for the system-generated-password
@@ -14,8 +14,7 @@ import { EmailTemplateKey } from '../../../../shared/email-template-key';
 @Injectable()
 @CorrespondenceEventResolver()
 export class UserCreatedCorrespondenceResolver
-  implements ICorrespondenceEventResolver<UserCreatedEvent>
-{
+  implements ICorrespondenceEventResolver<UserCreatedEvent> {
   readonly eventType = UserCreatedEvent;
 
   resolve(event: UserCreatedEvent): NotificationSpec[] | null {

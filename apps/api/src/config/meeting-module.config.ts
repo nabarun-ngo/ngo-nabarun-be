@@ -2,7 +2,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { QUEUE_MODULE } from "./queue-module.config";
 import { isProd } from "@nabarun-ngo/nestjs-shared-core";
 import { MeetingModule } from "../modules/meeting/meeting.module";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 
 export const MEETING_MODULE = MeetingModule.forRootAsync({
     imports: [ConfigModule, QUEUE_MODULE],

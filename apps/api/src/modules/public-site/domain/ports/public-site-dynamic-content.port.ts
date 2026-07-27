@@ -4,4 +4,4 @@ export interface IPublicSiteDynamicContentPort {
   getDynamicContent(): Promise<PublicSiteDynamicContent>;
 }
 
-export const PUBLIC_SITE_DYNAMIC_CONTENT_PORT = Symbol('IPublicSiteDynamicContentPort');
+export const IPublicSiteDynamicContentPort = Symbol('IPublicSiteDynamicContentPort');

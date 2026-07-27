@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CustomFormsFacade } from '@nabarun-ngo/nestjs-shared-custom-forms';
-import { EntityType } from '../../../../../shared/entity-type.enum';
+import { EntityType } from '../../../../../shared/enums/entity-type.enum';
 import { PublicFormSubmitResponseDto } from '../../dtos/public-form-submit-response.dto';
 import {
   PUBLIC_SITE_DEFAULT_SUBMITTED_BY_ID,
@@ -12,13 +12,12 @@ import { SubmitDynamicPublicFormCommand } from './submit-dynamic-public-form.com
 
 @CommandHandler(SubmitDynamicPublicFormCommand)
 export class SubmitDynamicPublicFormHandler
-  implements ICommandHandler<SubmitDynamicPublicFormCommand, PublicFormSubmitResponseDto>
-{
+  implements ICommandHandler<SubmitDynamicPublicFormCommand, PublicFormSubmitResponseDto> {
   constructor(
     private readonly customFormsFacade: CustomFormsFacade,
     @Inject(PUBLIC_SITE_OPTIONS)
     private readonly options: PublicSiteOptions,
-  ) {}
+  ) { }
 
   async execute(command: SubmitDynamicPublicFormCommand): Promise<PublicFormSubmitResponseDto> {
     const form = await this.customFormsFacade.getPublishedFormByKey(

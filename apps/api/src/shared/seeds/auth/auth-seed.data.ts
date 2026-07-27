@@ -370,6 +370,9 @@ export const AUTH_SEED: AuthSeedData = {
     { key: 'create:meeting', description: 'Schedule meetings and sync with Google Calendar' },
     { key: 'update:meeting', description: 'Update or cancel meeting details' },
     { key: 'delete:meeting', description: 'Delete meeting records' },
+
+    // ── public site ───────────────────────────────────────────────────────────
+    { key: 'read:public_content', description: 'Read public site content' },
   ],
 
   roles: [

@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { applyConfig } from '@nabarun-ngo/nestjs-shared-core';
 import { AppModule } from './app.module';
-import { Configkey } from './shared/config-keys';
+import { Configkey } from './shared/enums/config-keys';
 
 async function main() {
   const app = await NestFactory.create(AppModule);

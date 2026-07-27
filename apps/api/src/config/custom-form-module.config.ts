@@ -1,8 +1,8 @@
 import { CustomFormsModule } from "@nabarun-ngo/nestjs-shared-custom-forms";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Configkey } from "../shared/config-keys";
+import { Configkey } from "../shared/enums/config-keys";
 
-import { EntityType } from '../shared/entity-type.enum';
+import { EntityType } from '../shared/enums/entity-type.enum';
 
 export const CUSTOM_FORM_MODULE = CustomFormsModule.forRootAsync({
     imports: [ConfigModule],

@@ -5,7 +5,7 @@ import { CorrespondenceFacade } from '@nabarun-ngo/nestjs-shared-correspondence'
 import { DonationStatus } from '../../../domain/enums/donation-status.enum';
 import { IDonationRepository } from '../../../domain/repositories/donation.repository';
 import { RemindPendingDonationsJob } from './remind-pending-donations.job';
-import { EmailTemplateKey } from '../../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../../shared/enums/email-template-key';
 
 @Injectable()
 @QueueHandler(RemindPendingDonationsJob, { attempts: 3, backoff: { type: 'exponential', delay: 30_000 } })

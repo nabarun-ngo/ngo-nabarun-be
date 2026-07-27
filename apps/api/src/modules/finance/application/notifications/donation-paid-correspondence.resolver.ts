@@ -11,7 +11,7 @@ import { DonationPaidEvent } from '../../domain/events/donation-paid.event';
 import { financeUserFullName, FinanceUserRef } from '../../domain/types/finance-user-ref';
 import { IDonationRepository } from '../../domain/repositories/donation.repository';
 import { DonationMapper } from '../mappers/donation.mapper';
-import { EmailTemplateKey } from '../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 /**
  * Resolves DonationPaidEvent to a payment-confirmed donor notification. Enriches
@@ -21,15 +21,14 @@ import { EmailTemplateKey } from '../../../../shared/email-template-key';
 @Injectable()
 @CorrespondenceEventResolver()
 export class DonationPaidCorrespondenceResolver
-  implements ICorrespondenceEventResolver<DonationPaidEvent>
-{
+  implements ICorrespondenceEventResolver<DonationPaidEvent> {
   readonly eventType = DonationPaidEvent;
   private readonly logger = new Logger(DonationPaidCorrespondenceResolver.name);
 
   constructor(
     @Inject(IDonationRepository)
     private readonly donationRepository: IDonationRepository,
-  ) {}
+  ) { }
 
   async resolve(event: DonationPaidEvent): Promise<NotificationSpec[] | null> {
     const donation = await this.donationRepository.findById(event.donationId);

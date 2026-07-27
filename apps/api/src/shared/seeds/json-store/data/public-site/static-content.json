@@ -1,5 +1,4 @@
 {
-  "$schema": "./content-static.schema.json",
   "vars": {
     "orgName": "Ichapur Nabarun Welfare Society",
     "orgShortName": "NABARUN",

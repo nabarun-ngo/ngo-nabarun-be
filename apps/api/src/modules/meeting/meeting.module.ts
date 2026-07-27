@@ -5,7 +5,7 @@ import { MeetingModuleInput, MeetingModuleOptions, MeetingModuleOptionsSchema } 
 import { MEETING_OPTIONS } from './infrastructure/meeting-options.token';
 import { IMeetingRepository } from './domain/repositories/meeting.repository';
 import { IMeetingCalendarPort } from './application/ports/meeting-calendar.port';
-import { MeetingPrismaRepository } from '../../shared/persistence/meeting/meeting.prisma-repository';
+import { MeetingPrismaRepository } from '../../shared/persistence/meeting/repositories/meeting.prisma-repository';
 
 import { CreateMeetingHandler } from './application/commands/create-meeting/create-meeting.handler';
 import { UpdateMeetingHandler } from './application/commands/update-meeting/update-meeting.handler';

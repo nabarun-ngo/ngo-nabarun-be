@@ -2,7 +2,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '@nabarun-ngo/nestjs-shared-persistence';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../shared/persistence/prisma/client';
-import { Configkey } from '../shared/config-keys';
+import { Configkey } from '../shared/enums/config-keys';
 import { PersistenceModule } from '../shared/persistence/persistence.module';
 
 const DATABASE_MODULE = DatabaseModule.forRootAsync({

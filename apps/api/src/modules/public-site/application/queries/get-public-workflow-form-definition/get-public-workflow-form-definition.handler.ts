@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CustomFormsFacade } from '@nabarun-ngo/nestjs-shared-custom-forms';
-import { EntityType } from '../../../../../shared/entity-type.enum';
+import { EntityType } from '../../../../../shared/enums/entity-type.enum';
 import {
   resolveStartEventFormKey,
   WorkflowFacade,
@@ -16,14 +16,13 @@ import { GetPublicWorkflowFormDefinitionQuery } from './get-public-workflow-form
 
 @QueryHandler(GetPublicWorkflowFormDefinitionQuery)
 export class GetPublicWorkflowFormDefinitionHandler
-  implements IQueryHandler<GetPublicWorkflowFormDefinitionQuery, PublicFormDefinitionDto>
-{
+  implements IQueryHandler<GetPublicWorkflowFormDefinitionQuery, PublicFormDefinitionDto> {
   constructor(
     private readonly workflowFacade: WorkflowFacade,
     private readonly customFormsFacade: CustomFormsFacade,
     @Inject(PUBLIC_SITE_OPTIONS)
     private readonly options: PublicSiteOptions,
-  ) {}
+  ) { }
 
   async execute(
     query: GetPublicWorkflowFormDefinitionQuery,
