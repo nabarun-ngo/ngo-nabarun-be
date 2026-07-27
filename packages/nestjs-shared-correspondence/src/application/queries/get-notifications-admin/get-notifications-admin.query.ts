@@ -1,14 +1,6 @@
-import { NotificationType, NotificationCategory } from '../../../domain/enums/notification-type.enum';
+import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
+import { NotificationFilter } from '../../../domain/aggregates/notification.aggregate';
 
 export class GetNotificationsAdminQuery {
-  constructor(
-    public readonly pageIndex?: number,
-    public readonly pageSize?: number,
-    public readonly type?: NotificationType,
-    public readonly category?: NotificationCategory,
-    public readonly referenceId?: string,
-    public readonly referenceType?: string,
-    public readonly fromDate?: Date,
-    public readonly toDate?: Date,
-  ) {}
+  constructor(public readonly filter: BaseFilter<NotificationFilter>) {}
 }

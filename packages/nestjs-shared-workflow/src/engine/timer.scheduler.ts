@@ -20,11 +20,17 @@ export class TimerScheduler {
     private readonly options: WorkflowModuleOptions,
   ) {}
 
-  async scheduleSlaDeadline(params: ScheduleSlaParams): Promise<{ id: string }> {
-    const runAt = DateTime.now()
+  computeSlaDeadline(slaHours: number): Date {
+    return DateTime.now()
       .setZone(this.options.defaultTimezone ?? 'UTC')
-      .plus({ hours: params.slaHours })
+      .plus({ hours: slaHours })
       .toJSDate();
+  }
+
+  async scheduleSlaDeadline(
+    params: ScheduleSlaParams,
+  ): Promise<{ id: string; runAt: Date }> {
+    const runAt = this.computeSlaDeadline(params.slaHours);
 
     const port = this.queuePort as IWorkflowQueuePort & {
       enqueueTimer?: (
@@ -38,7 +44,7 @@ export class TimerScheduler {
     };
 
     if (typeof port.enqueueTimer === 'function') {
-      return port.enqueueTimer(
+      const result = await port.enqueueTimer(
         {
           instanceId: params.instanceId,
           elementId: params.elementId,
@@ -49,9 +55,10 @@ export class TimerScheduler {
           runAt,
         },
       );
+      return { ...result, runAt };
     }
 
-    return this.queuePort.enqueue(
+    const result = await this.queuePort.enqueue(
       'slaEscalation',
       {
         instanceId: params.instanceId,
@@ -63,5 +70,6 @@ export class TimerScheduler {
         runAt,
       },
     );
+    return { ...result, runAt };
   }
 }

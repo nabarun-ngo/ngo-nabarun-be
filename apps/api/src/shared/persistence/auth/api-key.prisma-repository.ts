@@ -12,7 +12,7 @@ import {
   AuthApiKeyUpdateInput,
   AuthApiKeyUncheckedUpdateInput,
   AuthApiKeyOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/AuthApiKey';
 import { ApiKey, ApiKeyFilter } from '@nabarun-ngo/nestjs-shared-auth/domain/aggregates/api-key/api-key.aggregate';
 import { IApiKeyRepository } from '@nabarun-ngo/nestjs-shared-auth/domain/repositories/api-key.repository';
 

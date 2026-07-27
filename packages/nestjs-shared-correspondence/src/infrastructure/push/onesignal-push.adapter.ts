@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as OneSignal from '@onesignal/node-onesignal';
 import { IPushNotificationPort, PushNotificationPayload } from '../../domain/ports/push-notification.port';
-import { CORRESPONDENCE2_OPTIONS } from '../../correspondence-options.token';
-import type { Correspondence2ModuleOptions } from '../../correspondence.module';
+import { CORRESPONDENCE_OPTIONS } from '../../correspondence-options.token';
+import type { CorrespondenceModuleOptions } from '../../correspondence.module';
 
 @Injectable()
 export class OneSignalPushAdapter implements IPushNotificationPort {
@@ -11,8 +11,8 @@ export class OneSignalPushAdapter implements IPushNotificationPort {
   private readonly appId: string;
 
   constructor(
-    @Inject(CORRESPONDENCE2_OPTIONS)
-    private readonly options: Correspondence2ModuleOptions,
+    @Inject(CORRESPONDENCE_OPTIONS)
+    private readonly options: CorrespondenceModuleOptions,
   ) {
     this.appId = options.push?.oneSignal?.appId ?? '';
     const configuration = OneSignal.createConfiguration({

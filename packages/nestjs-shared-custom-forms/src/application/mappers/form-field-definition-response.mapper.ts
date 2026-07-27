@@ -3,6 +3,7 @@ import {
   DependentOptionsResponseDto,
   FieldConditionResponseDto,
   FieldOptionResponseDto,
+  FieldRegexRuleResponseDto,
   FieldValidationRulesResponseDto,
   FormFieldDefinitionResponseDto,
 } from '../dtos/response/form-response.dtos';
@@ -25,6 +26,8 @@ export class FormFieldDefinitionResponseMapper {
     dto.isEncrypted     = field.isEncrypted;
     dto.enabled         = field.enabled;
     dto.sortOrder       = field.sortOrder;
+    dto.stepId          = field.stepId;
+    dto.stepName        = field.stepName;
     dto.condition       = field.condition
       ? FormFieldDefinitionResponseMapper.toConditionDto(field.condition)
       : null;
@@ -69,8 +72,12 @@ export class FormFieldDefinitionResponseMapper {
 
   static toValidationRulesDto(rules: FieldValidationRules): FieldValidationRulesResponseDto {
     const dto = new FieldValidationRulesResponseDto();
-    dto.pattern = rules.pattern;
-    if (rules.regexErrMsg) dto.regexErrMsg = rules.regexErrMsg;
+    dto.patterns = rules.patterns.map((rule) => {
+      const item = new FieldRegexRuleResponseDto();
+      item.pattern = rule.pattern;
+      if (rule.regexErrMsg) item.regexErrMsg = rule.regexErrMsg;
+      return item;
+    });
     return dto;
   }
 }

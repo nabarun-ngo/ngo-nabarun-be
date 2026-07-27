@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ResendPushCommand } from './resend-push.command';
 import { IUserNotificationRepository } from '../../../domain/repositories/user-notification.repository';
 import { INotificationRepository } from '../../../domain/repositories/notification.repository';
-import { IPushNotificationPort, PUSH_NOTIFICATION_PORT } from '../../../domain/ports/push-notification.port';
+import { IPushNotificationPort } from '../../../domain/ports/push-notification.port';
 import { UserNotificationNotFoundError, NotificationNotFoundError } from '../../../domain/errors/correspondence.errors';
 
 @CommandHandler(ResendPushCommand)
@@ -13,7 +13,7 @@ export class ResendPushHandler implements ICommandHandler<ResendPushCommand> {
     private readonly userNotificationRepo: IUserNotificationRepository,
     @Inject(INotificationRepository)
     private readonly notificationRepo: INotificationRepository,
-    @Inject(PUSH_NOTIFICATION_PORT)
+    @Inject(IPushNotificationPort)
     private readonly pushPort: IPushNotificationPort,
   ) {}
 

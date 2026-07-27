@@ -13,15 +13,12 @@ export {
   type OAuthAccessTokenRequest,
 } from './domain/ports/oauth-access-token.port';
 export { ICACHE_PORT, type ICachePort, type CacheSetOptions } from './domain/ports/cache.port';
-export {
-  NotificationType,
-  NotificationCategory,
-  NotificationPriority,
-} from './domain/enums/notification-channel.enum';
 export { BusinessError } from './domain/errors/business-error';
 export { MissingRequiredPortError } from './domain/errors/missing-required-port.error';
 export { EntityTypeForbiddenError, EntityAccessDeniedError } from './domain/errors/entity-access.errors';
-export { EntityTypePolicyUtil } from './domain/utilities/entity-type-policy.util';
+export type { IEntityAccessPort } from './domain/ports/entity-access.port';
+export { EntityTypePolicy } from './domain/utilities/entity-type-policy.util';
+export { EntityRecordAccessPolicy } from './domain/utilities/entity-record-access-policy.util';
 export { RootEvent } from './domain/events/root-event';
 export { DomainEvent } from './domain/events/domain-event';
 export { AggregateRoot } from './domain/models/aggregate-root';
@@ -36,21 +33,7 @@ export type { IRepository } from './domain/repositories/repository.interface';
 export { ApplyTryCatch } from './application/decorators/apply-try-catch.decorator';
 export { AppTechnicalError } from './application/events/app-technical-error.event';
 export type { TechnicalErrorPayload } from './application/events/app-technical-error.event';
-export {
-  CorrespondenceRequestEvent,
-  type CorrespondenceRecipients,
-  type CorrespondenceChannels,
-  type InAppChannelOptions,
-  type EmailChannelOptions,
-  type PushChannelOptions,
-  type NotificationAction,
-  type TargetUsersRecipients,
-  type TargetRolesRecipients,
-  type TargetResourceRecipients,
-} from './application/events/correspondence-request.event';
 export { formatDate, evaluateCondition, isTrue } from './application/utilities/common.util';
-export { checkEntityRecordAccess } from './application/utilities/entity-record-access.util';
-export type { IEntityAccessPort } from './application/utilities/entity-record-access.util';
 
 // ── Infrastructure layer ──────────────────────────────────────────────────────
 export type { RouteExclusion, AppConfigOptions } from './infrastructure/config/app.config';
@@ -74,6 +57,10 @@ export { generatePassword, generateUniqueNDigitNumber } from './infrastructure/u
 export type { UserContext, TraceContext } from './infrastructure/utilities/trace-context.util';
 export { traceStorage, getTraceId, getUserContext, setUserContext, resolveTraceId } from './infrastructure/utilities/trace-context.util';
 export { validateModuleOptions } from './infrastructure/utilities/validate-options.util';
+export {
+  BaseModuleValidator,
+  registerModuleValidator,
+} from './infrastructure/validators/base-module.validator';
 export {
   createRequiredPortsGuard,
   type RequiredPortSpec,

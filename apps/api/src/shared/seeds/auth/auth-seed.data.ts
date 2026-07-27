@@ -1,7 +1,7 @@
 
 // Comma-separated IdP subs to auto-assign to the SUPER_ADMINS group.
 
-import { Auth2SeedData } from "./auth-seed.types";
+import { AuthSeedData } from "./auth-seed.types";
 
 // Example .env entry:  SEED_SUPER_ADMIN_IDP_SUBS=auth0|abc123,auth0|def456
 const superAdminSubs = (process.env.SEED_SUPER_ADMIN_IDP_SUBS ?? '')
@@ -200,7 +200,7 @@ const OAUTH_TOKEN_ALL = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const AUTH2_SEED: Auth2SeedData = {
+export const AUTH_SEED: AuthSeedData = {
   permissions: [
     // ── auth (self) ────────────────────────────────────────────────────────
     { key: 'read:roles', description: 'View all RBAC roles' },

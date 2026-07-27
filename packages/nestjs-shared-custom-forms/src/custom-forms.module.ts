@@ -1,23 +1,21 @@
-import {
-  DynamicModule,
-  Inject,
-  Injectable,
-  Logger,
-  Module,
-  OnApplicationBootstrap,
-  Optional,
-  Provider,
-} from '@nestjs/common';
+import { DynamicModule, Inject, Injectable, Module, Optional, Provider } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-import { BaseDynamicModule, DynamicModuleAsyncOptions } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BaseDynamicModule,
+  BaseModuleValidator,
+  DynamicModuleAsyncOptions,
+  IEntityAccessPort,
+  registerModuleValidator,
+} from '@nabarun-ngo/nestjs-shared-core';
 import {
   CustomFormsModuleOptions,
   CustomFormsOptionsSchema,
 } from './custom-forms.schema';
 import { CUSTOM_FORMS_OPTIONS } from './infrastructure/custom-forms-options.token';
-
-// Domain / Ports
-import { IFormEntityAccessPort } from './domain/ports/form-entity-access.port';
+import { ICustomFormEntityAccessPort } from './domain/ports/entity-access.port';
+import { IFormRepository } from './domain/repositories/form.repository';
+import { IFormSubmissionRepository } from './domain/repositories/form-submission.repository';
 
 // Application — Commands
 import { CreateFormHandler } from './application/commands/create-form/create-form.handler';
@@ -36,40 +34,61 @@ import { ClearFormSubmissionHandler } from './application/commands/clear-form-su
 import { ListFormsHandler } from './application/queries/list-forms/list-forms.handler';
 import { GetFormWithFieldsHandler } from './application/queries/get-form-with-fields/get-form-with-fields.handler';
 import { GetFormSubmissionHandler } from './application/queries/get-form-submission/get-form-submission.handler';
-import { ValidateFormSubmissionHandler } from './application/queries/validate-form-submission/validate-form-submission.handler';
 import { GetFormSubmissionHistoryHandler } from './application/queries/get-form-submission-history/get-form-submission-history.handler';
+import { GetPublishedFormByKeyHandler } from './application/queries/get-published-form-by-key/get-published-form-by-key.handler';
+import { ValidateFormSubmissionHandler } from './application/queries/validate-form-submission/validate-form-submission.handler';
 
 // Infrastructure — Services
 import { FieldValueCodecService } from './infrastructure/services/field-value-codec.service';
+import { FormSubmissionValidationService } from './application/services/form-submission-validation.service';
+import { CustomFormsFacade } from './application/services/custom-forms.facade';
 
 // Presentation
-import { FormController } from './presentation/http/form.controller';
-import { FormFieldController } from './presentation/http/form-field.controller';
-import { FormSubmissionController } from './presentation/http/form-submission.controller';
+import { FormController } from './presentation/controllers/form.controller';
+import { FormFieldController } from './presentation/controllers/form-field.controller';
+import { FormSubmissionController } from './presentation/controllers/form-submission.controller';
 
 export interface CustomFormsModuleAsyncOptions
   extends DynamicModuleAsyncOptions<CustomFormsModuleOptions> { }
 
+const CUSTOM_FORMS_MODULE_VALIDATOR = Symbol('CustomFormsModule.internalValidator');
+
 const ENTITY_ACCESS_PORT_MISSING_MSG =
-  '[CustomFormsModule] IFormEntityAccessPort is not provided. ' +
-  'Record-level access checks will be SKIPPED — any user with the required ' +
-  'form permission can read or write all form submissions. ' +
-  'Fix: implement IFormEntityAccessPort and register it with ' +
-  '{ provide: IFormEntityAccessPort, useClass: MyAdapter }.';
+  '[CustomFormsModule] ICustomFormEntityAccessPort is not provided. ' +
+  'Form read/write access will NOT be restricted by record-level entity checks — ' +
+  'any authenticated user with the required permission can access forms on any entityType/entityId. ' +
+  'Fix: implement IEntityAccessPort in your app, register ' +
+  '{ provide: ICustomFormEntityAccessPort, useClass: MyAdapter }, ' +
+  'export the token from a module, and add that module to the imports array of CustomFormsModule.forRoot() / forRootAsync().';
 
 @Injectable()
-class CustomFormsEntityAccessServiceGuard implements OnApplicationBootstrap {
-  private readonly logger = new Logger('CustomFormsModule');
-
+class CustomFormsModuleValidator extends BaseModuleValidator {
   constructor(
+    moduleRef: ModuleRef,
     @Optional()
-    @Inject(IFormEntityAccessPort)
-    private readonly accessPort: IFormEntityAccessPort | null,
-  ) { }
+    @Inject(ICustomFormEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
+  ) {
+    super(moduleRef);
+  }
 
-  onApplicationBootstrap(): void {
-    if (this.accessPort) return;
-    this.logger.warn(ENTITY_ACCESS_PORT_MISSING_MSG);
+  protected getModuleName(): string {
+    return 'CustomFormsModule';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      IFormRepository,
+      'Register IFormRepository in PersistenceModule and import PersistenceModule before CustomFormsModule.',
+    );
+    this.requirePort(
+      IFormSubmissionRepository,
+      'Register IFormSubmissionRepository in PersistenceModule and import PersistenceModule before CustomFormsModule.',
+    );
+
+    if (!this.accessPort) {
+      this.warn(ENTITY_ACCESS_PORT_MISSING_MSG);
+    }
   }
 }
 
@@ -91,38 +110,29 @@ const QUERY_HANDLERS = [
   ListFormsHandler,
   GetFormWithFieldsHandler,
   GetFormSubmissionHandler,
-  ValidateFormSubmissionHandler,
   GetFormSubmissionHistoryHandler,
+  GetPublishedFormByKeyHandler,
+  ValidateFormSubmissionHandler,
 ];
 
 /**
  * CustomFormsModule — DDD-compliant dynamic custom forms module.
  *
  * Supports per-entity-type form definitions, field management, draft/submit
- * workflows, validation, value history, and optional record-level access.
+ * workflows, validation, value history, and form-level permission checks.
  *
  * ## Registration
  *
  * ```ts
- * CustomFormsModule.forRoot({
- *   entityTypes: [
- *     {
- *       entityType: 'donation',
- *       managePermissions: ['admin:donations'],
- *       writePermissions: ['write:donations'],
- *       readPermissions: ['read:donations'],
- *       maxFields: 20,
- *     },
- *   ],
- *   encryptionKey: process.env.CF_ENCRYPTION_KEY,
+ * CustomFormsModule.forRootAsync({
+ *   imports: [ConfigModule],
+ *   inject: [ConfigService],
+ *   useFactory: (config: ConfigService) => ({
+ *     allowedEntityTypes: [{ entityType: 'donation' }],
+ *     encryptionKey: config.get('APP_SECRET'),
+ *   }),
  * })
  * ```
- *
- * ## Optional — IFormEntityAccessPort
- *
- * For record-level access (beyond permission-based checks), implement the
- * port and register: `{ provide: IFormEntityAccessPort, useClass: MyAdapter }`.
- * If not provided, record-level checks are skipped and a boot warning is logged.
  */
 @Module({})
 export class CustomFormsModule extends BaseDynamicModule {
@@ -137,17 +147,22 @@ export class CustomFormsModule extends BaseDynamicModule {
   }
 
   static forRootAsync(options: CustomFormsModuleAsyncOptions): DynamicModule {
-    return CustomFormsModule._build([
+    const module = CustomFormsModule._build([
       CustomFormsModule.createAsyncOptionsProvider(
         CUSTOM_FORMS_OPTIONS,
         CustomFormsOptionsSchema,
         options,
       ),
     ]);
+    return {
+      ...module,
+      imports: [...(options.imports ?? []), ...(module.imports ?? [])],
+    };
   }
 
   private static _build(optionsProviders: Provider[]): DynamicModule {
     return {
+      global: true,
       module: CustomFormsModule,
       imports: [CqrsModule],
       controllers: [
@@ -157,12 +172,19 @@ export class CustomFormsModule extends BaseDynamicModule {
       ],
       providers: [
         ...optionsProviders,
-        CustomFormsEntityAccessServiceGuard,
+        registerModuleValidator(CUSTOM_FORMS_MODULE_VALIDATOR, CustomFormsModuleValidator),
         FieldValueCodecService,
+        FormSubmissionValidationService,
+        CustomFormsFacade,
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
       ],
-      exports: [CUSTOM_FORMS_OPTIONS],
+      exports: [
+        CUSTOM_FORMS_OPTIONS,
+        FieldValueCodecService,
+        FormSubmissionValidationService,
+        CustomFormsFacade,
+      ],
     };
   }
 }

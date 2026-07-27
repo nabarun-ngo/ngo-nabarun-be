@@ -9,7 +9,7 @@ import {
   JsonStoreDocumentWhereInput,
   JsonStoreDocumentWhereUniqueInput,
   JsonStoreDocumentOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/JsonStoreDocument';
 import { IJsonDocumentRepository, JsonDocumentFilter } from '@nabarun-ngo/nestjs-shared-json-store';
 import { JsonDocument } from '@nabarun-ngo/nestjs-shared-json-store/domain/aggregates/json-document.aggregate';
 

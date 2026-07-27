@@ -16,7 +16,7 @@ import {
   WorkflowTaskInboxWhereInput,
   WorkflowTaskInboxWhereUniqueInput,
   WorkflowTaskInboxOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/WorkflowTaskInbox';
 
 type WorkflowTaskInboxRow = {
   id: string;
@@ -83,6 +83,44 @@ export class WorkflowInboxPrismaRepository
     return rows.map((row) => this.toDomain(row as WorkflowTaskInboxRow));
   }
 
+  async findOpenUnassigned(): Promise<WorkflowInboxTaskRecord[]> {
+    const rows = await this.client.workflowTaskInbox.findMany({
+      where: {
+        assignedToId: null,
+        status: { in: OPEN_STATUSES },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return rows.map((row) => this.toDomain(row as WorkflowTaskInboxRow));
+  }
+
+  async reopenTask(params: {
+    taskId: string;
+    assignedToId: string | null;
+    candidateRoleNames: string[];
+    formKey: string | null;
+    slaDeadlineAt: Date | null;
+  }): Promise<WorkflowInboxTaskRecord> {
+    const now = new Date();
+    const row = await this.client.workflowTaskInbox.update({
+      where: { id: params.taskId },
+      data: {
+        status: InboxTaskStatus.Pending,
+        assignedToId: params.assignedToId,
+        candidateRoleNames: params.candidateRoleNames as Prisma.InputJsonValue,
+        formKey: params.formKey,
+        slaDeadlineAt: params.slaDeadlineAt,
+        claimedAt: null,
+        claimedById: null,
+        completedAt: null,
+        updatedAt: now,
+      },
+    });
+
+    return this.toDomain(row as WorkflowTaskInboxRow);
+  }
+
   async claimTask(params: {
     taskId: string;
     claimedById: string;
@@ -129,6 +167,24 @@ export class WorkflowInboxPrismaRepository
 
     const task = await this.findById(params.taskId);
     return task!;
+  }
+
+  async releaseTasksForDeletedUser(userId: string): Promise<number> {
+    const result = await this.client.workflowTaskInbox.updateMany({
+      where: {
+        assignedToId: userId,
+        status: { in: OPEN_STATUSES },
+      },
+      data: {
+        assignedToId: null,
+        claimedById: null,
+        claimedAt: null,
+        status: InboxTaskStatus.Pending,
+        updatedAt: new Date(),
+      },
+    });
+
+    return result.count;
   }
 
   protected toDomain(row: WorkflowTaskInboxRow): WorkflowInboxTaskRecord {

@@ -41,15 +41,12 @@ export type FormFieldDefinitionMinAggregateOutputType = {
   label: string | null
   fieldType: string | null
   mandatory: boolean | null
-  fieldOptionsJson: string | null
   isHidden: boolean | null
   isEncrypted: boolean | null
   enabled: boolean | null
   sortOrder: number | null
-  conditionJson: string | null
-  dependentOptionsJson: string | null
-  validationRulesJson: string | null
-  viewPermissionsJson: string | null
+  stepId: string | null
+  stepName: string | null
   createdBy: string | null
   disabledBy: string | null
   createdAt: Date | null
@@ -63,15 +60,12 @@ export type FormFieldDefinitionMaxAggregateOutputType = {
   label: string | null
   fieldType: string | null
   mandatory: boolean | null
-  fieldOptionsJson: string | null
   isHidden: boolean | null
   isEncrypted: boolean | null
   enabled: boolean | null
   sortOrder: number | null
-  conditionJson: string | null
-  dependentOptionsJson: string | null
-  validationRulesJson: string | null
-  viewPermissionsJson: string | null
+  stepId: string | null
+  stepName: string | null
   createdBy: string | null
   disabledBy: string | null
   createdAt: Date | null
@@ -85,15 +79,16 @@ export type FormFieldDefinitionCountAggregateOutputType = {
   label: number
   fieldType: number
   mandatory: number
-  fieldOptionsJson: number
   isHidden: number
   isEncrypted: number
   enabled: number
   sortOrder: number
+  stepId: number
+  stepName: number
   conditionJson: number
   dependentOptionsJson: number
+  viewPermissions: number
   validationRulesJson: number
-  viewPermissionsJson: number
   createdBy: number
   disabledBy: number
   createdAt: number
@@ -117,15 +112,12 @@ export type FormFieldDefinitionMinAggregateInputType = {
   label?: true
   fieldType?: true
   mandatory?: true
-  fieldOptionsJson?: true
   isHidden?: true
   isEncrypted?: true
   enabled?: true
   sortOrder?: true
-  conditionJson?: true
-  dependentOptionsJson?: true
-  validationRulesJson?: true
-  viewPermissionsJson?: true
+  stepId?: true
+  stepName?: true
   createdBy?: true
   disabledBy?: true
   createdAt?: true
@@ -139,15 +131,12 @@ export type FormFieldDefinitionMaxAggregateInputType = {
   label?: true
   fieldType?: true
   mandatory?: true
-  fieldOptionsJson?: true
   isHidden?: true
   isEncrypted?: true
   enabled?: true
   sortOrder?: true
-  conditionJson?: true
-  dependentOptionsJson?: true
-  validationRulesJson?: true
-  viewPermissionsJson?: true
+  stepId?: true
+  stepName?: true
   createdBy?: true
   disabledBy?: true
   createdAt?: true
@@ -161,15 +150,16 @@ export type FormFieldDefinitionCountAggregateInputType = {
   label?: true
   fieldType?: true
   mandatory?: true
-  fieldOptionsJson?: true
   isHidden?: true
   isEncrypted?: true
   enabled?: true
   sortOrder?: true
+  stepId?: true
+  stepName?: true
   conditionJson?: true
   dependentOptionsJson?: true
+  viewPermissions?: true
   validationRulesJson?: true
-  viewPermissionsJson?: true
   createdBy?: true
   disabledBy?: true
   createdAt?: true
@@ -270,15 +260,16 @@ export type FormFieldDefinitionGroupByOutputType = {
   label: string
   fieldType: string
   mandatory: boolean
-  fieldOptionsJson: string | null
   isHidden: boolean
   isEncrypted: boolean
   enabled: boolean
   sortOrder: number
-  conditionJson: string | null
-  dependentOptionsJson: string | null
-  validationRulesJson: string | null
-  viewPermissionsJson: string | null
+  stepId: string | null
+  stepName: string | null
+  conditionJson: runtime.JsonValue | null
+  dependentOptionsJson: runtime.JsonValue | null
+  viewPermissions: string[]
+  validationRulesJson: runtime.JsonValue | null
   createdBy: string | null
   disabledBy: string | null
   createdAt: Date
@@ -315,15 +306,16 @@ export type FormFieldDefinitionWhereInput = {
   label?: Prisma.StringFilter<"FormFieldDefinition"> | string
   fieldType?: Prisma.StringFilter<"FormFieldDefinition"> | string
   mandatory?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
-  fieldOptionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   isHidden?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   isEncrypted?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   enabled?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   sortOrder?: Prisma.IntFilter<"FormFieldDefinition"> | number
-  conditionJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  dependentOptionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  validationRulesJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  viewPermissionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  stepId?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  stepName?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  conditionJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
+  dependentOptionsJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
+  viewPermissions?: Prisma.StringNullableListFilter<"FormFieldDefinition">
+  validationRulesJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
   createdBy?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   disabledBy?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FormFieldDefinition"> | Date | string
@@ -339,15 +331,16 @@ export type FormFieldDefinitionOrderByWithRelationInput = {
   label?: Prisma.SortOrder
   fieldType?: Prisma.SortOrder
   mandatory?: Prisma.SortOrder
-  fieldOptionsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   isHidden?: Prisma.SortOrder
   isEncrypted?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  stepId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stepName?: Prisma.SortOrderInput | Prisma.SortOrder
   conditionJson?: Prisma.SortOrderInput | Prisma.SortOrder
   dependentOptionsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  viewPermissions?: Prisma.SortOrder
   validationRulesJson?: Prisma.SortOrderInput | Prisma.SortOrder
-  viewPermissionsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   disabledBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -367,15 +360,16 @@ export type FormFieldDefinitionWhereUniqueInput = Prisma.AtLeast<{
   label?: Prisma.StringFilter<"FormFieldDefinition"> | string
   fieldType?: Prisma.StringFilter<"FormFieldDefinition"> | string
   mandatory?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
-  fieldOptionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   isHidden?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   isEncrypted?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   enabled?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   sortOrder?: Prisma.IntFilter<"FormFieldDefinition"> | number
-  conditionJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  dependentOptionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  validationRulesJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  viewPermissionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  stepId?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  stepName?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  conditionJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
+  dependentOptionsJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
+  viewPermissions?: Prisma.StringNullableListFilter<"FormFieldDefinition">
+  validationRulesJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
   createdBy?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   disabledBy?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FormFieldDefinition"> | Date | string
@@ -391,15 +385,16 @@ export type FormFieldDefinitionOrderByWithAggregationInput = {
   label?: Prisma.SortOrder
   fieldType?: Prisma.SortOrder
   mandatory?: Prisma.SortOrder
-  fieldOptionsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   isHidden?: Prisma.SortOrder
   isEncrypted?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  stepId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stepName?: Prisma.SortOrderInput | Prisma.SortOrder
   conditionJson?: Prisma.SortOrderInput | Prisma.SortOrder
   dependentOptionsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  viewPermissions?: Prisma.SortOrder
   validationRulesJson?: Prisma.SortOrderInput | Prisma.SortOrder
-  viewPermissionsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   disabledBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -421,15 +416,16 @@ export type FormFieldDefinitionScalarWhereWithAggregatesInput = {
   label?: Prisma.StringWithAggregatesFilter<"FormFieldDefinition"> | string
   fieldType?: Prisma.StringWithAggregatesFilter<"FormFieldDefinition"> | string
   mandatory?: Prisma.BoolWithAggregatesFilter<"FormFieldDefinition"> | boolean
-  fieldOptionsJson?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
   isHidden?: Prisma.BoolWithAggregatesFilter<"FormFieldDefinition"> | boolean
   isEncrypted?: Prisma.BoolWithAggregatesFilter<"FormFieldDefinition"> | boolean
   enabled?: Prisma.BoolWithAggregatesFilter<"FormFieldDefinition"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"FormFieldDefinition"> | number
-  conditionJson?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
-  dependentOptionsJson?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
-  validationRulesJson?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
-  viewPermissionsJson?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
+  stepId?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
+  stepName?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
+  conditionJson?: Prisma.JsonNullableWithAggregatesFilter<"FormFieldDefinition">
+  dependentOptionsJson?: Prisma.JsonNullableWithAggregatesFilter<"FormFieldDefinition">
+  viewPermissions?: Prisma.StringNullableListFilter<"FormFieldDefinition">
+  validationRulesJson?: Prisma.JsonNullableWithAggregatesFilter<"FormFieldDefinition">
   createdBy?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
   disabledBy?: Prisma.StringNullableWithAggregatesFilter<"FormFieldDefinition"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FormFieldDefinition"> | Date | string
@@ -442,15 +438,16 @@ export type FormFieldDefinitionCreateInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -466,15 +463,16 @@ export type FormFieldDefinitionUncheckedCreateInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -488,15 +486,16 @@ export type FormFieldDefinitionUpdateInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -512,15 +511,16 @@ export type FormFieldDefinitionUncheckedUpdateInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -535,15 +535,16 @@ export type FormFieldDefinitionCreateManyInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -556,15 +557,16 @@ export type FormFieldDefinitionUpdateManyMutationInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -578,15 +580,16 @@ export type FormFieldDefinitionUncheckedUpdateManyInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -615,15 +618,16 @@ export type FormFieldDefinitionCountOrderByAggregateInput = {
   label?: Prisma.SortOrder
   fieldType?: Prisma.SortOrder
   mandatory?: Prisma.SortOrder
-  fieldOptionsJson?: Prisma.SortOrder
   isHidden?: Prisma.SortOrder
   isEncrypted?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  stepId?: Prisma.SortOrder
+  stepName?: Prisma.SortOrder
   conditionJson?: Prisma.SortOrder
   dependentOptionsJson?: Prisma.SortOrder
+  viewPermissions?: Prisma.SortOrder
   validationRulesJson?: Prisma.SortOrder
-  viewPermissionsJson?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   disabledBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -641,15 +645,12 @@ export type FormFieldDefinitionMaxOrderByAggregateInput = {
   label?: Prisma.SortOrder
   fieldType?: Prisma.SortOrder
   mandatory?: Prisma.SortOrder
-  fieldOptionsJson?: Prisma.SortOrder
   isHidden?: Prisma.SortOrder
   isEncrypted?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  conditionJson?: Prisma.SortOrder
-  dependentOptionsJson?: Prisma.SortOrder
-  validationRulesJson?: Prisma.SortOrder
-  viewPermissionsJson?: Prisma.SortOrder
+  stepId?: Prisma.SortOrder
+  stepName?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   disabledBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -663,15 +664,12 @@ export type FormFieldDefinitionMinOrderByAggregateInput = {
   label?: Prisma.SortOrder
   fieldType?: Prisma.SortOrder
   mandatory?: Prisma.SortOrder
-  fieldOptionsJson?: Prisma.SortOrder
   isHidden?: Prisma.SortOrder
   isEncrypted?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  conditionJson?: Prisma.SortOrder
-  dependentOptionsJson?: Prisma.SortOrder
-  validationRulesJson?: Prisma.SortOrder
-  viewPermissionsJson?: Prisma.SortOrder
+  stepId?: Prisma.SortOrder
+  stepName?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   disabledBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -729,6 +727,15 @@ export type FormFieldDefinitionUncheckedUpdateManyWithoutFormNestedInput = {
   deleteMany?: Prisma.FormFieldDefinitionScalarWhereInput | Prisma.FormFieldDefinitionScalarWhereInput[]
 }
 
+export type FormFieldDefinitionCreateviewPermissionsInput = {
+  set: string[]
+}
+
+export type FormFieldDefinitionUpdateviewPermissionsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type FormFieldDefinitionCreateNestedOneWithoutValuesInput = {
   create?: Prisma.XOR<Prisma.FormFieldDefinitionCreateWithoutValuesInput, Prisma.FormFieldDefinitionUncheckedCreateWithoutValuesInput>
   connectOrCreate?: Prisma.FormFieldDefinitionCreateOrConnectWithoutValuesInput
@@ -749,15 +756,16 @@ export type FormFieldDefinitionCreateWithoutFormInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -771,15 +779,16 @@ export type FormFieldDefinitionUncheckedCreateWithoutFormInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -823,15 +832,16 @@ export type FormFieldDefinitionScalarWhereInput = {
   label?: Prisma.StringFilter<"FormFieldDefinition"> | string
   fieldType?: Prisma.StringFilter<"FormFieldDefinition"> | string
   mandatory?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
-  fieldOptionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   isHidden?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   isEncrypted?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   enabled?: Prisma.BoolFilter<"FormFieldDefinition"> | boolean
   sortOrder?: Prisma.IntFilter<"FormFieldDefinition"> | number
-  conditionJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  dependentOptionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  validationRulesJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
-  viewPermissionsJson?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  stepId?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  stepName?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
+  conditionJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
+  dependentOptionsJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
+  viewPermissions?: Prisma.StringNullableListFilter<"FormFieldDefinition">
+  validationRulesJson?: Prisma.JsonNullableFilter<"FormFieldDefinition">
   createdBy?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   disabledBy?: Prisma.StringNullableFilter<"FormFieldDefinition"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FormFieldDefinition"> | Date | string
@@ -844,15 +854,16 @@ export type FormFieldDefinitionCreateWithoutValuesInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -867,15 +878,16 @@ export type FormFieldDefinitionUncheckedCreateWithoutValuesInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -904,15 +916,16 @@ export type FormFieldDefinitionUpdateWithoutValuesInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -927,15 +940,16 @@ export type FormFieldDefinitionUncheckedUpdateWithoutValuesInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -948,15 +962,16 @@ export type FormFieldDefinitionCreateManyFormInput = {
   label: string
   fieldType: string
   mandatory?: boolean
-  fieldOptionsJson?: string | null
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: number
-  conditionJson?: string | null
-  dependentOptionsJson?: string | null
-  validationRulesJson?: string | null
-  viewPermissionsJson?: string | null
+  stepId?: string | null
+  stepName?: string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionCreateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: string | null
   disabledBy?: string | null
   createdAt?: Date | string
@@ -969,15 +984,16 @@ export type FormFieldDefinitionUpdateWithoutFormInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -991,15 +1007,16 @@ export type FormFieldDefinitionUncheckedUpdateWithoutFormInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1013,15 +1030,16 @@ export type FormFieldDefinitionUncheckedUpdateManyWithoutFormInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   fieldType?: Prisma.StringFieldUpdateOperationsInput | string
   mandatory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  fieldOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isHidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEncrypted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  conditionJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentOptionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  validationRulesJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  viewPermissionsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stepName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  conditionJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  dependentOptionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  viewPermissions?: Prisma.FormFieldDefinitionUpdateviewPermissionsInput | string[]
+  validationRulesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1066,15 +1084,16 @@ export type FormFieldDefinitionSelect<ExtArgs extends runtime.Types.Extensions.I
   label?: boolean
   fieldType?: boolean
   mandatory?: boolean
-  fieldOptionsJson?: boolean
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: boolean
+  stepId?: boolean
+  stepName?: boolean
   conditionJson?: boolean
   dependentOptionsJson?: boolean
+  viewPermissions?: boolean
   validationRulesJson?: boolean
-  viewPermissionsJson?: boolean
   createdBy?: boolean
   disabledBy?: boolean
   createdAt?: boolean
@@ -1091,15 +1110,16 @@ export type FormFieldDefinitionSelectCreateManyAndReturn<ExtArgs extends runtime
   label?: boolean
   fieldType?: boolean
   mandatory?: boolean
-  fieldOptionsJson?: boolean
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: boolean
+  stepId?: boolean
+  stepName?: boolean
   conditionJson?: boolean
   dependentOptionsJson?: boolean
+  viewPermissions?: boolean
   validationRulesJson?: boolean
-  viewPermissionsJson?: boolean
   createdBy?: boolean
   disabledBy?: boolean
   createdAt?: boolean
@@ -1114,15 +1134,16 @@ export type FormFieldDefinitionSelectUpdateManyAndReturn<ExtArgs extends runtime
   label?: boolean
   fieldType?: boolean
   mandatory?: boolean
-  fieldOptionsJson?: boolean
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: boolean
+  stepId?: boolean
+  stepName?: boolean
   conditionJson?: boolean
   dependentOptionsJson?: boolean
+  viewPermissions?: boolean
   validationRulesJson?: boolean
-  viewPermissionsJson?: boolean
   createdBy?: boolean
   disabledBy?: boolean
   createdAt?: boolean
@@ -1137,22 +1158,23 @@ export type FormFieldDefinitionSelectScalar = {
   label?: boolean
   fieldType?: boolean
   mandatory?: boolean
-  fieldOptionsJson?: boolean
   isHidden?: boolean
   isEncrypted?: boolean
   enabled?: boolean
   sortOrder?: boolean
+  stepId?: boolean
+  stepName?: boolean
   conditionJson?: boolean
   dependentOptionsJson?: boolean
+  viewPermissions?: boolean
   validationRulesJson?: boolean
-  viewPermissionsJson?: boolean
   createdBy?: boolean
   disabledBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FormFieldDefinitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "formId" | "key" | "label" | "fieldType" | "mandatory" | "fieldOptionsJson" | "isHidden" | "isEncrypted" | "enabled" | "sortOrder" | "conditionJson" | "dependentOptionsJson" | "validationRulesJson" | "viewPermissionsJson" | "createdBy" | "disabledBy" | "createdAt" | "updatedAt", ExtArgs["result"]["formFieldDefinition"]>
+export type FormFieldDefinitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "formId" | "key" | "label" | "fieldType" | "mandatory" | "isHidden" | "isEncrypted" | "enabled" | "sortOrder" | "stepId" | "stepName" | "conditionJson" | "dependentOptionsJson" | "viewPermissions" | "validationRulesJson" | "createdBy" | "disabledBy" | "createdAt" | "updatedAt", ExtArgs["result"]["formFieldDefinition"]>
 export type FormFieldDefinitionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   form?: boolean | Prisma.FormDefaultArgs<ExtArgs>
   values?: boolean | Prisma.FormFieldDefinition$valuesArgs<ExtArgs>
@@ -1178,15 +1200,16 @@ export type $FormFieldDefinitionPayload<ExtArgs extends runtime.Types.Extensions
     label: string
     fieldType: string
     mandatory: boolean
-    fieldOptionsJson: string | null
     isHidden: boolean
     isEncrypted: boolean
     enabled: boolean
     sortOrder: number
-    conditionJson: string | null
-    dependentOptionsJson: string | null
-    validationRulesJson: string | null
-    viewPermissionsJson: string | null
+    stepId: string | null
+    stepName: string | null
+    conditionJson: runtime.JsonValue | null
+    dependentOptionsJson: runtime.JsonValue | null
+    viewPermissions: string[]
+    validationRulesJson: runtime.JsonValue | null
     createdBy: string | null
     disabledBy: string | null
     createdAt: Date
@@ -1622,15 +1645,16 @@ export interface FormFieldDefinitionFieldRefs {
   readonly label: Prisma.FieldRef<"FormFieldDefinition", 'String'>
   readonly fieldType: Prisma.FieldRef<"FormFieldDefinition", 'String'>
   readonly mandatory: Prisma.FieldRef<"FormFieldDefinition", 'Boolean'>
-  readonly fieldOptionsJson: Prisma.FieldRef<"FormFieldDefinition", 'String'>
   readonly isHidden: Prisma.FieldRef<"FormFieldDefinition", 'Boolean'>
   readonly isEncrypted: Prisma.FieldRef<"FormFieldDefinition", 'Boolean'>
   readonly enabled: Prisma.FieldRef<"FormFieldDefinition", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"FormFieldDefinition", 'Int'>
-  readonly conditionJson: Prisma.FieldRef<"FormFieldDefinition", 'String'>
-  readonly dependentOptionsJson: Prisma.FieldRef<"FormFieldDefinition", 'String'>
-  readonly validationRulesJson: Prisma.FieldRef<"FormFieldDefinition", 'String'>
-  readonly viewPermissionsJson: Prisma.FieldRef<"FormFieldDefinition", 'String'>
+  readonly stepId: Prisma.FieldRef<"FormFieldDefinition", 'String'>
+  readonly stepName: Prisma.FieldRef<"FormFieldDefinition", 'String'>
+  readonly conditionJson: Prisma.FieldRef<"FormFieldDefinition", 'Json'>
+  readonly dependentOptionsJson: Prisma.FieldRef<"FormFieldDefinition", 'Json'>
+  readonly viewPermissions: Prisma.FieldRef<"FormFieldDefinition", 'String[]'>
+  readonly validationRulesJson: Prisma.FieldRef<"FormFieldDefinition", 'Json'>
   readonly createdBy: Prisma.FieldRef<"FormFieldDefinition", 'String'>
   readonly disabledBy: Prisma.FieldRef<"FormFieldDefinition", 'String'>
   readonly createdAt: Prisma.FieldRef<"FormFieldDefinition", 'DateTime'>

@@ -8,9 +8,9 @@ jest.mock('@nabarun-ngo/nestjs-shared-token-vault/presentation/controllers/oauth
   OAuthController: class OAuthController { },
 }));
 
-import { TokenVault2Module } from '@nabarun-ngo/nestjs-shared-token-vault/token-vault.module';
+import { TokenVaultModule } from '@nabarun-ngo/nestjs-shared-token-vault/token-vault.module';
 import { OAUTH_PROVIDER_REGISTRY } from '@nabarun-ngo/nestjs-shared-token-vault/application/ports/oauth-provider.port';
-import { TOKEN_VAULT2_OPTIONS } from '@nabarun-ngo/nestjs-shared-token-vault/token-vault-options';
+import { TOKEN_VAULT_OPTIONS } from '@nabarun-ngo/nestjs-shared-token-vault/token-vault-options';
 import { GoogleOAuthProvider } from '@nabarun-ngo/nestjs-shared-token-vault/infrastructure/providers/google-oauth.provider';
 import { MicrosoftOAuthProvider } from '@nabarun-ngo/nestjs-shared-token-vault/infrastructure/providers/microsoft-oauth.provider';
 
@@ -20,12 +20,12 @@ const validOptions = {
   },
 };
 
-describe('TokenVault2Module', () => {
+describe('TokenVaultModule', () => {
   describe('forRoot()', () => {
     it('provides validated token vault options', () => {
-      const mod = TokenVault2Module.forRoot(validOptions);
+      const mod = TokenVaultModule.forRoot(validOptions);
       const provider = (mod.providers as any[]).find(
-        (p) => p.provide === TOKEN_VAULT2_OPTIONS,
+        (p) => p.provide === TOKEN_VAULT_OPTIONS,
       );
 
       expect(provider.useValue).toEqual(validOptions);
@@ -33,44 +33,44 @@ describe('TokenVault2Module', () => {
 
     it('throws when encryption secret is too short', () => {
       expect(() =>
-        TokenVault2Module.forRoot({
+        TokenVaultModule.forRoot({
           encryption: { secret: 'short' },
         } as any),
-      ).toThrow('[TokenVault2Module] Config validation failed:');
+      ).toThrow('[TokenVaultModule] Config validation failed:');
     });
   });
 
   describe('forRootAsync()', () => {
     it('validates async factory output', async () => {
-      const mod = TokenVault2Module.forRootAsync({
+      const mod = TokenVaultModule.forRootAsync({
         useFactory: () => validOptions,
       });
       const provider = (mod.providers as any[]).find(
-        (p) => p.provide === TOKEN_VAULT2_OPTIONS,
+        (p) => p.provide === TOKEN_VAULT_OPTIONS,
       );
 
       await expect(provider.useFactory()).resolves.toEqual(validOptions);
     });
 
     it('throws when async factory returns invalid options', async () => {
-      const mod = TokenVault2Module.forRootAsync({
+      const mod = TokenVaultModule.forRootAsync({
         useFactory: () => ({
           encryption: { secret: 'short' },
         } as any),
       });
       const provider = (mod.providers as any[]).find(
-        (p) => p.provide === TOKEN_VAULT2_OPTIONS,
+        (p) => p.provide === TOKEN_VAULT_OPTIONS,
       );
 
       await expect(provider.useFactory()).rejects.toThrow(
-        '[TokenVault2Module] Config validation failed:',
+        '[TokenVaultModule] Config validation failed:',
       );
     });
   });
 
   describe('service map provider', () => {
     it('returns an empty map when no OAuth providers are configured', () => {
-      const mod = TokenVault2Module.forRoot(validOptions);
+      const mod = TokenVaultModule.forRoot(validOptions);
       const provider = (mod.providers as any[]).find(
         (p) => p.provide === OAUTH_PROVIDER_REGISTRY,
       );
@@ -95,7 +95,7 @@ describe('TokenVault2Module', () => {
           callbackUrl: 'https://example.com/microsoft/callback',
         },
       };
-      const mod = TokenVault2Module.forRoot(options);
+      const mod = TokenVaultModule.forRoot(options);
       const provider = (mod.providers as any[]).find(
         (p) => p.provide === OAUTH_PROVIDER_REGISTRY,
       );

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { UserAccessAdapter } from './user-access.adapter';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AuthModuleOptions } from '../../auth-options';
 
 type DirectRoleView = { roleKey: string; permissionKeys: string[]; ownerId?: string };
 type GroupMembershipView = {
@@ -44,12 +44,12 @@ const makeCache = () => ({
   set: jest.fn(),
 });
 
-const defaultOptions: Auth2ModuleOptions = {
+const defaultOptions: AuthModuleOptions = {
   jwt: { jwksUri: 'https://example.com', issuer: 'iss', audience: 'aud' },
   cache: { userAccessTtlMs: 1000 },
 };
 
-function buildAdapter(options: Auth2ModuleOptions = defaultOptions) {
+function buildAdapter(options: AuthModuleOptions = defaultOptions) {
   const userRoleRepo = makeUserRoleRepo();
   const userRoleGroupRepo = makeUserRoleGroupRepo();
   const cache = makeCache();
@@ -136,7 +136,7 @@ describe('UserAccessAdapter', () => {
     });
 
     it('falls back to default TTL of 1_800_000 ms when not configured', async () => {
-      const options: Auth2ModuleOptions = {
+      const options: AuthModuleOptions = {
         jwt: { jwksUri: 'https://example.com', issuer: 'iss', audience: 'aud' },
       };
       const { adapter, cache } = buildAdapter(options);

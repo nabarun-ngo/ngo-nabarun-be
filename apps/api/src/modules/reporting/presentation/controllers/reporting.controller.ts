@@ -5,28 +5,28 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Inject,
-  NotFoundException,
   Param,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
-import { ReportGenerationService } from '../../application/services/report-generation.service';
-import { ReportRegistryService } from '../../application/services/report-registry.service';
-import { IReportDefinitionsPort } from '../../domain/ports/report-definitions.port';
-import { IReportRepository } from '../../domain/repositories/report.repository';
+import { DeleteReportCommand } from '../../application/commands/delete-report/delete-report.command';
+import { RegenerateReportCommand } from '../../application/commands/regenerate-report/regenerate-report.command';
+import { StartReportGenerationCommand } from '../../application/commands/start-report-generation/start-report-generation.command';
 import {
   ReportCategoryDto,
   ReportDetailDto,
   ReportFilterDto,
   ReportInputFieldDto,
-  ReportMapper,
 } from '../../application/dtos/report.dto';
-import { ReportStatus } from '../../domain/enums/report-status.enum';
+import { GetRegisteredReportsQuery } from '../../application/queries/get-registered-reports/get-registered-reports.query';
+import { GetReportInputsQuery } from '../../application/queries/get-report-inputs/get-report-inputs.query';
+import { ListReportsByCodeQuery } from '../../application/queries/list-reports-by-code/list-reports-by-code.query';
+import type { ListReportsByCodeResult } from '../../application/queries/list-reports-by-code/list-reports-by-code.handler';
 
 @ApiTags('Report')
 @ApiBearerAuth('jwt')
@@ -35,108 +35,87 @@ import { ReportStatus } from '../../domain/enums/report-status.enum';
 @Controller('report')
 export class ReportingController {
   constructor(
-    private readonly reportGenerationService: ReportGenerationService,
-    private readonly registry: ReportRegistryService,
-    @Inject(IReportDefinitionsPort) private readonly definitionsPort: IReportDefinitionsPort,
-    @Inject(IReportRepository) private readonly reportRepository: IReportRepository,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) { }
 
   @Get('registered-reports')
   @RequirePermissions('read:reports')
-  async getRegisteredReports(): Promise<ReportCategoryDto[]> {
-    const definitions = await this.definitionsPort.listDefinitions();
-    return definitions.filter((d) => d.isActive).map(ReportMapper.toCategoryDto);
+  getRegisteredReports(): Promise<ReportCategoryDto[]> {
+    return this.queryBus.execute(new GetRegisteredReportsQuery());
   }
 
   @Post('generate/:reportCode')
   @RequirePermissions('create:reports')
   @HttpCode(HttpStatus.ACCEPTED)
-  async generateReport(
+  generateReport(
     @Param('reportCode') reportCode: string,
     @Body() params: Record<string, unknown>,
     @CurrentUser() user: AuthUser,
   ): Promise<{ workflowId: string }> {
-    const result = await this.reportGenerationService.startReportWorkflow({
-      reportCode,
-      parameters: params,
-      requestedById: user.userId!,
-      userPermissions: user.permissions ?? [],
-      userRoles: user.userRoles ?? [],
-    });
-    return { workflowId: result.workflowId };
+    return this.commandBus.execute(
+      new StartReportGenerationCommand({
+        reportCode,
+        parameters: params,
+        requestedById: requireUserId(user),
+        userPermissions: user.permissions ?? [],
+        userRoles: user.userRoles ?? [],
+      }),
+    );
   }
 
   @Get('list/:reportCode')
   @RequirePermissions('read:reports')
-  async listReports(
+  listReports(
     @Param('reportCode') reportCode: string,
     @Query('pageIndex') pageIndex?: number,
     @Query('pageSize') pageSize?: number,
     @Query() filter?: ReportFilterDto,
-  ) {
-    const page = await this.reportRepository.findPaged({
-      pageIndex: pageIndex ? Number(pageIndex) : 0,
-      pageSize: pageSize ? Number(pageSize) : 20,
-      props: {
+  ): Promise<ListReportsByCodeResult> {
+    return this.queryBus.execute(
+      new ListReportsByCodeQuery(
         reportCode,
-        status: filter?.status ? [filter.status] : undefined,
-        requestedById: filter?.requestedById,
-      },
-    });
-    return {
-      content: page.content.map(ReportMapper.toDetailDto),
-      totalSize: page.totalSize,
-      pageIndex: page.pageIndex,
-      pageSize: page.pageSize,
-    };
+        pageIndex ? Number(pageIndex) : 0,
+        pageSize ? Number(pageSize) : 20,
+        filter,
+      ),
+    );
   }
 
   @Post(':reportId/regenerate')
   @HttpCode(HttpStatus.OK)
-  async regenerateReport(
+  regenerateReport(
     @Param('reportId') reportId: string,
     @CurrentUser() user: AuthUser,
   ): Promise<ReportDetailDto> {
-    const existing = await this.reportRepository.findById(reportId);
-    if (!existing) {
-      throw new NotFoundException('Report not found');
-    }
-    const definition = await this.definitionsPort.getDefinition(existing.reportCode);
-    const report = await this.reportGenerationService.generateForReport({
-      reportId,
-      reportCode: existing.reportCode,
-      parameters: existing.parameters ?? {},
-      requestedById: user.userId!,
-      userPermissions: user.permissions ?? ['create:reports'],
-      needApproval: existing.needApproval,
-      approverRoles: existing.approverRoles,
-      viewerRoles: existing.viewerRoles,
-      reportName: existing.reportName,
-      workflowId: existing.workflowId,
-      regenerate: true,
-    });
-    return ReportMapper.toDetailDto(report);
+    return this.commandBus.execute(
+      new RegenerateReportCommand({
+        reportId,
+        requestedById: requireUserId(user),
+        userPermissions: user.permissions ?? ['create:reports'],
+      }),
+    );
   }
 
   @Delete(':reportId')
   @RequirePermissions('delete:reports')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteReport(@Param('reportId') reportId: string): Promise<void> {
-    await this.reportGenerationService.deleteReport(reportId);
+  deleteReport(
+    @Param('reportId') reportId: string,
+    @CurrentUser() user: AuthUser,
+  ): Promise<void> {
+    return this.commandBus.execute(
+      new DeleteReportCommand(
+        reportId,
+        requireUserId(user),
+        user.permissions ?? ['delete:reports'],
+      ),
+    );
   }
 
   @Get('static/reportInputs')
   @RequirePermissions('read:reports')
-  async getReportInputs(@Query('reportCode') reportCode: string): Promise<ReportInputFieldDto[]> {
-    const provider = this.registry.getProvider(reportCode);
-    if (!provider) {
-      throw new NotFoundException(`Report provider for ${reportCode} not found`);
-    }
-    return provider.reportParams.map((field) => ({
-      key: field.key,
-      label: field.label,
-      fieldType: field.defKey,
-      mandatory: field.mandatory,
-    }));
+  getReportInputs(@Query('reportCode') reportCode: string): Promise<ReportInputFieldDto[]> {
+    return this.queryBus.execute(new GetReportInputsQuery(reportCode));
   }
 }

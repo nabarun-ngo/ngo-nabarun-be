@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import { CreateExpenseCommand } from '../../application/commands/create-expense/create-expense.command';
 import { UpdateExpenseCommand } from '../../application/commands/update-expense/update-expense.command';
@@ -40,7 +40,7 @@ export class ExpenseController {
         expenseRefId: dto.expenseRefId,
         expenseRefType: dto.expenseRefType,
         expenseItems: dto.expenseItems,
-        requestedById: user.userId!,
+        requestedById: requireUserId(user),
         paidById: dto.payerId,
       }),
     );
@@ -53,7 +53,7 @@ export class ExpenseController {
     const expense = await this.commandBus.execute(
       new UpdateExpenseCommand({
         id,
-        updatedById: user.userId!,
+        updatedById: requireUserId(user),
         name: dto.name,
         description: dto.description,
         expenseDate: dto.expenseDate,
@@ -71,14 +71,14 @@ export class ExpenseController {
   @Post(':id/finalize')
   @RequirePermissions('create:expense_final')
   async finalizeExpense(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<ExpenseDetailDto> {
-    const expense = await this.commandBus.execute(new FinalizeExpenseCommand({ id, finalizedById: user.userId! }));
+    const expense = await this.commandBus.execute(new FinalizeExpenseCommand({ id, finalizedById: requireUserId(user) }));
     return ExpenseMapper.toDto(expense);
   }
 
   @Post(':id/settle')
   @RequirePermissions('create:expense_settle')
   async settleExpense(@Param('id') id: string, @Query('accountId') accountId: string, @CurrentUser() user: AuthUser): Promise<ExpenseDetailDto> {
-    const expense = await this.commandBus.execute(new SettleExpenseCommand({ id, accountId, settledById: user.userId! }));
+    const expense = await this.commandBus.execute(new SettleExpenseCommand({ id, accountId, settledById: requireUserId(user) }));
     return ExpenseMapper.toDto(expense);
   }
 

@@ -10,7 +10,8 @@ export {
   JsonDocumentInvalidError,
 } from './domain/errors/json-store.errors';
 
-// Domain — repository interface (consumers may extend or provide custom implementations)
+// Domain — repository interface — **host persistence only**.
+// Programmatic access: JsonStoreFacade.
 export {
   IJsonDocumentRepository,
   JsonDocumentFilter,

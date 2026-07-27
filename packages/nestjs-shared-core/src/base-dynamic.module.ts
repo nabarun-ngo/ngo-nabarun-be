@@ -12,12 +12,12 @@ export interface DynamicModuleAsyncOptions<TOptions>
  * Base class for NestJS dynamic modules that require `forRoot()` or `forRootAsync()`.
  *
  * Provides inherited capabilities on top of the standard NestJS dynamic module pattern:
- * - **`validate()`:** wraps `validateModuleOptions` and uses the subclass name automatically.
+ * - **`validateOptions()`:** wraps `validateModuleOptions` and uses the subclass name automatically.
  * - **Option provider helpers:** creates validated sync/async options providers.
  */
 export abstract class BaseDynamicModule {
   /** Validates raw options against the given Zod schema at bootstrap time. */
-  protected static validate<T extends z.ZodTypeAny>(
+  protected static validateOptions<T extends z.ZodTypeAny>(
     schema: T,
     options: unknown,
   ): z.infer<T> {
@@ -32,7 +32,7 @@ export abstract class BaseDynamicModule {
   ): Provider<z.infer<T>> {
     return {
       provide: token,
-      useValue: this.validate(schema, options),
+      useValue: this.validateOptions(schema, options),
     };
   }
 
@@ -45,7 +45,7 @@ export abstract class BaseDynamicModule {
     return {
       provide: token,
       useFactory: async (...args: any[]) =>
-        this.validate(schema, await options.useFactory(...args)),
+        this.validateOptions(schema, await options.useFactory(...args)),
       inject: options.inject ?? [],
     };
   }

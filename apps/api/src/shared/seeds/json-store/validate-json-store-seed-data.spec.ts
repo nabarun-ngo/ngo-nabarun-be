@@ -1,6 +1,8 @@
+import {
+  IJsonDocumentPayloadValidatorPort,
+  JsonDocumentInvalidError,
+} from '@nabarun-ngo/nestjs-shared-json-store';
 import { validateJsonStoreSeedData } from './validate-json-store-seed-data';
-import { JsonDocumentInvalidError } from '../../domain/errors/json-store.errors';
-import { IJsonDocumentPayloadValidatorPort } from '../../domain/ports/json-document-payload-validator.port';
 
 class RejectAllValidator implements IJsonDocumentPayloadValidatorPort {
   validate(namespace: string, key: string): void {

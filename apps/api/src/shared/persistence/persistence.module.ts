@@ -1,4 +1,5 @@
 import { DynamicModule, Global, Module, ModuleMetadata } from '@nestjs/common';
+import { ILockingPort } from '@nabarun-ngo/nestjs-shared-persistence';
 import {
   IApiKeyRepository,
   IPermissionRepository,
@@ -53,11 +54,17 @@ import { WorkflowInboxPrismaRepository } from './workflow/workflow-inbox.prisma-
 import { WorkflowInstancePrismaRepository } from './workflow/workflow-instance.prisma-repository';
 import { WorkflowOutboxPrismaRepository } from './workflow/workflow-outbox.prisma-repository';
 import { WorkflowTokenPrismaRepository } from './workflow/workflow-token.prisma-repository';
+import { PostgresAdvisoryLockingAdapter } from './locking/postgres-advisory-locking.adapter';
 
 export interface PersistenceModuleOptions {
   /** Pass the same QueueModule.forRoot/forRootAsync dynamic module used by the app. */
   imports?: ModuleMetadata['imports'];
 }
+
+const LOCKING_PROVIDER = {
+  provide: ILockingPort,
+  useClass: PostgresAdvisoryLockingAdapter,
+} as const;
 
 const REPOSITORY_PROVIDERS = [
   { provide: IOAuthAccountRepository, useClass: OAuthAccountPrismaRepository },
@@ -92,8 +99,8 @@ export class PersistenceModule {
     return {
       module: PersistenceModule,
       imports: [...(options.imports ?? [])],
-      providers: [...REPOSITORY_PROVIDERS],
-      exports: REPOSITORY_PROVIDERS.map(({ provide }) => provide),
+      providers: [LOCKING_PROVIDER, ...REPOSITORY_PROVIDERS],
+      exports: [ILockingPort, ...REPOSITORY_PROVIDERS.map(({ provide }) => provide)],
     };
   }
 }

@@ -3,6 +3,19 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Configkey } from "../shared/config-keys";
 import { USER_MODULE } from "./user-module.config";
 
+function throttleProfile(
+    config: ConfigService,
+    limitKey: Configkey,
+    ttlKey: Configkey,
+    defaultLimit: number,
+    defaultTtlMs: number,
+) {
+    return {
+        limit: config.get<number>(limitKey) ?? defaultLimit,
+        ttlMs: config.get<number>(ttlKey) ?? defaultTtlMs,
+    };
+}
+
 export const AUTH_MODULE = AuthModule.forRootAsync({
     imports: [ConfigModule, USER_MODULE],
     inject: [ConfigService],
@@ -22,6 +35,16 @@ export const AUTH_MODULE = AuthModule.forRootAsync({
         cache: {
             userAccessTtlMs: 10 * 24 * 60 * 60 * 1000,
             emailVerificationTtlMs: 10 * 24 * 60 * 60 * 1000,
+        },
+        throttler: {
+            storageRedisUrl: config.getOrThrow<string>(Configkey.REDIS_URL),
+            skipPathPrefixes: ['/health', '/ready', '/metrics'],
+            profiles: {
+                default: throttleProfile(config, Configkey.THROTTLE_DEFAULT_LIMIT, Configkey.THROTTLE_DEFAULT_TTL_MS, 600, 60_000),
+                open: throttleProfile(config, Configkey.THROTTLE_OPEN_LIMIT, Configkey.THROTTLE_OPEN_TTL_MS, 10, 60_000),
+                protected: throttleProfile(config, Configkey.THROTTLE_PROTECTED_LIMIT, Configkey.THROTTLE_PROTECTED_TTL_MS, 300, 60_000),
+            },
+            enabled:true
         },
     }),
 });

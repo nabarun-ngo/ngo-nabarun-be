@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.8.0
- * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
+ * Prisma Client JS version: 7.9.0
+ * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.8.0",
-  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
+  client: "7.9.0",
+  engine: "e922089b7d7502aff4249d5da3420f6fa55fc6ad"
 }
 
 /**
@@ -156,6 +156,19 @@ export type Subset<T, U> = {
 };
 
 /**
+ * Resolved type of the argument passed to the `PrismaClient` constructor.
+ *
+ * When called without a narrower options type (the common case), this resolves
+ * to `PrismaClientOptions` directly, which produces a clear TypeScript error
+ * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
+ * the argument is missing or incomplete. When the user supplies a narrower
+ * options type (e.g. via a literal), it falls back to `Subset` to keep
+ * filtering out unknown properties.
+ */
+export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
+  [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
+
+/**
  * SelectSubset
  * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
  * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -187,7 +200,7 @@ type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 export type XOR<T, U> =
   T extends object ?
   U extends object ?
-    (Without<T, U> & U) | (Without<U, T> & T)
+    ((Without<T, U> & U) | (Without<U, T> & T)) & object
   : U : T
 
 
@@ -422,8 +435,8 @@ export const ModelName = {
   ProjectTeamMember: 'ProjectTeamMember',
   ProjectRisk: 'ProjectRisk',
   Report: 'Report',
-  TokenVault2OAuthAccount: 'TokenVault2OAuthAccount',
-  TokenVault2OAuthToken: 'TokenVault2OAuthToken',
+  TokenVaultOAuthAccount: 'TokenVaultOAuthAccount',
+  TokenVaultOAuthToken: 'TokenVaultOAuthToken',
   UserProfile: 'UserProfile',
   UserPhoneNumber: 'UserPhoneNumber',
   UserAddress: 'UserAddress',
@@ -449,7 +462,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "activity" | "auditEntityChangeLog" | "authApiKey" | "authPermission" | "authRole" | "authRolePermission" | "authRoleGroup" | "authRoleGroupRole" | "authUserRole" | "authUserRoleGroup" | "comment" | "commentMention" | "correspondenceNotification" | "correspondenceUserNotification" | "correspondenceResourceSubscription" | "correspondenceSubscriptionChannel" | "cronJobDefinition" | "form" | "formFieldDefinition" | "formSubmission" | "formFieldValue" | "formFieldValueHistoryEntry" | "documentReference" | "documentMapping" | "account" | "donation" | "transaction" | "expense" | "earning" | "jsonStoreDocument" | "meeting" | "project" | "beneficiary" | "goal" | "milestone" | "projectTeamMember" | "projectRisk" | "report" | "tokenVault2OAuthAccount" | "tokenVault2OAuthToken" | "userProfile" | "userPhoneNumber" | "userAddress" | "userSocialLink" | "workflowInstance" | "workflowEventLog" | "workflowToken" | "workflowTaskInbox" | "workflowIdempotencyKey" | "workflowOutbox"
+    modelProps: "activity" | "auditEntityChangeLog" | "authApiKey" | "authPermission" | "authRole" | "authRolePermission" | "authRoleGroup" | "authRoleGroupRole" | "authUserRole" | "authUserRoleGroup" | "comment" | "commentMention" | "correspondenceNotification" | "correspondenceUserNotification" | "correspondenceResourceSubscription" | "correspondenceSubscriptionChannel" | "cronJobDefinition" | "form" | "formFieldDefinition" | "formSubmission" | "formFieldValue" | "formFieldValueHistoryEntry" | "documentReference" | "documentMapping" | "account" | "donation" | "transaction" | "expense" | "earning" | "jsonStoreDocument" | "meeting" | "project" | "beneficiary" | "goal" | "milestone" | "projectTeamMember" | "projectRisk" | "report" | "tokenVaultOAuthAccount" | "tokenVaultOAuthToken" | "userProfile" | "userPhoneNumber" | "userAddress" | "userSocialLink" | "workflowInstance" | "workflowEventLog" | "workflowToken" | "workflowTaskInbox" | "workflowIdempotencyKey" | "workflowOutbox"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3265,151 +3278,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    TokenVault2OAuthAccount: {
-      payload: Prisma.$TokenVault2OAuthAccountPayload<ExtArgs>
-      fields: Prisma.TokenVault2OAuthAccountFieldRefs
+    TokenVaultOAuthAccount: {
+      payload: Prisma.$TokenVaultOAuthAccountPayload<ExtArgs>
+      fields: Prisma.TokenVaultOAuthAccountFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.TokenVault2OAuthAccountFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload> | null
+          args: Prisma.TokenVaultOAuthAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.TokenVault2OAuthAccountFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>
+          args: Prisma.TokenVaultOAuthAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>
         }
         findFirst: {
-          args: Prisma.TokenVault2OAuthAccountFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload> | null
+          args: Prisma.TokenVaultOAuthAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.TokenVault2OAuthAccountFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>
+          args: Prisma.TokenVaultOAuthAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>
         }
         findMany: {
-          args: Prisma.TokenVault2OAuthAccountFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>[]
+          args: Prisma.TokenVaultOAuthAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>[]
         }
         create: {
-          args: Prisma.TokenVault2OAuthAccountCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>
+          args: Prisma.TokenVaultOAuthAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>
         }
         createMany: {
-          args: Prisma.TokenVault2OAuthAccountCreateManyArgs<ExtArgs>
+          args: Prisma.TokenVaultOAuthAccountCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.TokenVault2OAuthAccountCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>[]
+          args: Prisma.TokenVaultOAuthAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>[]
         }
         delete: {
-          args: Prisma.TokenVault2OAuthAccountDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>
+          args: Prisma.TokenVaultOAuthAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>
         }
         update: {
-          args: Prisma.TokenVault2OAuthAccountUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>
+          args: Prisma.TokenVaultOAuthAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>
         }
         deleteMany: {
-          args: Prisma.TokenVault2OAuthAccountDeleteManyArgs<ExtArgs>
+          args: Prisma.TokenVaultOAuthAccountDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.TokenVault2OAuthAccountUpdateManyArgs<ExtArgs>
+          args: Prisma.TokenVaultOAuthAccountUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.TokenVault2OAuthAccountUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>[]
+          args: Prisma.TokenVaultOAuthAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>[]
         }
         upsert: {
-          args: Prisma.TokenVault2OAuthAccountUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthAccountPayload>
+          args: Prisma.TokenVaultOAuthAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthAccountPayload>
         }
         aggregate: {
-          args: Prisma.TokenVault2OAuthAccountAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTokenVault2OAuthAccount>
+          args: Prisma.TokenVaultOAuthAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTokenVaultOAuthAccount>
         }
         groupBy: {
-          args: Prisma.TokenVault2OAuthAccountGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TokenVault2OAuthAccountGroupByOutputType>[]
+          args: Prisma.TokenVaultOAuthAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TokenVaultOAuthAccountGroupByOutputType>[]
         }
         count: {
-          args: Prisma.TokenVault2OAuthAccountCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TokenVault2OAuthAccountCountAggregateOutputType> | number
+          args: Prisma.TokenVaultOAuthAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TokenVaultOAuthAccountCountAggregateOutputType> | number
         }
       }
     }
-    TokenVault2OAuthToken: {
-      payload: Prisma.$TokenVault2OAuthTokenPayload<ExtArgs>
-      fields: Prisma.TokenVault2OAuthTokenFieldRefs
+    TokenVaultOAuthToken: {
+      payload: Prisma.$TokenVaultOAuthTokenPayload<ExtArgs>
+      fields: Prisma.TokenVaultOAuthTokenFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.TokenVault2OAuthTokenFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload> | null
+          args: Prisma.TokenVaultOAuthTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.TokenVault2OAuthTokenFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>
+          args: Prisma.TokenVaultOAuthTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>
         }
         findFirst: {
-          args: Prisma.TokenVault2OAuthTokenFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload> | null
+          args: Prisma.TokenVaultOAuthTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.TokenVault2OAuthTokenFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>
+          args: Prisma.TokenVaultOAuthTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>
         }
         findMany: {
-          args: Prisma.TokenVault2OAuthTokenFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>[]
+          args: Prisma.TokenVaultOAuthTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>[]
         }
         create: {
-          args: Prisma.TokenVault2OAuthTokenCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>
+          args: Prisma.TokenVaultOAuthTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>
         }
         createMany: {
-          args: Prisma.TokenVault2OAuthTokenCreateManyArgs<ExtArgs>
+          args: Prisma.TokenVaultOAuthTokenCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.TokenVault2OAuthTokenCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>[]
+          args: Prisma.TokenVaultOAuthTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>[]
         }
         delete: {
-          args: Prisma.TokenVault2OAuthTokenDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>
+          args: Prisma.TokenVaultOAuthTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>
         }
         update: {
-          args: Prisma.TokenVault2OAuthTokenUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>
+          args: Prisma.TokenVaultOAuthTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>
         }
         deleteMany: {
-          args: Prisma.TokenVault2OAuthTokenDeleteManyArgs<ExtArgs>
+          args: Prisma.TokenVaultOAuthTokenDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.TokenVault2OAuthTokenUpdateManyArgs<ExtArgs>
+          args: Prisma.TokenVaultOAuthTokenUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.TokenVault2OAuthTokenUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>[]
+          args: Prisma.TokenVaultOAuthTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>[]
         }
         upsert: {
-          args: Prisma.TokenVault2OAuthTokenUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVault2OAuthTokenPayload>
+          args: Prisma.TokenVaultOAuthTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenVaultOAuthTokenPayload>
         }
         aggregate: {
-          args: Prisma.TokenVault2OAuthTokenAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTokenVault2OAuthToken>
+          args: Prisma.TokenVaultOAuthTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTokenVaultOAuthToken>
         }
         groupBy: {
-          args: Prisma.TokenVault2OAuthTokenGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TokenVault2OAuthTokenGroupByOutputType>[]
+          args: Prisma.TokenVaultOAuthTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TokenVaultOAuthTokenGroupByOutputType>[]
         }
         count: {
-          args: Prisma.TokenVault2OAuthTokenCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TokenVault2OAuthTokenCountAggregateOutputType> | number
+          args: Prisma.TokenVaultOAuthTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TokenVaultOAuthTokenCountAggregateOutputType> | number
         }
       }
     }
@@ -4492,15 +4505,16 @@ export const FormFieldDefinitionScalarFieldEnum = {
   label: 'label',
   fieldType: 'fieldType',
   mandatory: 'mandatory',
-  fieldOptionsJson: 'fieldOptionsJson',
   isHidden: 'isHidden',
   isEncrypted: 'isEncrypted',
   enabled: 'enabled',
   sortOrder: 'sortOrder',
+  stepId: 'stepId',
+  stepName: 'stepName',
   conditionJson: 'conditionJson',
   dependentOptionsJson: 'dependentOptionsJson',
+  viewPermissions: 'viewPermissions',
   validationRulesJson: 'validationRulesJson',
-  viewPermissionsJson: 'viewPermissionsJson',
   createdBy: 'createdBy',
   disabledBy: 'disabledBy',
   createdAt: 'createdAt',
@@ -4565,7 +4579,7 @@ export const DocumentReferenceScalarFieldEnum = {
   fileSize: 'fileSize',
   isPublic: 'isPublic',
   uploadedById: 'uploadedById',
-  storageOwnerSub: 'storageOwnerSub',
+  storageOwnerId: 'storageOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -4794,6 +4808,7 @@ export const ProjectScalarFieldEnum = {
   managerId: 'managerId',
   sponsorId: 'sponsorId',
   tags: 'tags',
+  isPublic: 'isPublic',
   metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -4935,7 +4950,7 @@ export const ReportScalarFieldEnum = {
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
 
 
-export const TokenVault2OAuthAccountScalarFieldEnum = {
+export const TokenVaultOAuthAccountScalarFieldEnum = {
   id: 'id',
   provider: 'provider',
   email: 'email',
@@ -4950,10 +4965,10 @@ export const TokenVault2OAuthAccountScalarFieldEnum = {
   deletedAt: 'deletedAt'
 } as const
 
-export type TokenVault2OAuthAccountScalarFieldEnum = (typeof TokenVault2OAuthAccountScalarFieldEnum)[keyof typeof TokenVault2OAuthAccountScalarFieldEnum]
+export type TokenVaultOAuthAccountScalarFieldEnum = (typeof TokenVaultOAuthAccountScalarFieldEnum)[keyof typeof TokenVaultOAuthAccountScalarFieldEnum]
 
 
-export const TokenVault2OAuthTokenScalarFieldEnum = {
+export const TokenVaultOAuthTokenScalarFieldEnum = {
   id: 'id',
   accountId: 'accountId',
   clientId: 'clientId',
@@ -4969,7 +4984,7 @@ export const TokenVault2OAuthTokenScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TokenVault2OAuthTokenScalarFieldEnum = (typeof TokenVault2OAuthTokenScalarFieldEnum)[keyof typeof TokenVault2OAuthTokenScalarFieldEnum]
+export type TokenVaultOAuthTokenScalarFieldEnum = (typeof TokenVaultOAuthTokenScalarFieldEnum)[keyof typeof TokenVaultOAuthTokenScalarFieldEnum]
 
 
 export const UserProfileScalarFieldEnum = {
@@ -5297,19 +5312,10 @@ export type BatchPayload = {
 export const defineExtension = runtime.Extensions.defineExtension as unknown as runtime.Types.Extensions.ExtendsHook<"define", TypeMapCb, runtime.Types.Extensions.DefaultArgs>
 export type DefaultPrismaClient = PrismaClient
 export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
-export type PrismaClientOptions = ({
-  /**
-   * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-pg`.
-   */
-  adapter: runtime.SqlDriverAdapterFactory
-  accelerateUrl?: never
-} | {
-  /**
-   * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
-   */
-  accelerateUrl: string
-  adapter?: never
-}) & {
+/**
+ * Options common to all variants of `PrismaClientOptions`, regardless of whether you connect to your database through a driver adapter or through Prisma Accelerate.
+ */
+export interface PrismaClientBaseOptions {
   /**
    * @default "colorless"
    */
@@ -5396,6 +5402,56 @@ export type PrismaClientOptions = ({
    */
   queryPlanCacheMaxSize?: number
 }
+
+/**
+ * `PrismaClient` options for connecting to your database through Prisma Accelerate instead of a driver adapter.
+ * 
+ * Learn more: https://pris.ly/d/accelerate
+ */
+export interface PrismaClientOptionsWithAccelerateUrl extends PrismaClientBaseOptions {
+  /**
+   * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
+   * 
+   * Learn more: https://pris.ly/d/accelerate
+   */
+  accelerateUrl: string
+  adapter?: never
+}
+
+/**
+ * `PrismaClient` options for connecting to your database through a driver adapter. This is the common case in Prisma 7.
+ * 
+ * Learn more: https://pris.ly/d/driver-adapters
+ */
+export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions {
+  /**
+   * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
+   * 
+   * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
+   * 
+   * Learn more: https://pris.ly/d/driver-adapters
+   * 
+   * @example
+   * ```ts
+   * import { PrismaPg } from '@prisma/adapter-pg'
+   * import { PrismaClient } from './generated/prisma/client'
+   * 
+   * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * const prisma = new PrismaClient({ adapter })
+   * ```
+   */
+  adapter: runtime.SqlDriverAdapterFactory
+  accelerateUrl?: never
+}
+
+/**
+ * Options passed to the `PrismaClient` constructor.
+ * 
+ * A driver adapter (or, alternatively, a Prisma Accelerate URL) is **required**. See {@link PrismaClientOptionsWithAdapter} and {@link PrismaClientOptionsWithAccelerateUrl} for the two variants. All other properties live in {@link PrismaClientBaseOptions} and are optional.
+ * 
+ * Learn more about driver adapters: https://pris.ly/d/driver-adapters
+ */
+export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   activity?: Prisma.ActivityOmit
   auditEntityChangeLog?: Prisma.AuditEntityChangeLogOmit
@@ -5435,8 +5491,8 @@ export type GlobalOmitConfig = {
   projectTeamMember?: Prisma.ProjectTeamMemberOmit
   projectRisk?: Prisma.ProjectRiskOmit
   report?: Prisma.ReportOmit
-  tokenVault2OAuthAccount?: Prisma.TokenVault2OAuthAccountOmit
-  tokenVault2OAuthToken?: Prisma.TokenVault2OAuthTokenOmit
+  tokenVaultOAuthAccount?: Prisma.TokenVaultOAuthAccountOmit
+  tokenVaultOAuthToken?: Prisma.TokenVaultOAuthTokenOmit
   userProfile?: Prisma.UserProfileOmit
   userPhoneNumber?: Prisma.UserPhoneNumberOmit
   userAddress?: Prisma.UserAddressOmit

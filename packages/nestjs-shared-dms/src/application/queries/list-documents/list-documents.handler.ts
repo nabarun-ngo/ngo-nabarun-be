@@ -1,12 +1,13 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { EntityTypePolicyUtil, EntityTypeForbiddenError, EntityAccessDeniedError, checkEntityRecordAccess } from '@nabarun-ngo/nestjs-shared-core';
+import { EntityTypeForbiddenError, EntityAccessDeniedError, IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
 import { IDocumentEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { IDocumentRepository } from '../../../domain/repositories/document.repository';
 import { DMS2_OPTIONS } from '../../../infrastructure/dms-options.application-token';
-import { Dms2ModuleOptions } from '../../../dms.schema';
+import { DmsModuleOptions } from '../../../dms.schema';
 import { ListDocumentsResponseDto } from '../../../presentation/dtos/document-response.dto';
 import { DocumentResponseMapper } from '../../mappers/document-response.mapper';
+import { assertDocumentEntityAccess } from '../../utilities/document-entity-access.util';
 import { ListDocumentsQuery } from './list-documents.query';
 
 @QueryHandler(ListDocumentsQuery)
@@ -16,32 +17,23 @@ export class ListDocumentsHandler implements IQueryHandler<ListDocumentsQuery, L
     @Inject(IDocumentRepository)
     private readonly repo: IDocumentRepository,
     @Inject(DMS2_OPTIONS)
-    private readonly options: Dms2ModuleOptions,
+    private readonly options: DmsModuleOptions,
     @Optional()
     @Inject(IDocumentEntityAccessPort)
-    private readonly accessPort: IDocumentEntityAccessPort | null,
+    private readonly accessPort: IEntityAccessPort | null,
   ) { }
 
   async execute(query: ListDocumentsQuery): Promise<ListDocumentsResponseDto> {
     const { entityType, entityId, userId, userPermissions } = query;
 
     try {
-      // 1. Allowlist + permission check
-      const config = EntityTypePolicyUtil.findConfig(entityType, this.options.allowedEntityTypes, 'DOCUMENT');
-      EntityTypePolicyUtil.assertHasPermission(
-        config?.readPermissions,
-        userPermissions,
-        'read',
+      await assertDocumentEntityAccess(this.options, this.accessPort, {
         entityType,
-        'DOCUMENT',
-      );
-
-      // 2. Optional record-level access check
-      await checkEntityRecordAccess(
-        this.accessPort,
-        { entityType, entityId, userId, userPermissions, action: 'read' },
-        'DOCUMENT',
-      );
+        entityId,
+        userId,
+        userPermissions,
+        action: 'read',
+      });
     } catch (err) {
       if (err instanceof EntityTypeForbiddenError || err instanceof EntityAccessDeniedError) {
         return { hasAccess: false, reason: err.errorCode, message: err.message, data: [] };

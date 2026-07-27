@@ -1,5 +1,7 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Injectable, Module } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
+import { BaseModuleValidator, registerModuleValidator } from '@nabarun-ngo/nestjs-shared-core';
 import { JsonStoreModuleOptions } from './json-store.schema';
 
 import { CreateJsonDocumentHandler } from './application/commands/create-json-document/create-json-document.handler';
@@ -14,16 +16,28 @@ import { JsonStoreFacade } from './application/services/json-store.facade';
 
 import { IJsonDocumentPayloadValidatorPort } from './domain/ports/json-document-payload-validator.port';
 import { NoOpJsonDocumentPayloadValidator } from './domain/ports/no-op-json-document-payload-validator';
+import { IJsonDocumentRepository } from './domain/repositories/json-document.repository';
 import { JsonDocumentController } from './presentation/controllers/json-document.controller';
 
-const COMMAND_HANDLERS = [
-  CreateJsonDocumentHandler,
-  UpdateJsonDocumentHandler,
-  UpsertJsonDocumentHandler,
-  DeleteJsonDocumentHandler,
-];
+const JSON_STORE_MODULE_VALIDATOR = Symbol('JsonStoreModule.internalValidator');
 
-const QUERY_HANDLERS = [GetJsonDocumentHandler, ListJsonDocumentsHandler];
+@Injectable()
+class JsonStoreModuleValidator extends BaseModuleValidator {
+  constructor(moduleRef: ModuleRef) {
+    super(moduleRef);
+  }
+
+  protected getModuleName(): string {
+    return 'JsonStoreModule';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      IJsonDocumentRepository,
+      'Register IJsonDocumentRepository in PersistenceModule and import PersistenceModule before JsonStoreModule.',
+    );
+  }
+}
 
 @Module({})
 export class JsonStoreModule {
@@ -33,9 +47,13 @@ export class JsonStoreModule {
       imports: [CqrsModule],
       controllers: options.exposeController ? [JsonDocumentController] : [],
       providers: [
-        ...COMMAND_HANDLERS,
-        ...QUERY_HANDLERS,
-
+        registerModuleValidator(JSON_STORE_MODULE_VALIDATOR, JsonStoreModuleValidator),
+        CreateJsonDocumentHandler,
+        UpdateJsonDocumentHandler,
+        UpsertJsonDocumentHandler,
+        DeleteJsonDocumentHandler,
+        GetJsonDocumentHandler,
+        ListJsonDocumentsHandler,
         {
           provide: IJsonDocumentPayloadValidatorPort,
           useClass: options.payloadValidator ?? NoOpJsonDocumentPayloadValidator,

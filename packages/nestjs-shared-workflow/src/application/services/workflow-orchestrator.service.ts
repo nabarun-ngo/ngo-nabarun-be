@@ -38,6 +38,9 @@ export interface StartWorkflowParams {
   name?: string;
   description?: string;
   context?: Record<string, unknown>;
+  /** Persisted via startEvent.formKey when the workflow definition declares one. */
+  formValues?: Record<string, unknown>;
+  formSubmittedById?: string;
   requester?: WorkflowRequester;
   initiatedById?: string | null;
   initiatedForId?: string | null;
@@ -106,6 +109,11 @@ export class WorkflowOrchestratorService {
       initiatedById: params.initiatedById,
     });
 
+    let context: Record<string, unknown> = {
+      ...(params.context ?? {}),
+      definitionId: definition.id,
+    };
+
     const instance = await this.instanceRepo.create({
       id: generateWorkflowInstanceId(),
       name: params.name ?? definition.name,
@@ -115,7 +123,7 @@ export class WorkflowOrchestratorService {
       status: WorkflowInstanceStatus.Running,
       currentElementId: null,
       parentInstanceId: null,
-      context: { ...(params.context ?? {}), definitionId: definition.id },
+      context,
       compensationStack: [],
       initiatedById: resolved.initiatedById,
       initiatedForId: params.initiatedForId ?? null,
@@ -128,6 +136,30 @@ export class WorkflowOrchestratorService {
       createdAt: now,
       updatedAt: now,
     });
+
+    if (params.formValues) {
+      const startFormKey = start.type === 'startEvent' ? start.formKey : undefined;
+      if (startFormKey) {
+        const snapshot = await this.formDataPort.saveFormData({
+          instanceId: instance.id,
+          elementId: start.id,
+          formKey: startFormKey,
+          values: params.formValues,
+          submittedById:
+            params.formSubmittedById ??
+            params.initiatedById ??
+            resolved.initiatedById ??
+            'system',
+          submit: true,
+        });
+        context = this.contextProjection.mergeFormData(context, snapshot);
+      } else {
+        context = this.contextProjection.mergeFormData(context, params.formValues);
+      }
+    }
+
+    const workingInstance =
+      context === instance.context ? instance : { ...instance, context };
 
     const ctx = this.runner.buildContext(definition, {
       actorType: 'user',
@@ -144,7 +176,7 @@ export class WorkflowOrchestratorService {
       correlationId: params.correlationId,
     });
 
-    const result = await this.runner.runToHalt(instance, start.id, ctx);
+    const result = await this.runner.runToHalt(workingInstance, start.id, ctx);
     const saved = await this.persistInstance(result.instance);
 
     if (params.idempotencyKey) {
@@ -232,7 +264,16 @@ export class WorkflowOrchestratorService {
     });
 
     let current: WorkflowInstanceRecord = { ...instance, context };
-    const advance = await this.runner.completeElement(current, task.elementId, ctx);
+    const branchToken = await this.tokenManager.findActiveAtElement(
+      instance.id,
+      task.elementId,
+    );
+    const advance = await this.runner.completeElement(
+      current,
+      task.elementId,
+      ctx,
+      branchToken ?? undefined,
+    );
     current = await this.persistInstance(advance.instance);
 
     await this.idempotency.complete(idempotencyKey, { instanceId: current.id });
@@ -393,7 +434,16 @@ export class WorkflowOrchestratorService {
       };
     }
 
-    const advance = await this.runner.completeElement(current, params.elementId, ctx);
+    const branchToken = await this.tokenManager.findActiveAtElement(
+      params.instanceId,
+      params.elementId,
+    );
+    const advance = await this.runner.completeElement(
+      current,
+      params.elementId,
+      ctx,
+      branchToken ?? undefined,
+    );
     return this.persistInstance(advance.instance);
   }
 

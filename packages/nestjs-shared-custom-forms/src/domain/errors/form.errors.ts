@@ -1,15 +1,5 @@
 import { BusinessError } from '@nabarun-ngo/nestjs-shared-core';
 
-export class EntityTypeForbiddenError extends BusinessError {
-  constructor(entityType: string) {
-    super(
-      `entityType "${entityType}" is not registered with CustomFormsModule`,
-      'CUSTOM_FORM_ENTITY_TYPE_FORBIDDEN',
-      403,
-    );
-  }
-}
-
 export class FormAccessDeniedError extends BusinessError {
   constructor(action: string, formId: string, entityId?: string) {
     const location = entityId ? `form ${formId}/${entityId}` : `form ${formId}`;
@@ -159,6 +149,16 @@ export class FormSubmissionAlreadySubmittedError extends BusinessError {
     super(
       `Form submission for ${entityType}/${entityId} on form "${formId}" is already submitted`,
       'CUSTOM_FORM_SUBMISSION_ALREADY_SUBMITTED',
+      400,
+    );
+  }
+}
+
+export class FormSubmissionInvalidError extends BusinessError {
+  constructor(messages: string[]) {
+    super(
+      messages.join('; ') || 'Validation failed',
+      'CUSTOM_FORM_SUBMISSION_INVALID',
       400,
     );
   }

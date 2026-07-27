@@ -3,10 +3,7 @@ import {
   DynamicModule,
   Inject,
   Injectable,
-  Logger,
   Module,
-  OnApplicationBootstrap,
-  OnModuleInit,
   Optional,
   Provider,
 } from '@nestjs/common';
@@ -15,16 +12,18 @@ import { CqrsModule } from '@nestjs/cqrs';
 import * as admin from 'firebase-admin';
 import {
   BaseDynamicModule,
+  BaseModuleValidator,
   DynamicModuleAsyncOptions,
-  MissingRequiredPortError,
+  IEntityAccessPort,
   OAUTH_ACCESS_TOKEN_PORT,
+  registerModuleValidator,
 } from '@nabarun-ngo/nestjs-shared-core';
-import { Dms2ModuleOptions, Dms2OptionsSchema } from './dms.schema';
-import { DMS2_OPTIONS } from './infrastructure/dms-options.token';
-import { FIREBASE_ADMIN } from './infrastructure/firebase-admin.token';
-import { IDocumentRepository } from './domain/repositories/document.repository';
+import { DmsModuleOptions, Dms2OptionsSchema } from './dms.schema';
 import { IDocumentEntityAccessPort } from './domain/ports/entity-access.port';
 import { IStorageProvider } from './domain/ports/storage.port';
+import { IDocumentRepository } from './domain/repositories/document.repository';
+import { DMS2_OPTIONS } from './infrastructure/dms-options.token';
+import { FIREBASE_ADMIN } from './infrastructure/firebase-admin.token';
 import { FirebaseStorageService } from './infrastructure/storage/firebase-storage.service';
 import { FirebaseStorageAdapter } from './infrastructure/storage/firebase-storage.adapter';
 import { UploadDocumentHandler } from './application/commands/upload-document/upload-document.handler';
@@ -33,75 +32,62 @@ import { RenameDocumentHandler } from './application/commands/rename-document/re
 import { ListDocumentsHandler } from './application/queries/list-documents/list-documents.handler';
 import { GetSignedUrlHandler } from './application/queries/get-signed-url/get-signed-url.handler';
 import { DownloadDocumentHandler } from './application/queries/download-document/download-document.handler';
-import { OnDocumentUploadedHandler } from './application/event-handlers/on-document-uploaded/on-document-uploaded.handler';
-import { OnDocumentDeletedHandler } from './application/event-handlers/on-document-deleted/on-document-deleted.handler';
+import { OnDocumentUploadedHandler } from './application/handlers/events/on-document-uploaded/on-document-uploaded.handler';
+import { OnDocumentDeletedHandler } from './application/handlers/events/on-document-deleted/on-document-deleted.handler';
 import { Dms2Controller } from './presentation/controllers/dms.controller';
+import { DmsFacade } from './application/services/dms.facade';
 
-export interface Dms2ModuleAsyncOptions
-  extends DynamicModuleAsyncOptions<Dms2ModuleOptions> {
+export interface DmsModuleAsyncOptions
+  extends DynamicModuleAsyncOptions<DmsModuleOptions> {
   storageProvider?: Provider;
 }
 
+const DMS_MODULE_VALIDATOR = Symbol('DmsModule.internalValidator');
+
 const ENTITY_ACCESS_PORT_MISSING_MSG =
-  '[Dms2Module] IDocumentEntityAccessPort is not provided. ' +
+  '[DmsModule] IDocumentEntityAccessPort is not provided. ' +
   'Document read/write access will NOT be restricted by record-level entity checks — ' +
   'any authenticated user with the required permission can access documents on any entityType/entityId. ' +
-  'Fix: implement IDocumentEntityAccessPort in your app, register ' +
+  'Fix: implement IEntityAccessPort in your app, register ' +
   '{ provide: IDocumentEntityAccessPort, useClass: MyAdapter }, ' +
   'export the token from a module, and add that module to the ' +
-  'imports array of Dms2Module.forRoot() / forRootAsync().';
+  'imports array of DmsModule.forRoot() / forRootAsync().';
 
 @Injectable()
-class Dms2EntityAccessServiceGuard implements OnApplicationBootstrap {
-  private readonly logger = new Logger('Dms2Module');
-
+class DmsModuleValidator extends BaseModuleValidator {
   constructor(
+    moduleRef: ModuleRef,
+    @Inject(DMS2_OPTIONS) private readonly options: DmsModuleOptions,
     @Optional()
     @Inject(IDocumentEntityAccessPort)
-    private readonly accessPort: IDocumentEntityAccessPort | null,
-  ) { }
-
-  onApplicationBootstrap(): void {
-    if (this.accessPort) return;
-    this.logger.warn(ENTITY_ACCESS_PORT_MISSING_MSG);
+    private readonly accessPort: IEntityAccessPort | null,
+  ) {
+    super(moduleRef);
   }
-}
 
-@Injectable()
-class DmsRequiredPortsGuard implements OnModuleInit {
-  constructor(
-    private readonly moduleRef: ModuleRef,
-    @Inject(DMS2_OPTIONS) private readonly options: Dms2ModuleOptions,
-  ) { }
+  protected getModuleName(): string {
+    return 'DmsModule';
+  }
 
-  onModuleInit(): void {
-    const repo = this.moduleRef.get(IDocumentRepository, { strict: false });
-    if (repo === undefined || repo === null) {
-      throw new MissingRequiredPortError(
-        'Dms2Module',
-        IDocumentRepository,
-        'Register IDocumentRepository in PersistenceModule and import PersistenceModule before Dms2Module.',
-      );
-    }
+  protected validateModule(): void {
+    this.requirePort(
+      IDocumentRepository,
+      'Register IDocumentRepository in PersistenceModule and import PersistenceModule before DmsModule.',
+    );
 
-    if (this.options.provider !== 'google-drive') return;
-
-    const oauth = this.moduleRef.get(OAUTH_ACCESS_TOKEN_PORT, { strict: false });
-    if (oauth === undefined || oauth === null) {
-      throw new MissingRequiredPortError(
-        'Dms2Module',
+    if (this.options.provider === 'google-drive') {
+      this.requirePort(
         OAUTH_ACCESS_TOKEN_PORT,
         'Register { provide: OAUTH_ACCESS_TOKEN_PORT, useClass: TokenVaultOAuthAccessTokenAdapter } in IntegrationsModule. Requires TokenVaultModule with Google OAuth configured.',
       );
-    }
-
-    const storage = this.moduleRef.get(IStorageProvider, { strict: false });
-    if (storage === undefined || storage === null) {
-      throw new MissingRequiredPortError(
-        'Dms2Module',
+      this.requirePort(
         IStorageProvider,
         'Pass storageProvider override with GoogleDriveStorageAdapter from apps/api/src/integrations/dms when provider is google-drive.',
       );
+    }
+
+    if (!this.accessPort) {
+      this.warn(ENTITY_ACCESS_PORT_MISSING_MSG);
     }
   }
 }
@@ -121,23 +107,23 @@ const QUERY_HANDLERS = [
 const EVENT_HANDLERS = [OnDocumentUploadedHandler, OnDocumentDeletedHandler];
 
 @Module({})
-export class Dms2Module extends BaseDynamicModule {
+export class DmsModule extends BaseDynamicModule {
   static forRoot(
-    options: Dms2ModuleOptions = {} as Dms2ModuleOptions,
+    options: DmsModuleOptions = {} as DmsModuleOptions,
     overrides: { storageProvider?: Provider; imports?: any[] } = {},
   ): DynamicModule {
-    return Dms2Module._build(
-      [Dms2Module.createOptionsProvider(DMS2_OPTIONS, Dms2OptionsSchema, options)],
+    return DmsModule._build(
+      [DmsModule.createOptionsProvider(DMS2_OPTIONS, Dms2OptionsSchema, options)],
       overrides.imports ?? [],
       overrides.storageProvider,
     );
   }
 
-  static forRootAsync(options: Dms2ModuleAsyncOptions): DynamicModule {
-    return Dms2Module._build(
+  static forRootAsync(options: DmsModuleAsyncOptions): DynamicModule {
+    return DmsModule._build(
       [
         {
-          ...Dms2Module.createAsyncOptionsProvider(DMS2_OPTIONS, Dms2OptionsSchema, options),
+          ...DmsModule.createAsyncOptionsProvider(DMS2_OPTIONS, Dms2OptionsSchema, options),
         },
       ],
       options.imports,
@@ -152,7 +138,7 @@ export class Dms2Module extends BaseDynamicModule {
   ): DynamicModule {
     const firebaseAdminProvider: Provider = {
       provide: FIREBASE_ADMIN,
-      useFactory: (opts: Dms2ModuleOptions): admin.app.App | null => {
+      useFactory: (opts: DmsModuleOptions): admin.app.App | null => {
         if (opts.provider !== 'firebase' || !opts.firebase?.serviceAccount) return null;
         const sa =
           typeof opts.firebase.serviceAccount === 'string'
@@ -175,10 +161,10 @@ export class Dms2Module extends BaseDynamicModule {
 
     const storageProviderBinding: Provider = storageProviderOverride ?? {
       provide: IStorageProvider,
-      useFactory: (opts: Dms2ModuleOptions, firebaseAdapter: FirebaseStorageAdapter) => {
+      useFactory: (opts: DmsModuleOptions, firebaseAdapter: FirebaseStorageAdapter) => {
         if (opts.provider === 'google-drive') {
           throw new Error(
-            '[Dms2Module] provider=google-drive requires a storageProvider override from the host (GoogleDriveStorageAdapter).',
+            '[DmsModule] provider=google-drive requires a storageProvider override from the host (GoogleDriveStorageAdapter).',
           );
         }
         return firebaseAdapter;
@@ -187,13 +173,12 @@ export class Dms2Module extends BaseDynamicModule {
     };
 
     return {
-      module: Dms2Module,
+      module: DmsModule,
       imports: [...(extraImports ?? []), CqrsModule, HttpModule],
       controllers: [Dms2Controller],
       providers: [
         ...optionsProviders,
-        Dms2EntityAccessServiceGuard,
-        DmsRequiredPortsGuard,
+        registerModuleValidator(DMS_MODULE_VALIDATOR, DmsModuleValidator),
         firebaseAdminProvider,
         FirebaseStorageService,
         FirebaseStorageAdapter,
@@ -201,8 +186,9 @@ export class Dms2Module extends BaseDynamicModule {
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
         ...EVENT_HANDLERS,
+        DmsFacade,
       ],
-      exports: [DMS2_OPTIONS],
+      exports: [DMS2_OPTIONS, DmsFacade],
     };
   }
 }

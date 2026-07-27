@@ -1,24 +1,24 @@
-export interface Auth2PermissionSeed {
+export interface AuthPermissionSeed {
   key: string;
   description?: string;
 }
 
-export interface Auth2RoleSeed {
+export interface AuthRoleSeed {
   key: string;
   description?: string;
   permissionKeys: string[];
   seedUsers?: string[];
 }
 
-export interface Auth2RoleGroupSeed {
+export interface AuthRoleGroupSeed {
   key: string;
   description?: string;
   roleKeys: string[];
   seedUsers?: string[];
 }
 
-export interface Auth2SeedData {
-  permissions: Auth2PermissionSeed[];
-  roles: Auth2RoleSeed[];
-  roleGroups?: Auth2RoleGroupSeed[];
+export interface AuthSeedData {
+  permissions: AuthPermissionSeed[];
+  roles: AuthRoleSeed[];
+  roleGroups?: AuthRoleGroupSeed[];
 }

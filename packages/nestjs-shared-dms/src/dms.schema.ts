@@ -36,4 +36,4 @@ export const Dms2OptionsSchema = z.object({
     .optional(),
 });
 
-export type Dms2ModuleOptions = z.infer<typeof Dms2OptionsSchema>;
+export type DmsModuleOptions = z.infer<typeof Dms2OptionsSchema>;

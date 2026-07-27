@@ -1,4 +1,5 @@
 import { IRepository } from '@nabarun-ngo/nestjs-shared-core';
+import { Form } from '../aggregates/form/form.aggregate';
 import { FormSubmission } from '../aggregates/form-submission/form-submission.aggregate';
 import { FormFieldValueHistoryEntry } from '../entities/form-field-value-history-entry/form-field-value-history-entry.entity';
 
@@ -19,11 +20,9 @@ export interface IFormSubmissionRepository
     formId: string,
   ): Promise<FormSubmission | null>;
 
-  upsertDraft(
-    entityType: string,
-    entityId: string,
-    formId: string,
-    values: Array<{ fieldDefId: string; value: string | null; changedBy: string }>,
+  saveDraft(
+    submission: FormSubmission,
+    form: Form,
   ): Promise<FormSubmission>;
 
   clearByEntity(

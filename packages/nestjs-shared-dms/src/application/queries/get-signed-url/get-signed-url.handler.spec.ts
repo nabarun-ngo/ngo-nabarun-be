@@ -105,7 +105,7 @@ describe('GetSignedUrlHandler', () => {
     await expect(handler.execute(query)).rejects.toThrow(DocumentAccessDeniedError);
   });
 
-  it('passes storageOwnerSub to getSignedUrl for Drive-backed documents', async () => {
+  it('passes storageOwnerId to getSignedUrl for Drive-backed documents', async () => {
     const doc = Document.create({
       fileName: 'report.pdf',
       contentType: 'application/pdf',
@@ -114,7 +114,7 @@ describe('GetSignedUrlHandler', () => {
       publicToken: 'token-abc',
       mappedTo: [DocumentMapping.create({ refId: 'entity-1', refType: 'donation' })],
       visibility: DocumentVisibility.Private,
-      storageOwnerSub: 'google-sub-1',
+      storageOwnerId: 'user-uuid-1',
     });
     doc.clearEvents();
     const repo = makeRepo(doc);
@@ -123,7 +123,7 @@ describe('GetSignedUrlHandler', () => {
 
     const result = await handler.execute(BASE_QUERY);
 
-    expect(storage.getSignedUrl).toHaveBeenCalledWith('drive-file-id', 'google-sub-1');
+    expect(storage.getSignedUrl).toHaveBeenCalledWith('drive-file-id', 'user-uuid-1');
     expect(result).toBe('https://drive.google.com/view');
   });
 

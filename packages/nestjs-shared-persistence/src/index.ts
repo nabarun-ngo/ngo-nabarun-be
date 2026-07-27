@@ -30,7 +30,8 @@ export type {
   PrismaModelDelegate,
   PrismaModelKey,
 } from './prisma/prisma-type.utils';
-export { LockingService } from './prisma/locking.service';
+export { ILockingPort } from './domain/ports/locking.port';
+export type { LockTransaction } from './domain/ports/locking.port';
 export { RepositoryHelpers } from './prisma/repository-helpers';
 
 // ── Redis services ────────────────────────────────────────────────────────────

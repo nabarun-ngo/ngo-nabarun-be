@@ -28,6 +28,7 @@ export class ProjectPrismaMapper {
       MapperUtils.nullToUndefined(p.actualBeneficiaryCount),
       MapperUtils.nullToUndefined(p.sponsorId),
       p.tags,
+      p.isPublic,
       p.metadata as Record<string, unknown> | undefined,
       p.createdAt,
       p.updatedAt,
@@ -55,6 +56,7 @@ export class ProjectPrismaMapper {
       managerId: domain.managerId,
       sponsorId: MapperUtils.undefinedToNull(domain.sponsorId),
       tags: domain.tags,
+      isPublic: domain.isPublic,
       metadata: domain.metadata as Prisma.InputJsonValue,
       version: 0,
     };
@@ -76,6 +78,7 @@ export class ProjectPrismaMapper {
       actualBeneficiaryCount: MapperUtils.undefinedToNull(domain.actualBeneficiaryCount),
       sponsorId: MapperUtils.undefinedToNull(domain.sponsorId),
       tags: domain.tags,
+      isPublic: domain.isPublic,
       metadata: domain.metadata as Prisma.InputJsonValue,
       updatedAt: new Date(),
     };

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { CompleteUserTaskCommand } from './complete-user-task.command';
-import { WorkflowFacade } from '../../services/workflow.facade';
+import { WorkflowOrchestratorService } from '../../services/workflow-orchestrator.service';
 import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-instance.repository';
 
 @CommandHandler(CompleteUserTaskCommand)
@@ -9,9 +9,9 @@ import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-inst
 export class CompleteUserTaskHandler
   implements ICommandHandler<CompleteUserTaskCommand, WorkflowInstanceRecord>
 {
-  constructor(private readonly facade: WorkflowFacade) {}
+  constructor(private readonly orchestrator: WorkflowOrchestratorService) {}
 
   execute(command: CompleteUserTaskCommand): Promise<WorkflowInstanceRecord> {
-    return this.facade.completeUserTask(command.params);
+    return this.orchestrator.completeUserTask(command.params);
   }
 }

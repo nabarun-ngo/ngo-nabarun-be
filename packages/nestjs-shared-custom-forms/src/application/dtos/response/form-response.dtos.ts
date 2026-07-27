@@ -1,40 +1,29 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CustomFieldType } from '../../../domain/enums/custom-field-type.enum';
 import { FormStatus } from '../../../domain/enums/form-status.enum';
+import { FieldOptionDto } from '../shared/field-option.dto';
+import { FieldConditionDto } from '../shared/field-condition.dto';
+import { DependentOptionsDto } from '../shared/dependent-options.dto';
+import { FieldRegexRuleDto } from '../shared/field-regex-rule.dto';
+import { FieldValidationRulesDto } from '../shared/field-validation-rules.dto';
 
-export class FieldOptionResponseDto {
-  @ApiProperty()
-  key: string;
+export class FieldOptionResponseDto extends FieldOptionDto {}
 
-  @ApiProperty()
-  label: string;
-}
+export class FieldConditionResponseDto extends FieldConditionDto {}
 
-export class FieldConditionResponseDto {
-  @ApiProperty()
-  dependsOnKey: string;
-
-  @ApiProperty()
-  operator: string;
-
-  @ApiProperty({ type: Object })
-  value: string | number | boolean | string[];
-}
-
-export class DependentOptionsResponseDto {
-  @ApiProperty()
-  dependsOnKey: string;
-
+export class DependentOptionsResponseDto extends DependentOptionsDto {
   @ApiProperty({ description: 'parentValue → available FieldOptions' })
-  optionMap: Record<string, FieldOptionResponseDto[]>;
+  declare optionMap: Record<string, FieldOptionResponseDto[]>;
 }
 
-export class FieldValidationRulesResponseDto {
-  @ApiProperty({ description: 'JavaScript regex source (no delimiters)' })
-  pattern: string;
+export class FieldRegexRuleResponseDto extends FieldRegexRuleDto {}
 
-  @ApiPropertyOptional({ description: 'Custom error message when the value does not match pattern' })
-  regexErrMsg?: string;
+export class FieldValidationRulesResponseDto extends FieldValidationRulesDto {
+  @ApiProperty({
+    type: [FieldRegexRuleResponseDto],
+    description: 'All patterns must match (AND)',
+  })
+  declare patterns: FieldRegexRuleResponseDto[];
 }
 
 export class FormFieldDefinitionResponseDto {
@@ -70,6 +59,12 @@ export class FormFieldDefinitionResponseDto {
 
   @ApiProperty()
   sortOrder: number;
+
+  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms' })
+  stepId: string | null;
+
+  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step' })
+  stepName: string | null;
 
   @ApiPropertyOptional({ type: FieldConditionResponseDto, nullable: true })
   condition: FieldConditionResponseDto | null;
@@ -175,20 +170,6 @@ export class ResolvedFormFieldValueResponseDto {
   condition: FieldConditionResponseDto | null;
 }
 
-export class FormValidationResultResponseDto {
-  @ApiProperty()
-  valid: boolean;
-
-  @ApiProperty({ type: [String] })
-  missingMandatory: string[];
-
-  @ApiProperty({ type: [String] })
-  conditionViolations: string[];
-
-  @ApiProperty({ type: [String] })
-  validationViolations: string[];
-}
-
 export class FormFieldValueHistoryEntryResponseDto {
   @ApiProperty()
   id: string;
@@ -208,11 +189,11 @@ export class FormFieldValueHistoryEntryResponseDto {
   @ApiProperty()
   entityId: string;
 
-  @ApiPropertyOptional({ nullable: true })
-  oldValue: string | null;
+  @ApiPropertyOptional({ type: Object, nullable: true })
+  oldValue: unknown;
 
-  @ApiPropertyOptional({ nullable: true })
-  newValue: string | null;
+  @ApiPropertyOptional({ type: Object, nullable: true })
+  newValue: unknown;
 
   @ApiProperty()
   changedBy: string;

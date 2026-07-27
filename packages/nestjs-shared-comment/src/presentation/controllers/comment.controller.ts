@@ -9,12 +9,11 @@ import {
   Post,
   Put,
   Query,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { AuthUser, CurrentUser, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { AuthUser, CurrentUser, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { AddCommentCommand } from '../../application/commands/add-comment/add-comment.command';
 import { UpdateCommentCommand } from '../../application/commands/update-comment/update-comment.command';
@@ -46,7 +45,7 @@ export class CommentController {
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: AuthUser,
   ): Promise<CommentResponseDto> {
-    const authorId = this.requireProfileId(user);
+    const authorId = requireUserId(user);
 
     return this.commandBus.execute(
       new AddCommentCommand({
@@ -56,8 +55,8 @@ export class CommentController {
         parentId: dto.parentId,
         mentions: dto.mentions,
         authorId,
-        authorName: user.name ?? '',
-        authorEmail: user.email ?? '',
+        authorName: user.name ?? 'Unknown User',
+        authorEmail: user.email,
         userPermissions: user.permissions ?? [],
       }),
     );
@@ -71,7 +70,7 @@ export class CommentController {
     @Body() dto: UpdateCommentDto,
     @CurrentUser() user: AuthUser,
   ): Promise<CommentResponseDto> {
-    const authorId = this.requireProfileId(user);
+    const authorId = requireUserId(user);
 
     return this.commandBus.execute(
       new UpdateCommentCommand({
@@ -79,7 +78,7 @@ export class CommentController {
         content: dto.content,
         mentions: dto.mentions,
         authorId,
-        authorName: user.name ?? '',
+        authorName: user.name ?? 'Unknown User',
         userPermissions: user.permissions ?? [],
       }),
     );
@@ -93,7 +92,7 @@ export class CommentController {
     @Param('id') id: string,
     @CurrentUser() user: AuthUser,
   ): Promise<void> {
-    const authorId = this.requireProfileId(user);
+    const authorId = requireUserId(user);
 
     return this.commandBus.execute(
       new DeleteCommentCommand({
@@ -111,7 +110,7 @@ export class CommentController {
     @Query() query: GetCommentsQueryDto,
     @CurrentUser() user: AuthUser,
   ): Promise<GetCommentsResponseDto> {
-    const userId = this.requireProfileId(user);
+    const userId = requireUserId(user);
 
     return this.queryBus.execute(
       new GetCommentsQuery({
@@ -123,12 +122,5 @@ export class CommentController {
         offset: query.offset,
       }),
     );
-  }
-
-  private requireProfileId(user: AuthUser): string {
-    if (!user.userId) {
-      throw new UnauthorizedException('User profile not found');
-    }
-    return user.userId;
   }
 }

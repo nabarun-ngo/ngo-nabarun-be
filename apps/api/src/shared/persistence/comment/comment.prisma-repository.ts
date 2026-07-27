@@ -8,7 +8,7 @@ import {
   CommentWhereInput,
   CommentWhereUniqueInput,
   CommentOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/Comment';
 import {
   Comment,
   CommentFilter,

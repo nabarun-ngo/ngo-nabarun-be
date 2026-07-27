@@ -13,8 +13,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiAutoResponse, SuccessResponse } from '@nabarun-ngo/nestjs-shared-core';
-import { CurrentUser, RequirePermissions, type AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { CurrentUser, RequirePermissions, type AuthUser, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import { WorkflowRequesterType } from '../../domain/models/workflow-requester';
 import { StartWorkflowCommand } from '../../application/commands/start-workflow/start-workflow.command';
 import { CompleteUserTaskCommand } from '../../application/commands/complete-user-task/complete-user-task.command';
@@ -51,21 +51,20 @@ export class WorkflowController {
   async start(
     @Body() dto: StartWorkflowRequestDto,
     @CurrentUser() user: AuthUser,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new StartWorkflowCommand({
-          definitionId: dto.definitionId,
-          definitionVersion: dto.definitionVersion,
-          name: dto.name,
-          description: dto.description,
-          context: dto.context,
-          requester: { type: WorkflowRequesterType.Internal, id: user.userId ?? null },
-          initiatedById: user.userId ?? null,
-          initiatedForId: dto.initiatedForId,
-          idempotencyKey: dto.idempotencyKey,
-        }),
-      ),
+  ): Promise<WorkflowInstanceDto> {
+    const userId = requireUserId(user);
+    return this.commandBus.execute(
+      new StartWorkflowCommand({
+        definitionId: dto.definitionId,
+        definitionVersion: dto.definitionVersion,
+        name: dto.name,
+        description: dto.description,
+        context: dto.context,
+        requester: { type: WorkflowRequesterType.Internal, id: userId },
+        initiatedById: userId,
+        initiatedForId: dto.initiatedForId,
+        idempotencyKey: dto.idempotencyKey,
+      }),
     );
   }
 
@@ -73,9 +72,9 @@ export class WorkflowController {
   @RequirePermissions('read:task')
   @ApiOperation({ summary: 'List open workflow tasks for the current user' })
   @ApiAutoResponse(WorkflowInboxTaskDto, { wrapInSuccessResponse: true, isArray: true })
-  async getMyInbox(@CurrentUser() user: AuthUser) {
-    return new SuccessResponse(
-      await this.queryBus.execute(new GetMyInboxQuery(user.userId!)),
+  async getMyInbox(@CurrentUser() user: AuthUser): Promise<WorkflowInboxTaskDto[]> {
+    return this.queryBus.execute(
+      new GetMyInboxQuery(requireUserId(user), user.permissions ?? []),
     );
   }
 
@@ -83,10 +82,8 @@ export class WorkflowController {
   @RequirePermissions('read:workflow')
   @ApiOperation({ summary: 'Get workflow instance by id' })
   @ApiAutoResponse(WorkflowInstanceDto, { wrapInSuccessResponse: true })
-  async getInstance(@Param('instanceId') instanceId: string) {
-    return new SuccessResponse(
-      await this.queryBus.execute(new GetWorkflowInstanceQuery(instanceId)),
-    );
+  async getInstance(@Param('instanceId') instanceId: string): Promise<WorkflowInstanceDto> {
+    return this.queryBus.execute(new GetWorkflowInstanceQuery(instanceId));
   }
 
   @Post(':instanceId/cancel')
@@ -97,15 +94,13 @@ export class WorkflowController {
     @Param('instanceId') instanceId: string,
     @Body() dto: CancelWorkflowRequestDto,
     @CurrentUser() user: AuthUser,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new CancelWorkflowCommand({
-          instanceId,
-          actorId: user.userId ?? null,
-          remarks: dto.remarks,
-        }),
-      ),
+  ): Promise<WorkflowInstanceDto> {
+    return this.commandBus.execute(
+      new CancelWorkflowCommand({
+        instanceId,
+        actorId: requireUserId(user),
+        remarks: dto.remarks,
+      }),
     );
   }
 
@@ -116,15 +111,13 @@ export class WorkflowController {
   async claimTask(
     @Param('taskId') taskId: string,
     @CurrentUser() user: AuthUser,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new ClaimTaskCommand({
-          taskId,
-          userId: user.userId!,
-          userPermissions: user.permissions ?? [],
-        }),
-      ),
+  ): Promise<WorkflowInstanceDto> {
+    return this.commandBus.execute(
+      new ClaimTaskCommand({
+        taskId,
+        userId: requireUserId(user),
+        userPermissions: user.permissions ?? [],
+      }),
     );
   }
 
@@ -136,17 +129,15 @@ export class WorkflowController {
     @Param('taskId') taskId: string,
     @Body() dto: CompleteUserTaskRequestDto,
     @CurrentUser() user: AuthUser,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new CompleteUserTaskCommand({
-          taskId,
-          userId: user.userId!,
-          userPermissions: user.permissions ?? [],
-          formValues: dto.formValues,
-          idempotencyKey: dto.idempotencyKey,
-        }),
-      ),
+  ): Promise<WorkflowInstanceDto> {
+    return this.commandBus.execute(
+      new CompleteUserTaskCommand({
+        taskId,
+        userId: requireUserId(user),
+        userPermissions: user.permissions ?? [],
+        formValues: dto.formValues,
+        idempotencyKey: dto.idempotencyKey,
+      }),
     );
   }
 
@@ -158,16 +149,14 @@ export class WorkflowController {
     @Param('taskId') taskId: string,
     @Body() dto: DelegateTaskRequestDto,
     @CurrentUser() user: AuthUser,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new DelegateTaskCommand({
-          taskId,
-          fromUserId: user.userId!,
-          toUserId: dto.toUserId,
-          userPermissions: user.permissions ?? [],
-        }),
-      ),
+  ): Promise<WorkflowInstanceDto> {
+    return this.commandBus.execute(
+      new DelegateTaskCommand({
+        taskId,
+        fromUserId: requireUserId(user),
+        toUserId: dto.toUserId,
+        userPermissions: user.permissions ?? [],
+      }),
     );
   }
 
@@ -179,14 +168,12 @@ export class WorkflowController {
     @Param('instanceId') instanceId: string,
     @Query('fromSequence') fromSequence?: number,
     @Query('limit') limit?: number,
-  ) {
-    return new SuccessResponse(
-      await this.queryBus.execute(
-        new GetWorkflowTimelineQuery(instanceId, {
-          fromSequence: fromSequence != null ? Number(fromSequence) : undefined,
-          limit: limit != null ? Number(limit) : undefined,
-        }),
-      ),
+  ): Promise<WorkflowTimelineEntryDto[]> {
+    return this.queryBus.execute(
+      new GetWorkflowTimelineQuery(instanceId, {
+        fromSequence: fromSequence != null ? Number(fromSequence) : undefined,
+        limit: limit != null ? Number(limit) : undefined,
+      }),
     );
   }
 }

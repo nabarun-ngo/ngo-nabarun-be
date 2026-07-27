@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // User bounded context schema — admin-only provisioning, no self-signup.
-// Roles are owned by Auth2 (auth_user_role). Phone + Address = child rows for
+// Roles are owned by Auth (auth_user_role). Phone + Address = child rows for
 // VOs (queryability); SocialLink = child entity with stable linkType key.
 // ─────────────────────────────────────────────────────────────────────────────
 

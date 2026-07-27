@@ -9,7 +9,7 @@ import {
 import { EncryptedToken } from '@nabarun-ngo/nestjs-shared-token-vault/domain/value-objects/encrypted-token.vo';
 import { OAuthToken } from '@nabarun-ngo/nestjs-shared-token-vault/domain/aggregates/oauth-token/oauth-token.aggregate';
 import { EventBus, IEvent } from '@nestjs/cqrs';
-import { LockingService } from '@nabarun-ngo/nestjs-shared-persistence/prisma/locking.service';
+import { ILockingPort } from '@nabarun-ngo/nestjs-shared-persistence';
 
 const SECRET = 'super-secret-key-that-is-at-least-32chars!!';
 const FUTURE = new Date(Date.now() + 3_600_000);
@@ -55,7 +55,7 @@ const makeProvider = (newTokenSet?: {
   getSupportedScopes: jest.fn(),
 });
 
-const makeLockingService = (): Pick<LockingService, 'withLock' | 'withLocks'> => ({
+const makeLockingService = (): Pick<ILockingPort, 'withLock' | 'withLocks'> => ({
   withLock: jest.fn().mockImplementation((_key: string, fn: () => Promise<unknown>) => fn()),
   withLocks: jest.fn().mockImplementation((_keys: string[], fn: () => Promise<unknown>) => fn()),
 });
@@ -89,7 +89,7 @@ function makeHandler(token: OAuthToken | null, provider: any, overrides: {
     registry as any,
     tokenRepo as any,
     OPTIONS as any,
-    lockingService as LockingService,
+    lockingService as ILockingPort,
     eventBus as EventBus<IEvent>,
   );
 
@@ -106,7 +106,7 @@ describe('RefreshTokenHandler', () => {
       registry as any,
       { findById: jest.fn() } as any,
       OPTIONS as any,
-      makeLockingService() as LockingService,
+      makeLockingService() as ILockingPort,
       makeEventBus() as EventBus<IEvent>,
     );
     await expect(

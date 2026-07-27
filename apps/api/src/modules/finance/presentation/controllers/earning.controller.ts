@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import { CreateEarningCommand } from '../../application/commands/create-earning/create-earning.command';
 import { UpdateEarningCommand } from '../../application/commands/update-earning/update-earning.command';
@@ -31,7 +31,7 @@ export class EarningController {
   async createEarning(@Body() dto: CreateEarningDto, @CurrentUser() user: AuthUser): Promise<EarningDetailDto> {
     const earning = await this.commandBus.execute(
       new CreateEarningCommand({
-        userId: user.userId!,
+        userId: requireUserId(user),
         category: dto.category,
         amount: dto.amount,
         currency: dto.currency,
@@ -48,7 +48,7 @@ export class EarningController {
     const earning = await this.commandBus.execute(
       new UpdateEarningCommand({
         id,
-        userId: user.userId!,
+        userId: requireUserId(user),
         category: dto.category,
         amount: dto.amount,
         description: dto.description,

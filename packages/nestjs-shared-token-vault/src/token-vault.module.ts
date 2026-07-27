@@ -1,10 +1,18 @@
 import { HttpModule } from '@nestjs/axios';
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Injectable, Module } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-import { BaseDynamicModule, DynamicModuleAsyncOptions } from '@nabarun-ngo/nestjs-shared-core';
-import { LockingService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from './token-vault-options';
-import { TokenVault2OptionsSchema } from './token-vault.schema';
+import {
+  BaseDynamicModule,
+  BaseModuleValidator,
+  DynamicModuleAsyncOptions,
+  registerModuleValidator,
+} from '@nabarun-ngo/nestjs-shared-core';
+import { ILockingPort } from '@nabarun-ngo/nestjs-shared-persistence';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from './token-vault-options';
+import { TokenVaultOptionsSchema } from './token-vault.schema';
+import { IOAuthAccountRepository } from './domain/repositories/oauth-account.repository';
+import { IOAuthTokenRepository } from './domain/repositories/oauth-token.repository';
 
 // Application handlers
 import { InitiateOAuthHandler } from './application/commands/initiate-oauth/initiate-oauth.handler';
@@ -16,13 +24,13 @@ import { ListTokensHandler } from './application/queries/list-tokens/list-tokens
 import { ListAccountsHandler } from './application/queries/list-accounts/list-accounts.handler';
 
 // Application event handlers
-import { OnTokenRevokedHandler } from './application/event-handlers/on-token-revoked.handler';
-import { OnTokenRefreshedHandler } from './application/event-handlers/on-token-refreshed.handler';
-import { OnAccountConnectedHandler } from './application/event-handlers/on-account-connected.handler';
-import { OnAccountDisconnectedHandler } from './application/event-handlers/on-account-disconnected.handler';
+import { OnTokenRevokedHandler } from './application/handlers/events/on-token-revoked/on-token-revoked.handler';
+import { OnTokenRefreshedHandler } from './application/handlers/events/on-token-refreshed/on-token-refreshed.handler';
+import { OnAccountConnectedHandler } from './application/handlers/events/on-account-connected/on-account-connected.handler';
+import { OnAccountDisconnectedHandler } from './application/handlers/events/on-account-disconnected/on-account-disconnected.handler';
 
 // Application services
-import { TokenVaultFacade, TOKEN_VAULT2_FACADE } from './application/services/token-vault.facade';
+import { TokenVaultFacade, TOKEN_VAULT_FACADE } from './application/services/token-vault.facade';
 
 // Ports
 import { OAUTH_PROVIDER_REGISTRY } from './application/ports/oauth-provider.port';
@@ -36,11 +44,11 @@ import { MicrosoftOAuthProvider } from './infrastructure/providers/microsoft-oau
 // Presentation
 import { OAuthController } from './presentation/controllers/oauth.controller';
 
-export { TokenVault2ModuleOptions } from './token-vault-options';
-export { TokenVault2OptionsSchema } from './token-vault.schema';
+export { TokenVaultModuleOptions } from './token-vault-options';
+export { TokenVaultOptionsSchema } from './token-vault.schema';
 
-export interface TokenVault2AsyncOptions
-  extends DynamicModuleAsyncOptions<TokenVault2ModuleOptions> { }
+export interface TokenVaultAsyncOptions
+  extends DynamicModuleAsyncOptions<TokenVaultModuleOptions> { }
 
 const COMMAND_HANDLERS = [
   InitiateOAuthHandler,
@@ -62,8 +70,36 @@ const EVENT_HANDLERS = [
   OnAccountDisconnectedHandler,
 ];
 
+const TOKEN_VAULT_MODULE_VALIDATOR = Symbol('TokenVaultModule.internalValidator');
+
+@Injectable()
+class TokenVaultModuleValidator extends BaseModuleValidator {
+  constructor(moduleRef: ModuleRef) {
+    super(moduleRef);
+  }
+
+  protected getModuleName(): string {
+    return 'TokenVaultModule';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      IOAuthTokenRepository,
+      'Register IOAuthTokenRepository in PersistenceModule and import PersistenceModule before TokenVaultModule.',
+    );
+    this.requirePort(
+      IOAuthAccountRepository,
+      'Register IOAuthAccountRepository in PersistenceModule and import PersistenceModule before TokenVaultModule.',
+    );
+    this.requirePort(
+      ILockingPort,
+      'Register ILockingPort in PersistenceModule and import PersistenceModule before TokenVaultModule.',
+    );
+  }
+}
+
 /**
- * TokenVault2Module — full DDD-compliant, CQRS-based generic OAuth token vault.
+ * TokenVaultModule — full DDD-compliant, CQRS-based generic OAuth token vault.
  *
  * Registers encrypted token storage and management for Google and Microsoft
  * OAuth providers. Designed to be consumed by any module that needs delegated
@@ -79,21 +115,21 @@ const EVENT_HANDLERS = [
  *   GET  /auth/oauth/providers
  *
  * Consumer injection:
- *   @Inject(TOKEN_VAULT2_FACADE) facade: TokenVaultFacade
+ *   @Inject(TOKEN_VAULT_FACADE) facade: TokenVaultFacade
  *   await facade.getAccessToken({ provider: 'google', scope: 'gmail.send', ownerSub })
  */
 @Module({})
-export class TokenVault2Module extends BaseDynamicModule {
-  static forRoot(options: TokenVault2ModuleOptions = {}): DynamicModule {
-    return TokenVault2Module._build([
-      TokenVault2Module.createOptionsProvider(TOKEN_VAULT2_OPTIONS, TokenVault2OptionsSchema, options),
+export class TokenVaultModule extends BaseDynamicModule {
+  static forRoot(options: TokenVaultModuleOptions = {}): DynamicModule {
+    return TokenVaultModule._build([
+      TokenVaultModule.createOptionsProvider(TOKEN_VAULT_OPTIONS, TokenVaultOptionsSchema, options),
     ]);
   }
 
-  static forRootAsync(options: TokenVault2AsyncOptions): DynamicModule {
-    return TokenVault2Module._build(
+  static forRootAsync(options: TokenVaultAsyncOptions): DynamicModule {
+    return TokenVaultModule._build(
       [
-        TokenVault2Module.createAsyncOptionsProvider(TOKEN_VAULT2_OPTIONS, TokenVault2OptionsSchema, options),
+        TokenVaultModule.createAsyncOptionsProvider(TOKEN_VAULT_OPTIONS, TokenVaultOptionsSchema, options),
       ],
       options.imports,
     );
@@ -101,7 +137,7 @@ export class TokenVault2Module extends BaseDynamicModule {
 
   private static _build(optionsProviders: any[], extraImports: any[] = []): DynamicModule {
     return {
-      module: TokenVault2Module,
+      module: TokenVaultModule,
       imports: [
         ...extraImports,
         CqrsModule,
@@ -110,6 +146,7 @@ export class TokenVault2Module extends BaseDynamicModule {
       controllers: [OAuthController],
       providers: [
         ...optionsProviders,
+        registerModuleValidator(TOKEN_VAULT_MODULE_VALIDATOR, TokenVaultModuleValidator),
 
         // Infrastructure — crypto
         AesTokenEncryptor,
@@ -117,13 +154,12 @@ export class TokenVault2Module extends BaseDynamicModule {
         // Infrastructure — providers
         GoogleOAuthProvider,
         MicrosoftOAuthProvider,
-        LockingService,
 
         // Provider registry factory (Map<string, IOAuthProvider>)
         {
           provide: OAUTH_PROVIDER_REGISTRY,
           useFactory: (
-            options: TokenVault2ModuleOptions,
+            options: TokenVaultModuleOptions,
             google: GoogleOAuthProvider,
             microsoft: MicrosoftOAuthProvider,
           ): Map<string, IOAuthProvider> => {
@@ -132,7 +168,7 @@ export class TokenVault2Module extends BaseDynamicModule {
             if (options.microsoftOAuth) map.set('microsoft', microsoft);
             return map;
           },
-          inject: [TOKEN_VAULT2_OPTIONS, GoogleOAuthProvider, MicrosoftOAuthProvider],
+          inject: [TOKEN_VAULT_OPTIONS, GoogleOAuthProvider, MicrosoftOAuthProvider],
         },
 
         // Application — CQRS handlers
@@ -142,11 +178,11 @@ export class TokenVault2Module extends BaseDynamicModule {
 
         // Application — consumer facade
         TokenVaultFacade,
-        { provide: TOKEN_VAULT2_FACADE, useExisting: TokenVaultFacade },
+        { provide: TOKEN_VAULT_FACADE, useExisting: TokenVaultFacade },
       ],
       exports: [
         // Primary consumer API
-        TOKEN_VAULT2_FACADE,
+        TOKEN_VAULT_FACADE,
         TokenVaultFacade,
 
         // Provider registry — available for advanced consumers

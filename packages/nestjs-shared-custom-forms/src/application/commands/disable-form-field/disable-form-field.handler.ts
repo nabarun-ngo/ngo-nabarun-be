@@ -1,12 +1,10 @@
-import { Inject, Injectable, Optional } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { FormNotFoundError } from '../../../domain/errors/form.errors';
 import { FormAccessPolicy } from '../../../domain/policies/form-access.policy';
 import { IFormRepository } from '../../../domain/repositories/form.repository';
-import { IFormEntityAccessPort } from '../../../domain/ports/form-entity-access.port';
 import { FormFieldDefinitionResponseDto } from '../../dtos/response/form-response.dtos';
 import { FormFieldDefinitionResponseMapper } from '../../mappers/form-field-definition-response.mapper';
-import { checkFormRecordAccess } from '../../utilities/form-record-access.util';
 import { DisableFormFieldCommand } from './disable-form-field.command';
 
 @CommandHandler(DisableFormFieldCommand)
@@ -17,9 +15,6 @@ export class DisableFormFieldHandler
   constructor(
     @Inject(IFormRepository)
     private readonly formRepo: IFormRepository,
-    @Optional()
-    @Inject(IFormEntityAccessPort)
-    private readonly accessPort: IFormEntityAccessPort | null,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -29,12 +24,6 @@ export class DisableFormFieldHandler
 
     FormAccessPolicy.assertHasPermission(form, 'manage', cmd.userPermissions);
 
-    await checkFormRecordAccess(this.accessPort, {
-      formId:          form.id,
-      userId:          cmd.userId,
-      userPermissions: cmd.userPermissions,
-      action:          'manage',
-    });
 
     const field = form.disableField(cmd.fieldId, cmd.userId || undefined);
 

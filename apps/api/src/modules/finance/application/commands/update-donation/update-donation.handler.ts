@@ -5,7 +5,7 @@ import { Donation } from '../../../domain/aggregates/donation/donation.aggregate
 import { DonationStatus } from '../../../domain/enums/donation-status.enum';
 import { TransactionRefType, TransactionType } from '../../../domain/enums/transaction.enum';
 import { IDonationRepository } from '../../../domain/repositories/donation.repository';
-import { DmsFacade } from '../../../infrastructure/adapters/dms.facade';
+import { FinanceDmsAdapter } from '../../../infrastructure/adapters/finance-dms.adapter';
 import { CreateTransactionCommand } from '../create-transaction/create-transaction.command';
 import { ReverseTransactionCommand } from '../reverse-transaction/reverse-transaction.command';
 import { UpdateDonationCommand } from './update-donation.command';
@@ -17,7 +17,7 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
     @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
     private readonly commandBus: CommandBus,
     private readonly eventBus: EventBus,
-    private readonly dmsFacade: DmsFacade,
+    private readonly dmsAdapter: FinanceDmsAdapter,
   ) { }
 
   async execute({ params: request }: UpdateDonationCommand): Promise<Donation> {
@@ -45,8 +45,8 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
             );
           }
           donation.resetPaymentDetails();
-          for (const doc of await this.dmsFacade.getDocuments('donation', donation.id)) {
-            await this.dmsFacade.deleteFile(doc.id);
+          for (const doc of await this.dmsAdapter.getDocuments('donation', donation.id)) {
+            await this.dmsAdapter.deleteFile(doc.id);
           }
           break;
         case DonationStatus.PENDING:

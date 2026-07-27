@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
-import { LockingService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { ILockingPort } from '@nabarun-ngo/nestjs-shared-persistence';
 import { TransactionRefType, TransactionStatus, TransactionType } from '../../../domain/enums/transaction.enum';
 import { IAccountRepository } from '../../../domain/repositories/account.repository';
 import { ITransactionRepository } from '../../../domain/repositories/transaction.repository';
-import { DmsFacade } from '../../../infrastructure/adapters/dms.facade';
+import { FinanceDmsAdapter } from '../../../infrastructure/adapters/finance-dms.adapter';
 import { ReverseTransactionCommand } from './reverse-transaction.command';
 
 @CommandHandler(ReverseTransactionCommand)
@@ -15,8 +15,8 @@ export class ReverseTransactionHandler implements ICommandHandler<ReverseTransac
     @Inject(ITransactionRepository) private readonly transactionRepository: ITransactionRepository,
     @Inject(IAccountRepository) private readonly accountRepository: IAccountRepository,
     private readonly eventBus: EventBus,
-    private readonly lockingService: LockingService,
-    private readonly dmsFacade: DmsFacade,
+    @Inject(ILockingPort) private readonly lockingService: ILockingPort,
+    private readonly dmsAdapter: FinanceDmsAdapter,
   ) { }
 
   async execute({ params: request }: ReverseTransactionCommand): Promise<void> {
@@ -64,8 +64,8 @@ export class ReverseTransactionHandler implements ICommandHandler<ReverseTransac
         account.clearEvents();
         this.eventBus.publishAll(events);
 
-        for (const doc of await this.dmsFacade.getDocuments('transaction', transaction.id)) {
-          await this.dmsFacade.deleteFile(doc.id);
+        for (const doc of await this.dmsAdapter.getDocuments('transaction', transaction.id)) {
+          await this.dmsAdapter.deleteFile(doc.id);
         }
       }
     });

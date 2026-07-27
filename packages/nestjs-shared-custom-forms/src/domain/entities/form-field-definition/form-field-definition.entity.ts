@@ -20,6 +20,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
   #isEncrypted: boolean;
   #enabled: boolean;
   #sortOrder: number;
+  #stepId: string | null;
+  #stepName: string | null;
   #condition: FieldCondition | null;
   #dependentOptions: DependentOptions | null;
   #validationRules: FieldValidationRules | null;
@@ -47,6 +49,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
     disabledBy?: string,
     viewPermissions: string[] = [],
     validationRules: FieldValidationRules | null = null,
+    stepId: string | null = null,
+    stepName: string | null = null,
   ) {
     super(id, createdAt, updatedAt);
     this.#formId = formId;
@@ -59,6 +63,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
     this.#isEncrypted = isEncrypted;
     this.#enabled = enabled;
     this.#sortOrder = sortOrder;
+    this.#stepId = stepId;
+    this.#stepName = stepName;
     this.#condition = condition;
     this.#dependentOptions = dependentOptions;
     this.#validationRules = validationRules;
@@ -77,6 +83,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
     isHidden?: boolean;
     isEncrypted?: boolean;
     sortOrder?: number;
+    stepId?: string | null;
+    stepName?: string | null;
     condition?: FieldCondition | null;
     dependentOptions?: DependentOptions | null;
     createdBy?: string;
@@ -103,6 +111,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
       undefined,
       params.viewPermissions ?? [],
       params.validationRules ?? null,
+      params.stepId ?? null,
+      params.stepName ?? null,
     );
   }
 
@@ -114,6 +124,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
     isHidden?: boolean;
     isEncrypted?: boolean;
     sortOrder?: number;
+    stepId?: string | null;
+    stepName?: string | null;
     condition?: FieldCondition | null;
     dependentOptions?: DependentOptions | null;
     viewPermissions?: string[];
@@ -126,6 +138,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
     if (patch.isHidden !== undefined) this.#isHidden = patch.isHidden;
     if (patch.isEncrypted !== undefined) this.#isEncrypted = patch.isEncrypted;
     if (patch.sortOrder !== undefined) this.#sortOrder = patch.sortOrder;
+    if ('stepId' in patch) this.#stepId = patch.stepId ?? null;
+    if ('stepName' in patch) this.#stepName = patch.stepName ?? null;
     if ('condition' in patch) this.#condition = patch.condition ?? null;
     if ('dependentOptions' in patch) this.#dependentOptions = patch.dependentOptions ?? null;
     if ('validationRules' in patch) this.#validationRules = patch.validationRules ?? null;
@@ -158,6 +172,8 @@ export class FormFieldDefinition extends BaseDomain<string> {
   get isEncrypted(): boolean { return this.#isEncrypted; }
   get enabled(): boolean { return this.#enabled; }
   get sortOrder(): number { return this.#sortOrder; }
+  get stepId(): string | null { return this.#stepId; }
+  get stepName(): string | null { return this.#stepName; }
   get condition(): FieldCondition | null { return this.#condition; }
   get dependentOptions(): DependentOptions | null { return this.#dependentOptions; }
   get validationRules(): FieldValidationRules | null { return this.#validationRules; }

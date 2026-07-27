@@ -3,8 +3,8 @@ import { IJwtVerifierPort } from '../../application/ports/jwt-verifier.port';
 import { IUserAccessPort } from '../../application/ports/user-access.port';
 import { AuthUser } from '../../application/models/auth-user';
 import { BusinessError } from '@nabarun-ngo/nestjs-shared-core';
-import { AUTH2_OPTIONS } from '../auth-options.token';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AUTH_OPTIONS } from '../auth-options.token';
+import { AuthModuleOptions } from '../../auth-options';
 
 type JwtPayload = Record<string, unknown> & { sub?: string };
 
@@ -23,7 +23,7 @@ export class JwtVerifierAdapter implements IJwtVerifierPort, OnModuleInit {
   private jwks!: unknown;
 
   constructor(
-    @Inject(AUTH2_OPTIONS) private readonly options: Auth2ModuleOptions,
+    @Inject(AUTH_OPTIONS) private readonly options: AuthModuleOptions,
     @Inject(IUserAccessPort) private readonly userAccess: IUserAccessPort,
   ) { }
 

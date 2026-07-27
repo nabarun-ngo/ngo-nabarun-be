@@ -5,8 +5,8 @@ import { IsEmail, IsString } from 'class-validator';
 import { Request } from 'express';
 import {
   ExpectedRecaptchaAction,
-  NewsletterThrottle,
   Public,
+  StrictThrottle,
 } from '@nabarun-ngo/nestjs-shared-auth';
 import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { SubscribeNewsletterCommand } from '../../application/commands/subscribe-newsletter/subscribe-newsletter.command';
@@ -24,7 +24,7 @@ export class NewsletterController {
   constructor(private readonly commandBus: CommandBus) { }
 
   @Post('newsletter')
-  @NewsletterThrottle()
+  @StrictThrottle({ limit: 3, ttlMs: 3_600_000 })
   @ExpectedRecaptchaAction('newsletter')
   @ApiOperation({ summary: 'Subscribe to newsletter' })
   @ApiAutoResponse(Object as never)

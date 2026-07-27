@@ -3,7 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '@nabarun-ngo/nestjs-shared-auth';
 import { QueueFacade } from '@nabarun-ngo/nestjs-shared-queue';
 import { FathomWebhookDto } from '../../application/dtos/fathom-webhook.dto';
-import { ProcessFathomMeetingWebhookJob } from '../../application/jobs/process-fathom-meeting-webhook.job';
+import { ProcessFathomMeetingWebhookJob } from '../../application/handlers/queue/process-fathom-meeting-webhook.job';
 
 @ApiTags('Webhooks')
 @Controller('webhooks')

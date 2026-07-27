@@ -61,6 +61,7 @@ export type ProjectMinAggregateOutputType = {
   actualBeneficiaryCount: number | null
   managerId: string | null
   sponsorId: string | null
+  isPublic: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   version: number | null
@@ -86,6 +87,7 @@ export type ProjectMaxAggregateOutputType = {
   actualBeneficiaryCount: number | null
   managerId: string | null
   sponsorId: string | null
+  isPublic: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   version: number | null
@@ -112,6 +114,7 @@ export type ProjectCountAggregateOutputType = {
   managerId: number
   sponsorId: number
   tags: number
+  isPublic: number
   metadata: number
   createdAt: number
   updatedAt: number
@@ -156,6 +159,7 @@ export type ProjectMinAggregateInputType = {
   actualBeneficiaryCount?: true
   managerId?: true
   sponsorId?: true
+  isPublic?: true
   createdAt?: true
   updatedAt?: true
   version?: true
@@ -181,6 +185,7 @@ export type ProjectMaxAggregateInputType = {
   actualBeneficiaryCount?: true
   managerId?: true
   sponsorId?: true
+  isPublic?: true
   createdAt?: true
   updatedAt?: true
   version?: true
@@ -207,6 +212,7 @@ export type ProjectCountAggregateInputType = {
   managerId?: true
   sponsorId?: true
   tags?: true
+  isPublic?: true
   metadata?: true
   createdAt?: true
   updatedAt?: true
@@ -321,6 +327,7 @@ export type ProjectGroupByOutputType = {
   managerId: string
   sponsorId: string | null
   tags: string[]
+  isPublic: boolean
   metadata: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
@@ -371,6 +378,7 @@ export type ProjectWhereInput = {
   managerId?: Prisma.StringFilter<"Project"> | string
   sponsorId?: Prisma.StringNullableFilter<"Project"> | string | null
   tags?: Prisma.StringNullableListFilter<"Project">
+  isPublic?: Prisma.BoolFilter<"Project"> | boolean
   metadata?: Prisma.JsonNullableFilter<"Project">
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -406,6 +414,7 @@ export type ProjectOrderByWithRelationInput = {
   managerId?: Prisma.SortOrder
   sponsorId?: Prisma.SortOrderInput | Prisma.SortOrder
   tags?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -444,6 +453,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   managerId?: Prisma.StringFilter<"Project"> | string
   sponsorId?: Prisma.StringNullableFilter<"Project"> | string | null
   tags?: Prisma.StringNullableListFilter<"Project">
+  isPublic?: Prisma.BoolFilter<"Project"> | boolean
   metadata?: Prisma.JsonNullableFilter<"Project">
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -479,6 +489,7 @@ export type ProjectOrderByWithAggregationInput = {
   managerId?: Prisma.SortOrder
   sponsorId?: Prisma.SortOrderInput | Prisma.SortOrder
   tags?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -514,6 +525,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   managerId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   sponsorId?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   tags?: Prisma.StringNullableListFilter<"Project">
+  isPublic?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"Project">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -539,6 +551,7 @@ export type ProjectCreateInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -574,6 +587,7 @@ export type ProjectUncheckedCreateInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -605,6 +619,7 @@ export type ProjectUpdateInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -640,6 +655,7 @@ export type ProjectUncheckedUpdateInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -673,6 +689,7 @@ export type ProjectCreateManyInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -698,6 +715,7 @@ export type ProjectUpdateManyMutationInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -725,6 +743,7 @@ export type ProjectUncheckedUpdateManyInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -757,6 +776,7 @@ export type ProjectCountOrderByAggregateInput = {
   managerId?: Prisma.SortOrder
   sponsorId?: Prisma.SortOrder
   tags?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -791,6 +811,7 @@ export type ProjectMaxOrderByAggregateInput = {
   actualBeneficiaryCount?: Prisma.SortOrder
   managerId?: Prisma.SortOrder
   sponsorId?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -816,6 +837,7 @@ export type ProjectMinOrderByAggregateInput = {
   actualBeneficiaryCount?: Prisma.SortOrder
   managerId?: Prisma.SortOrder
   sponsorId?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -1035,6 +1057,7 @@ export type ProjectCreateWithoutActivitiesInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1069,6 +1092,7 @@ export type ProjectUncheckedCreateWithoutActivitiesInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1115,6 +1139,7 @@ export type ProjectUpdateWithoutActivitiesInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1149,6 +1174,7 @@ export type ProjectUncheckedUpdateWithoutActivitiesInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1179,6 +1205,7 @@ export type ProjectCreateWithoutBeneficiariesInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1213,6 +1240,7 @@ export type ProjectUncheckedCreateWithoutBeneficiariesInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1259,6 +1287,7 @@ export type ProjectUpdateWithoutBeneficiariesInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1293,6 +1322,7 @@ export type ProjectUncheckedUpdateWithoutBeneficiariesInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1323,6 +1353,7 @@ export type ProjectCreateWithoutGoalsInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1357,6 +1388,7 @@ export type ProjectUncheckedCreateWithoutGoalsInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1403,6 +1435,7 @@ export type ProjectUpdateWithoutGoalsInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1437,6 +1470,7 @@ export type ProjectUncheckedUpdateWithoutGoalsInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1467,6 +1501,7 @@ export type ProjectCreateWithoutMilestonesInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1501,6 +1536,7 @@ export type ProjectUncheckedCreateWithoutMilestonesInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1547,6 +1583,7 @@ export type ProjectUpdateWithoutMilestonesInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1581,6 +1618,7 @@ export type ProjectUncheckedUpdateWithoutMilestonesInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1611,6 +1649,7 @@ export type ProjectCreateWithoutTeamMembersInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1645,6 +1684,7 @@ export type ProjectUncheckedCreateWithoutTeamMembersInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1691,6 +1731,7 @@ export type ProjectUpdateWithoutTeamMembersInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1725,6 +1766,7 @@ export type ProjectUncheckedUpdateWithoutTeamMembersInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1755,6 +1797,7 @@ export type ProjectCreateWithoutRisksInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1789,6 +1832,7 @@ export type ProjectUncheckedCreateWithoutRisksInput = {
   managerId: string
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1835,6 +1879,7 @@ export type ProjectUpdateWithoutRisksInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1869,6 +1914,7 @@ export type ProjectUncheckedUpdateWithoutRisksInput = {
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1899,6 +1945,7 @@ export type ProjectCreateWithoutManagerInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1932,6 +1979,7 @@ export type ProjectUncheckedCreateWithoutManagerInput = {
   actualBeneficiaryCount?: number | null
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1973,6 +2021,7 @@ export type ProjectCreateWithoutSponsorInput = {
   targetBeneficiaryCount?: number | null
   actualBeneficiaryCount?: number | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2006,6 +2055,7 @@ export type ProjectUncheckedCreateWithoutSponsorInput = {
   actualBeneficiaryCount?: number | null
   managerId: string
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2068,6 +2118,7 @@ export type ProjectScalarWhereInput = {
   managerId?: Prisma.StringFilter<"Project"> | string
   sponsorId?: Prisma.StringNullableFilter<"Project"> | string | null
   tags?: Prisma.StringNullableListFilter<"Project">
+  isPublic?: Prisma.BoolFilter<"Project"> | boolean
   metadata?: Prisma.JsonNullableFilter<"Project">
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -2110,6 +2161,7 @@ export type ProjectCreateManyManagerInput = {
   actualBeneficiaryCount?: number | null
   sponsorId?: string | null
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2136,6 +2188,7 @@ export type ProjectCreateManySponsorInput = {
   actualBeneficiaryCount?: number | null
   managerId: string
   tags?: Prisma.ProjectCreatetagsInput | string[]
+  isPublic?: boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2161,6 +2214,7 @@ export type ProjectUpdateWithoutManagerInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2194,6 +2248,7 @@ export type ProjectUncheckedUpdateWithoutManagerInput = {
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2226,6 +2281,7 @@ export type ProjectUncheckedUpdateManyWithoutManagerInput = {
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sponsorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2251,6 +2307,7 @@ export type ProjectUpdateWithoutSponsorInput = {
   targetBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2284,6 +2341,7 @@ export type ProjectUncheckedUpdateWithoutSponsorInput = {
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2316,6 +2374,7 @@ export type ProjectUncheckedUpdateManyWithoutSponsorInput = {
   actualBeneficiaryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.ProjectUpdatetagsInput | string[]
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2419,6 +2478,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   managerId?: boolean
   sponsorId?: boolean
   tags?: boolean
+  isPublic?: boolean
   metadata?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2455,6 +2515,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   managerId?: boolean
   sponsorId?: boolean
   tags?: boolean
+  isPublic?: boolean
   metadata?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2484,6 +2545,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   managerId?: boolean
   sponsorId?: boolean
   tags?: boolean
+  isPublic?: boolean
   metadata?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2513,6 +2575,7 @@ export type ProjectSelectScalar = {
   managerId?: boolean
   sponsorId?: boolean
   tags?: boolean
+  isPublic?: boolean
   metadata?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2520,7 +2583,7 @@ export type ProjectSelectScalar = {
   deletedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "code" | "category" | "status" | "phase" | "startDate" | "endDate" | "actualEndDate" | "budget" | "spentAmount" | "currency" | "location" | "targetBeneficiaryCount" | "actualBeneficiaryCount" | "managerId" | "sponsorId" | "tags" | "metadata" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "code" | "category" | "status" | "phase" | "startDate" | "endDate" | "actualEndDate" | "budget" | "spentAmount" | "currency" | "location" | "targetBeneficiaryCount" | "actualBeneficiaryCount" | "managerId" | "sponsorId" | "tags" | "isPublic" | "metadata" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manager?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   sponsor?: boolean | Prisma.Project$sponsorArgs<ExtArgs>
@@ -2573,6 +2636,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     managerId: string
     sponsorId: string | null
     tags: string[]
+    isPublic: boolean
     metadata: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
@@ -3028,6 +3092,7 @@ export interface ProjectFieldRefs {
   readonly managerId: Prisma.FieldRef<"Project", 'String'>
   readonly sponsorId: Prisma.FieldRef<"Project", 'String'>
   readonly tags: Prisma.FieldRef<"Project", 'String[]'>
+  readonly isPublic: Prisma.FieldRef<"Project", 'Boolean'>
   readonly metadata: Prisma.FieldRef<"Project", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>

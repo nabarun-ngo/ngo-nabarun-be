@@ -1,5 +1,28 @@
 {
   "subject": "Monthly donation raised — {{donationPeriod}}",
-  "htmlTemplate": "<p>Dear donor,</p><p>A donation of <strong>₹ {{donation.amount}}</strong> has been raised for the period <strong>{{donationPeriod}}</strong>.</p><p>Donation ID: {{donation.id}}</p><p>Please complete payment at your earliest convenience.</p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "Donation raised",
+        "subHeading": "{{donationPeriod}}"
+      },
+      "content": {
+        "salutation": "Dear donor,",
+        "paragraph1_blue": "A donation of ₹ {{donation.amount}} has been raised for the period {{donationPeriod}}.",
+        "details": [
+          {
+            "heading": "Donation details",
+            "fields": [
+              { "name": "Amount", "value": "₹ {{donation.amount}}" },
+              { "name": "Period", "value": "{{donationPeriod}}" },
+              { "name": "Donation ID", "value": "{{donation.id}}" }
+            ]
+          }
+        ],
+        "paragraph3_blue": "Please complete payment at your earliest convenience."
+      }
+    }
+  },
   "textTemplate": "A donation of ₹ {{donation.amount}} has been raised for {{donationPeriod}}. Donation ID: {{donation.id}}. Please complete payment at your earliest convenience."
 }

@@ -1,8 +1,13 @@
 {
   "name": "@nabarun-ngo/nestjs-shared-queue",
   "version": "1.0.0",
-  "private": true,
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist && rimraf .turbo",

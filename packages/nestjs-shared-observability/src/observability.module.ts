@@ -3,7 +3,7 @@ import { DynamicModule, Global, Module, Type } from "@nestjs/common";
 import { CqrsModule } from "@nestjs/cqrs";
 import { BaseDynamicModule, DynamicModuleAsyncOptions } from "@nabarun-ngo/nestjs-shared-core";
 import { IAlertPort } from "./domain/ports/alert.port";
-import { AppTechnicalErrorHandler } from "./application/handlers/app-technical-error.handler";
+import { AppTechnicalErrorHandler } from "./application/handlers/events/on-app-technical-error/on-app-technical-error.handler";
 import { SlackAlertAdapter } from "./infrastructure/adapters/slack-alert.adapter";
 import type { ObservabilityModuleInput, ObservabilityModuleOptions } from "./observability.schema";
 import {

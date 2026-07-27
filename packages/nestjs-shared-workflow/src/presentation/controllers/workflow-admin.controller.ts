@@ -6,8 +6,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiAutoResponse, SuccessResponse } from '@nabarun-ngo/nestjs-shared-core';
-import { CurrentUser, RequirePermissions, type AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { CurrentUser, RequirePermissions, type AuthUser, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import { PublishDefinitionCommand } from '../../application/commands/publish-definition/publish-definition.command';
 import { ForceSkipElementCommand } from '../../application/commands/force-skip-element/force-skip-element.command';
 import { GetStuckWorkflowsQuery } from '../../application/queries/get-stuck-workflows/get-stuck-workflows.query';
@@ -32,24 +32,20 @@ export class WorkflowAdminController {
   @RequirePermissions('manage:workflow-definitions')
   @ApiOperation({ summary: 'Validate and publish a workflow definition' })
   @ApiAutoResponse(Object, { wrapInSuccessResponse: true })
-  async publishDefinition(@Body() dto: PublishDefinitionRequestDto) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new PublishDefinitionCommand(dto.definition),
-      ) as WorkflowDefinition,
-    );
+  async publishDefinition(@Body() dto: PublishDefinitionRequestDto): Promise<WorkflowDefinition> {
+    return this.commandBus.execute(
+      new PublishDefinitionCommand(dto.definition),
+    ) as Promise<WorkflowDefinition>;
   }
 
   @Get('stuck')
   @RequirePermissions('admin:workflows')
   @ApiOperation({ summary: 'List workflow instances that appear stuck' })
   @ApiAutoResponse(WorkflowInstanceDto, { wrapInSuccessResponse: true, isArray: true })
-  async getStuckWorkflows(@Query('olderThanMinutes') olderThanMinutes?: number) {
-    return new SuccessResponse(
-      await this.queryBus.execute(
-        new GetStuckWorkflowsQuery(
-          olderThanMinutes != null ? Number(olderThanMinutes) : 60,
-        ),
+  async getStuckWorkflows(@Query('olderThanMinutes') olderThanMinutes?: number): Promise<WorkflowInstanceDto[]> {
+    return this.queryBus.execute(
+      new GetStuckWorkflowsQuery(
+        olderThanMinutes != null ? Number(olderThanMinutes) : 60,
       ),
     );
   }
@@ -62,15 +58,13 @@ export class WorkflowAdminController {
     @Param('instanceId') instanceId: string,
     @Body() dto: ForceSkipElementRequestDto,
     @CurrentUser() user: AuthUser,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new ForceSkipElementCommand({
-          instanceId,
-          elementId: dto.elementId,
-          actorId: user.userId ?? null,
-        }),
-      ),
+  ): Promise<WorkflowInstanceDto> {
+    return this.commandBus.execute(
+      new ForceSkipElementCommand({
+        instanceId,
+        elementId: dto.elementId,
+        actorId: requireUserId(user),
+      }),
     );
   }
 }

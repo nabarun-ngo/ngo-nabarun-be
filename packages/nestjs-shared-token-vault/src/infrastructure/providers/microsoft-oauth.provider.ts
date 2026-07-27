@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../token-vault-options';
 import type {
   AuthorizationParams,
   AuthorizationResult,
@@ -50,7 +50,7 @@ export class MicrosoftOAuthProvider implements IOAuthProvider {
   private readonly oidcDefaults = ['openid', 'profile', 'email', 'offline_access'];
 
   constructor(
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
     private readonly httpService: HttpService,
   ) {
     const cfg = options.microsoftOAuth;
@@ -77,8 +77,8 @@ export class MicrosoftOAuthProvider implements IOAuthProvider {
   private ensureConfigured(): void {
     if (!this.isConfigured) {
       throw new Error(
-        '[TokenVault2Module] Microsoft OAuth is not configured. ' +
-          'Set microsoftOAuth.clientId, clientSecret, tenantId, and callbackUrl in TokenVault2Module options.',
+        '[TokenVaultModule] Microsoft OAuth is not configured. ' +
+          'Set microsoftOAuth.clientId, clientSecret, tenantId, and callbackUrl in TokenVaultModule options.',
       );
     }
   }

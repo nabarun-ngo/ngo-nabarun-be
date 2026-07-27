@@ -3,7 +3,7 @@
  * No NestJS imports, no Prisma, no I/O.
  */
 import { Notification } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/notification.aggregate';
-import { NotificationType, NotificationCategory, NotificationPriority } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/notification-type.enum';
+import { NotificationType, NotificationPriority } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/notification-type.enum';
 import { NotificationCreatedEvent } from '@nabarun-ngo/nestjs-shared-correspondence/domain/events/notification-created.event';
 
 const baseCreate = () =>
@@ -11,7 +11,7 @@ const baseCreate = () =>
     title: 'Test Title',
     body: 'Test body',
     type: NotificationType.INFO,
-    category: NotificationCategory.SYSTEM,
+    category: 'SYSTEM',
   });
 
 describe('Notification aggregate', () => {
@@ -32,7 +32,7 @@ describe('Notification aggregate', () => {
     it('sets type and category', () => {
       const n = baseCreate();
       expect(n.type).toBe(NotificationType.INFO);
-      expect(n.category).toBe(NotificationCategory.SYSTEM);
+      expect(n.category).toBe('SYSTEM');
     });
 
     it('defaults priority to NORMAL when not provided', () => {
@@ -45,7 +45,7 @@ describe('Notification aggregate', () => {
         title: 'Urgent',
         body: 'body',
         type: NotificationType.ERROR,
-        category: NotificationCategory.SYSTEM,
+        category: 'SYSTEM',
         priority: NotificationPriority.URGENT,
       });
       expect(n.priority).toBe(NotificationPriority.URGENT);
@@ -56,7 +56,7 @@ describe('Notification aggregate', () => {
         title: 'T',
         body: 'B',
         type: NotificationType.TASK,
-        category: NotificationCategory.WORKFLOW,
+        category: 'WORKFLOW',
         referenceId: 'ref-123',
         referenceType: 'task',
         dispatchId: 'dispatch-456',
@@ -73,7 +73,7 @@ describe('Notification aggregate', () => {
         title: 'T',
         body: 'B',
         type: NotificationType.INFO,
-        category: NotificationCategory.SYSTEM,
+        category: 'SYSTEM',
         action,
         imageUrl: 'https://img.example.com/img.png',
         icon: 'icon-name',
@@ -116,7 +116,7 @@ describe('Notification aggregate', () => {
         title: 'T',
         body: 'B',
         type: NotificationType.INFO,
-        category: NotificationCategory.SYSTEM,
+        category: 'SYSTEM',
         expiresAt: future,
       });
       expect(n.isExpired()).toBe(false);
@@ -128,7 +128,7 @@ describe('Notification aggregate', () => {
         title: 'T',
         body: 'B',
         type: NotificationType.INFO,
-        category: NotificationCategory.SYSTEM,
+        category: 'SYSTEM',
         expiresAt: past,
       });
       expect(n.isExpired()).toBe(true);

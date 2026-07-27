@@ -18,7 +18,7 @@ type DocumentReferenceRow = {
   fileSize: number | null;
   isPublic: boolean;
   uploadedById: string | null;
-  storageOwnerSub: string | null;
+  storageOwnerId: string | null;
   createdAt: Date;
   updatedAt?: Date | null;
   deletedAt?: Date | null;
@@ -35,7 +35,7 @@ function makePrismaRow(overrides: Partial<DocumentReferenceRow> = {}): DocumentR
     fileSize: 2048,
     isPublic: false,
     uploadedById: 'user-1',
-    storageOwnerSub: null,
+    storageOwnerId: null,
     createdAt: new Date('2024-01-01'),
     updatedAt: null,
     deletedAt: null,
@@ -65,7 +65,7 @@ function buildRepository() {
 
 function buildDomainDocument(overrides: {
   mappings?: DocumentMapping[];
-  storageOwnerSub?: string;
+  storageOwnerId?: string;
   visibility?: DocumentVisibility;
   uploadedById?: string;
 } = {}): Document {
@@ -80,7 +80,7 @@ function buildDomainDocument(overrides: {
     ],
     visibility: overrides.visibility ?? DocumentVisibility.Private,
     uploadedById: overrides.uploadedById ?? 'user-1',
-    storageOwnerSub: overrides.storageOwnerSub,
+    storageOwnerId: overrides.storageOwnerId,
   });
   doc.clearEvents();
   return doc;
@@ -127,14 +127,14 @@ describe('DocumentPrismaRepository', () => {
       expect(domain.mappings[0].refType).toBe('donation');
     });
 
-    it('handles null nullable fields (uploadedById, storageOwnerSub) converting to undefined', () => {
+    it('handles null nullable fields (uploadedById, storageOwnerId) converting to undefined', () => {
       const { repo } = buildRepository();
-      const row = makePrismaRow({ uploadedById: null, storageOwnerSub: null });
+      const row = makePrismaRow({ uploadedById: null, storageOwnerId: null });
 
       const domain = (repo as any).toDomain(row) as Document;
 
       expect(domain.uploadedById).toBeUndefined();
-      expect(domain.storageOwnerSub).toBeUndefined();
+      expect(domain.storageOwnerId).toBeUndefined();
     });
 
     it('handles null publicToken by converting to empty string', () => {
@@ -166,13 +166,13 @@ describe('DocumentPrismaRepository', () => {
       expect(domain.isDeleted).toBe(true);
     });
 
-    it('maps storageOwnerSub when present', () => {
+    it('maps storageOwnerId when present', () => {
       const { repo } = buildRepository();
-      const row = makePrismaRow({ storageOwnerSub: 'google-sub-1' });
+      const row = makePrismaRow({ storageOwnerId: 'user-uuid-1' });
 
       const domain = (repo as any).toDomain(row) as Document;
 
-      expect(domain.storageOwnerSub).toBe('google-sub-1');
+      expect(domain.storageOwnerId).toBe('user-uuid-1');
     });
   });
 
@@ -205,13 +205,13 @@ describe('DocumentPrismaRepository', () => {
       expect(input.isPublic).toBe(true);
     });
 
-    it('maps storageOwnerSub when present (Google Drive upload)', () => {
+    it('maps storageOwnerId when present (Google Drive upload)', () => {
       const { repo } = buildRepository();
-      const doc = buildDomainDocument({ storageOwnerSub: 'google-sub-1' });
+      const doc = buildDomainDocument({ storageOwnerId: 'user-uuid-1' });
 
       const input = (repo as any).toCreateInput(doc) as Record<string, any>;
 
-      expect(input.storageOwnerSub).toBe('google-sub-1');
+      expect(input.storageOwnerId).toBe('user-uuid-1');
     });
 
     it('maps undefined uploadedById to null', () => {

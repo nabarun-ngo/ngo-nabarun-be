@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nabarun-ngo.dev/schemas/custom-forms/custom-forms.ruleset.json",
+  "title": "Custom Forms Public Contract Ruleset",
+  "description": "Canonical JSON contract for custom-forms field types, public form definitions (GET), and public form submissions (POST). UI libraries MUST use CustomFieldType values as-is — no remapping at boundaries.",
+  "version": "1.1.0",
+  "customFieldTypes": [
+    "text",
+    "textarea",
+    "email",
+    "phone",
+    "number",
+    "boolean",
+    "date",
+    "select",
+    "multiselect"
+  ],
+  "conditionOperators": ["equals", "not_equals", "in", "not_in"],
+  "fieldTypeRules": [
+    {
+      "fieldType": "text",
+      "valueJsonType": "string",
+      "allowsEmptyString": false,
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": true,
+      "uiComponent": "TextInput"
+    },
+    {
+      "fieldType": "textarea",
+      "valueJsonType": "string",
+      "allowsEmptyString": false,
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": false,
+      "uiComponent": "Textarea"
+    },
+    {
+      "fieldType": "email",
+      "valueJsonType": "string",
+      "allowsEmptyString": false,
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": false,
+      "uiComponent": "EmailInput"
+    },
+    {
+      "fieldType": "phone",
+      "valueJsonType": "string",
+      "allowsEmptyString": false,
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": false,
+      "uiComponent": "PhoneInput"
+    },
+    {
+      "fieldType": "number",
+      "valueJsonType": "number",
+      "allowsStringCoercionOnSubmit": true,
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": true,
+      "uiComponent": "NumberInput"
+    },
+    {
+      "fieldType": "boolean",
+      "valueJsonType": "boolean",
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": false,
+      "uiComponent": "Checkbox"
+    },
+    {
+      "fieldType": "date",
+      "valueJsonType": "string",
+      "valueFormat": "ISO-8601 date (YYYY-MM-DD recommended)",
+      "supportsFieldOptions": false,
+      "supportsDependentOptions": false,
+      "supportsValidationPattern": true,
+      "uiComponent": "DateInput"
+    },
+    {
+      "fieldType": "select",
+      "valueJsonType": "string",
+      "supportsFieldOptions": true,
+      "supportsDependentOptions": true,
+      "supportsValidationPattern": false,
+      "uiComponent": "Select"
+    },
+    {
+      "fieldType": "multiselect",
+      "valueJsonType": "array",
+      "arrayItemJsonType": "string",
+      "supportsFieldOptions": true,
+      "supportsDependentOptions": true,
+      "supportsValidationPattern": false,
+      "uiComponent": "MultiSelect"
+    }
+  ],
+  "$defs": {
+    "CustomFieldType": {
+      "type": "string",
+      "enum": [
+        "text",
+        "textarea",
+        "email",
+        "phone",
+        "number",
+        "boolean",
+        "date",
+        "select",
+        "multiselect"
+      ]
+    },
+    "FieldConditionOperator": {
+      "type": "string",
+      "enum": ["equals", "not_equals", "in", "not_in"]
+    },
+    "FieldOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "FieldCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dependsOnKey", "operator", "value"],
+      "properties": {
+        "dependsOnKey": { "type": "string", "minLength": 1 },
+        "operator": { "$ref": "#/$defs/FieldConditionOperator" },
+        "value": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" },
+            {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            }
+          ]
+        }
+      }
+    },
+    "DependentOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dependsOnKey", "optionMap"],
+      "properties": {
+        "dependsOnKey": { "type": "string", "minLength": 1 },
+        "optionMap": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/FieldOption" }
+          }
+        }
+      }
+    },
+    "FieldRegexRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pattern"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "minLength": 1,
+          "description": "JavaScript regex source without delimiters"
+        },
+        "regexErrMsg": { "type": "string" }
+      }
+    },
+    "FieldValidationRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["patterns"],
+      "properties": {
+        "patterns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/FieldRegexRule" },
+          "description": "All patterns must match (AND)"
+        }
+      }
+    },
+    "PublicFormFieldDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "key",
+        "label",
+        "fieldType",
+        "mandatory",
+        "fieldOptions",
+        "isHidden",
+        "isEncrypted",
+        "enabled",
+        "sortOrder",
+        "stepId",
+        "stepName",
+        "condition",
+        "dependentOptions",
+        "validationRules"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "key": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "fieldType": { "$ref": "#/$defs/CustomFieldType" },
+        "mandatory": { "type": "boolean" },
+        "fieldOptions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FieldOption" }
+        },
+        "isHidden": { "type": "boolean" },
+        "isEncrypted": { "type": "boolean" },
+        "enabled": { "type": "boolean" },
+        "sortOrder": { "type": "integer", "minimum": 0 },
+        "stepId": { "type": ["string", "null"] },
+        "stepName": { "type": ["string", "null"] },
+        "condition": {
+          "oneOf": [{ "$ref": "#/$defs/FieldCondition" }, { "type": "null" }]
+        },
+        "dependentOptions": {
+          "oneOf": [{ "$ref": "#/$defs/DependentOptions" }, { "type": "null" }]
+        },
+        "validationRules": {
+          "oneOf": [{ "$ref": "#/$defs/FieldValidationRules" }, { "type": "null" }]
+        }
+      }
+    },
+    "PublicFormDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "key", "label", "description", "fields"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Public form identifier used in GET /public-site/contents/:formId/form-defination"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Same as id for public-site forms"
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": ["string", "null"] },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PublicFormFieldDefinition" }
+        }
+      }
+    },
+    "PublicFormSubmissionValues": {
+      "type": "object",
+      "description": "POST body: keyed by field key. Only enabled field keys from the form definition may be submitted.",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "number" },
+          { "type": "boolean" },
+          {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          { "type": "null" }
+        ]
+      }
+    },
+    "PublicFormSubmitResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["message"],
+      "properties": {
+        "message": { "type": "string", "minLength": 1 },
+        "referenceId": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "schemas": {
+    "PublicFormDefinition": { "$ref": "#/$defs/PublicFormDefinition" },
+    "PublicFormSubmissionValues": { "$ref": "#/$defs/PublicFormSubmissionValues" },
+    "PublicFormSubmitResult": { "$ref": "#/$defs/PublicFormSubmitResult" }
+  },
+  "apiEndpoints": {
+    "getFormDefinition": {
+      "method": "GET",
+      "path": "/public-site/contents/{formId}/form-defination",
+      "responseSchema": { "$ref": "#/$defs/PublicFormDefinition" }
+    },
+    "submitContactRequest": {
+      "method": "POST",
+      "path": "/public-site/forms/submit-contact-request",
+      "requestSchema": { "$ref": "#/$defs/PublicFormSubmissionValues" },
+      "responseSchema": { "$ref": "#/$defs/PublicFormSubmitResult" }
+    },
+    "submitJoinRequest": {
+      "method": "POST",
+      "path": "/public-site/forms/submit-join-request",
+      "requestSchema": { "$ref": "#/$defs/PublicFormSubmissionValues" },
+      "responseSchema": { "$ref": "#/$defs/PublicFormSubmitResult" }
+    },
+    "submitDynamicForm": {
+      "method": "POST",
+      "path": "/public-site/forms/submit-dynamic-form/{formId}",
+      "requestSchema": { "$ref": "#/$defs/PublicFormSubmissionValues" },
+      "responseSchema": { "$ref": "#/$defs/PublicFormSubmitResult" }
+    }
+  },
+  "uiLibraryRules": {
+    "useCustomFieldTypeValuesDirectly": true,
+    "doNotRemapFieldTypes": true,
+    "renderOnlyEnabledFields": true,
+    "respectFieldConditionsForVisibilityAndMandatory": true,
+    "respectDependentOptionsForSelectFields": true,
+    "applyValidationPatternsWhenPresent": true,
+    "validationPatternsMatchAll": true,
+    "groupByStepWhenStepIdPresent": true,
+    "ignoreEncryptedFieldValuesOnPublicRender": true
+  }
+}

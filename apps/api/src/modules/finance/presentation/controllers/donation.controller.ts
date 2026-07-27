@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import { CreateDonationCommand } from '../../application/commands/create-donation/create-donation.command';
 import { UpdateDonationCommand } from '../../application/commands/update-donation/update-donation.command';
@@ -69,7 +69,7 @@ export class DonationController {
         amount: dto.amount,
         forEvent: dto.forEvent,
         paidToAccountId: dto.paidToAccountId,
-        confirmedById: user.userId,
+        confirmedById: requireUserId(user),
         paidUsingUPI: dto.paidUsingUPI,
         paymentMethod: dto.paymentMethod,
         paidOn: dto.paidOn,

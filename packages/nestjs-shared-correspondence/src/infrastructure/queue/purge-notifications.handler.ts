@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { QueueHandler, IQueueHandler, Job, JobExecutionContext } from '@nabarun-ngo/nestjs-shared-queue';
 import { PurgeNotificationsJob } from '../../application/jobs/retention.jobs';
-import { RetentionSchedulerService } from '../../application/services/retention-scheduler.service';
+import { RetentionSchedulerService } from '../../application/retention/retention-scheduler.service';
 
 @QueueHandler(PurgeNotificationsJob, { attempts: 1 })
 export class PurgeNotificationsHandler implements IQueueHandler<PurgeNotificationsJob> {

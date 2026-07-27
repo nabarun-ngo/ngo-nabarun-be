@@ -126,7 +126,10 @@ export class FormFieldValuePolicy {
     if (!rules || value === null || value === undefined) return;
 
     if (!rules.matchesValue(fieldType, value)) {
-      throw new FieldValidationRuleViolatedError(fieldKey, rules.regexErrMsg);
+      throw new FieldValidationRuleViolatedError(
+        fieldKey,
+        rules.regexErrMsgForValue(fieldType, value),
+      );
     }
   }
 }

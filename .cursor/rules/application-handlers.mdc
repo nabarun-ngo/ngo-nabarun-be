@@ -1,0 +1,65 @@
+---
+description: Application-layer handler folder layout and naming conventions
+globs: **/application/**/*.handler.ts
+alwaysApply: false
+---
+
+# Application Handler Organization
+
+## Folder layout
+
+CQRS write/read handlers stay in vertical slices. Reactive/async handlers live under `handlers/`:
+
+```
+application/
+├── commands/{use-case}/{use-case}.handler.ts   ← @CommandHandler
+├── queries/{use-case}/{use-case}.handler.ts    ← @QueryHandler
+└── handlers/
+    ├── events/on-{event}/on-{event}.handler.ts ← @EventsHandler
+    ├── workflow/{task}.handler.ts              ← @WorkflowTaskHandler
+    └── queue/{job}.handler.ts                  ← @QueueHandler (+ {job}.job.ts)
+```
+
+## Rules
+
+| Handler type | Location | Class name |
+|---|---|---|
+| Command | `commands/{use-case}/` | `{UseCase}Handler` |
+| Query | `queries/{use-case}/` | `{UseCase}Handler` |
+| Domain event | `handlers/events/on-{event}/` | `On{Event}Handler` |
+| Workflow task | `handlers/workflow/` | `{Task}Handler` |
+| Queue job | `handlers/queue/` | `{Job}Handler` |
+
+## Do / Don't
+
+```typescript
+// ✅ Event handler — subfolder per event
+application/handlers/events/on-user-deleted/on-user-deleted.handler.ts
+
+// ✅ Queue — handler + job class co-located
+application/handlers/queue/create-donation.handler.ts
+application/handlers/queue/create-donation.job.ts
+
+// ❌ Flat event files (no subfolder)
+application/handlers/events/on-token-revoked.handler.ts
+
+// ❌ Aggregated multi-handler files (split into vertical slices)
+application/handlers/milestone.handlers.ts
+
+// ❌ One top-level handlers/ folder for CQRS commands/queries
+application/handlers/commands/create-user.handler.ts
+```
+
+## Cross-cutting integration (host app)
+
+`apps/api/src/shared/integrations/{domain}/handlers/{events,workflow,queue}/` for glue that spans modules.
+
+Domain workflow tasks stay in the owning module: `{module}/application/handlers/workflow/`.
+
+## Package queue processors
+
+Shared packages keep BullMQ processors in `infrastructure/queue/` (not `application/handlers/queue/`). Job **class definitions** stay in `application/jobs/`.
+
+## Registration
+
+Register all handler classes in the owning `*.module.ts` `providers` array — Nest does not auto-discover handlers.

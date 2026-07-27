@@ -17,8 +17,6 @@ export const COMMENT_MODULE = CommentModule.forRoot({
         },
     ],
     notifications: {
-        mentionTemplateKey: 'COMMENT_MENTION',
-        subscriberTemplateKey: 'COMMENT_ADDED',
         notifySubscribers: true,
     },
 });

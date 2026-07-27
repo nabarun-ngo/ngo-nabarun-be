@@ -1,9 +1,9 @@
 import { randomUUID } from 'crypto';
 import { AggregateRoot } from '@nabarun-ngo/nestjs-shared-core';
 import { NotificationCreatedEvent, type NotificationCreatedSnapshot } from '../events/notification-created.event';
-import { NotificationCategory, NotificationPriority, NotificationType } from '../enums/notification-type.enum';
+import { NotificationPriority, NotificationType } from '../enums/notification-type.enum';
 
-export { NotificationType, NotificationCategory, NotificationPriority };
+export { NotificationType, NotificationPriority };
 
 export interface NotificationAction {
   url?: string;
@@ -13,7 +13,7 @@ export interface NotificationAction {
 
 export interface NotificationFilter {
   type?: NotificationType;
-  category?: NotificationCategory;
+  category?: string;
   priority?: NotificationPriority;
   referenceId?: string;
   referenceType?: string;
@@ -26,7 +26,7 @@ export class Notification extends AggregateRoot<string> {
   #title: string;
   #body: string;
   #type: NotificationType;
-  #category: NotificationCategory;
+  #category: string;
   #priority: NotificationPriority;
   #action?: NotificationAction;
   #referenceId?: string;
@@ -42,7 +42,7 @@ export class Notification extends AggregateRoot<string> {
     title: string,
     body: string,
     type: NotificationType,
-    category: NotificationCategory,
+    category: string,
     options?: {
       priority?: NotificationPriority;
       action?: NotificationAction;
@@ -77,7 +77,7 @@ export class Notification extends AggregateRoot<string> {
     title: string;
     body: string;
     type: NotificationType;
-    category: NotificationCategory;
+    category: string;
     priority?: NotificationPriority;
     action?: NotificationAction;
     referenceId?: string;
@@ -117,7 +117,7 @@ export class Notification extends AggregateRoot<string> {
   get title(): string { return this.#title; }
   get body(): string { return this.#body; }
   get type(): NotificationType { return this.#type; }
-  get category(): NotificationCategory { return this.#category; }
+  get category(): string { return this.#category; }
   get priority(): NotificationPriority { return this.#priority; }
   get action(): NotificationAction | undefined { return this.#action; }
   get referenceId(): string | undefined { return this.#referenceId; }

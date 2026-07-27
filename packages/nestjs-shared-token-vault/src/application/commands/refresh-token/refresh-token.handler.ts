@@ -1,13 +1,13 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { LockingService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { ILockingPort } from '@nabarun-ngo/nestjs-shared-persistence';
 import { RefreshTokenCommand } from './refresh-token.command';
 import { OAUTH_PROVIDER_REGISTRY } from '../../ports/oauth-provider.port';
 import type { IOAuthProvider } from '../../ports/oauth-provider.port';
 import { IOAuthTokenRepository } from '../../../domain/repositories/oauth-token.repository';
 import type { IOAuthTokenRepository as ITokenRepo } from '../../../domain/repositories/oauth-token.repository';
 import { EncryptedToken } from '../../../domain/value-objects/encrypted-token.vo';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../../token-vault-options';
 import {
   NoRefreshTokenError,
   ProviderNotConfiguredError,
@@ -33,8 +33,8 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand,
   constructor(
     @Inject(OAUTH_PROVIDER_REGISTRY) private readonly registry: Map<string, IOAuthProvider>,
     @Inject(IOAuthTokenRepository) private readonly tokenRepo: ITokenRepo,
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
-    private readonly lockingService: LockingService,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
+    @Inject(ILockingPort) private readonly lockingService: ILockingPort,
     private readonly eventBus: EventBus,
   ) { }
 

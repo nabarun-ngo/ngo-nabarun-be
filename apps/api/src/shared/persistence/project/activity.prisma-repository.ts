@@ -69,6 +69,15 @@ export class ActivityPrismaRepository implements IActivityRepository {
     await this.database.client.activity.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
+  async findRecentSummariesByProjectId(projectId: string, limit: number) {
+    return this.database.client.activity.findMany({
+      where: { projectId, deletedAt: null },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+      select: { id: true, name: true, status: true, scale: true },
+    });
+  }
+
   private where(props?: ActivityFilter): Prisma.ActivityWhereInput {
     return {
       ...(props?.projectId ? { projectId: props.projectId } : {}),

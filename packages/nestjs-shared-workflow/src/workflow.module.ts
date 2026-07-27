@@ -1,6 +1,12 @@
-import { DynamicModule, Module, ModuleMetadata, Provider } from '@nestjs/common';
+import { DynamicModule, Injectable, Module, ModuleMetadata, Provider } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-import { BaseDynamicModule, DynamicModuleAsyncOptions, createRequiredPortsGuard } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BaseDynamicModule,
+  BaseModuleValidator,
+  DynamicModuleAsyncOptions,
+  registerModuleValidator,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { WorkflowModuleOptionsSchema } from './workflow.schema';
 import type { WorkflowModuleOptions } from './workflow.schema';
 import { WORKFLOW_OPTIONS } from './infrastructure/workflow-options.token';
@@ -36,11 +42,13 @@ import { DelegateTaskHandler } from './application/commands/delegate-task/delega
 import { CancelWorkflowHandler } from './application/commands/cancel-workflow/cancel-workflow.handler';
 import { PublishDefinitionHandler } from './application/commands/publish-definition/publish-definition.handler';
 import { ForceSkipElementHandler } from './application/commands/force-skip-element/force-skip-element.handler';
+import { ReleaseUserInboxTasksHandler } from './application/commands/release-user-inbox-tasks/release-user-inbox-tasks.handler';
 
 import { GetWorkflowInstanceHandler } from './application/queries/get-workflow-instance/get-workflow-instance.handler';
 import { GetMyInboxHandler } from './application/queries/get-my-inbox/get-my-inbox.handler';
 import { GetWorkflowTimelineHandler } from './application/queries/get-workflow-timeline/get-workflow-timeline.handler';
 import { GetStuckWorkflowsHandler } from './application/queries/get-stuck-workflows/get-stuck-workflows.handler';
+import { GetWorkflowDefinitionHandler } from './application/queries/get-workflow-definition/get-workflow-definition.handler';
 
 import { ProcessServiceTaskHandler } from './infrastructure/queue/process-service-task.handler';
 import { WorkflowTimerHandler } from './infrastructure/queue/workflow-timer.handler';
@@ -59,51 +67,61 @@ export interface WorkflowModuleOverrides {
   queueModule?: DynamicModule;
 }
 
-const WorkflowRequiredPortsGuard = createRequiredPortsGuard('WorkflowModule', [
-  {
-    token: WORKFLOW_DEFINITION_PORT,
-    fixHint:
+const WORKFLOW_MODULE_VALIDATOR = Symbol('WorkflowModule.internalValidator');
+
+@Injectable()
+class WorkflowModuleValidator extends BaseModuleValidator {
+  constructor(moduleRef: ModuleRef) {
+    super(moduleRef);
+  }
+
+  protected getModuleName(): string {
+    return 'WorkflowModule';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      WORKFLOW_DEFINITION_PORT,
       'Register { provide: WORKFLOW_DEFINITION_PORT, useClass: ... } in IntegrationsModule.',
-  },
-  {
-    token: WORKFLOW_QUEUE_PORT,
-    fixHint:
+    );
+    this.requirePort(
+      WORKFLOW_QUEUE_PORT,
       'Register { provide: WORKFLOW_QUEUE_PORT, useClass: ... } in IntegrationsModule. Requires QueueModule.',
-  },
-  {
-    token: IWorkflowInstanceRepository,
-    fixHint: 'Register IWorkflowInstanceRepository in PersistenceModule.',
-  },
-  {
-    token: IWorkflowInboxRepository,
-    fixHint: 'Register IWorkflowInboxRepository in PersistenceModule.',
-  },
-  {
-    token: IWorkflowEventLogRepository,
-    fixHint: 'Register IWorkflowEventLogRepository in PersistenceModule.',
-  },
-  {
-    token: IWorkflowOutboxRepository,
-    fixHint: 'Register IWorkflowOutboxRepository in PersistenceModule.',
-  },
-  {
-    token: IWorkflowTokenRepository,
-    fixHint: 'Register IWorkflowTokenRepository in PersistenceModule.',
-  },
-  {
-    token: IWorkflowIdempotencyRepository,
-    fixHint: 'Register IWorkflowIdempotencyRepository in PersistenceModule.',
-  },
-  {
-    token: WORKFLOW_FORM_DATA_PORT,
-    fixHint: 'Register { provide: WORKFLOW_FORM_DATA_PORT, useClass: ... } in IntegrationsModule.',
-  },
-  {
-    token: WORKFLOW_USER_RESOLUTION_PORT,
-    fixHint:
+    );
+    this.requirePort(
+      IWorkflowInstanceRepository,
+      'Register IWorkflowInstanceRepository in PersistenceModule.',
+    );
+    this.requirePort(
+      IWorkflowInboxRepository,
+      'Register IWorkflowInboxRepository in PersistenceModule.',
+    );
+    this.requirePort(
+      IWorkflowEventLogRepository,
+      'Register IWorkflowEventLogRepository in PersistenceModule.',
+    );
+    this.requirePort(
+      IWorkflowOutboxRepository,
+      'Register IWorkflowOutboxRepository in PersistenceModule.',
+    );
+    this.requirePort(
+      IWorkflowTokenRepository,
+      'Register IWorkflowTokenRepository in PersistenceModule.',
+    );
+    this.requirePort(
+      IWorkflowIdempotencyRepository,
+      'Register IWorkflowIdempotencyRepository in PersistenceModule.',
+    );
+    this.requirePort(
+      WORKFLOW_FORM_DATA_PORT,
+      'Register { provide: WORKFLOW_FORM_DATA_PORT, useClass: ... } in IntegrationsModule.',
+    );
+    this.requirePort(
+      WORKFLOW_USER_RESOLUTION_PORT,
       'Register { provide: WORKFLOW_USER_RESOLUTION_PORT, useClass: ... } in IntegrationsModule.',
-  },
-]);
+    );
+  }
+}
 
 const COMMAND_HANDLERS = [
   StartWorkflowHandler,
@@ -113,6 +131,7 @@ const COMMAND_HANDLERS = [
   CancelWorkflowHandler,
   PublishDefinitionHandler,
   ForceSkipElementHandler,
+  ReleaseUserInboxTasksHandler,
 ];
 
 const QUERY_HANDLERS = [
@@ -120,6 +139,7 @@ const QUERY_HANDLERS = [
   GetMyInboxHandler,
   GetWorkflowTimelineHandler,
   GetStuckWorkflowsHandler,
+  GetWorkflowDefinitionHandler,
 ];
 
 const ENGINE_SERVICES = [
@@ -144,6 +164,15 @@ const QUEUE_HANDLERS = [
   DetectStuckWorkflowsHandler,
 ];
 
+/**
+ * Workflow engine module — instance lifecycle, tasks, admin operations.
+ *
+ * **Host app requirements (including standalone consumers):**
+ * - Import `CoreModule` once in the root `AppModule` so `SuccessResponseInterceptor`
+ *   wraps controller responses. Controllers return raw DTOs — do not construct
+ *   `SuccessResponse` manually.
+ * - Register workflow ports and repositories (see `WorkflowModuleValidator` messages).
+ */
 @Module({})
 export class WorkflowModule extends BaseDynamicModule {
   static forRoot(
@@ -188,7 +217,7 @@ export class WorkflowModule extends BaseDynamicModule {
       controllers: [WorkflowController, WorkflowAdminController],
       providers: [
         ...optionsProviders,
-        WorkflowRequiredPortsGuard,
+        registerModuleValidator(WORKFLOW_MODULE_VALIDATOR, WorkflowModuleValidator),
         ...ENGINE_SERVICES,
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,

@@ -17,14 +17,13 @@
     "start": "node dist/main",
     "start:watch": "nest start --watch",
     "start:debug": "nest start --debug --watch",
+    "seed": "node ../../scripts/copy-assets.mjs --config=copy-seed-assets.config.json && node dist/seed",
     "type-check": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "etl:finance:preflight": "ts-node scripts/migration/finance/preflight.ts",
-    "etl:finance": "ts-node scripts/migration/finance/run-all.ts"
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@googleapis/calendar": "^14.2.0",
@@ -112,9 +111,6 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   },
   "jest": {
     "moduleFileExtensions": [

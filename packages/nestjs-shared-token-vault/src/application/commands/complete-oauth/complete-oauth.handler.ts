@@ -12,7 +12,7 @@ import { OAuthAccount } from '../../../domain/aggregates/oauth-account/oauth-acc
 import { OAuthToken } from '../../../domain/aggregates/oauth-token/oauth-token.aggregate';
 import { EncryptedToken } from '../../../domain/value-objects/encrypted-token.vo';
 import { TokenScope } from '../../../domain/value-objects/token-scope.vo';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../../token-vault-options';
 import {
   DuplicateAuthorizationCodeError,
   InvalidCallbackStateError,
@@ -38,7 +38,7 @@ export class CompleteOAuthHandler implements ICommandHandler<CompleteOAuthComman
     @Inject(OAUTH_PROVIDER_REGISTRY) private readonly registry: Map<string, IOAuthProvider>,
     @Inject(IOAuthTokenRepository) private readonly tokenRepo: ITokenRepo,
     @Inject(IOAuthAccountRepository) private readonly accountRepo: IAccountRepo,
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
     private readonly cacheService: CacheService,
     private readonly eventBus: EventBus,
   ) { }
@@ -156,7 +156,7 @@ export class CompleteOAuthHandler implements ICommandHandler<CompleteOAuthComman
     } catch (err) {
       // HIGH-2: Code is burned, provider tokens are orphaned. Log for manual recovery.
       this.logger.warn(
-        `[TokenVault2] Post-exchange failure after successful OAuth exchange. ` +
+        `[TokenVault] Post-exchange failure after successful OAuth exchange. ` +
         `provider=${provider} email=${profile?.email ?? 'unknown'} accountId=${account?.id ?? 'unknown'}. ` +
         `The authorization code is burned; provider-issued tokens are unreachable. ` +
         `User must re-authorize. Error: ${err.message}`,

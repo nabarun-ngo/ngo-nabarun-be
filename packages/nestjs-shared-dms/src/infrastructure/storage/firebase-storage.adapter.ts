@@ -37,7 +37,7 @@ export class FirebaseStorageAdapter implements IStorageProvider {
 
   async getSignedUrl(
     remotePath: string,
-    _ownerSub?: string,
+    _ownerId?: string,
     expireAfter?: number,
   ): Promise<string> {
     return expireAfter === undefined
@@ -56,5 +56,5 @@ export class FirebaseStorageAdapter implements IStorageProvider {
   //   2. Re-upload under the new path / name.
   //   3. Delete the original object.
   //   4. Return the new remotePath (the Document aggregate will also need updating).
-  // renameFile(remotePath: string, newName: string, _ownerSub?: string): Promise<void> { ... }
+  // renameFile(remotePath: string, newName: string, _ownerId?: string): Promise<void> { ... }
 }

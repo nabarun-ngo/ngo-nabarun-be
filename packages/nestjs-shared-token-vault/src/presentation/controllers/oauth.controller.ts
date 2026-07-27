@@ -54,7 +54,7 @@ export class OAuthController {
 
   @Get(':provider/auth-url')
   @RequirePermissions('create:oauth_token')
-  @StrictThrottle()
+  @StrictThrottle({ limit: 5 })
   @ApiOperation({ summary: 'Get OAuth authorization URL' })
   @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
   @ApiQuery({ name: 'scopes', required: false, description: 'Space-separated OAuth scopes (must be whitelisted)', type: String })
@@ -84,7 +84,7 @@ export class OAuthController {
   @Get(':provider/callback')
   @Public()
   @IgnoreCaptcha()
-  @StrictThrottle()
+  @StrictThrottle({ limit: 5 })
   @ApiOperation({
     summary: 'Handle OAuth provider callback',
     description:

@@ -4,9 +4,9 @@ import { UnauthorizedException } from '@nestjs/common';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { IGNORE_CAPTCHA } from '../decorators/ignore-captcha.decorator';
 import { USE_API_KEY } from '../decorators/use-api-key.decorator';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AuthModuleOptions } from '../../auth-options';
 
-const defaultOptions: Auth2ModuleOptions = {
+const defaultOptions: AuthModuleOptions = {
   jwt: { jwksUri: 'https://example.com', issuer: 'iss', audience: 'aud' },
 };
 
@@ -53,7 +53,7 @@ function buildGuard(overrides: Partial<{
   apiKeyVerifier: ReturnType<typeof makeApiKeyVerifier>;
   recaptcha: ReturnType<typeof makeRecaptcha>;
   commandBus: ReturnType<typeof makeCommandBus>;
-  options: Auth2ModuleOptions;
+  options: AuthModuleOptions;
 }> = {}) {
   const jwtVerifier = overrides.jwtVerifier ?? makeJwtVerifier();
   const apiKeyVerifier = overrides.apiKeyVerifier ?? makeApiKeyVerifier();

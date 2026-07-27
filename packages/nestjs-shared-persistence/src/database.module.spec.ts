@@ -3,9 +3,8 @@ import { DatabaseModule, DATABASE_OPTIONS } from '@nabarun-ngo/nestjs-shared-per
 import { PRISMA_CLIENT } from '@nabarun-ngo/nestjs-shared-persistence/prisma/base-prisma.service';
 
 const validOptions = {
-  postgresUrl: 'postgresql://user:pass@localhost:5432/db',
   redisUrl: 'redis://localhost:6379',
-  prismaClientFactory: (_url: string) => ({
+  prismaClientFactory: () => ({
     $connect: jest.fn(),
     $disconnect: jest.fn(),
     $extends: jest.fn().mockReturnThis(),
@@ -21,9 +20,7 @@ function findProvider(mod: DynamicModule, token: symbol | string) {
 
   for (const imported of mod.imports ?? []) {
     if (typeof imported === 'function') continue;
-    const nested = (imported as DynamicModule).providers?.find(
-      (p) => p === token,
-    );
+    const nested = findProvider(imported as DynamicModule, token);
     if (nested) return nested;
   }
 
@@ -47,7 +44,7 @@ describe('DatabaseModule', () => {
       const mod = DatabaseModule.forRoot(validOptions) as DynamicModule;
       const optionsProvider = findProvider(mod, DATABASE_OPTIONS);
       expect(optionsProvider).toBeDefined();
-      expect(optionsProvider.useValue.postgresUrl).toBe(validOptions.postgresUrl);
+      expect(optionsProvider.useValue.redisUrl).toBe(validOptions.redisUrl);
     });
 
     it('provides PRISMA_CLIENT token', () => {
@@ -71,28 +68,18 @@ describe('DatabaseModule', () => {
       );
 
       expect(prismaProvider.useFactory()).toBe(prismaClient);
-      expect(prismaClientFactory).toHaveBeenCalledWith(validOptions.postgresUrl);
-    });
-
-    it('throws on invalid postgresUrl at startup', () => {
-      expect(() =>
-        DatabaseModule.forRoot({
-          ...validOptions,
-          postgresUrl: 'not-a-url',
-        }),
-      ).toThrow('[DatabaseModule] Config validation failed:');
+      expect(prismaClientFactory).toHaveBeenCalledWith();
     });
 
     it('throws on missing prismaClientFactory', () => {
       expect(() =>
         DatabaseModule.forRoot({
-          postgresUrl: validOptions.postgresUrl,
           redisUrl: validOptions.redisUrl,
         } as any),
       ).toThrow('[DatabaseModule] Config validation failed:');
     });
 
-    it('exports BasePrismaService, CacheService, LockingService', () => {
+    it('exports BasePrismaService and CacheService', () => {
       const mod = DatabaseModule.forRoot(validOptions) as DynamicModule;
       expect(mod.exports).toBeDefined();
       expect((mod.exports as unknown[]).length).toBeGreaterThan(0);
@@ -125,7 +112,7 @@ describe('DatabaseModule', () => {
       const mod = DatabaseModule.forRootAsync({
         useFactory: () => ({
           ...validOptions,
-          postgresUrl: 'not-a-url',
+          redisUrl: 'not-a-url',
         }),
       });
       const optionsProvider = findProvider(mod, DATABASE_OPTIONS);
@@ -162,7 +149,7 @@ describe('DatabaseModule', () => {
       const validated = await optionsProvider.useFactory();
 
       await expect(prismaProvider.useFactory(validated)).resolves.toBe(prismaClient);
-      expect(prismaClientFactory).toHaveBeenCalledWith(validOptions.postgresUrl);
+      expect(prismaClientFactory).toHaveBeenCalledWith();
     });
   });
 });

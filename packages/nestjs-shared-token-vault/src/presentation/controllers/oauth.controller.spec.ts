@@ -1,7 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { OAuthController } from "@nabarun-ngo/nestjs-shared-token-vault/presentation/controllers/oauth.controller";
+import { OAuthController } from "./oauth.controller";
 import { OAUTH_PROVIDER_REGISTRY } from "@nabarun-ngo/nestjs-shared-token-vault/application/ports/oauth-provider.port";
 import { ProviderNotConfiguredError } from "@nabarun-ngo/nestjs-shared-token-vault/domain/errors/token-vault.errors";
 
@@ -43,19 +43,14 @@ describe("OAuthController (token-vault)", () => {
 
   // ── rate limiting ────────────────────────────────────────────────────────
   describe("rate limiting (StrictThrottle)", () => {
-    it("applies the strict 10/min limit to the public callback and auth-url", () => {
-      const callback = Object.getOwnPropertyDescriptor(
-        OAuthController.prototype,
-        "handleCallback",
-      )!.value;
-      const authUrl = Object.getOwnPropertyDescriptor(
-        OAuthController.prototype,
-        "getAuthUrl",
-      )!.value;
+    it("applies explicit strict limits on callback and auth-url routes", () => {
+      const callback = OAuthController.prototype.handleCallback;
+      const authUrl = OAuthController.prototype.getAuthUrl;
 
-      expect(Reflect.getMetadata("THROTTLER:LIMITdefault", callback)).toBe(5);
-      expect(Reflect.getMetadata("THROTTLER:TTLdefault", callback)).toBe(60_000);
-      expect(Reflect.getMetadata("THROTTLER:LIMITdefault", authUrl)).toBe(5);
+      expect(Reflect.getMetadata("THROTTLER:LIMITstrict", callback)).toBe(5);
+      expect(Reflect.getMetadata("THROTTLER:TTLstrict", callback)).toBe(60_000);
+      expect(Reflect.getMetadata("THROTTLER:LIMITstrict", authUrl)).toBe(5);
+      expect(Reflect.getMetadata("THROTTLER:TTLstrict", authUrl)).toBe(60_000);
     });
   });
 

@@ -23,6 +23,7 @@ export class ProjectMapper {
       managerId: project.managerId,
       sponsorId: project.sponsorId,
       tags: project.tags,
+      isPublic: project.isPublic,
       metadata: project.metadata,
       createdAt: project.createdAt!,
       updatedAt: project.updatedAt!,

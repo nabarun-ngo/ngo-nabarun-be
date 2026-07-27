@@ -20,6 +20,7 @@ model Project {
   managerId              String    @db.VarChar(255)
   sponsorId              String?   @db.VarChar(255)
   tags                   String[]  @db.VarChar(50)
+  isPublic               Boolean   @default(false)
   metadata               Json?
 
   manager       UserProfile         @relation("ProjectManager", fields: [managerId], references: [id])
@@ -41,6 +42,7 @@ model Project {
   @@index([phase])
   @@index([managerId])
   @@index([code])
+  @@index([isPublic])
   @@map("projects")
 }
 

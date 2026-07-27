@@ -37,6 +37,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { RequirePermissions } from '../decorators/require-permissions.decorator';
 import { StrictThrottle } from '../decorators/throttle-presets';
 import { AuthUser } from '../../application/models/auth-user';
+import { requireUserId } from '../../application/utilities/require-user-id.util';
 
 @ApiBearerAuth('jwt')
 @ApiSecurity('api-key')
@@ -50,7 +51,7 @@ export class ApiKeyController {
 
   @Post('generate')
   @RequirePermissions('create:api_keys')
-  @StrictThrottle()
+  @StrictThrottle({ limit: 5 })
   @ApiOperation({ summary: 'Generate API Key' })
   @ApiBody({ type: GenerateApiKeyRequestDto })
   @ApiAutoResponse(ApiKeyResponseDto, { status: 201 })
@@ -63,7 +64,7 @@ export class ApiKeyController {
         dto.name,
         dto.permissions,
         caller.permissions ?? [],
-        caller.userId ?? caller.idpSub,
+        requireUserId(caller),
         dto.expiresAt ? new Date(dto.expiresAt) : undefined,
         dto.ownerId,
       ),
@@ -81,7 +82,7 @@ export class ApiKeyController {
     return this.queryBus.execute(
       new ListApiKeysQuery(
         new BaseFilter<ApiKeyFilter>(undefined, query.pageIndex, query.pageSize, query.sortBy, query.sortDir),
-        caller?.userId ?? caller?.idpSub,
+        caller ? requireUserId(caller) : undefined,
       ),
     );
   }

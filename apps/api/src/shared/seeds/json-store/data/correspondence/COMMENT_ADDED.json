@@ -1,5 +1,18 @@
 {
   "subject": "New comment on {{resourceName}}",
-  "htmlTemplate": "<p>Hi {{recipientName}}, a new comment was added to <strong>{{resourceName}}</strong> by <strong>{{authorName}}</strong>: <em>{{commentText}}</em></p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "New comment",
+        "subHeading": "{{resourceName}}"
+      },
+      "content": {
+        "salutation": "Hi {{recipientName}},",
+        "paragraph1_blue": "A new comment was added to {{resourceName}} by {{authorName}}:",
+        "paragraph3_blue": "{{commentText}}"
+      }
+    }
+  },
   "textTemplate": "Hi {{recipientName}}, {{authorName}} commented on {{resourceName}}: {{commentText}}"
 }

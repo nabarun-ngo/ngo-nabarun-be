@@ -4,10 +4,7 @@ import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { ActivityStatus } from '../../../domain/enums/activity.enum';
 import { Activity } from '../../../domain/aggregates/activity/activity.aggregate';
 import { IActivityRepository } from '../../../domain/repositories/activity.repository';
-import { ExpenseStatus } from '../../../../finance/domain/enums/expense.enum';
-import { DonationStatus } from '../../../../finance/domain/enums/donation-status.enum';
-import { IExpenseRepository } from '../../../../finance/domain/repositories/expense.repository';
-import { IDonationRepository } from '../../../../finance/domain/repositories/donation.repository';
+import { FinanceFacade } from '../../../../finance/application/services/finance.facade';
 import { UpdateActivityCommand } from './update-activity.command';
 
 @CommandHandler(UpdateActivityCommand)
@@ -15,8 +12,7 @@ import { UpdateActivityCommand } from './update-activity.command';
 export class UpdateActivityHandler implements ICommandHandler<UpdateActivityCommand, Activity> {
   constructor(
     @Inject(IActivityRepository) private readonly activityRepository: IActivityRepository,
-    @Inject(IExpenseRepository) private readonly expenseRepository: IExpenseRepository,
-    @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
+    private readonly financeFacade: FinanceFacade,
     private readonly eventBus: EventBus,
   ) { }
 
@@ -26,16 +22,7 @@ export class UpdateActivityHandler implements ICommandHandler<UpdateActivityComm
     activity.update(params);
     if (params.status) {
       if (params.status === ActivityStatus.COMPLETED) {
-        const expenses = await this.expenseRepository.findAll({ expenseRefId: params.activityId });
-        const allowedExpense = [ExpenseStatus.SETTLED, ExpenseStatus.REJECTED];
-        if (expenses.some((e) => !allowedExpense.includes(e.status))) {
-          throw new BusinessException('Cannot close activity because there are unsettled expenses.');
-        }
-        const donations = await this.donationRepository.findAll({ forEventId: params.activityId });
-        const allowedDonation = [DonationStatus.PAID, DonationStatus.CANCELLED];
-        if (donations.some((d) => !allowedDonation.includes(d.status))) {
-          throw new BusinessException('Cannot close activity because there are unsettled donations.');
-        }
+        await this.financeFacade.assertActivityCanClose(params.activityId);
       }
       activity.updateStatus(params.status);
     }

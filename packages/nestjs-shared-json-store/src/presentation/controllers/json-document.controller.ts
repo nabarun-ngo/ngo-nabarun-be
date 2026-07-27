@@ -58,7 +58,7 @@ export class JsonDocumentController {
     return this.queryBus.execute(new GetJsonDocumentQuery({ id }));
   }
 
-  @Get(':namespace/:key')
+  @Get('by-namespace/:namespace/:key')
   @RequirePermissions('read:json_documents')
   @ApiOperation({ summary: 'Get a JSON document by namespace and key' })
   @ApiAutoResponse(JsonDocumentResponseDto)
@@ -98,7 +98,7 @@ export class JsonDocumentController {
     );
   }
 
-  @Put(':namespace/:key')
+  @Put('by-namespace/:namespace/:key')
   @RequirePermissions('update:json_documents')
   @ApiOperation({ summary: 'Upsert a JSON document by namespace and key' })
   @ApiAutoResponse(JsonDocumentResponseDto)

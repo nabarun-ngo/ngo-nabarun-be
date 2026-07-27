@@ -1,34 +1,28 @@
 export const IDocumentEntityAccessPort = Symbol('IDocumentEntityAccessPort');
 
-export type DocumentAccessAction = 'read' | 'write';
-
 /**
  * Optional port for record-level (entity-instance) access checks.
- * Consumers implement this when a permission check alone is not sufficient —
- * e.g. checking that the user is a member of the specific entity.
+ * Consumers implement `IEntityAccessPort` from `@nabarun-ngo/nestjs-shared-core`
+ * when a permission check alone is not sufficient — e.g. checking that the user
+ * is a member of the specific entity.
  *
  * Registration is optional — handlers use @Optional() @Inject(IDocumentEntityAccessPort).
  * If no provider is registered, record-level checks are skipped (permission-based
- * tier still applies via DocumentEntityTypePolicy).
+ * tier still applies via EntityTypePolicy).
  *
  * @example
+ * import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
+ * import { IDocumentEntityAccessPort } from '@nabarun-ngo/nestjs-shared-dms';
+ *
  * @Injectable()
- * export class MyDocumentEntityAccessAdapter implements IDocumentEntityAccessPort {
+ * export class DocumentEntityAccessAdapter implements IEntityAccessPort {
  *   async canAccess({ entityType, entityId, userId, userPermissions, action }) {
  *     switch (entityType) {
- *       case 'donation': return this.donations.canUserAccess(entityId, userId, action);
+ *       case 'donation': return this.donations.canUserAccess(entityId!, userId, action);
  *       default:         return false;
  *     }
  *   }
  * }
+ *
+ * // { provide: IDocumentEntityAccessPort, useClass: DocumentEntityAccessAdapter }
  */
-export interface IDocumentEntityAccessPort {
-  canAccess(params: {
-    entityType: string;
-    entityId: string;
-    userId: string;
-    /** Already resolved by the auth guard — no extra DB call needed. */
-    userPermissions: string[];
-    action: DocumentAccessAction;
-  }): Promise<boolean>;
-}

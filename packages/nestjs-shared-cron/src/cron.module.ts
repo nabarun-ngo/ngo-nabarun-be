@@ -1,6 +1,12 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Injectable, Module } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-import { BaseDynamicModule, DynamicModuleAsyncOptions, createRequiredPortsGuard } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BaseDynamicModule,
+  BaseModuleValidator,
+  DynamicModuleAsyncOptions,
+  registerModuleValidator,
+} from '@nabarun-ngo/nestjs-shared-core';
 
 import { Cron2ModuleOptions, Cron2OptionsSchema } from './cron.schema';
 import { CRON2_OPTIONS } from './infrastructure/cron-options.token';
@@ -23,18 +29,29 @@ export type { Cron2ModuleOptions } from './cron.schema';
 export interface Cron2ModuleAsyncOptions
   extends DynamicModuleAsyncOptions<Cron2ModuleOptions> { }
 
-const CronRequiredPortsGuard = createRequiredPortsGuard('Cron2Module', [
-  {
-    token: CRON_JOB_STORE_PORT,
-    fixHint:
+const CRON_MODULE_VALIDATOR = Symbol('Cron2Module.internalValidator');
+
+@Injectable()
+class Cron2ModuleValidator extends BaseModuleValidator {
+  constructor(moduleRef: ModuleRef) {
+    super(moduleRef);
+  }
+
+  protected getModuleName(): string {
+    return 'Cron2Module';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      CRON_JOB_STORE_PORT,
       'Register { provide: CRON_JOB_STORE_PORT, useClass: JsonStoreCronJobAdapter } in IntegrationsModule. Requires JsonStoreModule.',
-  },
-  {
-    token: CRON_JOB_QUEUE_PORT,
-    fixHint:
+    );
+    this.requirePort(
+      CRON_JOB_QUEUE_PORT,
       'Register { provide: CRON_JOB_QUEUE_PORT, useClass: QueueCronJobAdapter } in IntegrationsModule. Requires QueueModule.forRootAsync().',
-  },
-]);
+    );
+  }
+}
 
 const COMMAND_HANDLERS = [
   TriggerCronJobsHandler,
@@ -46,6 +63,15 @@ const COMMAND_HANDLERS = [
 
 const QUERY_HANDLERS = [GetCronJobsHandler];
 
+/**
+ * Cron scheduling module — evaluates job definitions and enqueues due work to BullMQ.
+ *
+ * **Host app requirements (including standalone consumers):**
+ * - Import `CoreModule` once in the root `AppModule` so `SuccessResponseInterceptor`
+ *   wraps controller responses. Controllers return raw DTOs — do not construct
+ *   `SuccessResponse` manually.
+ * - Register `CRON_JOB_STORE_PORT` and `CRON_JOB_QUEUE_PORT` adapters (see validator messages).
+ */
 @Module({})
 export class Cron2Module extends BaseDynamicModule {
   static forRoot(options: Cron2ModuleOptions = {}): DynamicModule {
@@ -75,7 +101,7 @@ export class Cron2Module extends BaseDynamicModule {
       controllers: [CronController],
       providers: [
         ...optionsProviders,
-        CronRequiredPortsGuard,
+        registerModuleValidator(CRON_MODULE_VALIDATOR, Cron2ModuleValidator),
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
       ],

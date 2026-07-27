@@ -1,13 +1,18 @@
 {
   "name": "@nabarun-ngo/nestjs-shared-document-generator",
   "version": "1.0.0",
-  "private": true,
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist && rimraf .turbo",
     "prebuild": "npm run clean",
-    "build": "tsc -p tsconfig.build.json && node scripts/copy-templates.mjs",
+    "build": "tsc -p tsconfig.build.json && node ../../scripts/copy-assets.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "test": "jest --config ../../jest.config.js"

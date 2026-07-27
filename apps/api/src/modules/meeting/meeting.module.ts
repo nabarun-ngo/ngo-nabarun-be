@@ -14,7 +14,7 @@ import { DeleteMeetingHandler } from './application/commands/delete-meeting/dele
 import { ListMeetingsHandler } from './application/queries/list-meetings/list-meetings.handler';
 import { GetMeetingByIdHandler } from './application/queries/get-meeting-by-id/get-meeting-by-id.handler';
 
-import { ProcessFathomMeetingWebhookHandler } from './application/jobs/process-fathom-meeting-webhook.handler';
+import { ProcessFathomMeetingWebhookHandler } from './application/handlers/queue/process-fathom-meeting-webhook.handler';
 
 import { MeetingController } from './presentation/controllers/meeting.controller';
 import { MeetingWebhookController } from './presentation/controllers/meeting-webhook.controller';
@@ -68,7 +68,7 @@ export class MeetingModule {
         ...QUERY_HANDLERS,
         ...JOB_HANDLERS,
       ],
-      exports: [IMeetingRepository],
+      exports: [],
     };
   }
 }

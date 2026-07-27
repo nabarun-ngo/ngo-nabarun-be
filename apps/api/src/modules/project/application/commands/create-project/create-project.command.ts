@@ -18,6 +18,7 @@ export class CreateProjectCommand {
       managerId: string;
       sponsorId?: string;
       tags?: string[];
+      isPublic?: boolean;
       metadata?: Record<string, unknown>;
     },
   ) {}

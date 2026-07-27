@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const Correspondence2OptionsSchema = z.object({
+export const CorrespondenceOptionsSchema = z.object({
   appName: z.string().optional(),
   environment: z.string(),
   email: z

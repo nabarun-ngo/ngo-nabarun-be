@@ -104,7 +104,7 @@ describe('DeleteDocumentHandler', () => {
     await handler.execute(BASE_COMMAND);
 
     expect(doc.isDeleted).toBe(true);
-    expect(storage.deleteFile).toHaveBeenCalledWith(doc.remotePath, doc.storageOwnerSub);
+    expect(storage.deleteFile).toHaveBeenCalledWith(doc.remotePath, doc.storageOwnerId);
     expect(repo.update).toHaveBeenCalledWith(doc.id, doc);
   });
 

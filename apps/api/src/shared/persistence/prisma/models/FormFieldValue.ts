@@ -31,7 +31,6 @@ export type FormFieldValueMinAggregateOutputType = {
   formId: string | null
   formSubmissionId: string | null
   fieldDefId: string | null
-  value: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -43,7 +42,6 @@ export type FormFieldValueMaxAggregateOutputType = {
   formId: string | null
   formSubmissionId: string | null
   fieldDefId: string | null
-  value: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,7 +67,6 @@ export type FormFieldValueMinAggregateInputType = {
   formId?: true
   formSubmissionId?: true
   fieldDefId?: true
-  value?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,7 +78,6 @@ export type FormFieldValueMaxAggregateInputType = {
   formId?: true
   formSubmissionId?: true
   fieldDefId?: true
-  value?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -178,7 +174,7 @@ export type FormFieldValueGroupByOutputType = {
   formId: string
   formSubmissionId: string
   fieldDefId: string
-  value: string | null
+  value: string[]
   createdAt: Date
   updatedAt: Date
   _count: FormFieldValueCountAggregateOutputType | null
@@ -211,7 +207,7 @@ export type FormFieldValueWhereInput = {
   formId?: Prisma.StringFilter<"FormFieldValue"> | string
   formSubmissionId?: Prisma.StringFilter<"FormFieldValue"> | string
   fieldDefId?: Prisma.StringFilter<"FormFieldValue"> | string
-  value?: Prisma.StringNullableFilter<"FormFieldValue"> | string | null
+  value?: Prisma.StringNullableListFilter<"FormFieldValue">
   createdAt?: Prisma.DateTimeFilter<"FormFieldValue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormFieldValue"> | Date | string
   definition?: Prisma.XOR<Prisma.FormFieldDefinitionScalarRelationFilter, Prisma.FormFieldDefinitionWhereInput>
@@ -226,7 +222,7 @@ export type FormFieldValueOrderByWithRelationInput = {
   formId?: Prisma.SortOrder
   formSubmissionId?: Prisma.SortOrder
   fieldDefId?: Prisma.SortOrder
-  value?: Prisma.SortOrderInput | Prisma.SortOrder
+  value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   definition?: Prisma.FormFieldDefinitionOrderByWithRelationInput
@@ -245,7 +241,7 @@ export type FormFieldValueWhereUniqueInput = Prisma.AtLeast<{
   formId?: Prisma.StringFilter<"FormFieldValue"> | string
   formSubmissionId?: Prisma.StringFilter<"FormFieldValue"> | string
   fieldDefId?: Prisma.StringFilter<"FormFieldValue"> | string
-  value?: Prisma.StringNullableFilter<"FormFieldValue"> | string | null
+  value?: Prisma.StringNullableListFilter<"FormFieldValue">
   createdAt?: Prisma.DateTimeFilter<"FormFieldValue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormFieldValue"> | Date | string
   definition?: Prisma.XOR<Prisma.FormFieldDefinitionScalarRelationFilter, Prisma.FormFieldDefinitionWhereInput>
@@ -260,7 +256,7 @@ export type FormFieldValueOrderByWithAggregationInput = {
   formId?: Prisma.SortOrder
   formSubmissionId?: Prisma.SortOrder
   fieldDefId?: Prisma.SortOrder
-  value?: Prisma.SortOrderInput | Prisma.SortOrder
+  value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FormFieldValueCountOrderByAggregateInput
@@ -278,7 +274,7 @@ export type FormFieldValueScalarWhereWithAggregatesInput = {
   formId?: Prisma.StringWithAggregatesFilter<"FormFieldValue"> | string
   formSubmissionId?: Prisma.StringWithAggregatesFilter<"FormFieldValue"> | string
   fieldDefId?: Prisma.StringWithAggregatesFilter<"FormFieldValue"> | string
-  value?: Prisma.StringNullableWithAggregatesFilter<"FormFieldValue"> | string | null
+  value?: Prisma.StringNullableListFilter<"FormFieldValue">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FormFieldValue"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FormFieldValue"> | Date | string
 }
@@ -288,7 +284,7 @@ export type FormFieldValueCreateInput = {
   entityType: string
   entityId: string
   formId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   definition: Prisma.FormFieldDefinitionCreateNestedOneWithoutValuesInput
@@ -303,7 +299,7 @@ export type FormFieldValueUncheckedCreateInput = {
   formId: string
   formSubmissionId: string
   fieldDefId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   historyEntries?: Prisma.FormFieldValueHistoryEntryUncheckedCreateNestedManyWithoutFormFieldValueInput
@@ -314,7 +310,7 @@ export type FormFieldValueUpdateInput = {
   entityType?: Prisma.StringFieldUpdateOperationsInput | string
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   definition?: Prisma.FormFieldDefinitionUpdateOneRequiredWithoutValuesNestedInput
@@ -329,7 +325,7 @@ export type FormFieldValueUncheckedUpdateInput = {
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   formSubmissionId?: Prisma.StringFieldUpdateOperationsInput | string
   fieldDefId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   historyEntries?: Prisma.FormFieldValueHistoryEntryUncheckedUpdateManyWithoutFormFieldValueNestedInput
@@ -342,7 +338,7 @@ export type FormFieldValueCreateManyInput = {
   formId: string
   formSubmissionId: string
   fieldDefId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -352,7 +348,7 @@ export type FormFieldValueUpdateManyMutationInput = {
   entityType?: Prisma.StringFieldUpdateOperationsInput | string
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -364,7 +360,7 @@ export type FormFieldValueUncheckedUpdateManyInput = {
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   formSubmissionId?: Prisma.StringFieldUpdateOperationsInput | string
   fieldDefId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,7 +401,6 @@ export type FormFieldValueMaxOrderByAggregateInput = {
   formId?: Prisma.SortOrder
   formSubmissionId?: Prisma.SortOrder
   fieldDefId?: Prisma.SortOrder
-  value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -417,7 +412,6 @@ export type FormFieldValueMinOrderByAggregateInput = {
   formId?: Prisma.SortOrder
   formSubmissionId?: Prisma.SortOrder
   fieldDefId?: Prisma.SortOrder
-  value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -511,6 +505,15 @@ export type FormFieldValueUncheckedUpdateManyWithoutSubmissionNestedInput = {
   deleteMany?: Prisma.FormFieldValueScalarWhereInput | Prisma.FormFieldValueScalarWhereInput[]
 }
 
+export type FormFieldValueCreatevalueInput = {
+  set: string[]
+}
+
+export type FormFieldValueUpdatevalueInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type FormFieldValueCreateNestedOneWithoutHistoryEntriesInput = {
   create?: Prisma.XOR<Prisma.FormFieldValueCreateWithoutHistoryEntriesInput, Prisma.FormFieldValueUncheckedCreateWithoutHistoryEntriesInput>
   connectOrCreate?: Prisma.FormFieldValueCreateOrConnectWithoutHistoryEntriesInput
@@ -530,7 +533,7 @@ export type FormFieldValueCreateWithoutDefinitionInput = {
   entityType: string
   entityId: string
   formId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   submission: Prisma.FormSubmissionCreateNestedOneWithoutFieldValuesInput
@@ -543,7 +546,7 @@ export type FormFieldValueUncheckedCreateWithoutDefinitionInput = {
   entityId: string
   formId: string
   formSubmissionId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   historyEntries?: Prisma.FormFieldValueHistoryEntryUncheckedCreateNestedManyWithoutFormFieldValueInput
@@ -585,7 +588,7 @@ export type FormFieldValueScalarWhereInput = {
   formId?: Prisma.StringFilter<"FormFieldValue"> | string
   formSubmissionId?: Prisma.StringFilter<"FormFieldValue"> | string
   fieldDefId?: Prisma.StringFilter<"FormFieldValue"> | string
-  value?: Prisma.StringNullableFilter<"FormFieldValue"> | string | null
+  value?: Prisma.StringNullableListFilter<"FormFieldValue">
   createdAt?: Prisma.DateTimeFilter<"FormFieldValue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormFieldValue"> | Date | string
 }
@@ -595,7 +598,7 @@ export type FormFieldValueCreateWithoutSubmissionInput = {
   entityType: string
   entityId: string
   formId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   definition: Prisma.FormFieldDefinitionCreateNestedOneWithoutValuesInput
@@ -608,7 +611,7 @@ export type FormFieldValueUncheckedCreateWithoutSubmissionInput = {
   entityId: string
   formId: string
   fieldDefId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   historyEntries?: Prisma.FormFieldValueHistoryEntryUncheckedCreateNestedManyWithoutFormFieldValueInput
@@ -645,7 +648,7 @@ export type FormFieldValueCreateWithoutHistoryEntriesInput = {
   entityType: string
   entityId: string
   formId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
   definition: Prisma.FormFieldDefinitionCreateNestedOneWithoutValuesInput
@@ -659,7 +662,7 @@ export type FormFieldValueUncheckedCreateWithoutHistoryEntriesInput = {
   formId: string
   formSubmissionId: string
   fieldDefId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -685,7 +688,7 @@ export type FormFieldValueUpdateWithoutHistoryEntriesInput = {
   entityType?: Prisma.StringFieldUpdateOperationsInput | string
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   definition?: Prisma.FormFieldDefinitionUpdateOneRequiredWithoutValuesNestedInput
@@ -699,7 +702,7 @@ export type FormFieldValueUncheckedUpdateWithoutHistoryEntriesInput = {
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   formSubmissionId?: Prisma.StringFieldUpdateOperationsInput | string
   fieldDefId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -710,7 +713,7 @@ export type FormFieldValueCreateManyDefinitionInput = {
   entityId: string
   formId: string
   formSubmissionId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -720,7 +723,7 @@ export type FormFieldValueUpdateWithoutDefinitionInput = {
   entityType?: Prisma.StringFieldUpdateOperationsInput | string
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submission?: Prisma.FormSubmissionUpdateOneRequiredWithoutFieldValuesNestedInput
@@ -733,7 +736,7 @@ export type FormFieldValueUncheckedUpdateWithoutDefinitionInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   formSubmissionId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   historyEntries?: Prisma.FormFieldValueHistoryEntryUncheckedUpdateManyWithoutFormFieldValueNestedInput
@@ -745,7 +748,7 @@ export type FormFieldValueUncheckedUpdateManyWithoutDefinitionInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   formSubmissionId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -756,7 +759,7 @@ export type FormFieldValueCreateManySubmissionInput = {
   entityId: string
   formId: string
   fieldDefId: string
-  value?: string | null
+  value?: Prisma.FormFieldValueCreatevalueInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -766,7 +769,7 @@ export type FormFieldValueUpdateWithoutSubmissionInput = {
   entityType?: Prisma.StringFieldUpdateOperationsInput | string
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   definition?: Prisma.FormFieldDefinitionUpdateOneRequiredWithoutValuesNestedInput
@@ -779,7 +782,7 @@ export type FormFieldValueUncheckedUpdateWithoutSubmissionInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   fieldDefId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   historyEntries?: Prisma.FormFieldValueHistoryEntryUncheckedUpdateManyWithoutFormFieldValueNestedInput
@@ -791,7 +794,7 @@ export type FormFieldValueUncheckedUpdateManyWithoutSubmissionInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   formId?: Prisma.StringFieldUpdateOperationsInput | string
   fieldDefId?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FormFieldValueUpdatevalueInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -913,7 +916,7 @@ export type $FormFieldValuePayload<ExtArgs extends runtime.Types.Extensions.Inte
     formId: string
     formSubmissionId: string
     fieldDefId: string
-    value: string | null
+    value: string[]
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["formFieldValue"]>
@@ -1348,7 +1351,7 @@ export interface FormFieldValueFieldRefs {
   readonly formId: Prisma.FieldRef<"FormFieldValue", 'String'>
   readonly formSubmissionId: Prisma.FieldRef<"FormFieldValue", 'String'>
   readonly fieldDefId: Prisma.FieldRef<"FormFieldValue", 'String'>
-  readonly value: Prisma.FieldRef<"FormFieldValue", 'String'>
+  readonly value: Prisma.FieldRef<"FormFieldValue", 'String[]'>
   readonly createdAt: Prisma.FieldRef<"FormFieldValue", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FormFieldValue", 'DateTime'>
 }

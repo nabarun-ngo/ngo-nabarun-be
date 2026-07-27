@@ -32,13 +32,13 @@ export class GoogleDriveStorageAdapter implements IStorageProvider {
     private readonly oauthTokens: IOAuthAccessTokenPort,
   ) { }
 
-  private async getClient(ownerSub?: string): Promise<drive_v3.Drive> {
+  private async getClient(ownerId?: string): Promise<drive_v3.Drive> {
     let accessToken: string;
     try {
       accessToken = await this.oauthTokens.getAccessToken({
         provider: 'google',
         scope: GOOGLE_DRIVE_FILE_SCOPE,
-        ownerSub,
+        ownerSub: ownerId,
       });
     } catch {
       throw new BusinessError(
@@ -51,7 +51,7 @@ export class GoogleDriveStorageAdapter implements IStorageProvider {
   }
 
   async uploadFile(params: StorageUploadParams): Promise<StorageUploadResult> {
-    const drive = await this.getClient(params.ownerSub);
+    const drive = await this.getClient(params.ownerId);
     const fileName = params.path.split('/').pop() ?? params.path;
     const folderId = this.options.googleDrive?.folderId;
 
@@ -91,8 +91,8 @@ export class GoogleDriveStorageAdapter implements IStorageProvider {
     return { url: response.data.webViewLink, remotePath: fileId };
   }
 
-  async deleteFile(remotePath: string, ownerSub?: string): Promise<void> {
-    const drive = await this.getClient(ownerSub);
+  async deleteFile(remotePath: string, ownerId?: string): Promise<void> {
+    const drive = await this.getClient(ownerId);
     try {
       await drive.files.delete({ fileId: remotePath });
     } catch (err: any) {
@@ -106,8 +106,8 @@ export class GoogleDriveStorageAdapter implements IStorageProvider {
     }
   }
 
-  async getSignedUrl(remotePath: string, ownerSub?: string): Promise<string> {
-    const drive = await this.getClient(ownerSub);
+  async getSignedUrl(remotePath: string, ownerId?: string): Promise<string> {
+    const drive = await this.getClient(ownerId);
     let response: { data: drive_v3.Schema$File };
     try {
       response = (await drive.files.get({
@@ -129,8 +129,8 @@ export class GoogleDriveStorageAdapter implements IStorageProvider {
     return response.data.webViewLink;
   }
 
-  async downloadFile(remotePath: string, ownerSub?: string): Promise<Readable> {
-    const drive = await this.getClient(ownerSub);
+  async downloadFile(remotePath: string, ownerId?: string): Promise<Readable> {
+    const drive = await this.getClient(ownerId);
     let response: { data: Readable };
     try {
       response = (await drive.files.get(

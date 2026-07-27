@@ -1,0 +1,1097 @@
+{
+  "$schema": "./content-static.schema.json",
+  "vars": {
+    "orgName": "Ichapur Nabarun Welfare Society",
+    "orgShortName": "NABARUN",
+    "email": "nabarunbangla18@gmail.com",
+    "phone": "+91 98749 16659",
+    "location": "Ichapur, West Bengal",
+    "estd": "2018",
+    "registrationNumber": "S0063530",
+    "facebookUrl": "https://www.facebook.com/nabarunNGO",
+    "instagramUrl": "https://www.instagram.com/nabarunngo/",
+    "youtubeUrl": "https://www.youtube.com/@nabarunngo",
+    "siteUrl": "https://nabarunngo.web.app",
+    "loginUrl": "https://nabarunngo-portal.web.app",
+    "logoUrl": "/img/logo.png",
+    "upiId": "nabarun@upi",
+    "bankAccountName": "Ichapur Nabarun Welfare Society",
+    "bankAccountNumber": "000000000000",
+    "bankIfsc": "SBIN0000000",
+    "bankName": "State Bank of India",
+    "bankBranch": "Ichapur, West Bengal",
+    "paymentGatewayUrl": "",
+    "livesTouchedCount": "500+",
+    "projectsCount": "15+",
+    "contactLocationLink": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.054747711374!2d88.37857547508479!3d22.800435179330115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f89b00198123bd%3A0xbb43e9b27da0afe!2sIndrapuri%20ichapur!5e0!3m2!1sen!2sin!4v1784321057260!5m2!1sen!2sin",
+    "policyPrivacyPolicyUrl": "https://1drv.ms/w/c/c63dad803d4b69ca/IQRWQGCvEtAuTIdPVLdzP_SFAUznac7hitoIPgsy5ukUVWg",
+    "policyTermsOfUseUrl": "https://1drv.ms/w/c/c63dad803d4b69ca/IQQM3qc2lXR1Rps9iEPaipNoAQR3lASb4H9KhFoh7BzYB9E",
+    "policyDisclaimerUrl": "https://1drv.ms/w/c/c63dad803d4b69ca/IQTrmV42vyc3QLHD5OkX4_hoAf-Mx4t8l76LNDpnAt8EpF0",
+    "policyCopyrightUrl": "https://1drv.ms/w/c/c63dad803d4b69ca/IQT41yVjOctpRYKZXlQ4WjeZAQq42oawI5xD3wPf104xptg",
+    "policyRulesAndRegulationsUrl": "https://1drv.ms/w/c/c63dad803d4b69ca/IQRTdjyTLEKHQ6CrQGHUb2AfAb6ZqC_bZqg0F1Uoe6a2798"
+  },
+  "metadata": {
+    "site": {
+      "title": "Nabarun NGO | Ichapur Nabarun Welfare Society - Empowering Communities",
+      "description": "Nabarun (Ichapur Nabarun Welfare Society) is a registered NGO in West Bengal, serving North Kolkata and North Suburban Kolkata since 2018. Child education, disaster relief, seasonal support, and community welfare.",
+      "keywords": "Nabarun, NGO Nabarun, Nabarun NGO, Ichapur Nabarun Welfare Society, Nabarun welfare society, Nabarun West Bengal, Nabarun charity",
+      "brand": "Nabarun",
+      "shortBrand": "NABARUN (INWS)",
+      "name": "{{vars.orgName}}",
+      "alternateName": "Nabarun NGO",
+      "location": "Ichapur, Barrackpore, West Bengal, India",
+      "areaServed": "North Kolkata, North Suburban Kolkata, West Bengal",
+      "openGraph": {
+        "url": "{{vars.siteUrl}}",
+        "siteName": "{{vars.orgName}}",
+        "image": "{{vars.siteUrl}}{{vars.logoUrl}}"
+      },
+      "locale": "en_IN",
+      "twitter": {
+        "card": "summary_large_image"
+      }
+    },
+    "organization": {
+      "alternateNames": [
+        "Nabarun",
+        "NGO Nabarun",
+        "Nabarun NGO",
+        "Nabarun Welfare Society",
+        "Ichapur Nabarun Welfare Society",
+        "Nabarun Ngo",
+        "Nabarun Ngo West Bengal",
+        "Nabarun Ngo Kolkata",
+        "Nabarun Ngo Barrackpore",
+        "Nabarun Ngo Ichapur",
+        "Nabarun Ngo North Kolkata",
+        "Nabarun Ngo North Suburban Kolkata",
+        "INWS"
+      ],
+      "logo": "{{vars.siteUrl}}{{vars.logoUrl}}",
+      "email": "{{vars.email}}",
+      "telephone": "{{vars.phone}}",
+      "foundingDate": "{{vars.estd}}",
+      "registrationNumber": "{{vars.registrationNumber}}",
+      "address": {
+        "streetAddress": "Ichapur",
+        "addressLocality": "Barrackpore",
+        "addressRegion": "West Bengal",
+        "addressCountry": "IN"
+      },
+      "knowsAbout": [
+        "Child Education",
+        "Child Development",
+        "Education Material Distribution",
+        "Disaster Relief",
+        "Orphan Home Support",
+        "Old Age Home Support",
+        "Winter Relief",
+        "Summer Relief",
+        "Festival Distribution"
+      ],
+      "sameAs": [
+        "{{vars.facebookUrl}}",
+        "{{vars.instagramUrl}}",
+        "{{vars.youtubeUrl}}"
+      ]
+    },
+    "pages": {
+      "home": {
+        "pageName": "Home",
+        "title": "Home",
+        "description": "Nabarun (Ichapur Nabarun Welfare Society) is a registered NGO in West Bengal, serving North Kolkata and North Suburban Kolkata since 2018. Child education, disaster relief, seasonal support, and community welfare.",
+        "keywords": "Nabarun, NGO Nabarun, Nabarun NGO, Ichapur Nabarun Welfare Society, Nabarun welfare society, Nabarun West Bengal, Nabarun charity",
+        "path": "/",
+        "ogImage": "/img/nbrn/pic1.jpg",
+        "sitemap": {
+          "priority": 1,
+          "changefreq": "weekly"
+        }
+      },
+      "about": {
+        "pageName": "About Us",
+        "title": "About",
+        "description": "About Nabarun — a grassroots NGO founded in 2018, dedicated to child education, disaster relief, and community welfare across North Kolkata and North Suburban Kolkata.",
+        "keywords": "About Nabarun, NGO Nabarun, Nabarun NGO, Ichapur Nabarun Welfare Society, Nabarun welfare society, Nabarun West Bengal",
+        "path": "/about/",
+        "ogImage": "/img/nbrn/pic4.jpg",
+        "sitemap": {
+          "priority": 0.9,
+          "changefreq": "monthly"
+        }
+      },
+      "projects": {
+        "pageName": "Our Projects",
+        "title": "Projects",
+        "description": "Nabarun welfare projects across North Kolkata and North Suburban Kolkata — child education, disaster relief, orphan and old age home support, seasonal relief, and festival distribution.",
+        "keywords": "Nabarun projects, NGO projects West Bengal, Nabarun welfare projects",
+        "path": "/projects/",
+        "ogImage": "/img/nbrn/pic1.jpg",
+        "sitemap": {
+          "priority": 0.8,
+          "changefreq": "monthly"
+        }
+      },
+      "team": {
+        "pageName": "Our Team",
+        "title": "Team",
+        "description": "Meet the passionate team behind Nabarun NGO, working for child education, disaster relief, and community upliftment in West Bengal.",
+        "keywords": "Nabarun team, Nabarun NGO team, Nabarun welfare society team",
+        "path": "/team/",
+        "sitemap": {
+          "priority": 0.6,
+          "changefreq": "monthly"
+        }
+      },
+      "donate": {
+        "pageName": "Donate",
+        "title": "Donate",
+        "description": "Donate to Nabarun NGO. Your contribution funds child education, disaster relief, seasonal support, and welfare programmes for families across North Kolkata and North Suburban Kolkata.",
+        "keywords": "Donate Nabarun, Nabarun NGO donation, support Nabarun, donate NGO West Bengal",
+        "path": "/donate/",
+        "sitemap": {
+          "priority": 0.8,
+          "changefreq": "monthly"
+        }
+      },
+      "contact": {
+        "pageName": "Contact Us",
+        "title": "Contact",
+        "description": "Contact Nabarun NGO for donations, membership, partnerships, or general enquiries. We serve communities across North Kolkata and North Suburban Kolkata.",
+        "keywords": "Contact Nabarun, Nabarun NGO contact, Nabarun Ichapur contact, Nabarun phone email",
+        "path": "/contact/",
+        "sitemap": {
+          "priority": 0.7,
+          "changefreq": "monthly"
+        }
+      },
+      "membership": {
+        "pageName": "Membership",
+        "title": "Membership",
+        "description": "Join Nabarun as a member or volunteer. Support child education, disaster relief, and community welfare across North Kolkata and North Suburban Kolkata.",
+        "keywords": "Nabarun membership, Nabarun NGO member, join Nabarun",
+        "path": "/membership/",
+        "sitemap": {
+          "priority": 0.7,
+          "changefreq": "monthly"
+        }
+      },
+      "gallery": {
+        "pageName": "Gallery",
+        "title": "Gallery",
+        "description": "Photos from Nabarun's education drives, disaster relief, seasonal support, and festival distribution programmes across North Kolkata and North Suburban Kolkata.",
+        "keywords": "Nabarun gallery, Nabarun NGO photos",
+        "path": "/gallery/",
+        "ogImage": "/img/nbrn/pic1.jpg",
+        "sitemap": {
+          "priority": 0.6,
+          "changefreq": "monthly"
+        }
+      },
+      "events": {
+        "pageName": "Events",
+        "title": "Events",
+        "description": "Upcoming and past events by Nabarun NGO — education drives, disaster relief, seasonal support, and festival distribution programmes in West Bengal.",
+        "keywords": "Nabarun events, Nabarun NGO events",
+        "path": "/events/",
+        "ogImage": "/img/nbrn/pic2.jpg",
+        "sitemap": {
+          "priority": 0.7,
+          "changefreq": "weekly"
+        }
+      },
+      "policies": {
+        "privacy-policy": {
+          "pageName": "Privacy Policy",
+          "title": "Privacy Policy",
+          "description": "This Privacy Policy outlines how we handle your personal information.",
+          "path": "/policy/privacy-policy/",
+          "sitemap": {
+            "priority": 0.5,
+            "changefreq": "yearly"
+          }
+        },
+        "terms-of-use": {
+          "pageName": "Terms of Use",
+          "title": "Terms of Use",
+          "description": "These Terms of Use govern your use of our website and services.",
+          "path": "/policy/terms-of-use/",
+          "sitemap": {
+            "priority": 0.5,
+            "changefreq": "yearly"
+          }
+        },
+        "disclaimer": {
+          "pageName": "Disclaimer",
+          "title": "Disclaimer",
+          "description": "This Disclaimer outlines the limitations of our liability.",
+          "path": "/policy/disclaimer/",
+          "sitemap": {
+            "priority": 0.5,
+            "changefreq": "yearly"
+          }
+        },
+        "copyright": {
+          "pageName": "Copyright",
+          "title": "Copyright",
+          "description": "This Copyright notice outlines the ownership of content on our website.",
+          "path": "/policy/copyright/",
+          "sitemap": {
+            "priority": 0.5,
+            "changefreq": "yearly"
+          }
+        },
+        "rules-and-regulations": {
+          "pageName": "Rules and Regulations",
+          "title": "Rules and Regulations",
+          "description": "Rules and regulations",
+          "path": "/policy/rules-and-regulations/",
+          "sitemap": {
+            "priority": 0.5,
+            "changefreq": "yearly"
+          }
+        }
+      },
+      "forms": {
+        "drawing-competition": {
+          "pageName": "Drawing Competition 2026",
+          "title": "Drawing Competition 2026",
+          "description": "Registration for the drawing competition 2026.",
+          "path": "/forms/drawing-competition/",
+          "noindex": false,
+          "sitemap": {
+            "priority": 0.6,
+            "changefreq": "monthly"
+          }
+        }
+      }
+    }
+  },
+  "layout": {
+    "common": {
+      "backToTop": {
+        "enabled": true,
+        "ariaLabel": "Back to top",
+        "scrollThreshold": 300
+      },
+      "breadcrumb": {
+        "home": "Home"
+      },
+      "org": {
+        "followUs": "Follow us:",
+        "followLinks": [
+          {
+            "icon": "fab fa-facebook-f",
+            "url": "{{vars.facebookUrl}}",
+            "enabled": true
+          },
+          {
+            "icon": "fab fa-instagram",
+            "url": "{{vars.instagramUrl}}",
+            "enabled": true
+          },
+          {
+            "icon": "fab fa-youtube",
+            "url": "{{vars.youtubeUrl}}",
+            "enabled": true
+          }
+        ],
+        "location": "{{vars.location}}",
+        "phone": "{{vars.phone}}",
+        "email": "{{vars.email}}"
+      },
+      "navbar": {
+        "brand": {
+          "name": "{{vars.orgName}}",
+          "logo": "{{vars.logoUrl}}",
+          "established": "{{vars.estd}}",
+          "registrationNumber": "{{vars.registrationNumber}}"
+        },
+        "moreLabel": "More",
+        "navLinks": [
+          {
+            "id": "home",
+            "label": "Home",
+            "url": "{{metadata.pages.home.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": false,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "about",
+            "label": "About",
+            "url": "{{metadata.pages.about.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": false,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "projects",
+            "label": "Projects",
+            "url": "{{metadata.pages.projects.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": false,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "events",
+            "label": "Events",
+            "url": "{{metadata.pages.events.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": false,
+            "parent": null
+          },
+          {
+            "id": "membership",
+            "label": "Membership",
+            "url": "{{metadata.pages.membership.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": false,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "contact",
+            "label": "Contact",
+            "url": "{{metadata.pages.contact.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": false,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "login",
+            "label": "Login",
+            "url": "{{vars.loginUrl}}",
+            "external": true,
+            "endCta": false,
+            "inMore": true,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "donate",
+            "label": "Donate",
+            "url": "{{metadata.pages.donate.path}}",
+            "external": false,
+            "endCta": true,
+            "inMore": false,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "gallery",
+            "label": "Gallery",
+            "url": "{{metadata.pages.gallery.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "team",
+            "label": "Team",
+            "url": "{{metadata.pages.team.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "policies",
+            "label": "Policies",
+            "url": "",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "privacy-policy",
+            "label": "Privacy Policy",
+            "url": "{{metadata.pages.policies.privacy-policy.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": "policies",
+            "enabled": true
+          },
+          {
+            "id": "terms-of-use",
+            "label": "Terms of Use",
+            "url": "{{metadata.pages.policies.terms-of-use.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": "policies",
+            "enabled": true
+          },
+          {
+            "id": "disclaimer",
+            "label": "Disclaimer",
+            "url": "{{metadata.pages.policies.disclaimer.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": "policies",
+            "enabled": true
+          },
+          {
+            "id": "copyright",
+            "label": "Copyright & Content Policy",
+            "url": "{{metadata.pages.policies.copyright.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": "policies",
+            "enabled": true
+          },
+          {
+            "id": "rules-and-regulations",
+            "label": "Rules and Regulations",
+            "url": "{{metadata.pages.policies.rules-and-regulations.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": "policies",
+            "enabled": true
+          },
+          {
+            "id": "forms",
+            "label": "Forms",
+            "url": "",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": null,
+            "enabled": true
+          },
+          {
+            "id": "drawing-competition",
+            "label": "Drawing Competition 2026",
+            "url": "{{metadata.pages.forms.drawing-competition.path}}",
+            "external": false,
+            "endCta": false,
+            "inMore": true,
+            "parent": "forms",
+            "enabled": true
+          }
+        ]
+      },
+      "footer": {
+        "brand": {
+          "name": "{{vars.orgShortName}}",
+          "description": "Nabarun NGO — empowering communities across North Kolkata and North Suburban Kolkata through child education, disaster relief, and compassionate action since 2018."
+        },
+        "social": {
+          "title": "Connect With Us"
+        },
+        "quickLinks": {
+          "title": "Quick Links",
+          "links": [
+            {
+              "label": "About Us",
+              "url": "{{metadata.pages.about.path}}",
+              "enabled": true
+            },
+            {
+              "label": "Our Projects",
+              "url": "{{metadata.pages.projects.path}}",
+              "enabled": true
+            },
+            {
+              "label": "Our Team",
+              "url": "{{metadata.pages.team.path}}",
+              "enabled": true
+            },
+            {
+              "label": "Membership",
+              "url": "{{metadata.pages.membership.path}}",
+              "enabled": true
+            },
+            {
+              "label": "Donate",
+              "url": "{{metadata.pages.donate.path}}",
+              "enabled": true
+            }
+          ]
+        },
+        "getInTouch": {
+          "title": "Get In Touch"
+        },
+        "newsletter": {
+          "title": "Stay Updated",
+          "description": "Subscribe to receive updates about our latest projects and impact stories.",
+          "placeholder": "Enter your email",
+          "button": "Subscribe"
+        },
+        "bottom": {
+          "copyright": "&copy; {{vars.year}} {{vars.orgShortName}}. All rights reserved.",
+          "legal": [
+            {
+              "label": "Privacy Policy",
+              "url": "{{metadata.pages.policies.privacy-policy.path}}",
+              "enabled": true
+            },
+            {
+              "label": "Terms of Use",
+              "url": "{{metadata.pages.policies.terms-of-use.path}}",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    },
+    "pages": {
+      "forms": {
+        "drawing-competition": {
+          "title": "Drawing Competition 2026",
+          "description": "registration for the drawing competition 2026.",
+          "formId": "drawing-competition-registration",
+          "recaptchaAction": "drawing-competition",
+          "submitLabel": "Register",
+          "enabled": true
+        }
+      },
+      "policies": {
+        "privacy-policy": {
+          "title": "Privacy Policy",
+          "description": "This Privacy Policy outlines how we handle your personal information.",
+          "url": "{{vars.policyPrivacyPolicyUrl}}",
+          "enabled": true
+        },
+        "terms-of-use": {
+          "title": "Terms of Use",
+          "description": "These Terms of Use govern your use of our website and services.",
+          "url": "{{vars.policyTermsOfUseUrl}}",
+          "enabled": true
+        },
+        "disclaimer": {
+          "title": "Disclaimer",
+          "description": "This Disclaimer outlines the limitations of our liability.",
+          "url": "{{vars.policyDisclaimerUrl}}",
+          "enabled": true
+        },
+        "copyright": {
+          "title": "Copyright",
+          "description": "This Copyright notice outlines the ownership of content on our website.",
+          "url": "{{vars.policyCopyrightUrl}}",
+          "enabled": true
+        },
+        "rules-and-regulations": {
+          "title": "Rules and Regulations",
+          "description": "Rules and regulations",
+          "url": "{{vars.policyRulesAndRegulationsUrl}}",
+          "enabled": true
+        }
+      },
+      "home": {
+        "carousel": [
+          {
+            "image": "/img/nbrn/pic1.jpg",
+            "alt": "Nabarun volunteers distributing education materials to children in North Suburban Kolkata",
+            "title": "Building Brighter Futures Through Education",
+            "quote": {
+              "text": "Education is the most powerful weapon which you can use to change the world.",
+              "author": "- Nelson Mandela"
+            },
+            "enabled": true
+          },
+          {
+            "image": "/img/nbrn/pic2.jpg",
+            "alt": "Nabarun disaster relief team supporting families in North Kolkata",
+            "title": "Standing Strong When Disaster Strikes",
+            "quote": {
+              "text": "The best way to find yourself is to lose yourself in the service of others.",
+              "author": "- Mahatma Gandhi"
+            },
+            "enabled": true
+          },
+          {
+            "image": "/img/nbrn/pic3.jpg",
+            "alt": "Festival and seasonal relief distribution by Nabarun NGO",
+            "title": "Sharing Joy Through Every Season",
+            "quote": {
+              "text": "It's not how much we give, but how much love we put into giving.",
+              "author": "- Mother Teresa"
+            },
+            "enabled": true
+          }
+        ],
+        "heroStats": {
+          "beneficiaryLabel": "Lives Supported",
+          "projectLabel": "Active Projects"
+        },
+        "sections": {
+          "about": {
+            "enabled": true,
+            "mode": "full",
+            "cta": {
+              "buttons": [
+                {
+                  "label": "Know More",
+                  "url": "{{metadata.pages.about.path}}",
+                  "icon": "fas fa-arrow-right",
+                  "primary": true,
+                  "enabled": true
+                },
+                {
+                  "label": "Support Our Cause",
+                  "url": "{{metadata.pages.donate.path}}",
+                  "icon": "fas fa-donate",
+                  "enabled": true
+                }
+              ]
+            }
+          },
+          "projects": {
+            "enabled": true,
+            "internalScroll": {
+              "enabled": true,
+              "maxHeight": "min(85vh, 56rem)",
+              "maxHeightMobile": "min(78vh, 48rem)"
+            }
+          },
+          "donate": {
+            "enabled": true,
+            "mode": "teaser"
+          },
+          "team": {
+            "enabled": true,
+            "internalScroll": {
+              "enabled": true,
+              "maxHeight": "min(85vh, 56rem)",
+              "maxHeightMobile": "min(78vh, 48rem)"
+            }
+          },
+          "membership": {
+            "enabled": false,
+            "mode": "teaser"
+          },
+          "contact": {
+            "enabled": true,
+            "mode": "teaser"
+          }
+        }
+      },
+      "about": {
+        "sectionTitle": "About Us",
+        "title": "Compassion in Action, Community at Heart",
+        "description": "Since 2018, Nabarun has supported children, orphans, senior citizens, and vulnerable families across North Kolkata and North Suburban Kolkata — through education, relief, and care that reaches people when they need it most.",
+        "experience": {
+          "years": "{{vars.yearsSinceEstd}}",
+          "label": "Years of Impact"
+        },
+        "stats": [
+          {
+            "icon": "fas fa-users",
+            "value": "{{vars.livesTouchedCount}}",
+            "label": "Lives Touched",
+            "enabled": true
+          },
+          {
+            "icon": "fas fa-hands-helping",
+            "value": "{{vars.projectsCount}}",
+            "label": "Projects",
+            "enabled": true
+          }
+        ],
+        "missionPoints": [
+          {
+            "icon": "fas fa-graduation-cap",
+            "title": "Child Education",
+            "description": "Helping children stay in school through learning support, scholarships, and education material distribution",
+            "enabled": true
+          },
+          {
+            "icon": "fas fa-child",
+            "title": "Child Development",
+            "description": "Nurturing young minds through guidance, activities, and programmes that build confidence and character",
+            "enabled": true
+          },
+          {
+            "icon": "fas fa-heart",
+            "title": "Orphan & Old Age Home Support",
+            "description": "Standing beside orphans and elderly residents with essentials, companionship, and year-round care",
+            "enabled": true
+          }
+        ],
+        "founderMessage": {
+          "quote": "Nabarun began with a simple belief: no child, no elder, and no family should face hardship alone. From distributing books and school kits to reaching orphanages and old age homes, from winter blankets to summer relief and festival essentials — every programme we run is guided by honesty, urgency, and accountability to the communities we serve across North Kolkata and North Suburban Kolkata.",
+          "name": "Mriganka Shekhar Pal",
+          "title": "Founder"
+        },
+        "cta": {
+          "buttons": [
+            {
+              "label": "Contact Us",
+              "url": "{{metadata.pages.contact.path}}",
+              "icon": "fas fa-envelope",
+              "primary": true,
+              "enabled": true
+            },
+            {
+              "label": "Support Our Cause",
+              "url": "{{metadata.pages.donate.path}}",
+              "icon": "fas fa-donate",
+              "enabled": true
+            }
+          ]
+        },
+        "detail": {
+          "enabled": true,
+          "paragraphs": [
+            "{{vars.orgName}} — known as Nabarun NGO — is a registered non-profit charitable welfare society in West Bengal, India. Since 2018, we have worked at the grassroots to support underprivileged children, orphans, senior citizens, and families across North Kolkata and North Suburban Kolkata.",
+            "Our work centres on what communities need most: child education and development, education material distribution, disaster relief when emergencies strike, support for orphanages and old age homes, and seasonal care through winter relief, summer relief, and festival distribution drives. Every Nabarun initiative is driven by compassion and a commitment to lasting, measurable change."
+          ],
+          "mission": {
+            "title": "Our Mission",
+            "description": "To empower underprivileged children and vulnerable communities across North Kolkata and North Suburban Kolkata through education, child development, disaster relief, and compassionate support for orphanages and old age homes."
+          },
+          "vision": {
+            "title": "Our Vision",
+            "description": "A caring society where every child has access to education and every orphan and elderly resident across North Kolkata and North Suburban Kolkata lives with dignity, warmth, and hope."
+          }
+        },
+        "ctaVariants": {
+          "teaser": {
+            "buttons": [
+              {
+                "label": "Learn More About Us",
+                "url": "{{metadata.pages.about.path}}",
+                "icon": "fas fa-arrow-right",
+                "primary": true,
+                "enabled": true
+              }
+            ]
+          },
+          "page": {
+            "buttons": [
+              {
+                "label": "Contact Us",
+                "url": "{{metadata.pages.contact.path}}",
+                "icon": "fas fa-envelope",
+                "primary": true,
+                "enabled": true
+              },
+              {
+                "label": "Explore Projects",
+                "url": "{{metadata.pages.projects.path}}",
+                "icon": "fas fa-hands-helping",
+                "enabled": true
+              }
+            ]
+          }
+        }
+      },
+      "projects": {
+        "sectionTitle": "Our Projects",
+        "title": "Welfare Projects Across North & North Suburban Kolkata",
+        "description": "From classrooms to relief camps, from orphanages to old age homes — our projects bring education, care, and seasonal support to the communities that need it most.",
+        "learnMoreButton": {
+          "label": "Know More",
+          "url": "{{metadata.pages.contact.path}}"
+        },
+        "cta": {
+          "title": "Ready to Make a Difference?",
+          "description": "Your support helps us reach more children, families, and institutions across North Kolkata and North Suburban Kolkata. Donate or volunteer — every act of kindness counts.",
+          "buttons": [
+            {
+              "label": "Donate Now",
+              "url": "{{metadata.pages.donate.path}}",
+              "icon": "fas fa-donate",
+              "primary": true,
+              "enabled": true
+            },
+            {
+              "label": "Volunteer With Us",
+              "url": "{{metadata.pages.membership.path}}",
+              "icon": "fas fa-users",
+              "primary": false,
+              "enabled": true
+            }
+          ]
+        },
+        "ctaVariants": {
+          "page": {
+            "title": "Want to Support Nabarun?",
+            "description": "Your donation directly funds child education, disaster relief, and seasonal support for families across North Kolkata and North Suburban Kolkata. Every contribution makes a difference.",
+            "buttons": [
+              {
+                "label": "Donate Now",
+                "url": "{{metadata.pages.donate.path}}",
+                "icon": "fas fa-donate",
+                "primary": true,
+                "enabled": true
+              },
+              {
+                "label": "Volunteer With Us",
+                "url": "{{metadata.pages.membership.path}}",
+                "icon": "fas fa-user-plus",
+                "enabled": true
+              }
+            ]
+          }
+        }
+      },
+      "team": {
+        "sectionTitle": "Our Team",
+        "title": "The People Behind the Mission",
+        "description": "Volunteers and community leaders working to bring education, relief, and care to families across North Kolkata and North Suburban Kolkata.",
+        "member": {
+          "bio": "A dedicated member of the Nabarun family, committed to child education, disaster relief, and compassionate service across our communities.",
+          "contact": "Get in Touch"
+        },
+        "cta": {
+          "title": "Want to Join Our Mission?",
+          "description": "We welcome volunteers who share our commitment to child education, disaster relief, and supporting orphanages and old age homes.",
+          "buttons": [
+            {
+              "label": "Volunteer With Us",
+              "url": "{{metadata.pages.membership.path}}",
+              "icon": "fas fa-handshake",
+              "primary": true,
+              "enabled": true
+            },
+            {
+              "label": "Donate Now",
+              "url": "{{metadata.pages.donate.path}}",
+              "icon": "fas fa-donate",
+              "primary": false,
+              "enabled": true
+            }
+          ]
+        }
+      },
+      "donate": {
+        "sectionTitle": "Make a Donation",
+        "title": "Your Generosity Changes Lives",
+        "description": "When you donate to Nabarun, you help a child receive books, a family recover from disaster, or an elder feel warmth in winter. Every rupee is used with care and accountability.",
+        "impact": {
+          "title": "Your Impact in Numbers",
+          "description": "See how your contribution directly translates into positive change in our communities.",
+          "stats": [
+            {
+              "amount": "₹500",
+              "description": "Provides school supplies for one child",
+              "enabled": true
+            },
+            {
+              "amount": "₹1000",
+              "description": "Supports a child with books and learning materials",
+              "enabled": true
+            },
+            {
+              "amount": "₹2000",
+              "description": "Provides winter relief essentials for one family",
+              "enabled": true
+            },
+            {
+              "amount": "₹5000",
+              "description": "Funds disaster relief or festival distribution drive",
+              "enabled": true
+            }
+          ]
+        },
+        "trust": {
+          "indicators": [
+            {
+              "title": "100% Transparent",
+              "description": "Complete visibility into how your money is used",
+              "enabled": true
+            },
+            {
+              "title": "Verified NGO",
+              "description": "Registered and certified charitable organization",
+              "enabled": true
+            },
+            {
+              "title": "Community Rooted",
+              "description": "Programmes designed and delivered with local families and volunteers",
+              "enabled": true
+            }
+          ]
+        },
+        "paymentMethods": {
+          "title": "How to Donate",
+          "description": "Support our work via bank transfer or UPI. After donating, share your transaction reference with us so we can acknowledge your contribution.",
+          "bank": [
+            {
+              "label": "Primary Account",
+              "accountName": "{{vars.bankAccountName}}",
+              "bankName": "{{vars.bankName}}",
+              "accountNumber": "{{vars.bankAccountNumber}}",
+              "ifsc": "{{vars.bankIfsc}}",
+              "branch": "{{vars.bankBranch}}",
+              "accountType": "Current",
+              "enabled": true
+            }
+          ],
+          "upi": [
+            {
+              "label": "UPI",
+              "id": "{{vars.upiId}}",
+              "qrImage": "/img/upi-qr.png",
+              "note": "Scan the QR code or pay to the UPI ID above.",
+              "enabled": true
+            }
+          ],
+          "afterDonation": {
+            "title": "After You Donate",
+            "steps": [
+              {
+                "text": "Save your payment receipt or UTR/reference number.",
+                "enabled": true
+              },
+              {
+                "text": "Email us at {{vars.email}} with your name, amount, and transaction ID.",
+                "enabled": true
+              },
+              {
+                "text": "We will send you an acknowledgment within 2-3 working days.",
+                "enabled": true
+              }
+            ]
+          }
+        },
+        "gatewayCta": {
+          "enabled": true,
+          "label": "Donate Online",
+          "url": "{{vars.paymentGatewayUrl}}",
+          "icon": "fas fa-credit-card",
+          "external": true
+        },
+        "ctaVariants": {
+          "teaser": {
+            "buttons": [
+              {
+                "label": "Donate Now",
+                "url": "{{metadata.pages.donate.path}}",
+                "icon": "fas fa-university",
+                "primary": false,
+                "variant": "light",
+                "enabled": true
+              }
+            ]
+          },
+          "page": {
+            "enabled": false
+          }
+        }
+      },
+      "contact": {
+        "sectionTitle": "Contact Us",
+        "title": "If You Have Any Query, Please Contact Us",
+        "locationLink": "{{vars.contactLocationLink}}",
+        "locationMapTitle": "Nabarun NGO location map",
+        "form": {
+          "formId": "contact",
+          "recaptchaAction": "submit_contact",
+          "submitLabel": "Send Message"
+        },
+        "ctaVariants": {
+          "teaser": {
+            "buttons": [
+              {
+                "label": "Contact Now",
+                "url": "{{metadata.pages.contact.path}}",
+                "icon": "fas fa-envelope",
+                "primary": true,
+                "enabled": true
+              }
+            ]
+          },
+          "page": {
+            "enabled": false
+          }
+        }
+      },
+      "membership": {
+        "sectionTitle": "Be A Part Of Us",
+        "title": "We Welcome You To Join Us In This Great Initiative",
+        "disclaimer": {
+          "message": "By submitting this application, you agree to Nabarun's",
+          "rulesLink": {
+            "label": "Rules and Regulations",
+            "url": "{{metadata.pages.policies.rules-and-regulations.path}}"
+          }
+        },
+        "form": {
+          "formId": "membership",
+          "recaptchaAction": "submit_join",
+          "submitLabel": "Submit Application"
+        },
+        "ctaVariants": {
+          "teaser": {
+            "buttons": [
+              {
+                "label": "Volunteer With Us",
+                "url": "{{metadata.pages.membership.path}}",
+                "icon": "fas fa-handshake",
+                "primary": true,
+                "enabled": true
+              }
+            ]
+          },
+          "page": {
+            "enabled": false
+          }
+        }
+      },
+      "gallery": {
+        "sectionTitle": "Our work in pictures",
+        "title": "Photo Gallery",
+        "description": "Moments from education drives, disaster relief, seasonal support, and festival distribution across North Kolkata and North Suburban Kolkata.",
+        "items": [
+          {
+            "id": "g1",
+            "title": "Education Material Distribution",
+            "image": "/img/nbrn/pic1.jpg",
+            "category": "Education",
+            "enabled": true
+          },
+          {
+            "id": "g2",
+            "title": "Disaster Relief Drive",
+            "image": "/img/nbrn/pic2.jpg",
+            "category": "Relief",
+            "enabled": true
+          },
+          {
+            "id": "g3",
+            "title": "Festival Distribution",
+            "image": "/img/nbrn/pic3.jpg",
+            "category": "Festival",
+            "enabled": true
+          },
+          {
+            "id": "g4",
+            "title": "Winter Relief Programme",
+            "image": "/img/nbrn/pic4.jpg",
+            "category": "Seasonal",
+            "enabled": true
+          }
+        ]
+      },
+      "events": {
+        "sectionTitle": "What's happening",
+        "title": "Upcoming Events",
+        "description": "Education drives, disaster relief, seasonal support, and festival distribution — join Nabarun and be part of the change.",
+        "eyebrowIcon": "fas fa-calendar-alt",
+        "emptyMessage": "No upcoming events right now. Please check back soon."
+      }
+    }
+  }
+}

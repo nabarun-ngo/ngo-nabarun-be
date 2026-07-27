@@ -6,14 +6,14 @@ alwaysApply: false
 
 # Barrel Export Convention
 
-Each module has **exactly one `index.ts`** at its root (e.g. `src/auth2/index.ts`). No `index.ts` files are allowed inside subdirectories.
+Each module has **exactly one `index.ts`** at its root (e.g. `packages/nestjs-shared-auth/src/index.ts`). No `index.ts` files are allowed inside subdirectories.
 
 ## Rules
 
 - **One `index.ts` per module root** — this is the only public entry point for library consumers.
 - **No internal barrel files** — subdirectories (`aggregates/`, `commands/`, `dtos/`, `errors/`, etc.) must NOT contain `index.ts`.
 - **Intra-module imports** must use direct file paths, never a directory path that resolves to an `index.ts`.
-- **Implementation files** must have descriptive names (e.g. `auth2.errors.ts`, `auth2-response.dtos.ts`) — never `index.ts`.
+- **Implementation files** must have descriptive names (e.g. `auth.errors.ts`, `auth-response.dtos.ts`) — never `index.ts`.
 - The module `index.ts` must only export symbols that **library consumers** are allowed to use — never expose domain aggregates, infrastructure, or application handlers.
 
 ## Examples
@@ -24,17 +24,17 @@ import { ApiKeyNotFoundError } from '../../../domain/errors';
 import { ApiKeyResponseDto } from '../../dtos/response';
 
 // ✅ GOOD — importing directly from the concrete file
-import { ApiKeyNotFoundError } from '../../../domain/errors/auth2.errors';
-import { ApiKeyResponseDto } from '../../dtos/response/auth2-response.dtos';
+import { ApiKeyNotFoundError } from '../../../domain/errors/auth.errors';
+import { ApiKeyResponseDto } from '../../dtos/response/auth-response.dtos';
 ```
 
 ```ts
 // ❌ BAD — internal index.ts barrel in a subdirectory
-// src/auth2/domain/errors/index.ts  ← must not exist
-// src/auth2/application/commands/generate-api-key/index.ts  ← must not exist
+// packages/nestjs-shared-auth/src/domain/errors/index.ts  ← must not exist
+// packages/nestjs-shared-auth/src/application/commands/generate-api-key/index.ts  ← must not exist
 
 // ✅ GOOD — single module-level barrel only
-// src/auth2/index.ts  ← the only index.ts in the module
+// packages/nestjs-shared-auth/src/index.ts  ← the only index.ts in the module
 ```
 
 The module-level `index.ts` exports named symbols explicitly — never `export *` from internal directories:

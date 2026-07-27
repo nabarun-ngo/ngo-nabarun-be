@@ -33,15 +33,16 @@ model FormFieldDefinition {
   label                String           @db.VarChar(255)
   fieldType            String           @db.VarChar(50)
   mandatory            Boolean          @default(false)
-  fieldOptionsJson     String?          @map("field_options_json")
   isHidden             Boolean          @default(false)
   isEncrypted          Boolean          @default(false)
   enabled              Boolean          @default(true)
   sortOrder            Int              @default(0)
-  conditionJson        String?          @db.VarChar(255)
-  dependentOptionsJson String?          @db.VarChar(255)
-  validationRulesJson  String?          @db.VarChar(255)
-  viewPermissionsJson  String?          @map("view_permissions_json")
+  stepId               String?          @db.VarChar(100)
+  stepName             String?          @db.VarChar(255)
+  conditionJson        Json?
+  dependentOptionsJson Json?
+  viewPermissions      String[]         @default([])
+  validationRulesJson  Json?
   createdBy            String?          @db.VarChar(255)
   disabledBy           String?          @db.VarChar(255)
   createdAt            DateTime         @default(now())
@@ -53,6 +54,7 @@ model FormFieldDefinition {
   @@index([formId, enabled])
   @@map("custom_form_field_definition")
 }
+
 
 model FormSubmission {
   id          String           @id @default(cuid())
@@ -79,7 +81,7 @@ model FormFieldValue {
   formId           String                       @db.VarChar(100)
   formSubmissionId String                       @db.VarChar(100)
   fieldDefId       String                       @db.VarChar(100)
-  value            String?                      @db.VarChar(255)
+  value            String[]                     @default([])
   createdAt        DateTime                     @default(now())
   updatedAt        DateTime                     @updatedAt
   definition       FormFieldDefinition          @relation(fields: [fieldDefId], references: [id])
@@ -98,8 +100,8 @@ model FormFieldValueHistoryEntry {
   entityId         String         @db.VarChar(255)
   formId           String         @db.VarChar(100)
   fieldDefId       String         @db.VarChar(100)
-  oldValue         String?        @db.VarChar(255)
-  newValue         String?        @db.VarChar(255)
+  oldValue         String[]                     @default([])
+  newValue         String[]                     @default([])
   changedBy        String?        @db.VarChar(255)
   createdAt        DateTime       @default(now())
   formFieldValue   FormFieldValue @relation(fields: [formFieldValueId], references: [id], onDelete: Cascade)

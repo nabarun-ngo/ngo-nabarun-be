@@ -279,31 +279,52 @@ export class StateMachineRunner {
 
     const candidateRoleNames = element.candidateRoles ?? [];
 
-    await this.inboxRepo.create({
-      id: `${instance.id}:${element.id}`,
-      instanceId: instance.id,
-      elementId: element.id,
-      workflowType: ctx.definition.id,
-      formKey: element.formKey ?? null,
-      status: InboxTaskStatus.Pending,
-      assignedToId,
-      candidateRoleNames,
-      slaDeadlineAt: null,
-      claimedAt: null,
-      claimedById: null,
-      completedAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
+    let slaDeadlineAt: Date | null = null;
     if (element.slaHours) {
-      const deadline = await this.timerScheduler.scheduleSlaDeadline({
+      slaDeadlineAt = this.timerScheduler.computeSlaDeadline(element.slaHours);
+      await this.timerScheduler.scheduleSlaDeadline({
         instanceId: instance.id,
         elementId: element.id,
         slaHours: element.slaHours,
         correlationId: ctx.correlationId ?? undefined,
       });
-      void deadline;
+    }
+
+    const taskId = `${instance.id}:${element.id}`;
+    const existing = await this.inboxRepo.findByInstanceAndElement(instance.id, element.id);
+
+    if (existing) {
+      if (
+        existing.status === InboxTaskStatus.Pending ||
+        existing.status === InboxTaskStatus.Claimed
+      ) {
+        return { ...instance, currentElementId: element.id };
+      }
+
+      await this.inboxRepo.reopenTask({
+        taskId: existing.id,
+        assignedToId,
+        candidateRoleNames,
+        formKey: element.formKey ?? null,
+        slaDeadlineAt,
+      });
+    } else {
+      await this.inboxRepo.create({
+        id: taskId,
+        instanceId: instance.id,
+        elementId: element.id,
+        workflowType: ctx.definition.id,
+        formKey: element.formKey ?? null,
+        status: InboxTaskStatus.Pending,
+        assignedToId,
+        candidateRoleNames,
+        slaDeadlineAt,
+        claimedAt: null,
+        claimedById: null,
+        completedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
     }
 
     await this.outboxDispatcher.write({

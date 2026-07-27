@@ -1,0 +1,44 @@
+name: Changeset Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: changeset-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changeset-check:
+    name: Require changeset for package changes
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'github-actions[bot]'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect package changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            packages:
+              - 'packages/**'
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.packages == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.changes.outputs.packages == 'true'
+        run: npm ci
+
+      - name: Verify changesets
+        if: steps.changes.outputs.packages == 'true'
+        run: npx changeset status --since=origin/main

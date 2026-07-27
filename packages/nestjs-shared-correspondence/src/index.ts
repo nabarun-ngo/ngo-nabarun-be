@@ -1,16 +1,15 @@
 // ── Module registration ────────────────────────────────────────────────────
-export { Correspondence2Module as CorrespondenceModule } from './correspondence.module';
+export { CorrespondenceModule } from './correspondence.module';
 export type {
-  Correspondence2ModuleOptions as CorrespondenceModuleOptions,
-  Correspondence2AsyncOptions as CorrespondenceAsyncOptions,
-  Correspondence2ModuleOverrides as CorrespondenceModuleOverrides,
+  CorrespondenceModuleOptions,
+  CorrespondenceAsyncOptions,
+  CorrespondenceModuleOverrides,
 } from './correspondence.module';
-export { CORRESPONDENCE2_OPTIONS as CORRESPONDENCE_OPTIONS } from './correspondence-options.token';
+export { CORRESPONDENCE_OPTIONS } from './correspondence-options.token';
 
-// ── Public integration event (re-exported from core for backward compatibility) ──
+// ── Shared correspondence vocabulary (recipient + channel types) ─────────────
 export {
-  CorrespondenceRequestEvent,
-  type CorrespondenceRecipients as CorrespondenceRecipients,
+  type CorrespondenceRecipients,
   type TargetUsersRecipients,
   type TargetRolesRecipients,
   type TargetResourceRecipients,
@@ -18,8 +17,20 @@ export {
   type EmailChannelOptions,
   type PushChannelOptions,
   type CorrespondenceChannels,
-} from '@nabarun-ngo/nestjs-shared-core';
-export type { CorrespondenceRecipients as Correspondence2Recipients } from '@nabarun-ngo/nestjs-shared-core';
+  type NotificationAction,
+} from './application/model/correspondence-types';
+
+// ── Internal notification spec (built by resolvers / host adapters) ───────────
+export type { NotificationSpec } from './application/model/notification-spec';
+
+// ── Event-driven integration (host resolvers, discovered) ────────────────────
+export {
+  CorrespondenceEventResolver,
+  type ICorrespondenceEventResolver,
+} from './application/dispatch/inbound/correspondence-event-resolver';
+
+// ── Facade integration (writes via CommandBus) ───────────────────────────────
+export { CorrespondenceFacade } from './application/facade/correspondence.facade';
 
 // ── Domain enums (needed by consumers when building events) ───────────────
 export { ChannelType } from './domain/enums/channel-type.enum';
@@ -28,9 +39,8 @@ export { SubscriberType } from './domain/enums/subscriber-type.enum';
 export { SubscribedVia } from './domain/enums/subscribed-via.enum';
 export {
   NotificationType,
-  NotificationCategory,
   NotificationPriority,
-} from '@nabarun-ngo/nestjs-shared-core';
+} from './domain/enums/notification-type.enum';
 
 // ── Domain errors (consumers may catch these) ─────────────────────────────
 export {
@@ -44,6 +54,14 @@ export {
   EmailDeliveryFailedError,
 } from './domain/errors/correspondence.errors';
 
+// ── Integration API ──────────────────────────────────────────────────────────
+// Event-driven: implement @CorrespondenceEventResolver() providers in the owning
+//   module; the EventBus subscriber resolves published events to specs.
+// Facade: inject CorrespondenceFacade — dispatch(spec) for host adapters and
+//   cron jobs that build their own NotificationSpec.
+// Subscriptions / reads: dispatch exported commands/queries via CommandBus / QueryBus.
+// Do not inject INotificationRepository or other correspondence repos from outside this package.
+
 // ── Application commands (consumers may dispatch directly) ─────────────────
 export { SubscribeUserCommand } from './application/commands/subscribe-user/subscribe-user.command';
 export type { SubscribeChannelInput } from './application/commands/subscribe-user/subscribe-user.command';
@@ -51,6 +69,7 @@ export { SubscribeRoleCommand } from './application/commands/subscribe-role/subs
 export { UnsubscribeUserCommand } from './application/commands/unsubscribe-user/unsubscribe-user.command';
 export { UnsubscribeRoleCommand } from './application/commands/unsubscribe-role/unsubscribe-role.command';
 export { UpdateSubscriberEmailCommand } from './application/commands/update-subscriber-email/update-subscriber-email.command';
+export { SendEmailCommand } from './application/commands/send-email/send-email.command';
 
 // ── Application queries (consumers may dispatch directly) ──────────────────
 export { GetUserNotificationsQuery } from './application/queries/get-user-notifications/get-user-notifications.query';
@@ -63,31 +82,32 @@ export { NotificationResponseDto } from './application/dtos/notification-respons
 export { UserNotificationResponseDto } from './application/dtos/user-notification-response.dto';
 export { SubscriptionResponseDto, SubscriptionChannelDto } from './application/dtos/subscription-response.dto';
 
-// ── Application ports ─────────────────────────────────────────────────────
-export { IEmailDispatchPort } from './application/ports/email-dispatch.port';
-export type { EmailDispatchInput } from './application/ports/email-dispatch.port';
+// ── Email dispatch input type (email composition service) ─────────────────
+export type { EmailDispatchInput } from './application/dispatch/email-dispatch.service';
 
 // ── Job classes (consumers may also dispatch directly for testing) ─────────
 export { CorrespondenceDispatchJob } from './application/jobs/correspondence-dispatch.job';
 export { PurgeNotificationsJob, PurgeSubscriptionsJob } from './application/jobs/retention.jobs';
 
-// ── Domain repository tokens (for testing / custom implementations) ────────
+// ── Domain repository tokens — **host persistence only** ─────────────────────
 export { INotificationRepository } from './domain/repositories/notification.repository';
 export { IUserNotificationRepository } from './domain/repositories/user-notification.repository';
 export { IResourceSubscriptionRepository } from './domain/repositories/resource-subscription.repository';
 
-// ── Domain port tokens ────────────────────────────────────────────────────
-export { EMAIL_SENDER_PORT } from './domain/ports/email-sender.port';
-export { PUSH_NOTIFICATION_PORT } from './domain/ports/push-notification.port';
-export { DISPATCH_QUEUE_PORT } from './domain/ports/dispatch-queue.port';
-export { TEMPLATE_PORT } from './domain/ports/template.port';
-export type { IEmailSenderPort, EmailMessage } from './domain/ports/email-sender.port';
-export type { IPushNotificationPort, PushNotificationPayload } from './domain/ports/push-notification.port';
-export type { IDispatchQueuePort, CorrespondenceDispatchPayload } from './domain/ports/dispatch-queue.port';
-export type { ITemplatePort, EmailTemplateData } from './domain/ports/template.port';
+// ── Domain port tokens (Symbol name = interface name — one import = token + type) ─
+export { IEmailSenderPort } from './domain/ports/email-sender.port';
+export { IPushNotificationPort } from './domain/ports/push-notification.port';
+export { IDispatchQueuePort } from './domain/ports/dispatch-queue.port';
+export { ITemplatePort } from './domain/ports/template.port';
+export { ILayoutRendererPort } from './domain/ports/layout-renderer.port';
+export type { EmailMessage, EmailAttachment } from './domain/ports/email-sender.port';
+export type { PushNotificationPayload } from './domain/ports/push-notification.port';
+export type { CorrespondenceDispatchPayload } from './domain/ports/dispatch-queue.port';
+export type { EmailTemplateData, EmailLayoutData } from './domain/ports/template.port';
 
 // ── JSON-store payload schemas ───────────────────────────────────────────────
 export {
   EmailTemplatePayloadSchema,
+  EmailLayoutDataSchema,
   type EmailTemplatePayload,
 } from './email-template.schema';

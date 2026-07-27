@@ -6,14 +6,14 @@ import {
 import { isEncryptedText } from '@nabarun-ngo/nestjs-shared-core';
 import type { PrismaClient } from '../prisma/client';
 import type {
-  TokenVault2OAuthTokenWhereInput,
-  TokenVault2OAuthTokenWhereUniqueInput,
-  TokenVault2OAuthTokenCreateInput,
-  TokenVault2OAuthTokenUncheckedCreateInput,
-  TokenVault2OAuthTokenUpdateInput,
-  TokenVault2OAuthTokenUncheckedUpdateInput,
-  TokenVault2OAuthTokenOrderByWithRelationInput,
-} from '../prisma/models';
+  TokenVaultOAuthTokenWhereInput,
+  TokenVaultOAuthTokenWhereUniqueInput,
+  TokenVaultOAuthTokenCreateInput,
+  TokenVaultOAuthTokenUncheckedCreateInput,
+  TokenVaultOAuthTokenUpdateInput,
+  TokenVaultOAuthTokenUncheckedUpdateInput,
+  TokenVaultOAuthTokenOrderByWithRelationInput,
+} from '../prisma/models/TokenVaultOAuthToken';
 import {
   EncryptedToken,
   InvalidEncryptedTokenError,
@@ -73,21 +73,21 @@ function assertEncrypted(token: OAuthToken): void {
 export class OAuthTokenPrismaRepository
   extends PrismaCrudRepositoryBase<
     PrismaClient,
-    'tokenVault2OAuthToken',
+    'tokenVaultOAuthToken',
     OAuthToken,
     string,
     OAuthTokenFilter,
     TokenRow,
-    TokenVault2OAuthTokenWhereInput,
-    TokenVault2OAuthTokenWhereUniqueInput,
-    ({} & TokenVault2OAuthTokenUncheckedCreateInput) | ({} & TokenVault2OAuthTokenCreateInput),
-    ({} & TokenVault2OAuthTokenUncheckedUpdateInput) | ({} & TokenVault2OAuthTokenUpdateInput),
-    TokenVault2OAuthTokenOrderByWithRelationInput,
+    TokenVaultOAuthTokenWhereInput,
+    TokenVaultOAuthTokenWhereUniqueInput,
+    ({} & TokenVaultOAuthTokenUncheckedCreateInput) | ({} & TokenVaultOAuthTokenCreateInput),
+    ({} & TokenVaultOAuthTokenUncheckedUpdateInput) | ({} & TokenVaultOAuthTokenUpdateInput),
+    TokenVaultOAuthTokenOrderByWithRelationInput,
     { account: true }
   >
   implements IOAuthTokenRepository {
   constructor(database: BasePrismaService<PrismaClient>) {
-    super(database, 'tokenVault2OAuthToken');
+    super(database, 'tokenVaultOAuthToken');
   }
 
   // ── toInclude hook — eager-loads account on every find query ─────────────
@@ -142,7 +142,7 @@ export class OAuthTokenPrismaRepository
 
   protected toCreateInput(
     entity: OAuthToken,
-  ): ({} & TokenVault2OAuthTokenUncheckedCreateInput) | ({} & TokenVault2OAuthTokenCreateInput) {
+  ): ({} & TokenVaultOAuthTokenUncheckedCreateInput) | ({} & TokenVaultOAuthTokenCreateInput) {
     assertEncrypted(entity);
     return {
       id: entity.id,
@@ -164,7 +164,7 @@ export class OAuthTokenPrismaRepository
   protected toUpdateInput(
     _id: string,
     entity: OAuthToken,
-  ): ({} & TokenVault2OAuthTokenUncheckedUpdateInput) | ({} & TokenVault2OAuthTokenUpdateInput) {
+  ): ({} & TokenVaultOAuthTokenUncheckedUpdateInput) | ({} & TokenVaultOAuthTokenUpdateInput) {
     assertEncrypted(entity);
     return {
       accessToken: entity.accessToken.raw,
@@ -178,11 +178,11 @@ export class OAuthTokenPrismaRepository
     };
   }
 
-  protected toUniqueWhere(id: string): TokenVault2OAuthTokenWhereUniqueInput {
+  protected toUniqueWhere(id: string): TokenVaultOAuthTokenWhereUniqueInput {
     return { id };
   }
 
-  protected toFilterWhere(filter?: OAuthTokenFilter): TokenVault2OAuthTokenWhereInput {
+  protected toFilterWhere(filter?: OAuthTokenFilter): TokenVaultOAuthTokenWhereInput {
     return {
       ...(filter?.provider ? { provider: filter.provider } : {}),
       ...(filter?.email ? { email: filter.email } : {}),
@@ -192,7 +192,7 @@ export class OAuthTokenPrismaRepository
     };
   }
 
-  protected defaultOrderBy(): TokenVault2OAuthTokenOrderByWithRelationInput {
+  protected defaultOrderBy(): TokenVaultOAuthTokenOrderByWithRelationInput {
     return { createdAt: 'desc' };
   }
 

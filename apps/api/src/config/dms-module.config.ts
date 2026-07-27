@@ -31,6 +31,18 @@ export const DMS_MODULE = DmsModule.forRootAsync({
                 writePermissions: ['create:reports'],
                 maxDocumentsPerEntity: 20,
             },
+            {
+                entityType: 'donation',
+                readPermissions: ['read:documents'],
+                writePermissions: ['create:documents'],
+                maxDocumentsPerEntity: 10,
+            },
+            {
+                entityType: 'transaction',
+                readPermissions: ['read:documents'],
+                writePermissions: ['create:documents'],
+                maxDocumentsPerEntity: 10,
+            },
         ],
     }),
 });

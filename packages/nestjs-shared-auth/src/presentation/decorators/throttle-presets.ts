@@ -1,45 +1,24 @@
-import { applyDecorators } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 
-function clientIp(req: Record<string, unknown>): string {
-  return (req.ip as string | undefined) ?? 'unknown';
-}
-
-const publicGetTracker = (req: Record<string, unknown>) => {
-  const headers = req.headers as Record<string, string | undefined>;
-  const apiKey = headers['x-api-key'] ?? 'no-key';
-  return `publicGet:${apiKey}:${clientIp(req)}`;
+export type StrictThrottleOptions = {
+  /** Required — strict limits are never taken from module options. */
+  limit: number;
+  ttlMs?: number;
 };
 
-const publicFormPostTracker = (req: Record<string, unknown>) =>
-  `publicFormPost:${clientIp(req)}`;
+/**
+ * Applies an additional strict rate limit on the route. `limit` must be supplied explicitly.
+ * Limits are not read from AuthModuleOptions — only decorator arguments apply.
+ */
+export const StrictThrottle = (options: StrictThrottleOptions) => {
+  if (!Number.isFinite(options.limit) || options.limit <= 0) {
+    throw new Error('StrictThrottle requires a positive limit');
+  }
 
-const publicPostGlobalTracker = (req: Record<string, unknown>) =>
-  `publicPostGlobal:${clientIp(req)}`;
-
-const newsletterTracker = (req: Record<string, unknown>) => {
-  const body = req.body as { email?: string } | undefined;
-  const email =
-    typeof body?.email === 'string' ? body.email.trim().toLowerCase() : 'no-email';
-  return `newsletter:${clientIp(req)}:${email}`;
+  return Throttle({
+    strict: {
+      limit: options.limit,
+      ttl: options.ttlMs ?? 60_000,
+    },
+  });
 };
-
-export const StrictThrottle = () => Throttle({ default: { limit: 5, ttl: 60_000 } });
-export const DefaultThrottle = () => Throttle({ default: { limit: 30, ttl: 60_000 } });
-
-export const PublicGetThrottle = () =>
-  Throttle({
-    publicGet: { limit: 60, ttl: 60_000, getTracker: publicGetTracker },
-  });
-
-export const PublicFormPostThrottle = () =>
-  Throttle({
-    publicFormPost: { limit: 10, ttl: 60_000, getTracker: publicFormPostTracker },
-    publicPostGlobal: { limit: 100, ttl: 3_600_000, getTracker: publicPostGlobalTracker },
-  });
-
-export const NewsletterThrottle = () =>
-  Throttle({
-    newsletter: { limit: 3, ttl: 3_600_000, getTracker: newsletterTracker },
-    publicPostGlobal: { limit: 100, ttl: 3_600_000, getTracker: publicPostGlobalTracker },
-  });

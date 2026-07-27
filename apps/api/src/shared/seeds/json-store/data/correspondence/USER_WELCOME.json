@@ -1,5 +1,17 @@
 {
   "subject": "Welcome — your account is ready",
-  "htmlTemplate": "<p>Welcome!</p><p>Your account has been created with the login address: <strong>{{email}}</strong></p><p>You will receive a separate email with a link to set your password. Please check your inbox and follow that link to complete your first login.</p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "Welcome!",
+        "subHeading": "Your account is ready"
+      },
+      "content": {
+        "paragraph1_blue": "Your account has been created with the login address: {{email}}",
+        "paragraph3_blue": "You will receive a separate email with a link to set your password. Please check your inbox and follow that link to complete your first login."
+      }
+    }
+  },
   "textTemplate": "Welcome!\n\nYour account has been created with the login address: {{email}}\n\nYou will receive a separate email with a link to set your password. Please check your inbox and follow that link to complete your first login."
 }

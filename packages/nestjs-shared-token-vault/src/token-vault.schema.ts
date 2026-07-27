@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const TokenVault2OptionsSchema = z
+export const TokenVaultOptionsSchema = z
   .object({
     /**
      * Google OAuth vault. Stores Gmail / Drive / Calendar service credentials.

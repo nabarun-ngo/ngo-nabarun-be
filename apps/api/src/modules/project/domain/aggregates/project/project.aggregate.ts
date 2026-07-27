@@ -10,6 +10,7 @@ export interface ProjectFilter {
   sponsorId?: string;
   location?: string;
   tags?: string[];
+  isPublic?: boolean;
 }
 
 export interface ProjectCreateProps {
@@ -28,6 +29,7 @@ export interface ProjectCreateProps {
   managerId: string;
   sponsorId?: string;
   tags?: string[];
+  isPublic?: boolean;
   metadata?: Record<string, unknown>;
 }
 
@@ -50,6 +52,7 @@ export class Project extends AggregateRoot<string> {
   #actualBeneficiaryCount?: number;
   #sponsorId?: string;
   #tags: string[];
+  #isPublic: boolean;
   #metadata?: Record<string, unknown>;
 
   constructor(
@@ -72,6 +75,7 @@ export class Project extends AggregateRoot<string> {
     actualBeneficiaryCount: number | undefined,
     sponsorId: string | undefined,
     tags: string[] | undefined,
+    isPublic: boolean,
     metadata: Record<string, unknown> | undefined,
     createdAt?: Date,
     updatedAt?: Date,
@@ -95,6 +99,7 @@ export class Project extends AggregateRoot<string> {
     this.#actualBeneficiaryCount = actualBeneficiaryCount;
     this.#sponsorId = sponsorId;
     this.#tags = tags ?? [];
+    this.#isPublic = isPublic;
     this.#metadata = metadata;
   }
 
@@ -131,6 +136,7 @@ export class Project extends AggregateRoot<string> {
       undefined,
       props.sponsorId,
       props.tags,
+      props.isPublic ?? false,
       props.metadata,
     );
   }
@@ -146,6 +152,7 @@ export class Project extends AggregateRoot<string> {
     if (props.targetBeneficiaryCount !== undefined) this.#targetBeneficiaryCount = props.targetBeneficiaryCount;
     if (props.sponsorId !== undefined) this.#sponsorId = props.sponsorId;
     if (props.tags !== undefined) this.#tags = props.tags;
+    if (props.isPublic !== undefined) this.#isPublic = props.isPublic;
     if (props.metadata !== undefined) this.#metadata = props.metadata;
     if (props.startDate !== undefined) this.#startDate = props.startDate;
     if (props.endDate !== undefined) {
@@ -218,6 +225,7 @@ export class Project extends AggregateRoot<string> {
   get managerId(): string { return this.#managerId; }
   get sponsorId(): string | undefined { return this.#sponsorId; }
   get tags(): string[] { return [...this.#tags]; }
+  get isPublic(): boolean { return this.#isPublic; }
   get metadata(): Record<string, unknown> | undefined {
     return this.#metadata ? { ...this.#metadata } : undefined;
   }

@@ -15,7 +15,7 @@ export interface IUserReferenceDataPort {
   getDistricts(countryCode: string, stateCode: string): Promise<KeyValueOption[]>;
   getPhoneCodes(): Promise<KeyValueOption[]>;
   /**
-   * Returns the subset of Auth2 roles that should be surfaced in the front-end.
+   * Returns the subset of Auth roles that should be surfaced in the front-end.
    * The list is managed as a JSON document at user-config / displayable-roles,
    * allowing roles to be toggled without a code deployment.
    */

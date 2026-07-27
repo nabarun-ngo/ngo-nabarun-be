@@ -6,7 +6,7 @@ import { IOAuthTokenRepository } from '../../../domain/repositories/oauth-token.
 import type { IOAuthTokenRepository as ITokenRepo } from '../../../domain/repositories/oauth-token.repository';
 import { IOAuthProvider, OAUTH_PROVIDER_REGISTRY } from '../../ports/oauth-provider.port';
 import { TokenRefreshPolicy } from '../../../domain/policies/token-refresh.policy';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../../token-vault-options';
 import { OAuthTokenFilter } from '../../../domain/aggregates/oauth-token/oauth-token.aggregate';
 import {
   AmbiguousTokenSelectionError,
@@ -30,7 +30,7 @@ export class GetValidTokenHandler implements IQueryHandler<GetValidTokenQuery, s
   constructor(
     @Inject(IOAuthTokenRepository) private readonly tokenRepo: ITokenRepo,
     @Inject(OAUTH_PROVIDER_REGISTRY) private readonly registry: Map<string, IOAuthProvider>,
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
     private readonly commandBus: CommandBus,
   ) {}
 

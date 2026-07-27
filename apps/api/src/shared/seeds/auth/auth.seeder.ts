@@ -1,14 +1,10 @@
 import { PrismaClient } from '../../persistence/prisma/client';
-import { AUTH2_SEED } from './auth-seed.data';
+import { AUTH_SEED } from './auth-seed.data';
+import { AuthSeedData } from './auth-seed.types';
 
-export async function seedAuth(prisma: PrismaClient): Promise<void> {
-  try {
-    console.log('[auth-seeder] Starting auth seed...');
-
-    const data = AUTH2_SEED;
-
-    console.log(`[auth-seeder] Upserting ${data.permissions.length} permission(s)...`);
-    for (const p of data.permissions) {
+export async function seedAuthData(prisma: PrismaClient, data: AuthSeedData): Promise<void> {
+  console.log(`[auth-seeder] Upserting ${data.permissions.length} permission(s)...`);
+  for (const p of data.permissions) {
       console.log(`[auth-seeder]   permission: ${p.key}`);
       await prisma.authPermission.upsert({
         where: { key: p.key },
@@ -110,6 +106,12 @@ export async function seedAuth(prisma: PrismaClient): Promise<void> {
       ]);
     }
 
+}
+
+export async function seedAuth(prisma: PrismaClient): Promise<void> {
+  try {
+    console.log('[auth-seeder] Starting auth seed...');
+    await seedAuthData(prisma, AUTH_SEED);
     console.log('[auth-seeder] Done.');
   } catch (error) {
     console.log('[auth-seeder] Failed.');

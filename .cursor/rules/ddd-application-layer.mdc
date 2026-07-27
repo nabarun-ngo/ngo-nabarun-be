@@ -8,6 +8,8 @@ alwaysApply: false
 
 **Rule: orchestrates domain and infrastructure via interfaces. No Prisma imports. No HTTP response types.**
 
+**Cross-module data access:** inject repository/domain ports only for **this** bounded context. For other modules or `nestjs-shared-*` packages, use their **Facade** → Query/Command (see `module-facade-boundary.mdc`).
+
 This application uses **`@nestjs/cqrs`** for command/query routing and `EventBus` for domain event dispatch.
 
 The application layer is the **use-case layer**. It:

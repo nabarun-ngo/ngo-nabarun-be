@@ -37,6 +37,17 @@ export interface IWorkflowInboxRepository
 
   findOpenForUser(userId: string): Promise<WorkflowInboxTaskRecord[]>;
 
+  /** Open pool tasks with no direct assignee (role-based candidate queues). */
+  findOpenUnassigned(): Promise<WorkflowInboxTaskRecord[]>;
+
+  reopenTask(params: {
+    taskId: string;
+    assignedToId: string | null;
+    candidateRoleNames: string[];
+    formKey: string | null;
+    slaDeadlineAt: Date | null;
+  }): Promise<WorkflowInboxTaskRecord>;
+
   claimTask(params: {
     taskId: string;
     claimedById: string;
@@ -48,4 +59,7 @@ export interface IWorkflowInboxRepository
     completedById: string;
     expectedStatus: InboxTaskStatus;
   }): Promise<WorkflowInboxTaskRecord>;
+
+  /** Release open inbox tasks when a user profile is deleted. Returns affected row count. */
+  releaseTasksForDeletedUser(userId: string): Promise<number>;
 }

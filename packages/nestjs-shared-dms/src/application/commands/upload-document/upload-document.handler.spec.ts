@@ -6,6 +6,7 @@ import { DocumentUploadedEvent } from '../../../domain/events/document-uploaded.
 import { DocumentResponseDto } from '../../../presentation/dtos/document-response.dto';
 import { EntityTypeForbiddenError } from '@nabarun-ngo/nestjs-shared-core';
 import {
+  DocumentLimitReachedError,
   FileSizeExceededError,
   MimeTypeNotAllowedError,
 } from '../../../domain/errors/document.errors';
@@ -200,11 +201,6 @@ describe('UploadDocumentHandler', () => {
         ],
       },
     });
-
-    const { FileSizeExceededError: _, ...rest } = await import(
-      '../../../domain/errors/document.errors'
-    );
-    const { DocumentLimitReachedError } = rest;
 
     await expect(handler.execute(BASE_COMMAND)).rejects.toThrow(DocumentLimitReachedError);
     expect(storage.uploadFile).not.toHaveBeenCalled();

@@ -3,7 +3,7 @@ import { BusinessError } from '@nabarun-ngo/nestjs-shared-core';
 export class ProviderNotConfiguredError extends BusinessError {
   constructor(provider: string) {
     super(
-      `OAuth provider "${provider}" is not configured. Enable it by supplying the required credentials in TokenVault2Module options.`,
+      `OAuth provider "${provider}" is not configured. Enable it by supplying the required credentials in TokenVaultModule options.`,
       'OAUTH_PROVIDER_NOT_CONFIGURED',
       501,
     );

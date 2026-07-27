@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
   ArrayUnique,
   IsArray,
   IsBoolean,
@@ -13,53 +14,56 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CustomFieldType } from '../../../domain/enums/custom-field-type.enum';
+import { FieldOptionDto } from '../shared/field-option.dto';
+import { FieldConditionDto } from '../shared/field-condition.dto';
+import { DependentOptionsDto } from '../shared/dependent-options.dto';
+import { FieldRegexRuleDto } from '../shared/field-regex-rule.dto';
+import { FieldValidationRulesDto } from '../shared/field-validation-rules.dto';
 
-export class FieldOptionDto {
-  @ApiProperty()
+/** Request body field option with validation (extends shared OpenAPI shape). */
+export class FieldOptionInputDto extends FieldOptionDto {
   @IsString()
   @IsNotEmpty()
-  key: string;
+  declare key: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  label: string;
+  declare label: string;
 }
 
-export class FieldConditionDto {
-  @ApiProperty()
+export class FieldConditionInputDto extends FieldConditionDto {
   @IsString()
   @IsNotEmpty()
-  dependsOnKey: string;
+  declare dependsOnKey: string;
 
-  @ApiProperty({ enum: ['equals', 'not_equals', 'in', 'not_in'] })
   @IsIn(['equals', 'not_equals', 'in', 'not_in'])
-  operator: 'equals' | 'not_equals' | 'in' | 'not_in';
-
-  @ApiProperty({ type: Object })
-  value: string | number | boolean | string[];
+  declare operator: 'equals' | 'not_equals' | 'in' | 'not_in';
 }
 
-export class DependentOptionsDto {
-  @ApiProperty()
+export class DependentOptionsInputDto extends DependentOptionsDto {
   @IsString()
   @IsNotEmpty()
-  dependsOnKey: string;
+  declare dependsOnKey: string;
 
-  @ApiProperty()
-  optionMap: Record<string, FieldOptionDto[]>;
+  declare optionMap: Record<string, FieldOptionInputDto[]>;
 }
 
-export class FieldValidationRulesDto {
-  @ApiProperty()
+export class FieldRegexRuleInputDto extends FieldRegexRuleDto {
   @IsString()
   @IsNotEmpty()
-  pattern: string;
+  declare pattern: string;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  regexErrMsg?: string;
+  declare regexErrMsg?: string;
+}
+
+export class FieldValidationRulesInputDto extends FieldValidationRulesDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => FieldRegexRuleInputDto)
+  declare patterns: FieldRegexRuleInputDto[];
 }
 
 const FIELD_TYPES = Object.values(CustomFieldType);
@@ -84,12 +88,12 @@ export class AddFormFieldDto {
   @IsOptional()
   mandatory?: boolean;
 
-  @ApiPropertyOptional({ type: [FieldOptionDto] })
+  @ApiPropertyOptional({ type: [FieldOptionInputDto] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => FieldOptionDto)
+  @Type(() => FieldOptionInputDto)
   @IsOptional()
-  fieldOptions?: FieldOptionDto[];
+  fieldOptions?: FieldOptionInputDto[];
 
   @ApiPropertyOptional({ default: false })
   @IsBoolean()
@@ -107,23 +111,33 @@ export class AddFormFieldDto {
   @IsOptional()
   sortOrder?: number;
 
-  @ApiPropertyOptional({ type: FieldConditionDto })
-  @ValidateNested()
-  @Type(() => FieldConditionDto)
+  @ApiPropertyOptional({ description: 'Wizard step identifier for multi-step forms' })
+  @IsString()
   @IsOptional()
-  condition?: FieldConditionDto;
+  stepId?: string;
 
-  @ApiPropertyOptional({ type: DependentOptionsDto })
-  @ValidateNested()
-  @Type(() => DependentOptionsDto)
+  @ApiPropertyOptional({ description: 'Display label for the wizard step' })
+  @IsString()
   @IsOptional()
-  dependentOptions?: DependentOptionsDto;
+  stepName?: string;
 
-  @ApiPropertyOptional({ type: FieldValidationRulesDto })
+  @ApiPropertyOptional({ type: FieldConditionInputDto })
   @ValidateNested()
-  @Type(() => FieldValidationRulesDto)
+  @Type(() => FieldConditionInputDto)
   @IsOptional()
-  validationRules?: FieldValidationRulesDto;
+  condition?: FieldConditionInputDto;
+
+  @ApiPropertyOptional({ type: DependentOptionsInputDto })
+  @ValidateNested()
+  @Type(() => DependentOptionsInputDto)
+  @IsOptional()
+  dependentOptions?: DependentOptionsInputDto;
+
+  @ApiPropertyOptional({ type: FieldValidationRulesInputDto })
+  @ValidateNested()
+  @Type(() => FieldValidationRulesInputDto)
+  @IsOptional()
+  validationRules?: FieldValidationRulesInputDto;
 
   @ApiPropertyOptional({ type: [String] })
   @IsArray()
@@ -149,12 +163,12 @@ export class UpdateFormFieldDto {
   @IsOptional()
   mandatory?: boolean;
 
-  @ApiPropertyOptional({ type: [FieldOptionDto] })
+  @ApiPropertyOptional({ type: [FieldOptionInputDto] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => FieldOptionDto)
+  @Type(() => FieldOptionInputDto)
   @IsOptional()
-  fieldOptions?: FieldOptionDto[];
+  fieldOptions?: FieldOptionInputDto[];
 
   @ApiPropertyOptional()
   @IsBoolean()
@@ -172,23 +186,33 @@ export class UpdateFormFieldDto {
   @IsOptional()
   sortOrder?: number;
 
-  @ApiPropertyOptional({ type: FieldConditionDto, nullable: true })
-  @ValidateNested()
-  @Type(() => FieldConditionDto)
+  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms' })
+  @IsString()
   @IsOptional()
-  condition?: FieldConditionDto | null;
+  stepId?: string | null;
 
-  @ApiPropertyOptional({ type: DependentOptionsDto, nullable: true })
-  @ValidateNested()
-  @Type(() => DependentOptionsDto)
+  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step' })
+  @IsString()
   @IsOptional()
-  dependentOptions?: DependentOptionsDto | null;
+  stepName?: string | null;
 
-  @ApiPropertyOptional({ type: FieldValidationRulesDto, nullable: true })
+  @ApiPropertyOptional({ type: FieldConditionInputDto, nullable: true })
   @ValidateNested()
-  @Type(() => FieldValidationRulesDto)
+  @Type(() => FieldConditionInputDto)
   @IsOptional()
-  validationRules?: FieldValidationRulesDto | null;
+  condition?: FieldConditionInputDto | null;
+
+  @ApiPropertyOptional({ type: DependentOptionsInputDto, nullable: true })
+  @ValidateNested()
+  @Type(() => DependentOptionsInputDto)
+  @IsOptional()
+  dependentOptions?: DependentOptionsInputDto | null;
+
+  @ApiPropertyOptional({ type: FieldValidationRulesInputDto, nullable: true })
+  @ValidateNested()
+  @Type(() => FieldValidationRulesInputDto)
+  @IsOptional()
+  validationRules?: FieldValidationRulesInputDto | null;
 
   @ApiPropertyOptional({ type: [String] })
   @IsArray()

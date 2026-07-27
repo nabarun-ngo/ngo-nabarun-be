@@ -2,9 +2,8 @@ import { DatabaseOptionsSchema } from '@nabarun-ngo/nestjs-shared-persistence/da
 
 describe('DatabaseOptionsSchema', () => {
   const validOptions = {
-    postgresUrl: 'postgresql://user:pass@localhost:5432/db',
     redisUrl: 'redis://localhost:6379',
-    prismaClientFactory: (_url: string) => ({}),
+    prismaClientFactory: () => ({}),
   };
 
   it('accepts valid options', () => {
@@ -22,26 +21,6 @@ describe('DatabaseOptionsSchema', () => {
     expect(result.failOnAuditError).toBe(false);
   });
 
-  it('rejects missing postgresUrl', () => {
-    const result = DatabaseOptionsSchema.safeParse({
-      ...validOptions,
-      postgresUrl: undefined,
-    });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      const paths = result.error.issues.map((e) => e.path.join('.'));
-      expect(paths).toContain('postgresUrl');
-    }
-  });
-
-  it('rejects invalid postgresUrl (not a URL)', () => {
-    const result = DatabaseOptionsSchema.safeParse({
-      ...validOptions,
-      postgresUrl: 'not-a-url',
-    });
-    expect(result.success).toBe(false);
-  });
-
   it('rejects missing redisUrl', () => {
     const result = DatabaseOptionsSchema.safeParse({
       ...validOptions,
@@ -50,9 +29,16 @@ describe('DatabaseOptionsSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects invalid redisUrl (not a URL)', () => {
+    const result = DatabaseOptionsSchema.safeParse({
+      ...validOptions,
+      redisUrl: 'not-a-url',
+    });
+    expect(result.success).toBe(false);
+  });
+
   it('rejects missing prismaClientFactory', () => {
     const result = DatabaseOptionsSchema.safeParse({
-      postgresUrl: validOptions.postgresUrl,
       redisUrl: validOptions.redisUrl,
     });
     expect(result.success).toBe(false);

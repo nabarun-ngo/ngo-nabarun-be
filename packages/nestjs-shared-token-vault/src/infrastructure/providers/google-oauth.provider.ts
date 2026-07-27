@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Credentials, OAuth2Client, CodeChallengeMethod } from 'google-auth-library';
 import { AppTechnicalError } from '@nabarun-ngo/nestjs-shared-core';
 import { EventBus } from '@nestjs/cqrs';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../token-vault-options';
 import type {
   AuthorizationParams,
   AuthorizationResult,
@@ -41,7 +41,7 @@ export class GoogleOAuthProvider implements IOAuthProvider {
   ];
 
   constructor(
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
     private readonly eventBus: EventBus,
   ) {
     const cfg = options.googleOAuth;
@@ -64,8 +64,8 @@ export class GoogleOAuthProvider implements IOAuthProvider {
   private get client(): OAuth2Client {
     if (!this.oauthClient) {
       throw new Error(
-        '[TokenVault2Module] Google OAuth is not configured. ' +
-        'Set googleOAuth.clientId, clientSecret, and callbackUrl in TokenVault2Module options.',
+        '[TokenVaultModule] Google OAuth is not configured. ' +
+        'Set googleOAuth.clientId, clientSecret, and callbackUrl in TokenVaultModule options.',
       );
     }
     return this.oauthClient;

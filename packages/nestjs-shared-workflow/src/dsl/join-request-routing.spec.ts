@@ -10,7 +10,7 @@ import {
 describe('JOIN_REQUEST routing contract', () => {
   const definitionPath = join(
     __dirname,
-    '../../../../apps/api/prisma/seeds/json-store/workflow/JOIN_REQUEST.json',
+    '../../../../apps/api/src/shared/seeds/json-store/data/workflow/JOIN_REQUEST.json',
   );
   let definition: WorkflowDefinition;
   let router: TransitionRouter;
@@ -78,7 +78,7 @@ describe('JOIN_REQUEST routing contract', () => {
 describe('CONTACT_REQUEST routing contract', () => {
   const definitionPath = join(
     __dirname,
-    '../../../../apps/api/prisma/seeds/json-store/workflow/CONTACT_REQUEST.json',
+    '../../../../apps/api/src/shared/seeds/json-store/data/workflow/CONTACT_REQUEST.json',
   );
   let definition: WorkflowDefinition;
   let router: TransitionRouter;

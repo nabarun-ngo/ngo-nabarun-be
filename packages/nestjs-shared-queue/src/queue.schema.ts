@@ -47,3 +47,4 @@ export const QueueOptionsSchema = z.object({
 });
 
 export type QueueModuleOptions = z.infer<typeof QueueOptionsSchema>;
+export type QueueModuleInputOptions = z.input<typeof QueueOptionsSchema>;

@@ -8,7 +8,8 @@ export { QueueFacade } from "./application/services/queue.facade";
 export { QueueProcessingService } from "./infrastructure/services/queue-processing.service";
 export type { JobOptions } from "./presentation/dto/queue.dto";
 
-// ── Job log storage (secondary store for rich search) ────────────────────────
+// ── Job log storage — **host persistence / optional secondary store** ─────────
+// Dispatch jobs via QueueFacade; do not inject IQueueJobRepository from feature modules.
 export { QueueJob } from "./domain/aggregates/queue-job.aggregate";
 export { JobStatus } from "./domain/enums/job-status.enum";
 export { IQueueJobRepository } from "./domain/repositories/queue-job.repository";

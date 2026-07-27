@@ -6,7 +6,6 @@ import { UserReferenceDataPayloadSchema } from '../../../modules/user/user-refer
 import { FinanceReferenceDataPayloadSchema } from '../../../modules/finance/finance-reference-data.schema';
 import { ProjectReferenceDataPayloadSchema } from '../../../modules/project/project-reference-data.schema';
 import {
-  PublicSiteDynamicContentSchema,
   PublicSiteStaticContentSchema,
 } from '../../../modules/public-site/public-site.schema';
 import { ReportDefinitionsPayloadSchema } from '../../../modules/reporting/reporting.schema';
@@ -16,6 +15,10 @@ import {
   LinksPayloadSchema,
   LinksReferenceDataPayloadSchema,
 } from '../../../modules/links/links.schema';
+import {
+  CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE,
+  CustomFormFieldOptionsPayloadSchema,
+} from '../../persistence/custom-forms/custom-form-field-options.schema';
 
 export type JsonStoreSchemaRegistry = Record<string, z.ZodType>;
 
@@ -34,7 +37,8 @@ export const JSON_STORE_SCHEMA_REGISTRY: JsonStoreSchemaRegistry = {
   'links:link-open-types': LinksReferenceDataPayloadSchema,
   'links:app-link-types': LinksReferenceDataPayloadSchema,
   'links:link-categories': LinksReferenceDataPayloadSchema,
-  'public-site': z.union([PublicSiteStaticContentSchema, PublicSiteDynamicContentSchema]),
+  'public-site': PublicSiteStaticContentSchema,
+  [CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE]: CustomFormFieldOptionsPayloadSchema,
 };
 
 export function resolveJsonStoreSchema(

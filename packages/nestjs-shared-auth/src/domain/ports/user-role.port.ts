@@ -2,7 +2,7 @@
  * Port for querying role membership by IdP subject.
  *
  * Implemented by auth's own UserRoleAdapter (infrastructure layer).
- * The consuming app does NOT implement this — it is registered and exported by Auth2Module.
+ * The consuming app does NOT implement this — it is registered and exported by AuthModule.
  *
  * Returns idpSub[] (NOT userId[]).
  * The caller (correspondence, AuthFacade) is responsible for translating

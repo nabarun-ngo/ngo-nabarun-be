@@ -5,15 +5,15 @@ import { IApiKeyRepository } from '../../domain/repositories/api-key.repository'
 import { ApiKey } from '../../domain/aggregates/api-key/api-key.aggregate';
 import { InvalidApiKeyError } from '../../domain/errors/auth.errors';
 import { AuthUser } from '../../application/models/auth-user';
-import { AUTH2_OPTIONS } from '../auth-options.token';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AUTH_OPTIONS } from '../auth-options.token';
+import { AuthModuleOptions } from '../../auth-options';
 
 
 @Injectable()
 export class ApiKeyVerifierAdapter implements IApiKeyVerifierPort {
   constructor(
     @Inject(IApiKeyRepository) private readonly repo: IApiKeyRepository,
-    @Inject(AUTH2_OPTIONS) private readonly options: Auth2ModuleOptions,
+    @Inject(AUTH_OPTIONS) private readonly options: AuthModuleOptions,
     @Inject(ICACHE_PORT) private readonly cache: ICachePort,
   ) { }
 

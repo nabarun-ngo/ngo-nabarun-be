@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CRON_JOB_QUEUE_PORT, ICronJobQueuePort } from '@nabarun-ngo/nestjs-shared-cron';
-import { QueueProcessingService } from '@nabarun-ngo/nestjs-shared-queue';
+import { QueueFacade } from '@nabarun-ngo/nestjs-shared-queue';
 
 @Injectable()
 export class QueueCronJobAdapter implements ICronJobQueuePort {
-  constructor(private readonly queueProcessing: QueueProcessingService) { }
+  constructor(private readonly queueFacade: QueueFacade) {}
 
   async enqueue(
     cronName: string,
@@ -16,7 +16,7 @@ export class QueueCronJobAdapter implements ICronJobQueuePort {
       ? `${cronName}:${scheduledAt.getTime()}`
       : `${cronName}:${Date.now()}`;
 
-    const job = await this.queueProcessing.addJob(handlerName, payload ?? {}, { jobId });
+    const job = await this.queueFacade.dispatch(handlerName, payload ?? {}, { jobId });
     return { id: job.id! };
   }
 }

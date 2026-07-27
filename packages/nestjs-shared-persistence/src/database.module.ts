@@ -12,7 +12,6 @@ import {
 } from "@nabarun-ngo/nestjs-shared-core";
 import { DatabaseOptionsSchema } from "./database.schema";
 import { CacheService } from "./cache/cache.service";
-import { LockingService } from "./prisma/locking.service";
 import {
   BasePrismaService,
   PRISMA_CLIENT,
@@ -26,33 +25,31 @@ import { DATABASE_OPTIONS } from "./database-options.token";
 
 export { DATABASE_OPTIONS };
 
-const redisLogger = new Logger("KeyvRedisClient");
-
 export interface DatabaseModuleOptions<
   TClient extends PrismaClientLike = PrismaClientLike,
 > {
-  postgresUrl: string;
   redisUrl: string;
   /**
    * Factory that returns the consuming project's generated PrismaClient instance.
    * The library uses this client to connect and applies the audit extension on top.
    *
+   * Database selection (Postgres, MySQL, SQL Server, adapter wiring, connection
+   * strings) is entirely the consumer's responsibility — pass a ready client here.
+   *
    * The `TClient` generic is inferred from this factory's return type, so pass
    * your generated client here and the injected `BasePrismaService<TClient>`
    * (and its `.client`) stay fully typed downstream.
-   *
-   * Prisma 7: the client engine no longer accepts a connection `url` — pass a
-   * driver adapter built from `postgresUrl`. Import `PrismaClient` from your
-   * generator `output` path (the client is no longer emitted to node_modules).
    *
    * @example
    * import { PrismaClient } from './generated/prisma/client';
    * import { PrismaPg } from '@prisma/adapter-pg';
    *
-   * prismaClientFactory: (postgresUrl) =>
-   *   new PrismaClient({ adapter: new PrismaPg({ connectionString: postgresUrl }) })
+   * prismaClientFactory: () =>
+   *   new PrismaClient({
+   *     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
+   *   })
    */
-  prismaClientFactory: (postgresUrl: string) => TClient;
+  prismaClientFactory: () => TClient;
   auditedModels?: string[];
   /** When true, applies the Prisma audit extension to auditedModels. Default: false. */
   enableAuditExtension?: boolean;
@@ -94,6 +91,8 @@ class DatabaseInfrastructureModule {
   }
 }
 
+const redisLogger = new Logger("KeyvRedisClient");
+
 @Module({})
 export class DatabaseModule extends BaseDynamicModule {
   static forRoot<TClient extends PrismaClientLike = PrismaClientLike>(
@@ -104,7 +103,7 @@ export class DatabaseModule extends BaseDynamicModule {
       DatabaseOptionsSchema,
       options,
     );
-    const validated = DatabaseModule.validate(
+    const validated = DatabaseModule.validateOptions(
       DatabaseOptionsSchema,
       options,
     ) as DatabaseModuleOptions<TClient>;
@@ -113,7 +112,7 @@ export class DatabaseModule extends BaseDynamicModule {
       [
         {
           provide: PRISMA_CLIENT,
-          useFactory: () => validated.prismaClientFactory(validated.postgresUrl),
+          useFactory: () => validated.prismaClientFactory(),
         },
       ],
     );
@@ -136,7 +135,7 @@ export class DatabaseModule extends BaseDynamicModule {
         {
           provide: PRISMA_CLIENT,
           useFactory: async (opts: DatabaseModuleOptions<TClient>) => {
-            return opts.prismaClientFactory(opts.postgresUrl);
+            return opts.prismaClientFactory();
           },
           inject: [DATABASE_OPTIONS],
         },
@@ -177,7 +176,6 @@ export class DatabaseModule extends BaseDynamicModule {
       providers: [
         ...moduleProviders,
         BasePrismaService,
-        LockingService,
         CacheService,
         RedisLifecycleService,
       ],
@@ -185,7 +183,6 @@ export class DatabaseModule extends BaseDynamicModule {
       exports: [
         infrastructure,
         BasePrismaService,
-        LockingService,
         CacheService,
       ],
     };

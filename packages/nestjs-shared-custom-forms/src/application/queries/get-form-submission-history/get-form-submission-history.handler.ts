@@ -1,16 +1,16 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
 import { FormNotFoundError } from '../../../domain/errors/form.errors';
 import { FormAccessPolicy } from '../../../domain/policies/form-access.policy';
-import { FormEntityTypePolicy } from '../../../domain/policies/form-entity-type.policy';
+import { ICustomFormEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { IFormRepository } from '../../../domain/repositories/form.repository';
 import { IFormSubmissionRepository } from '../../../domain/repositories/form-submission.repository';
-import { IFormEntityAccessPort } from '../../../domain/ports/form-entity-access.port';
 import { CUSTOM_FORMS_OPTIONS } from '../../../infrastructure/custom-forms-options.token';
 import { CustomFormsModuleOptions } from '../../../custom-forms.schema';
 import { FormFieldValueHistoryEntryResponseDto } from '../../dtos/response/form-response.dtos';
 import { FormFieldValueHistoryEntryResponseMapper } from '../../mappers/form-field-value-history-entry-response.mapper';
-import { checkFormRecordAccess } from '../../utilities/form-record-access.util';
+import { assertCustomFormEntityAccess } from '../../utilities/custom-form-entity-access.util';
 import { GetFormSubmissionHistoryQuery } from './get-form-submission-history.query';
 
 @QueryHandler(GetFormSubmissionHistoryQuery)
@@ -23,30 +23,28 @@ export class GetFormSubmissionHistoryHandler
     private readonly formRepo: IFormRepository,
     @Inject(IFormSubmissionRepository)
     private readonly submissionRepo: IFormSubmissionRepository,
-    @Optional()
-    @Inject(IFormEntityAccessPort)
-    private readonly accessPort: IFormEntityAccessPort | null,
     @Inject(CUSTOM_FORMS_OPTIONS)
     private readonly options: CustomFormsModuleOptions,
+    @Optional()
+    @Inject(ICustomFormEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
   ) {}
 
   async execute(
     query: GetFormSubmissionHistoryQuery,
   ): Promise<FormFieldValueHistoryEntryResponseDto[]> {
-    FormEntityTypePolicy.assertEntityTypeRegistered(query.entityType, this.options.entityTypes);
+    await assertCustomFormEntityAccess(this.options, this.accessPort, {
+      entityType: query.entityType,
+      entityId: query.entityId,
+      userId: query.userId,
+      userPermissions: query.userPermissions,
+      action: 'read',
+    });
 
     const form = await this.formRepo.findByIdWithFields(query.formId);
     if (!form) throw new FormNotFoundError(query.formId);
 
     FormAccessPolicy.assertHasPermission(form, 'read', query.userPermissions);
-
-    await checkFormRecordAccess(this.accessPort, {
-      formId:          form.id,
-      entityId:        query.entityId,
-      userId:          '',
-      userPermissions: query.userPermissions,
-      action:          'read',
-    });
 
     let fieldDefId: string | undefined;
     if (query.fieldKey) {

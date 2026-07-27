@@ -1,1 +1,1 @@
-export const AUTH2_OPTIONS = Symbol('AUTH2_OPTIONS');
+export const AUTH_OPTIONS = Symbol('AUTH_OPTIONS');

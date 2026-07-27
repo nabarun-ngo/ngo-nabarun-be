@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EncryptedToken } from '../../domain/value-objects/encrypted-token.vo';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../token-vault-options';
 
 /**
  * Infrastructure service that builds `EncryptedToken` value objects.
@@ -16,15 +16,15 @@ import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../token-vaul
 @Injectable()
 export class AesTokenEncryptor {
   constructor(
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
   ) {}
 
   private get secret(): string {
     const secret = this.options.encryption?.secret;
     if (!secret) {
       throw new Error(
-        '[TokenVault2Module] encryption.secret is not configured. ' +
-          'Set encryption.secret (min 32 chars) in TokenVault2Module.forRoot() / forRootAsync().',
+        '[TokenVaultModule] encryption.secret is not configured. ' +
+          'Set encryption.secret (min 32 chars) in TokenVaultModule.forRoot() / forRootAsync().',
       );
     }
     return secret;

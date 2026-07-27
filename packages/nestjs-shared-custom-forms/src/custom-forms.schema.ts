@@ -1,13 +1,26 @@
 import { z } from 'zod';
-import { EntityTypeConfig } from './domain/policies/form-entity-type.policy';
 
-export type { EntityTypeConfig };
+export interface EntityTypeConfig {
+  entityType: string;
+  /** Human-readable display name for logs/errors. */
+  displayName?: string;
+  /** User needs AT LEAST ONE of these to read form submissions on this entity type. */
+  readPermissions?: string[];
+  /** User needs AT LEAST ONE of these to write/submit form data on this entity type. */
+  writePermissions?: string[];
+}
 
 /** Default TTL for cached form definitions: 30 days in milliseconds. */
 export const DEFAULT_CUSTOM_FORMS_CACHE_TTL_MS = 2_592_000_000;
 
+/**
+ * Json Store namespace for static select/multiselect options.
+ * Document key = form field definition id; payload shape validated in the host app.
+ */
+export const CUSTOM_FORMS_FIELD_OPTIONS_JSON_STORE_NAMESPACE = 'custom-forms.field-options';
+
 export const CustomFormsOptionsSchema = z.object({
-  entityTypes: z
+  allowedEntityTypes: z
     .array(z.custom<EntityTypeConfig>())
     .optional(),
   encryptionKey: z

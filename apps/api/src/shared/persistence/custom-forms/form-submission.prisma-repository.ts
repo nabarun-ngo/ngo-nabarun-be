@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
@@ -8,13 +8,29 @@ import {
   FormSubmissionWhereInput,
   FormSubmissionWhereUniqueInput,
   FormSubmissionOrderByWithRelationInput,
-} from '../prisma/models';
-import { IFormSubmissionRepository } from '@nabarun-ngo/nestjs-shared-custom-forms';
+} from '../prisma/models/FormSubmission';
+import {
+  IFormSubmissionRepository,
+  IFormRepository,
+  FieldValueCodecService,
+} from '@nabarun-ngo/nestjs-shared-custom-forms';
+import type { CustomFieldValueParsed } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/value-objects/field-condition/field-condition.vo';
 import { FormSubmission } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/aggregates/form-submission/form-submission.aggregate';
+import { Form } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/aggregates/form/form.aggregate';
+import { FormFieldDefinition } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/entities/form-field-definition/form-field-definition.entity';
 import { FormFieldValue } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/entities/form-field-value/form-field-value.entity';
 import { FormFieldValueHistoryEntry } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/entities/form-field-value-history-entry/form-field-value-history-entry.entity';
+import {
+  isStoredValueEmpty,
+  storedValuesEqual,
+  type FormFieldStoredValue,
+} from '@nabarun-ngo/nestjs-shared-custom-forms';
 import { FormSubmissionStatus } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/enums/form-submission-status.enum';
 import { FormSubmissionFilter } from '@nabarun-ngo/nestjs-shared-custom-forms/domain/repositories/form-submission.repository';
+import {
+  parsedToStoredFieldValue,
+  storedToParsedFieldValue,
+} from './form-field-value-persistence.util';
 
 type FormFieldValueHistoryRow = {
   id: string;
@@ -23,8 +39,8 @@ type FormFieldValueHistoryRow = {
   entityId: string;
   formId: string;
   fieldDefId: string;
-  oldValue: string | null;
-  newValue: string | null;
+  oldValue: string[];
+  newValue: string[];
   changedBy: string;
   createdAt: Date;
 };
@@ -36,7 +52,7 @@ type FormFieldValueRow = {
   formId: string;
   formSubmissionId: string;
   fieldDefId: string;
-  value: string | null;
+  value: string[];
   createdAt: Date;
   updatedAt: Date;
   historyEntries?: FormFieldValueHistoryRow[];
@@ -57,8 +73,8 @@ type FormSubmissionRow = {
 
 const INCLUDE_FIELD_VALUES = {
   fieldValues: {
-    orderBy: { createdAt: 'asc' },
-    include: { historyEntries: { orderBy: { createdAt: 'asc' } } },
+    orderBy: { createdAt: 'asc' as const },
+    include: { historyEntries: { orderBy: { createdAt: 'asc' as const } } },
   },
 } as const;
 
@@ -78,11 +94,14 @@ export class FormSubmissionPrismaRepository
     FormSubmissionOrderByWithRelationInput
   >
   implements IFormSubmissionRepository {
-  constructor(database: BasePrismaService<PrismaClient>) {
+  constructor(
+    database: BasePrismaService<PrismaClient>,
+    @Inject(IFormRepository)
+    private readonly formRepo: IFormRepository,
+    private readonly codec: FieldValueCodecService,
+  ) {
     super(database, 'formSubmission');
   }
-
-  // ── IFormSubmissionRepository ─────────────────────────────────────────────
 
   async findByEntity(
     entityType: string,
@@ -93,27 +112,21 @@ export class FormSubmissionPrismaRepository
       where: { entityType, entityId, formId },
       include: INCLUDE_FIELD_VALUES,
     });
-    return row ? this.toDomain(row as FormSubmissionRow) : null;
+    if (!row) return null;
+
+    const form = await this.formRepo.findByIdWithFields(formId);
+    if (!form) return null;
+
+    return this.toDomainWithFields(row as FormSubmissionRow, form);
   }
 
-  async upsertDraft(
-    entityType: string,
-    entityId: string,
-    formId: string,
-    values: Array<{ fieldDefId: string; value: string | null; changedBy: string }>,
-  ): Promise<FormSubmission> {
-    let submission = await this.findByEntity(entityType, entityId, formId);
-    const isNew = !submission;
+  async saveDraft(submission: FormSubmission, form: Form): Promise<FormSubmission> {
+    const { entityType, entityId, formId } = submission;
+    const existingRow = await (this.delegate).findFirst({
+      where: { entityType, entityId, formId },
+    });
 
-    if (!submission) {
-      submission = FormSubmission.create({ entityType, entityId, formId });
-    }
-
-    if (values.length > 0) {
-      submission.saveDraft(values);
-    }
-
-    if (isNew) {
+    if (!existingRow) {
       await (this.delegate).create({
         data: {
           id: submission.id,
@@ -127,63 +140,39 @@ export class FormSubmissionPrismaRepository
       });
     }
 
-    if (values.length > 0) {
-      const client = this.database.client;
+    const client = this.database.client;
+    const defById = new Map(form.fields.map((f) => [f.id, f]));
 
-      for (const entry of values) {
-        const fieldValue = submission.fieldValues.find(
-          (v) => v.fieldDefId === entry.fieldDefId,
-        );
-        if (!fieldValue) continue;
+    for (const fieldValue of submission.fieldValues) {
+      const def = defById.get(fieldValue.fieldDefId);
+      if (!def) continue;
 
-        const existing = await client.formFieldValue.findFirst({
-          where: { entityType, entityId, formId, fieldDefId: entry.fieldDefId },
-        }) as FormFieldValueRow | null;
+      const stored = await parsedToStoredFieldValue(this.codec, def, fieldValue.value);
 
-        if (existing) {
-          if (existing.value !== entry.value) {
-            await client.formFieldValue.update({
-              where: { id: existing.id },
-              data: {
-                value: entry.value,
-                updatedAt: new Date(),
-                historyEntries: {
-                  create: {
-                    formId,
-                    fieldDefId: entry.fieldDefId,
-                    entityType,
-                    entityId,
-                    oldValue: existing.value,
-                    newValue: entry.value,
-                    changedBy: entry.changedBy,
-                    createdAt: new Date(),
-                  },
-                },
-              },
-            });
-          }
-        } else {
-          await client.formFieldValue.create({
+      const existing = await client.formFieldValue.findFirst({
+        where: { entityType, entityId, formId, fieldDefId: fieldValue.fieldDefId },
+      }) as FormFieldValueRow | null;
+
+      const latestHistory = fieldValue.history[fieldValue.history.length - 1];
+      const changedBy = latestHistory?.changedBy;
+
+      if (existing) {
+        if (!storedValuesEqual(existing.value, stored)) {
+          await client.formFieldValue.update({
+            where: { id: existing.id },
             data: {
-              id: fieldValue.id,
-              entityType,
-              entityId,
-              formId,
-              formSubmissionId: submission.id,
-              fieldDefId: entry.fieldDefId,
-              value: entry.value,
-              createdAt: fieldValue.createdAt ?? new Date(),
+              value: stored,
               updatedAt: new Date(),
-              historyEntries: entry.value !== null
+              historyEntries: changedBy
                 ? {
                   create: {
                     formId,
-                    fieldDefId: entry.fieldDefId,
+                    fieldDefId: fieldValue.fieldDefId,
                     entityType,
                     entityId,
-                    oldValue: null,
-                    newValue: entry.value,
-                    changedBy: entry.changedBy,
+                    oldValue: existing.value,
+                    newValue: stored,
+                    changedBy,
                     createdAt: new Date(),
                   },
                 }
@@ -191,15 +180,46 @@ export class FormSubmissionPrismaRepository
             },
           });
         }
+      } else {
+        const initialHistory = fieldValue.history[0];
+        const oldStored: FormFieldStoredValue = [];
+        await client.formFieldValue.create({
+          data: {
+            id: fieldValue.id,
+            entityType,
+            entityId,
+            formId,
+            formSubmissionId: submission.id,
+            fieldDefId: fieldValue.fieldDefId,
+            value: stored,
+            createdAt: fieldValue.createdAt ?? new Date(),
+            updatedAt: new Date(),
+            historyEntries: initialHistory && changedBy
+              ? {
+                create: {
+                  formId,
+                  fieldDefId: fieldValue.fieldDefId,
+                  entityType,
+                  entityId,
+                  oldValue: oldStored,
+                  newValue: stored,
+                  changedBy,
+                  createdAt: initialHistory.createdAt ?? new Date(),
+                },
+              }
+              : undefined,
+          },
+        });
       }
-
-      await (this.delegate).update({
-        where: { id: submission.id },
-        data: { updatedAt: new Date() },
-      });
     }
 
-    return submission;
+    await (this.delegate).update({
+      where: { id: submission.id },
+      data: { updatedAt: new Date() },
+    });
+
+    const reloaded = await this.findByEntity(entityType, entityId, formId);
+    return reloaded ?? submission;
   }
 
   async clearByEntity(
@@ -216,6 +236,11 @@ export class FormSubmissionPrismaRepository
     formId: string,
     fieldDefId?: string,
   ): Promise<FormFieldValueHistoryEntry[]> {
+    const form = await this.formRepo.findByIdWithFields(formId);
+    if (!form) return [];
+
+    const defById = new Map(form.fields.map((f) => [f.id, f]));
+
     const rows = await (this.database.client).formFieldValueHistoryEntry.findMany({
       where: {
         entityType,
@@ -226,26 +251,50 @@ export class FormSubmissionPrismaRepository
       orderBy: { createdAt: 'asc' },
     }) as FormFieldValueHistoryRow[];
 
-    return rows.map(
-      (row) =>
-        new FormFieldValueHistoryEntry(
+    return Promise.all(
+      rows.map(async (row) => {
+        const def = defById.get(row.fieldDefId);
+        let oldValue: CustomFieldValueParsed = null;
+        let newValue: CustomFieldValueParsed = null;
+        if (def) {
+          oldValue = await storedToParsedFieldValue(this.codec, def, row.oldValue);
+          newValue = await storedToParsedFieldValue(this.codec, def, row.newValue);
+        }
+        return new FormFieldValueHistoryEntry(
           row.id,
           row.formId,
           row.fieldDefId,
           row.entityType,
           row.entityId,
-          row.oldValue,
-          row.newValue,
+          oldValue,
+          newValue,
           row.changedBy,
           row.createdAt,
-        ),
+        );
+      }),
     );
   }
 
-  // ── PrismaCrudRepositoryBase mapping hooks ───────────────────────────────
-
   protected toDomain(row: FormSubmissionRow): FormSubmission {
-    const fieldValues = (row.fieldValues ?? []).map((fv) => this.toFieldValueDomain(fv));
+    return new FormSubmission(
+      row.id,
+      row.entityType,
+      row.entityId,
+      row.formId,
+      row.status as FormSubmissionStatus,
+      [],
+      row.createdAt,
+      row.updatedAt ?? undefined,
+      row.submittedAt ?? undefined,
+      row.submittedBy ?? undefined,
+    );
+  }
+
+  private async toDomainWithFields(row: FormSubmissionRow, form: Form): Promise<FormSubmission> {
+    const defById = new Map(form.fields.map((f) => [f.id, f]));
+    const fieldValues = await Promise.all(
+      (row.fieldValues ?? []).map((fv) => this.toFieldValueDomainAsync(fv, defById)),
+    );
 
     return new FormSubmission(
       row.id,
@@ -261,20 +310,35 @@ export class FormSubmissionPrismaRepository
     );
   }
 
-  private toFieldValueDomain(row: FormFieldValueRow): FormFieldValue {
-    const history = (row.historyEntries ?? []).map(
-      (h) =>
-        new FormFieldValueHistoryEntry(
+  private async toFieldValueDomainAsync(
+    row: FormFieldValueRow,
+    defById: Map<string, FormFieldDefinition>,
+  ): Promise<FormFieldValue> {
+    const def = defById.get(row.fieldDefId);
+    const parsed = def
+      ? await storedToParsedFieldValue(this.codec, def, row.value ?? [])
+      : null;
+
+    const history = await Promise.all(
+      (row.historyEntries ?? []).map(async (h) => {
+        let oldValue: CustomFieldValueParsed = null;
+        let newValue: CustomFieldValueParsed = null;
+        if (def) {
+          oldValue = await storedToParsedFieldValue(this.codec, def, h.oldValue);
+          newValue = await storedToParsedFieldValue(this.codec, def, h.newValue);
+        }
+        return new FormFieldValueHistoryEntry(
           h.id,
           h.formId,
           h.fieldDefId,
           h.entityType,
           h.entityId,
-          h.oldValue,
-          h.newValue,
+          oldValue,
+          newValue,
           h.changedBy,
           h.createdAt,
-        ),
+        );
+      }),
     );
 
     return new FormFieldValue(
@@ -283,7 +347,7 @@ export class FormSubmissionPrismaRepository
       row.entityId,
       row.formId,
       row.fieldDefId,
-      row.value,
+      parsed,
       history,
       row.createdAt,
       row.updatedAt ?? undefined,

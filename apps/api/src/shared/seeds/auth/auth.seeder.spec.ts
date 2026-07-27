@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { seedAuth2 } from './auth.seeder';
-import { Auth2SeedData } from './auth-seed.types';
+import { seedAuthData } from './auth.seeder';
+import { AuthSeedData } from './auth-seed.types';
 
 function buildPrisma() {
   return {
@@ -41,11 +41,7 @@ function buildPrisma() {
 
 type MockPrisma = ReturnType<typeof buildPrisma>;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// seedUsers — Role assignments (AuthUserRole)
-// ─────────────────────────────────────────────────────────────────────────────
-
-describe('seedAuth2 – seedUsers for roles', () => {
+describe('seedAuthData – seedUsers for roles', () => {
   let prisma: MockPrisma;
 
   beforeEach(() => {
@@ -53,7 +49,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
     prisma.authRole.findUniqueOrThrow.mockResolvedValue({ id: 'role-1', key: 'admin' });
   });
 
-  function makeData(seedUsers?: string[]): Auth2SeedData {
+  function makeData(seedUsers?: string[]): AuthSeedData {
     return {
       permissions: [],
       roles: [{ key: 'admin', permissionKeys: [], seedUsers }],
@@ -63,7 +59,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
   it('creates user-role assignments for new seedUsers on first run', async () => {
     prisma.authUserRole.findMany.mockResolvedValue([]);
 
-    await seedAuth2(prisma as any, makeData(['auth0|AAA', 'auth0|BBB']));
+    await seedAuthData(prisma as any, makeData(['auth0|AAA', 'auth0|BBB']));
 
     expect(prisma.authUserRole.createMany).toHaveBeenCalledWith({
       data: expect.arrayContaining([
@@ -77,7 +73,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
   it('does not duplicate existing seeder assignments on re-run with same seedUsers', async () => {
     prisma.authUserRole.findMany.mockResolvedValue([{ id: 'uur-1', idpSub: 'auth0|AAA' }]);
 
-    await seedAuth2(prisma as any, makeData(['auth0|AAA']));
+    await seedAuthData(prisma as any, makeData(['auth0|AAA']));
 
     expect(prisma.authUserRole.createMany).toHaveBeenCalledWith({ data: [] });
     expect(prisma.authUserRole.deleteMany).toHaveBeenCalledWith({ where: { id: { in: [] } } });
@@ -86,7 +82,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
   it('removes old seeder assignment and adds new one when idpSub changes', async () => {
     prisma.authUserRole.findMany.mockResolvedValue([{ id: 'uur-old', idpSub: 'auth0|OLD' }]);
 
-    await seedAuth2(prisma as any, makeData(['auth0|NEW']));
+    await seedAuthData(prisma as any, makeData(['auth0|NEW']));
 
     expect(prisma.authUserRole.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ['uur-old'] } },
@@ -99,7 +95,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
   it('removes all seeder assignments when seedUsers becomes empty', async () => {
     prisma.authUserRole.findMany.mockResolvedValue([{ id: 'uur-1', idpSub: 'auth0|AAA' }]);
 
-    await seedAuth2(prisma as any, makeData([]));
+    await seedAuthData(prisma as any, makeData([]));
 
     expect(prisma.authUserRole.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ['uur-1'] } },
@@ -108,7 +104,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
   });
 
   it('queries only __seeder__-stamped rows when computing the diff', async () => {
-    await seedAuth2(prisma as any, makeData(['auth0|AAA']));
+    await seedAuthData(prisma as any, makeData(['auth0|AAA']));
 
     expect(prisma.authUserRole.findMany).toHaveBeenCalledWith({
       where: { roleId: 'role-1', grantedBy: '__seeder__' },
@@ -117,11 +113,7 @@ describe('seedAuth2 – seedUsers for roles', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// seedUsers — Role Group assignments (AuthUserRoleGroup)
-// ─────────────────────────────────────────────────────────────────────────────
-
-describe('seedAuth2 – seedUsers for roleGroups', () => {
+describe('seedAuthData – seedUsers for roleGroups', () => {
   let prisma: MockPrisma;
 
   beforeEach(() => {
@@ -129,7 +121,7 @@ describe('seedAuth2 – seedUsers for roleGroups', () => {
     prisma.authRoleGroup.findUniqueOrThrow.mockResolvedValue({ id: 'group-1', key: 'ops' });
   });
 
-  function makeData(seedUsers?: string[]): Auth2SeedData {
+  function makeData(seedUsers?: string[]): AuthSeedData {
     return {
       permissions: [],
       roles: [],
@@ -140,7 +132,7 @@ describe('seedAuth2 – seedUsers for roleGroups', () => {
   it('creates user-role-group assignments for new seedUsers on first run', async () => {
     prisma.authUserRoleGroup.findMany.mockResolvedValue([]);
 
-    await seedAuth2(prisma as any, makeData(['auth0|AAA', 'auth0|BBB']));
+    await seedAuthData(prisma as any, makeData(['auth0|AAA', 'auth0|BBB']));
 
     expect(prisma.authUserRoleGroup.createMany).toHaveBeenCalledWith({
       data: expect.arrayContaining([
@@ -154,7 +146,7 @@ describe('seedAuth2 – seedUsers for roleGroups', () => {
   it('does not duplicate existing seeder assignments on re-run with same seedUsers', async () => {
     prisma.authUserRoleGroup.findMany.mockResolvedValue([{ id: 'urg-1', idpSub: 'auth0|AAA' }]);
 
-    await seedAuth2(prisma as any, makeData(['auth0|AAA']));
+    await seedAuthData(prisma as any, makeData(['auth0|AAA']));
 
     expect(prisma.authUserRoleGroup.createMany).toHaveBeenCalledWith({ data: [] });
     expect(prisma.authUserRoleGroup.deleteMany).toHaveBeenCalledWith({ where: { id: { in: [] } } });
@@ -163,7 +155,7 @@ describe('seedAuth2 – seedUsers for roleGroups', () => {
   it('removes old seeder assignment and adds new one when idpSub changes', async () => {
     prisma.authUserRoleGroup.findMany.mockResolvedValue([{ id: 'urg-old', idpSub: 'auth0|OLD' }]);
 
-    await seedAuth2(prisma as any, makeData(['auth0|NEW']));
+    await seedAuthData(prisma as any, makeData(['auth0|NEW']));
 
     expect(prisma.authUserRoleGroup.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ['urg-old'] } },
@@ -176,7 +168,7 @@ describe('seedAuth2 – seedUsers for roleGroups', () => {
   it('removes all seeder assignments when seedUsers becomes empty', async () => {
     prisma.authUserRoleGroup.findMany.mockResolvedValue([{ id: 'urg-1', idpSub: 'auth0|AAA' }]);
 
-    await seedAuth2(prisma as any, makeData([]));
+    await seedAuthData(prisma as any, makeData([]));
 
     expect(prisma.authUserRoleGroup.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ['urg-1'] } },
@@ -185,7 +177,7 @@ describe('seedAuth2 – seedUsers for roleGroups', () => {
   });
 
   it('queries only __seeder__-stamped rows when computing the diff', async () => {
-    await seedAuth2(prisma as any, makeData(['auth0|AAA']));
+    await seedAuthData(prisma as any, makeData(['auth0|AAA']));
 
     expect(prisma.authUserRoleGroup.findMany).toHaveBeenCalledWith({
       where: { groupId: 'group-1', grantedBy: '__seeder__' },

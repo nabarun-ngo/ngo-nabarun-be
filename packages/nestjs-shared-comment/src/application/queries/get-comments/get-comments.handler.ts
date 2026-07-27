@@ -1,15 +1,17 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { EntityTypePolicyUtil, EntityTypeForbiddenError, EntityAccessDeniedError, checkEntityRecordAccess } from '@nabarun-ngo/nestjs-shared-core';
-import { Comment2ModuleOptions } from '../../../comment.schema';
-import { COMMENT2_OPTIONS } from '../../../infrastructure/comment-options.token';
 import {
-  COMMENT_ENTITY_ACCESS_PORT,
-  ICommentEntityAccessPort,
-} from '../../../domain/ports/entity-access.port';
+  EntityTypeForbiddenError,
+  EntityAccessDeniedError,
+  IEntityAccessPort,
+} from '@nabarun-ngo/nestjs-shared-core';
+import { CommentModuleOptions } from '../../../comment.schema';
+import { COMMENT_OPTIONS } from '../../../infrastructure/comment-options.token';
+import { ICommentEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { ICommentRepository } from '../../../domain/repositories/comment.repository';
 import { GetCommentsResponseDto } from '../../dtos/comment.dtos';
 import { CommentResponseMapper } from '../../mappers/comment-response.mapper';
+import { assertCommentEntityAccess } from '../../utilities/comment-entity-access.util';
 import { GetCommentsQuery } from './get-comments.query';
 
 @QueryHandler(GetCommentsQuery)
@@ -19,41 +21,22 @@ export class GetCommentsHandler
   constructor(
     @Inject(ICommentRepository)
     private readonly repo: ICommentRepository,
-    @Inject(COMMENT2_OPTIONS)
-    private readonly options: Comment2ModuleOptions,
+    @Inject(COMMENT_OPTIONS)
+    private readonly options: CommentModuleOptions,
     @Optional()
-    @Inject(COMMENT_ENTITY_ACCESS_PORT)
-    private readonly accessPort: ICommentEntityAccessPort | null,
+    @Inject(ICommentEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
   ) { }
 
   async execute({ params: q }: GetCommentsQuery): Promise<GetCommentsResponseDto> {
     try {
-      // 1. Allowlist + permission check
-      const entityConfig = EntityTypePolicyUtil.findConfig(
-        q.entityType,
-        this.options.allowedEntityTypes,
-        'COMMENT',
-      );
-      EntityTypePolicyUtil.assertHasPermission(
-        entityConfig?.readPermissions,
-        q.userPermissions,
-        'read',
-        q.entityType,
-        'COMMENT',
-      );
-
-      // 2. Optional record-level access check
-      await checkEntityRecordAccess(
-        this.accessPort,
-        {
-          entityType: q.entityType,
-          entityId: q.entityId,
-          userId: q.userId,
-          userPermissions: q.userPermissions,
-          action: 'read',
-        },
-        'COMMENT',
-      );
+      await assertCommentEntityAccess(this.options, this.accessPort, {
+        entityType: q.entityType,
+        entityId: q.entityId,
+        userId: q.userId,
+        userPermissions: q.userPermissions,
+        action: 'read',
+      });
     } catch (err) {
       if (err instanceof EntityTypeForbiddenError || err instanceof EntityAccessDeniedError) {
         return { hasAccess: false, reason: err.errorCode, message: err.message, comments: [], total: 0 };

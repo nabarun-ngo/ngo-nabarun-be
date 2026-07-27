@@ -447,7 +447,7 @@ resource = snake_case plural noun (matches the domain concept)
 | `PATCH` / `PUT` (update) | `update` | `update:api_keys` |
 | `DELETE` (delete / revoke) | `delete` | `delete:api_keys`, `delete:user_roles` |
 
-### Registered resources in `auth2`
+### Registered resources in `auth`
 
 | Resource | Covers |
 |---|---|

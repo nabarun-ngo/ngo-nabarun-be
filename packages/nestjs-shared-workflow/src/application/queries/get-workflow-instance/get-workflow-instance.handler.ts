@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { GetWorkflowInstanceQuery } from './get-workflow-instance.query';
-import { WorkflowFacade } from '../../services/workflow.facade';
+import { WorkflowOrchestratorService } from '../../services/workflow-orchestrator.service';
 import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-instance.repository';
 
 @QueryHandler(GetWorkflowInstanceQuery)
@@ -9,9 +9,9 @@ import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-inst
 export class GetWorkflowInstanceHandler
   implements IQueryHandler<GetWorkflowInstanceQuery, WorkflowInstanceRecord>
 {
-  constructor(private readonly facade: WorkflowFacade) {}
+  constructor(private readonly orchestrator: WorkflowOrchestratorService) {}
 
   execute(query: GetWorkflowInstanceQuery): Promise<WorkflowInstanceRecord> {
-    return this.facade.getInstance(query.instanceId);
+    return this.orchestrator.getInstance(query.instanceId);
   }
 }

@@ -12,7 +12,7 @@ import {
   AuthRoleUpdateInput,
   AuthRoleUncheckedUpdateInput,
   AuthRoleOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/AuthRole';
 import { Role, RoleFilter } from '@nabarun-ngo/nestjs-shared-auth/domain/aggregates/role/role.aggregate';
 import { IRoleRepository } from '@nabarun-ngo/nestjs-shared-auth/domain/repositories/role.repository';
 

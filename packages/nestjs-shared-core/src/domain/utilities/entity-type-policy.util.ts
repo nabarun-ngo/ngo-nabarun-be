@@ -7,7 +7,7 @@ import { EntityAccessDeniedError, EntityTypeForbiddenError } from '../errors/ent
  * Used by comment, dms, and custom-fields handlers to avoid duplicating
  * the same find-or-throw and permission-check logic.
  */
-export class EntityTypePolicyUtil {
+export class EntityTypePolicy {
   /**
    * Finds the config for `entityType` in `allowedTypes`.
    * - Returns `null` when `allowedTypes` is empty/undefined (open — all types permitted).

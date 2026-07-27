@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { CancelWorkflowCommand } from './cancel-workflow.command';
-import { WorkflowFacade } from '../../services/workflow.facade';
+import { WorkflowOrchestratorService } from '../../services/workflow-orchestrator.service';
 import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-instance.repository';
 
 @CommandHandler(CancelWorkflowCommand)
@@ -9,9 +9,9 @@ import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-inst
 export class CancelWorkflowHandler
   implements ICommandHandler<CancelWorkflowCommand, WorkflowInstanceRecord>
 {
-  constructor(private readonly facade: WorkflowFacade) {}
+  constructor(private readonly orchestrator: WorkflowOrchestratorService) {}
 
   execute(command: CancelWorkflowCommand): Promise<WorkflowInstanceRecord> {
-    return this.facade.cancelWorkflow(command.params);
+    return this.orchestrator.cancelWorkflow(command.params);
   }
 }

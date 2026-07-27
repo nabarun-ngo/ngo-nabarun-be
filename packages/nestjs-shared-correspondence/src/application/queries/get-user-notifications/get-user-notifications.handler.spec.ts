@@ -7,15 +7,20 @@ import { IUserNotificationRepository } from '@nabarun-ngo/nestjs-shared-correspo
 import { INotificationRepository } from '@nabarun-ngo/nestjs-shared-correspondence/domain/repositories/notification.repository';
 import { UserNotification } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/user-notification.aggregate';
 import { Notification } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/notification.aggregate';
-import { NotificationType, NotificationCategory } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/notification-type.enum';
-import { Page } from '@nabarun-ngo/nestjs-shared-core';
+import { NotificationType } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/notification-type.enum';
+import { UserNotificationFilter } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/user-notification.aggregate';
+import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+
+function query(props: UserNotificationFilter, pageIndex?: number, pageSize?: number) {
+  return new GetUserNotificationsQuery(new BaseFilter<UserNotificationFilter>(props, pageIndex, pageSize));
+}
 
 function makeNotification(id: string) {
   const n = Notification.create({
     title: `Title ${id}`,
     body: 'Body',
     type: NotificationType.INFO,
-    category: NotificationCategory.SYSTEM,
+    category: 'SYSTEM',
   });
   // Rebuild to have a known id
   return Object.assign(n, { _id: id }) as any;
@@ -64,8 +69,7 @@ function buildHandler(
 describe('GetUserNotificationsHandler', () => {
   it('calls findPaged with userId filter', async () => {
     const { handler, userNotifRepo } = buildHandler([]);
-    const query = new GetUserNotificationsQuery('user-1', 0, 10);
-    await handler.execute(query);
+    await handler.execute(query({ userId: 'user-1' }, 0, 10));
     expect(userNotifRepo.findPaged).toHaveBeenCalledWith(
       expect.objectContaining({ props: expect.objectContaining({ userId: 'user-1' }) }),
     );
@@ -74,13 +78,13 @@ describe('GetUserNotificationsHandler', () => {
   it('returns a Page with correct totalSize', async () => {
     const uns = [makeUN('user-1', 'n-1'), makeUN('user-1', 'n-2')];
     const { handler } = buildHandler(uns);
-    const result = await handler.execute(new GetUserNotificationsQuery('user-1'));
+    const result = await handler.execute(query({ userId: 'user-1' }));
     expect(result.totalSize).toBe(2);
   });
 
   it('passes isRead filter when provided', async () => {
     const { handler, userNotifRepo } = buildHandler([]);
-    await handler.execute(new GetUserNotificationsQuery('user-1', 0, 10, false));
+    await handler.execute(query({ userId: 'user-1', isRead: false }, 0, 10));
     expect(userNotifRepo.findPaged).toHaveBeenCalledWith(
       expect.objectContaining({ props: expect.objectContaining({ isRead: false }) }),
     );
@@ -88,7 +92,7 @@ describe('GetUserNotificationsHandler', () => {
 
   it('passes isArchived filter when provided', async () => {
     const { handler, userNotifRepo } = buildHandler([]);
-    await handler.execute(new GetUserNotificationsQuery('user-1', 0, 10, undefined, true));
+    await handler.execute(query({ userId: 'user-1', isArchived: true }, 0, 10));
     expect(userNotifRepo.findPaged).toHaveBeenCalledWith(
       expect.objectContaining({ props: expect.objectContaining({ isArchived: true }) }),
     );
@@ -98,14 +102,14 @@ describe('GetUserNotificationsHandler', () => {
     const un1 = makeUN('user-1', 'n-1');
     const un2 = makeUN('user-1', 'n-2');
     const { handler, notifRepo } = buildHandler([un1, un2]);
-    await handler.execute(new GetUserNotificationsQuery('user-1'));
+    await handler.execute(query({ userId: 'user-1' }));
     expect(notifRepo.findById).toHaveBeenCalledTimes(2);
   });
 
   it('returns DTOs with notificationId', async () => {
     const un = makeUN('user-1', 'n-1');
     const { handler } = buildHandler([un]);
-    const result = await handler.execute(new GetUserNotificationsQuery('user-1'));
+    const result = await handler.execute(query({ userId: 'user-1' }));
     expect(result.content[0]).toHaveProperty('notificationId');
   });
 });

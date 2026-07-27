@@ -5,6 +5,8 @@ import { FormFieldValue } from '../../entities/form-field-value/form-field-value
 import { FormSubmissionAlreadySubmittedError } from '../../errors/form.errors';
 import { FormFieldValuesUpdatedEvent, type FormFieldValuesUpdatedSnapshot } from '../../events/form-field-values-updated.event';
 import { FormSubmittedEvent } from '../../events/form-submitted.event';
+import type { CustomFieldValueParsed } from '../../value-objects/field-condition/field-condition.vo';
+import { isParsedValueEmpty } from '../../utilities/form-field-parsed-value.util';
 
 export class FormSubmission extends AggregateRoot<string> {
   #entityType: string;
@@ -57,7 +59,7 @@ export class FormSubmission extends AggregateRoot<string> {
    * Persists draft field values. Rejected when the submission is already submitted.
    */
   saveDraft(
-    values: Array<{ fieldDefId: string; value: string | null; changedBy: string }>,
+    values: Array<{ fieldDefId: string; value: CustomFieldValueParsed; changedBy: string }>,
   ): void {
     this.#assertNotSubmitted();
 
@@ -74,7 +76,7 @@ export class FormSubmission extends AggregateRoot<string> {
           changedBy: entry.changedBy,
         });
         this.#fieldValues.push(fieldValue);
-        if (entry.value !== null) {
+        if (!isParsedValueEmpty(entry.value)) {
           this.addDomainEvent(new FormFieldValuesUpdatedEvent(
             fieldValue.toSnapshot<FormFieldValuesUpdatedSnapshot>(),
           ));

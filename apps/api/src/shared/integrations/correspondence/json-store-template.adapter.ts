@@ -4,7 +4,6 @@ import {
   EmailTemplatePayloadSchema,
   ITemplatePort,
   EmailTemplateData,
-  TEMPLATE_PORT,
 } from '@nabarun-ngo/nestjs-shared-correspondence';
 
 const JSON_STORE_NAMESPACE = 'correspondence';
@@ -30,6 +29,8 @@ export class JsonStoreTemplateAdapter implements ITemplatePort {
     return {
       subject: parsed.data.subject,
       htmlTemplate: parsed.data.htmlTemplate,
+      htmlTemplateData: parsed.data.htmlTemplateData,
+      layout: parsed.data.layout,
       textTemplate: parsed.data.textTemplate,
       defaultData: parsed.data.defaultData,
     };
@@ -37,6 +38,6 @@ export class JsonStoreTemplateAdapter implements ITemplatePort {
 }
 
 export const TEMPLATE_PORT_PROVIDER = {
-  provide: TEMPLATE_PORT,
+  provide: ITemplatePort,
   useClass: JsonStoreTemplateAdapter,
 };

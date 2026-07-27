@@ -14,7 +14,7 @@ export class Document extends AggregateRoot<string> {
   #mappings: DocumentMapping[];
   #visibility: DocumentVisibility;
   #uploadedById?: string;
-  #storageOwnerSub?: string;
+  #storageOwnerId?: string;
   #deletedAt?: Date;
 
   constructor(
@@ -25,7 +25,7 @@ export class Document extends AggregateRoot<string> {
     mappings: DocumentMapping[],
     visibility: DocumentVisibility,
     uploadedById?: string,
-    storageOwnerSub?: string,
+    storageOwnerId?: string,
     createdAt?: Date,
     updatedAt?: Date,
     deletedAt?: Date,
@@ -37,7 +37,7 @@ export class Document extends AggregateRoot<string> {
     this.#mappings = mappings;
     this.#visibility = visibility;
     this.#uploadedById = uploadedById;
-    this.#storageOwnerSub = storageOwnerSub;
+    this.#storageOwnerId = storageOwnerId;
     this.#deletedAt = deletedAt;
   }
 
@@ -50,7 +50,7 @@ export class Document extends AggregateRoot<string> {
     mappedTo: DocumentMapping[];
     visibility: DocumentVisibility;
     uploadedById?: string;
-    storageOwnerSub?: string;
+    storageOwnerId?: string;
   }): Document {
     const metadata = FileMetadata.of(params.fileName, params.contentType, params.fileSize);
     const document = new Document(
@@ -61,7 +61,7 @@ export class Document extends AggregateRoot<string> {
       params.mappedTo,
       params.visibility,
       params.uploadedById,
-      params.storageOwnerSub,
+      params.storageOwnerId,
     );
     document.addDomainEvent(new DocumentUploadedEvent(document.toSnapshot<DocumentUploadedSnapshot>()));
     return document;
@@ -130,8 +130,8 @@ export class Document extends AggregateRoot<string> {
     return this.#uploadedById;
   }
 
-  get storageOwnerSub(): string | undefined {
-    return this.#storageOwnerSub;
+  get storageOwnerId(): string | undefined {
+    return this.#storageOwnerId;
   }
 
   get mappings(): ReadonlyArray<DocumentMapping> {

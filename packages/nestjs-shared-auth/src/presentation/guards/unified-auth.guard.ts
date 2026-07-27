@@ -18,8 +18,8 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { IGNORE_CAPTCHA } from '../decorators/ignore-captcha.decorator';
 import { USE_API_KEY } from '../decorators/use-api-key.decorator';
 import { EXPECTED_RECAPTCHA_ACTION_KEY } from '../decorators/expected-recaptcha-action.decorator';
-import { AUTH2_OPTIONS } from '../../infrastructure/auth-options.token';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AUTH_OPTIONS } from '../../infrastructure/auth-options.token';
+import { AuthModuleOptions } from '../../auth-options';
 import { setUserContext } from '@nabarun-ngo/nestjs-shared-core';
 
 @Injectable()
@@ -33,7 +33,7 @@ export class UnifiedAuthGuard implements CanActivate {
     @Inject(IRecaptchaPort) private readonly recaptcha: IRecaptchaPort,
     private readonly commandBus: CommandBus,
     private readonly reflector: Reflector,
-    @Inject(AUTH2_OPTIONS) private readonly options: Auth2ModuleOptions,
+    @Inject(AUTH_OPTIONS) private readonly options: AuthModuleOptions,
   ) {
     this.apiKeyHeaderName = (options).apiKey?.headerName ?? 'x-api-key';
   }

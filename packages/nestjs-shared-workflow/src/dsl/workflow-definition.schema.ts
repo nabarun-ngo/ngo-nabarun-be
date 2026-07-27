@@ -34,6 +34,7 @@ const BaseElementSchema = z.object({
 
 const StartEventElementSchema = BaseElementSchema.extend({
   type: z.literal('startEvent'),
+  formKey: z.string().optional(),
 });
 
 const EndEventElementSchema = BaseElementSchema.extend({

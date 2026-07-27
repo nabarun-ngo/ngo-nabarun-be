@@ -43,7 +43,7 @@ export type DocumentReferenceMinAggregateOutputType = {
   fileSize: number | null
   isPublic: boolean | null
   uploadedById: string | null
-  storageOwnerSub: string | null
+  storageOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -58,7 +58,7 @@ export type DocumentReferenceMaxAggregateOutputType = {
   fileSize: number | null
   isPublic: boolean | null
   uploadedById: string | null
-  storageOwnerSub: string | null
+  storageOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -73,7 +73,7 @@ export type DocumentReferenceCountAggregateOutputType = {
   fileSize: number
   isPublic: number
   uploadedById: number
-  storageOwnerSub: number
+  storageOwnerId: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -98,7 +98,7 @@ export type DocumentReferenceMinAggregateInputType = {
   fileSize?: true
   isPublic?: true
   uploadedById?: true
-  storageOwnerSub?: true
+  storageOwnerId?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -113,7 +113,7 @@ export type DocumentReferenceMaxAggregateInputType = {
   fileSize?: true
   isPublic?: true
   uploadedById?: true
-  storageOwnerSub?: true
+  storageOwnerId?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -128,7 +128,7 @@ export type DocumentReferenceCountAggregateInputType = {
   fileSize?: true
   isPublic?: true
   uploadedById?: true
-  storageOwnerSub?: true
+  storageOwnerId?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -230,7 +230,7 @@ export type DocumentReferenceGroupByOutputType = {
   fileSize: number | null
   isPublic: boolean
   uploadedById: string | null
-  storageOwnerSub: string | null
+  storageOwnerId: string | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -268,7 +268,7 @@ export type DocumentReferenceWhereInput = {
   fileSize?: Prisma.IntNullableFilter<"DocumentReference"> | number | null
   isPublic?: Prisma.BoolFilter<"DocumentReference"> | boolean
   uploadedById?: Prisma.StringNullableFilter<"DocumentReference"> | string | null
-  storageOwnerSub?: Prisma.StringNullableFilter<"DocumentReference"> | string | null
+  storageOwnerId?: Prisma.StringNullableFilter<"DocumentReference"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DocumentReference"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentReference"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentReference"> | Date | string | null
@@ -284,7 +284,7 @@ export type DocumentReferenceOrderByWithRelationInput = {
   fileSize?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
-  storageOwnerSub?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageOwnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -303,7 +303,7 @@ export type DocumentReferenceWhereUniqueInput = Prisma.AtLeast<{
   fileSize?: Prisma.IntNullableFilter<"DocumentReference"> | number | null
   isPublic?: Prisma.BoolFilter<"DocumentReference"> | boolean
   uploadedById?: Prisma.StringNullableFilter<"DocumentReference"> | string | null
-  storageOwnerSub?: Prisma.StringNullableFilter<"DocumentReference"> | string | null
+  storageOwnerId?: Prisma.StringNullableFilter<"DocumentReference"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DocumentReference"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentReference"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentReference"> | Date | string | null
@@ -319,7 +319,7 @@ export type DocumentReferenceOrderByWithAggregationInput = {
   fileSize?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
-  storageOwnerSub?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageOwnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,7 +342,7 @@ export type DocumentReferenceScalarWhereWithAggregatesInput = {
   fileSize?: Prisma.IntNullableWithAggregatesFilter<"DocumentReference"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"DocumentReference"> | boolean
   uploadedById?: Prisma.StringNullableWithAggregatesFilter<"DocumentReference"> | string | null
-  storageOwnerSub?: Prisma.StringNullableWithAggregatesFilter<"DocumentReference"> | string | null
+  storageOwnerId?: Prisma.StringNullableWithAggregatesFilter<"DocumentReference"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentReference"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentReference"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DocumentReference"> | Date | string | null
@@ -357,7 +357,7 @@ export type DocumentReferenceCreateInput = {
   fileSize?: number | null
   isPublic?: boolean
   uploadedById?: string | null
-  storageOwnerSub?: string | null
+  storageOwnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -373,7 +373,7 @@ export type DocumentReferenceUncheckedCreateInput = {
   fileSize?: number | null
   isPublic?: boolean
   uploadedById?: string | null
-  storageOwnerSub?: string | null
+  storageOwnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -389,7 +389,7 @@ export type DocumentReferenceUpdateInput = {
   fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  storageOwnerSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageOwnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -405,7 +405,7 @@ export type DocumentReferenceUncheckedUpdateInput = {
   fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  storageOwnerSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageOwnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -421,7 +421,7 @@ export type DocumentReferenceCreateManyInput = {
   fileSize?: number | null
   isPublic?: boolean
   uploadedById?: string | null
-  storageOwnerSub?: string | null
+  storageOwnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -436,7 +436,7 @@ export type DocumentReferenceUpdateManyMutationInput = {
   fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  storageOwnerSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageOwnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -451,7 +451,7 @@ export type DocumentReferenceUncheckedUpdateManyInput = {
   fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  storageOwnerSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageOwnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -466,7 +466,7 @@ export type DocumentReferenceCountOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
-  storageOwnerSub?: Prisma.SortOrder
+  storageOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -485,7 +485,7 @@ export type DocumentReferenceMaxOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
-  storageOwnerSub?: Prisma.SortOrder
+  storageOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -500,7 +500,7 @@ export type DocumentReferenceMinOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
-  storageOwnerSub?: Prisma.SortOrder
+  storageOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -538,7 +538,7 @@ export type DocumentReferenceCreateWithoutMappingsInput = {
   fileSize?: number | null
   isPublic?: boolean
   uploadedById?: string | null
-  storageOwnerSub?: string | null
+  storageOwnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -553,7 +553,7 @@ export type DocumentReferenceUncheckedCreateWithoutMappingsInput = {
   fileSize?: number | null
   isPublic?: boolean
   uploadedById?: string | null
-  storageOwnerSub?: string | null
+  storageOwnerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -584,7 +584,7 @@ export type DocumentReferenceUpdateWithoutMappingsInput = {
   fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  storageOwnerSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageOwnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -599,7 +599,7 @@ export type DocumentReferenceUncheckedUpdateWithoutMappingsInput = {
   fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  storageOwnerSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageOwnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -645,7 +645,7 @@ export type DocumentReferenceSelect<ExtArgs extends runtime.Types.Extensions.Int
   fileSize?: boolean
   isPublic?: boolean
   uploadedById?: boolean
-  storageOwnerSub?: boolean
+  storageOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -662,7 +662,7 @@ export type DocumentReferenceSelectCreateManyAndReturn<ExtArgs extends runtime.T
   fileSize?: boolean
   isPublic?: boolean
   uploadedById?: boolean
-  storageOwnerSub?: boolean
+  storageOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -677,7 +677,7 @@ export type DocumentReferenceSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   fileSize?: boolean
   isPublic?: boolean
   uploadedById?: boolean
-  storageOwnerSub?: boolean
+  storageOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -692,13 +692,13 @@ export type DocumentReferenceSelectScalar = {
   fileSize?: boolean
   isPublic?: boolean
   uploadedById?: boolean
-  storageOwnerSub?: boolean
+  storageOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type DocumentReferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileName" | "remotePath" | "publicToken" | "contentType" | "fileSize" | "isPublic" | "uploadedById" | "storageOwnerSub" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["documentReference"]>
+export type DocumentReferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileName" | "remotePath" | "publicToken" | "contentType" | "fileSize" | "isPublic" | "uploadedById" | "storageOwnerId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["documentReference"]>
 export type DocumentReferenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   mappings?: boolean | Prisma.DocumentReference$mappingsArgs<ExtArgs>
   _count?: boolean | Prisma.DocumentReferenceCountOutputTypeDefaultArgs<ExtArgs>
@@ -721,9 +721,9 @@ export type $DocumentReferencePayload<ExtArgs extends runtime.Types.Extensions.I
     isPublic: boolean
     uploadedById: string | null
     /**
-     * Owning account (e.g. Google `sub`) for per-user storage providers such as Google Drive. Unused by Firebase.
+     * App profile UUID for per-user storage providers such as Google Drive. Unused by Firebase.
      */
-    storageOwnerSub: string | null
+    storageOwnerId: string | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1159,7 +1159,7 @@ export interface DocumentReferenceFieldRefs {
   readonly fileSize: Prisma.FieldRef<"DocumentReference", 'Int'>
   readonly isPublic: Prisma.FieldRef<"DocumentReference", 'Boolean'>
   readonly uploadedById: Prisma.FieldRef<"DocumentReference", 'String'>
-  readonly storageOwnerSub: Prisma.FieldRef<"DocumentReference", 'String'>
+  readonly storageOwnerId: Prisma.FieldRef<"DocumentReference", 'String'>
   readonly createdAt: Prisma.FieldRef<"DocumentReference", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DocumentReference", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"DocumentReference", 'DateTime'>

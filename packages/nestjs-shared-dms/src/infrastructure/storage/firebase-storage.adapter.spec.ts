@@ -41,7 +41,7 @@ describe('FirebaseStorageAdapter', () => {
       });
     });
 
-    it('ignores ownerSub (shared-bucket provider does not need it)', async () => {
+    it('ignores ownerId (shared-bucket provider does not need it)', async () => {
       const firebaseStorage = buildFirebaseStorageMock();
       firebaseStorage.uploadFile.mockResolvedValue('https://storage.example/doc.pdf');
       const adapter = new FirebaseStorageAdapter(firebaseStorage as any);
@@ -51,7 +51,7 @@ describe('FirebaseStorageAdapter', () => {
         contentType: 'application/pdf',
         token: 'tok',
         content: Buffer.from('data'),
-        ownerSub: 'google-sub-1',
+        ownerId: 'user-uuid-1',
       });
 
       expect(firebaseStorage.uploadFile).toHaveBeenCalledWith(
@@ -73,11 +73,11 @@ describe('FirebaseStorageAdapter', () => {
       expect(firebaseStorage.deleteFile).toHaveBeenCalledWith('uploads/report.pdf');
     });
 
-    it('ignores ownerSub (signature accepts remotePath only)', async () => {
+    it('ignores ownerId (signature accepts remotePath only)', async () => {
       const firebaseStorage = buildFirebaseStorageMock();
       const adapter = new FirebaseStorageAdapter(firebaseStorage as any);
 
-      // The IStorageProvider interface accepts ownerSub, but FirebaseStorageAdapter ignores it
+      // The IStorageProvider interface accepts ownerId, but FirebaseStorageAdapter ignores it
       await (adapter as any).deleteFile('uploads/report.pdf', 'some-sub');
 
       expect(firebaseStorage.deleteFile).toHaveBeenCalledWith('uploads/report.pdf');
@@ -106,7 +106,7 @@ describe('FirebaseStorageAdapter', () => {
       expect(firebaseStorage.getSignedUrl).toHaveBeenCalledWith('uploads/report.pdf', 3600);
     });
 
-    it('ignores _ownerSub (shared-bucket provider)', async () => {
+    it('ignores _ownerId (shared-bucket provider)', async () => {
       const firebaseStorage = buildFirebaseStorageMock();
       firebaseStorage.getSignedUrl.mockResolvedValue('https://signed.example/doc.pdf');
       const adapter = new FirebaseStorageAdapter(firebaseStorage as any);

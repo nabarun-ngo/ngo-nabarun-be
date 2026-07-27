@@ -83,4 +83,3 @@
 
 **Actions:**
 - Fix DSL in draft JsonStore key `workflow/{TYPE}@draft`.
-- Run `migrate-stage-templates.ts` for bulk conversion from stage JSON (seed-only).

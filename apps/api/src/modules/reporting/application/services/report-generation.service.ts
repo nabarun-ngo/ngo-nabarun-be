@@ -127,12 +127,16 @@ export class ReportGenerationService {
     return this.reportRepository.update(report.id, report);
   }
 
-  async deleteReport(reportId: string): Promise<void> {
+  async deleteReport(
+    reportId: string,
+    userId: string,
+    userPermissions: string[],
+  ): Promise<void> {
     const report = await this.reportRepository.findById(reportId);
     if (!report) throw new NotFoundException('Report not found');
-    const docs = await this.dmsFacade.getDocuments(reportId);
+    const docs = await this.dmsFacade.getDocuments(reportId, userId, userPermissions);
     if (docs.length) {
-      await this.dmsFacade.deleteDocuments(docs.map((d) => d.id));
+      await this.dmsFacade.deleteDocuments(docs.map((d) => d.id), userId, userPermissions);
     }
     await this.reportRepository.delete(reportId);
   }

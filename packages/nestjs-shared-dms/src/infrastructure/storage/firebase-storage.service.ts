@@ -13,8 +13,8 @@ export class FirebaseStorageService {
   private get client(): admin.app.App {
     if (!this.app) {
       throw new Error(
-        '[Dms2Module] Firebase storage is selected but no Firebase credentials were provided. ' +
-          'Pass a `firebase` config block to Dms2Module.forRoot({ provider: "firebase", firebase: { serviceAccount, ... } }).',
+        '[DmsModule] Firebase storage is selected but no Firebase credentials were provided. ' +
+          'Pass a `firebase` config block to DmsModule.forRoot({ provider: "firebase", firebase: { serviceAccount, ... } }).',
       );
     }
     return this.app;

@@ -1,6 +1,11 @@
 import { randomUUID } from 'crypto';
 import { BaseDomain } from '@nabarun-ngo/nestjs-shared-core';
 import { FormFieldValueHistoryEntry } from '../form-field-value-history-entry/form-field-value-history-entry.entity';
+import type { CustomFieldValueParsed } from '../../value-objects/field-condition/field-condition.vo';
+import {
+  isParsedValueEmpty,
+  parsedValuesEqual,
+} from '../../utilities/form-field-parsed-value.util';
 
 /**
  * Child entity — no repository. Accessed only through the FormSubmission aggregate.
@@ -10,7 +15,7 @@ export class FormFieldValue extends BaseDomain<string> {
   readonly #entityId: string;
   readonly #formId: string;
   readonly #fieldDefId: string;
-  #value: string | null;
+  #value: CustomFieldValueParsed;
   #history: FormFieldValueHistoryEntry[];
 
   constructor(
@@ -19,7 +24,7 @@ export class FormFieldValue extends BaseDomain<string> {
     entityId: string,
     formId: string,
     fieldDefId: string,
-    value: string | null,
+    value: CustomFieldValueParsed,
     history: FormFieldValueHistoryEntry[],
     createdAt?: Date,
     updatedAt?: Date,
@@ -38,7 +43,7 @@ export class FormFieldValue extends BaseDomain<string> {
     entityId: string;
     formId: string;
     fieldDefId: string;
-    value: string | null;
+    value: CustomFieldValueParsed;
     changedBy: string;
   }): FormFieldValue {
     const fieldValue = new FormFieldValue(
@@ -50,7 +55,7 @@ export class FormFieldValue extends BaseDomain<string> {
       params.value,
       [],
     );
-    if (params.value !== null) {
+    if (!isParsedValueEmpty(params.value)) {
       fieldValue.#history.push(
         FormFieldValueHistoryEntry.create({
           formId: params.formId,
@@ -67,11 +72,11 @@ export class FormFieldValue extends BaseDomain<string> {
   }
 
   /**
-   * Sets a new raw (storage) value and records a history entry.
+   * Sets a new parsed value and records a history entry.
    * No-ops if the value is unchanged.
    */
-  setValue(newValue: string | null, changedBy: string): boolean {
-    if (newValue === this.#value) return false;
+  setValue(newValue: CustomFieldValueParsed, changedBy: string): boolean {
+    if (parsedValuesEqual(newValue, this.#value)) return false;
 
     this.#history.push(
       FormFieldValueHistoryEntry.create({
@@ -93,6 +98,6 @@ export class FormFieldValue extends BaseDomain<string> {
   get entityId(): string { return this.#entityId; }
   get formId(): string { return this.#formId; }
   get fieldDefId(): string { return this.#fieldDefId; }
-  get value(): string | null { return this.#value; }
+  get value(): CustomFieldValueParsed { return this.#value; }
   get history(): ReadonlyArray<FormFieldValueHistoryEntry> { return this.#history; }
 }

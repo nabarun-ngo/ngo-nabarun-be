@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared schema fragment — TokenVault2Module
+// Shared schema fragment — TokenVaultModule
 // Synced into <prisma-schema-dir>/shared/ by: npx nestjs-shared-sync-schema
 // DO NOT edit — overwritten on every sync. After syncing, run `prisma migrate`.
 // ─────────────────────────────────────────────────────────────────────────────
 
-model TokenVault2OAuthAccount {
+model TokenVaultOAuthAccount {
   id         String                  @id @default(cuid())
   provider   String                  @db.VarChar(50)
   email      String                  @db.VarChar(255)
@@ -19,7 +19,7 @@ model TokenVault2OAuthAccount {
   createdAt  DateTime                @default(now())
   updatedAt  DateTime                @updatedAt
   deletedAt  DateTime?
-  tokens     TokenVault2OAuthToken[]
+  tokens     TokenVaultOAuthToken[]
 
   // One profile row per external identity per provider.
   @@unique([provider, email])
@@ -28,10 +28,10 @@ model TokenVault2OAuthAccount {
   @@map("token_vault_o_auth_account")
 }
 
-model TokenVault2OAuthToken {
+model TokenVaultOAuthToken {
   id           String                  @id @default(cuid())
   accountId    String                  @db.VarChar(100)
-  account      TokenVault2OAuthAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  account      TokenVaultOAuthAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
   clientId     String                  @db.VarChar(255)
   provider     String                  @db.VarChar(50)
   email        String                  @db.VarChar(255)

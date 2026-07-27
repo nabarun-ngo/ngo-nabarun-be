@@ -1,12 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
 import { FormAccessPolicy } from '../../../domain/policies/form-access.policy';
-import { FormEntityTypePolicy } from '../../../domain/policies/form-entity-type.policy';
+import { ICustomFormEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { IFormRepository } from '../../../domain/repositories/form.repository';
 import { CUSTOM_FORMS_OPTIONS } from '../../../infrastructure/custom-forms-options.token';
 import { CustomFormsModuleOptions } from '../../../custom-forms.schema';
 import { FormResponseDto } from '../../dtos/response/form-response.dtos';
 import { FormResponseMapper } from '../../mappers/form-response.mapper';
+import { assertCustomFormEntityAccess } from '../../utilities/custom-form-entity-access.util';
 import { ListFormsQuery } from './list-forms.query';
 
 @QueryHandler(ListFormsQuery)
@@ -17,11 +19,19 @@ export class ListFormsHandler implements IQueryHandler<ListFormsQuery, FormRespo
     private readonly formRepo: IFormRepository,
     @Inject(CUSTOM_FORMS_OPTIONS)
     private readonly options: CustomFormsModuleOptions,
+    @Optional()
+    @Inject(ICustomFormEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
   ) {}
 
   async execute(query: ListFormsQuery): Promise<FormResponseDto[]> {
     if (query.entityType) {
-      FormEntityTypePolicy.assertEntityTypeRegistered(query.entityType, this.options.entityTypes);
+      await assertCustomFormEntityAccess(this.options, this.accessPort, {
+        entityType: query.entityType,
+        userId: query.userId,
+        userPermissions: query.userPermissions,
+        action: 'read',
+      });
     }
 
     const forms = query.entityType

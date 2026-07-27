@@ -1,14 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Injectable } from '@nestjs/common';
+import { BusinessError } from '@nabarun-ngo/nestjs-shared-core';
 import {
-  ClearFormSubmissionCommand,
-  GetFormSubmissionQuery,
-  GetFormWithFieldsQuery,
-  IFormRepository,
+  CustomFormsFacade,
+  FormNotFoundError,
   ResolvedFormFieldValueResponseDto,
-  SaveFormDraftCommand,
-  SubmitFormCommand,
-  ValidateFormSubmissionQuery,
 } from '@nabarun-ngo/nestjs-shared-custom-forms';
 import {
   IWorkflowFormDataPort,
@@ -16,7 +11,7 @@ import {
   WorkflowFormDataSnapshot,
 } from '@nabarun-ngo/nestjs-shared-workflow';
 
-const WORKFLOW_ENTITY_TYPE = 'workflow';
+import { EntityType } from '../../entity-type.enum';
 
 /** Permissions used for workflow-engine internal form delegation. */
 const WORKFLOW_FORM_SERVICE_PERMISSIONS = [
@@ -28,12 +23,7 @@ const WORKFLOW_FORM_SERVICE_PERMISSIONS = [
 
 @Injectable()
 export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
-    @Inject(IFormRepository)
-    private readonly formRepo: IFormRepository,
-  ) { }
+  constructor(private readonly customFormsFacade: CustomFormsFacade) {}
 
   async getFormData(params: {
     instanceId: string;
@@ -43,19 +33,19 @@ export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
     entityId?: string;
   }): Promise<WorkflowFormDataSnapshot | null> {
     const scope = this.resolveScope(params);
-    const formId = await this.resolveFormId(params.formKey);
-
-    const fields = await this.queryBus.execute<
-      GetFormSubmissionQuery,
-      ResolvedFormFieldValueResponseDto[]
-    >(
-      new GetFormSubmissionQuery(
-        formId,
-        scope.entityType,
-        scope.entityId,
-        WORKFLOW_FORM_SERVICE_PERMISSIONS,
-      ),
+    const formId = await this.customFormsFacade.resolveFormIdForKey(
+      scope.entityType,
+      params.formKey,
+      WORKFLOW_FORM_SERVICE_PERMISSIONS,
     );
+
+    const fields = await this.customFormsFacade.getFormSubmissionFields({
+      formId,
+      entityType: scope.entityType,
+      entityId: scope.entityId,
+      userId: `workflow:${params.instanceId}`,
+      userPermissions: WORKFLOW_FORM_SERVICE_PERMISSIONS,
+    });
 
     if (!fields.length) return null;
 
@@ -78,31 +68,25 @@ export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
     submit: boolean;
   }): Promise<WorkflowFormDataSnapshot> {
     const scope = this.resolveScope(params);
-    const formId = await this.resolveFormId(params.formKey);
-    const permissions = WORKFLOW_FORM_SERVICE_PERMISSIONS;
+    const formId = await this.customFormsFacade.resolveFormIdForKey(
+      scope.entityType,
+      params.formKey,
+      WORKFLOW_FORM_SERVICE_PERMISSIONS,
+    );
+    const draftParams = {
+      formId,
+      entityType: scope.entityType,
+      entityId: scope.entityId,
+      values: params.values,
+      userId: params.submittedById,
+      submittedById: params.submittedById,
+      userPermissions: WORKFLOW_FORM_SERVICE_PERMISSIONS,
+    };
 
     if (params.submit) {
-      await this.commandBus.execute(
-        new SubmitFormCommand(
-          formId,
-          scope.entityType,
-          scope.entityId,
-          params.values,
-          params.submittedById,
-          permissions,
-        ),
-      );
+      await this.customFormsFacade.submitForm(draftParams);
     } else {
-      await this.commandBus.execute(
-        new SaveFormDraftCommand(
-          formId,
-          scope.entityType,
-          scope.entityId,
-          params.values,
-          params.submittedById,
-          permissions,
-        ),
-      );
+      await this.customFormsFacade.saveFormDraft(draftParams);
     }
 
     const snapshot = await this.getFormData(params);
@@ -121,35 +105,29 @@ export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
     entityType?: string;
     values: Record<string, unknown>;
   }): Promise<{ valid: boolean; errors?: Record<string, string[]> }> {
-    const entityType = params.entityType ?? WORKFLOW_ENTITY_TYPE;
-    const formId = await this.resolveFormId(params.formKey);
-
-    await this.queryBus.execute(
-      new GetFormWithFieldsQuery(formId, WORKFLOW_FORM_SERVICE_PERMISSIONS),
+    const entityType = params.entityType ?? EntityType.Workflow;
+    const formId = await this.customFormsFacade.resolveFormIdForKey(
+      entityType,
+      params.formKey,
+      WORKFLOW_FORM_SERVICE_PERMISSIONS,
     );
-
     const draftEntityId = `__validate__:${formId}:${Date.now()}`;
+    const entityParams = {
+      formId,
+      entityType,
+      entityId: draftEntityId,
+      userId: 'workflow:validator',
+      userPermissions: WORKFLOW_FORM_SERVICE_PERMISSIONS,
+    };
 
-    await this.commandBus.execute(
-      new SaveFormDraftCommand(
-        formId,
-        entityType,
-        draftEntityId,
-        params.values,
-        'workflow:validator',
-        WORKFLOW_FORM_SERVICE_PERMISSIONS,
-      ),
-    );
+    await this.customFormsFacade.saveFormDraft({
+      ...entityParams,
+      values: params.values,
+      submittedById: 'workflow:validator',
+    });
 
     try {
-      const result = await this.queryBus.execute(
-        new ValidateFormSubmissionQuery(
-          formId,
-          entityType,
-          draftEntityId,
-          WORKFLOW_FORM_SERVICE_PERMISSIONS,
-        ),
-      );
+      const result = await this.customFormsFacade.validateFormSubmission(entityParams);
 
       if (result.valid) {
         return { valid: true };
@@ -159,16 +137,19 @@ export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
         valid: false,
         errors: this.mapValidationErrors(result),
       };
+    } catch (error) {
+      if (error instanceof BusinessError && error.errorCode === 'CUSTOM_FORM_NOT_FOUND') {
+        return { valid: false, errors: { _form: ['Form not found'] } };
+      }
+      if (error instanceof FormNotFoundError) {
+        return { valid: false, errors: { _form: ['Form not found'] } };
+      }
+      throw error;
     } finally {
-      await this.commandBus.execute(
-        new ClearFormSubmissionCommand(
-          formId,
-          entityType,
-          draftEntityId,
-          'workflow:validator',
-          WORKFLOW_FORM_SERVICE_PERMISSIONS,
-        ),
-      );
+      await this.customFormsFacade.clearFormSubmission({
+        ...entityParams,
+        clearedById: 'workflow:validator',
+      });
     }
   }
 
@@ -179,7 +160,7 @@ export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
     entityType?: string;
     entityId?: string;
   }): { entityType: string; entityId: string } {
-    const entityType = params.entityType ?? WORKFLOW_ENTITY_TYPE;
+    const entityType = params.entityType ?? EntityType.Workflow;
     const entityId =
       params.entityId ??
       (params.formKey.endsWith(':request')
@@ -187,11 +168,6 @@ export class WorkflowFormDataAdapter implements IWorkflowFormDataPort {
         : `${params.instanceId}:${params.elementId}`);
 
     return { entityType, entityId };
-  }
-
-  private async resolveFormId(formKey: string): Promise<string> {
-    const form = await this.formRepo.findByKey(WORKFLOW_ENTITY_TYPE, formKey);
-    return form?.id ?? formKey;
   }
 
   private toValuesMap(

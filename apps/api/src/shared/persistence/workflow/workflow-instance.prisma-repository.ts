@@ -14,7 +14,7 @@ import {
   WorkflowInstanceWhereInput,
   WorkflowInstanceWhereUniqueInput,
   WorkflowInstanceOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/WorkflowInstance';
 
 type WorkflowInstanceRow = {
   id: string;

@@ -16,7 +16,7 @@ export class CommentAccessDeniedError extends BusinessError {
 export class CommentEntityTypeForbiddenError extends BusinessError {
   constructor(entityType: string) {
     super(
-      `entityType "${entityType}" is not registered with Comment2Module`,
+      `entityType "${entityType}" is not registered with CommentModule`,
       'COMMENT_ENTITY_TYPE_FORBIDDEN',
       403,
     );

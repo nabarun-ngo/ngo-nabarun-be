@@ -19,4 +19,4 @@ export interface IDispatchQueuePort {
   enqueue(payload: CorrespondenceDispatchPayload): Promise<void>;
 }
 
-export const DISPATCH_QUEUE_PORT = Symbol('IDispatchQueuePort');
+export const IDispatchQueuePort = Symbol('IDispatchQueuePort');

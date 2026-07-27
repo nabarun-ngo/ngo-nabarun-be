@@ -1,20 +1,18 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { EntityTypePolicyUtil, checkEntityRecordAccess } from '@nabarun-ngo/nestjs-shared-core';
-import { Comment2ModuleOptions } from '../../../comment.schema';
-import { COMMENT2_OPTIONS } from '../../../infrastructure/comment-options.token';
+import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
+import { CommentModuleOptions } from '../../../comment.schema';
+import { COMMENT_OPTIONS } from '../../../infrastructure/comment-options.token';
 import { Comment } from '../../../domain/aggregates/comment.aggregate';
 import {
   CommentNotFoundError,
   CommentParentMismatchError,
 } from '../../../domain/errors/comment.errors';
-import {
-  COMMENT_ENTITY_ACCESS_PORT,
-  ICommentEntityAccessPort,
-} from '../../../domain/ports/entity-access.port';
+import { ICommentEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { ICommentRepository } from '../../../domain/repositories/comment.repository';
 import { CommentResponseDto } from '../../dtos/comment.dtos';
 import { CommentResponseMapper } from '../../mappers/comment-response.mapper';
+import { assertCommentEntityAccess } from '../../utilities/comment-entity-access.util';
 import { AddCommentCommand } from './add-comment.command';
 
 @CommandHandler(AddCommentCommand)
@@ -23,41 +21,22 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand, Com
   constructor(
     @Inject(ICommentRepository)
     private readonly repo: ICommentRepository,
-    @Inject(COMMENT2_OPTIONS)
-    private readonly options: Comment2ModuleOptions,
+    @Inject(COMMENT_OPTIONS)
+    private readonly options: CommentModuleOptions,
     @Optional()
-    @Inject(COMMENT_ENTITY_ACCESS_PORT)
-    private readonly accessPort: ICommentEntityAccessPort | null,
+    @Inject(ICommentEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
     private readonly eventBus: EventBus,
   ) { }
 
   async execute({ params: cmd }: AddCommentCommand): Promise<CommentResponseDto> {
-    // 1. Domain policy — allowlist check + permission check (pure, synchronous)
-    const entityConfig = EntityTypePolicyUtil.findConfig(
-      cmd.entityType,
-      this.options.allowedEntityTypes,
-      'COMMENT',
-    );
-    EntityTypePolicyUtil.assertHasPermission(
-      entityConfig?.writePermissions,
-      cmd.userPermissions,
-      'write',
-      cmd.entityType,
-      'COMMENT',
-    );
-
-    // 2. Optional entity-instance port (consumer provides for record-level checks)
-    await checkEntityRecordAccess(
-      this.accessPort,
-      {
-        entityType: cmd.entityType,
-        entityId: cmd.entityId,
-        userId: cmd.authorId,
-        userPermissions: cmd.userPermissions,
-        action: 'write',
-      },
-      'COMMENT',
-    );
+    await assertCommentEntityAccess(this.options, this.accessPort, {
+      entityType: cmd.entityType,
+      entityId: cmd.entityId,
+      userId: cmd.authorId,
+      userPermissions: cmd.userPermissions,
+      action: 'write',
+    });
 
     // 3. Parent comment validation (1 query — only when parentId supplied)
     if (cmd.parentId) {

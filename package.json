@@ -12,7 +12,15 @@
     "clean": "turbo run clean && rimraf .turbo",
     "start": "npm run start --workspace=apps/api",
     "start:watch": "npm run start:watch --workspace=apps/api",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "changeset": "changeset",
+    "changeset:status": "changeset status",
+    "version-packages": "changeset version && npm install",
+    "release:build": "turbo run build --filter=./packages/*",
+    "release:publish": "changeset publish",
+    "release:ci": "npm run type-check && npm run release:build && npm run release:publish",
+    "release": "npm run release:ci",
+    "publish:package": "node scripts/publish-package.mjs"
   },
   "dependencies": {
     "@googleapis/calendar": "^15.0.0",
@@ -66,6 +74,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "@eslint/js": "^10.0.1",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/platform-express": "^11.0.1",

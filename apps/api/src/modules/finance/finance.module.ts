@@ -14,7 +14,7 @@ import { DonationPrismaRepository } from '../../shared/persistence/finance/donat
 import { ExpensePrismaRepository } from '../../shared/persistence/finance/expense.prisma-repository';
 import { EarningPrismaRepository } from '../../shared/persistence/finance/earning.prisma-repository';
 import { TransactionPrismaRepository } from '../../shared/persistence/finance/transaction.prisma-repository';
-import { DmsFacade } from './infrastructure/adapters/dms.facade';
+import { FinanceDmsAdapter } from './infrastructure/adapters/finance-dms.adapter';
 import { DonationSummaryReportProvider } from './application/reports/donation-summary.provider';
 import { AnnualAuditReportProvider } from './application/reports/annual-audit.provider';
 import { FinanceReportReferenceDataService } from './application/reports/finance-report-reference-data.service';
@@ -48,17 +48,21 @@ import { ListEarningsHandler } from './application/queries/list-earnings/list-ea
 import { GetEarningByIdHandler } from './application/queries/get-earning-by-id/get-earning-by-id.handler';
 import { GetEarningReferenceDataHandler } from './application/queries/get-earning-reference-data/get-earning-reference-data.handler';
 
-import { OnDonationRaisedHandler } from './application/event-handlers/on-donation-raised/on-donation-raised.handler';
-import { OnDonationPaidHandler } from './application/event-handlers/on-donation-paid/on-donation-paid.handler';
-import { OnUserDeletedFinanceHandler } from './application/event-handlers/on-user-deleted-finance/on-user-deleted-finance.handler';
+import { OnUserDeletedFinanceHandler } from './application/handlers/events/on-user-deleted-finance/on-user-deleted-finance.handler';
+import { DonationRaisedCorrespondenceResolver } from './application/notifications/donation-raised-correspondence.resolver';
+import { DonationPaidCorrespondenceResolver } from './application/notifications/donation-paid-correspondence.resolver';
 
-import { CreateDonationJobHandler } from './application/jobs/create-donation.handler';
-import { TriggerMonthlyDonationHandler } from './application/jobs/trigger-monthly-donation.handler';
-import { MarkDonationPendingHandler } from './application/jobs/mark-donation-pending.handler';
-import { RemindPendingDonationsHandler } from './application/jobs/remind-pending-donations.handler';
+import { CreateDonationJobHandler } from './application/handlers/queue/create-donation.handler';
+import { TriggerMonthlyDonationHandler } from './application/handlers/queue/trigger-monthly-donation.handler';
+import { MarkDonationPendingHandler } from './application/handlers/queue/mark-donation-pending.handler';
+import { RemindPendingDonationsHandler } from './application/handlers/queue/remind-pending-donations.handler';
 
-import { FinanceDonationScheduleAdapter } from './infrastructure/adapters/finance-donation-schedule.adapter';
-import { IFinanceDonationSchedulePort } from './application/ports/finance-donation-schedule.port';
+import { LinkExpenseToActivityHandler } from './application/commands/link-expense-to-activity/link-expense-to-activity.handler';
+import { AssertActivityCanCloseHandler } from './application/queries/assert-activity-can-close/assert-activity-can-close.handler';
+import { FinanceFacade } from './application/services/finance.facade';
+import { GuestDonationCreationHandler } from './application/handlers/workflow/guest-donation-creation.handler';
+import { DonationAmountUpdateHandler } from './application/handlers/workflow/donation-amount-update.handler';
+import { DonationPauseUpdateHandler } from './application/handlers/workflow/donation-pause-update.handler';
 
 import { DonationController } from './presentation/controllers/donation.controller';
 import { AccountController } from './presentation/controllers/account.controller';
@@ -86,6 +90,7 @@ const COMMAND_HANDLERS = [
   CreateEarningHandler,
   UpdateEarningHandler,
   ReverseTransactionHandler,
+  LinkExpenseToActivityHandler,
 ];
 
 const QUERY_HANDLERS = [
@@ -103,15 +108,27 @@ const QUERY_HANDLERS = [
   ListEarningsHandler,
   GetEarningByIdHandler,
   GetEarningReferenceDataHandler,
+  AssertActivityCanCloseHandler,
 ];
 
-const EVENT_HANDLERS = [OnDonationRaisedHandler, OnDonationPaidHandler, OnUserDeletedFinanceHandler];
+const EVENT_HANDLERS = [OnUserDeletedFinanceHandler];
+
+const NOTIFICATION_RESOLVERS = [
+  DonationRaisedCorrespondenceResolver,
+  DonationPaidCorrespondenceResolver,
+];
 
 const JOB_HANDLERS = [
   CreateDonationJobHandler,
   TriggerMonthlyDonationHandler,
   MarkDonationPendingHandler,
   RemindPendingDonationsHandler,
+];
+
+const WORKFLOW_HANDLERS = [
+  GuestDonationCreationHandler,
+  DonationAmountUpdateHandler,
+  DonationPauseUpdateHandler,
 ];
 
 export interface FinanceModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
@@ -148,17 +165,19 @@ export class FinanceModule {
         { provide: IExpenseRepository, useClass: ExpensePrismaRepository },
         { provide: IEarningRepository, useClass: EarningPrismaRepository },
         { provide: ITransactionRepository, useClass: TransactionPrismaRepository },
-        { provide: IFinanceDonationSchedulePort, useClass: FinanceDonationScheduleAdapter },
-        DmsFacade,
+        FinanceDmsAdapter,
+        FinanceFacade,
         FinanceReportReferenceDataService,
         DonationSummaryReportProvider,
         AnnualAuditReportProvider,
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
         ...EVENT_HANDLERS,
+        ...NOTIFICATION_RESOLVERS,
         ...JOB_HANDLERS,
+        ...WORKFLOW_HANDLERS,
       ],
-      exports: [IDonationRepository, IAccountRepository, IExpenseRepository, DonationSummaryReportProvider, AnnualAuditReportProvider],
+      exports: [FinanceFacade, DonationSummaryReportProvider, AnnualAuditReportProvider],
     };
   }
 }

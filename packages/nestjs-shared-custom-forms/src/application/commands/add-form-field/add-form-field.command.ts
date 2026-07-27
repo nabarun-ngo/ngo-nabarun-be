@@ -21,5 +21,7 @@ export class AddFormFieldCommand {
     public readonly dependentOptions?: DependentOptions | null,
     public readonly viewPermissions: string[] = [],
     public readonly validationRules?: FieldValidationRules | null,
+    public readonly stepId?: string | null,
+    public readonly stepName?: string | null,
   ) {}
 }

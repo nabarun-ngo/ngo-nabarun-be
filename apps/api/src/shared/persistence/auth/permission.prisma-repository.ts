@@ -12,7 +12,7 @@ import {
   AuthPermissionUpdateInput,
   AuthPermissionUncheckedUpdateInput,
   AuthPermissionOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/AuthPermission';
 import { Permission, PermissionFilter } from '@nabarun-ngo/nestjs-shared-auth/domain/aggregates/permission/permission.aggregate';
 import { IPermissionRepository } from '@nabarun-ngo/nestjs-shared-auth/domain/repositories/permission.repository';
 

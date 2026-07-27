@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared schema fragment — Correspondence2Module
+// Shared schema fragment — CorrespondenceModule
 // Synced into <prisma-schema-dir>/shared/ by: npx nestjs-shared-sync-schema
 // DO NOT edit — overwritten on every sync. After syncing, run `prisma migrate`.
 //

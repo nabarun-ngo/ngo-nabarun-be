@@ -5,9 +5,9 @@ import {
   OAUTH_ACCESS_TOKEN_PORT,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { OAuth2Client } from 'googleapis-common';
-import { IEmailSenderPort, EmailMessage } from '../../domain/ports/email-sender.port';
-import { CORRESPONDENCE2_OPTIONS } from '../../correspondence-options.token';
-import type { Correspondence2ModuleOptions } from '../../correspondence.module';
+import { IEmailSenderPort, EmailMessage, EmailAttachment } from '../../domain/ports/email-sender.port';
+import { CORRESPONDENCE_OPTIONS } from '../../correspondence-options.token';
+import type { CorrespondenceModuleOptions } from '../../correspondence.module';
 
 const GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
 
@@ -18,8 +18,8 @@ export class GmailEmailAdapter implements IEmailSenderPort {
   constructor(
     @Inject(OAUTH_ACCESS_TOKEN_PORT)
     private readonly oauthTokens: IOAuthAccessTokenPort,
-    @Inject(CORRESPONDENCE2_OPTIONS)
-    private readonly options: Correspondence2ModuleOptions,
+    @Inject(CORRESPONDENCE_OPTIONS)
+    private readonly options: CorrespondenceModuleOptions,
   ) { }
 
   async send(message: EmailMessage): Promise<void> {
@@ -33,9 +33,10 @@ export class GmailEmailAdapter implements IEmailSenderPort {
 
     const fromEmail = this.options.email?.fromAddress ?? 'noreply@example.com';
     const fromName = this.options.email?.fromName ?? this.options.appName ?? '';
+    const fromHeader = message.from ?? `"${fromName}" <${fromEmail}>`;
 
     const gmail = googleMail({ version: 'v1', auth: authClient });
-    const raw = this.buildRawMessage(message, fromEmail, fromName);
+    const raw = this.buildRawMessage(message, fromHeader);
 
     const response = await gmail.users.messages.send({
       userId: 'me',
@@ -47,37 +48,34 @@ export class GmailEmailAdapter implements IEmailSenderPort {
     );
   }
 
-  private buildRawMessage(
-    message: EmailMessage,
-    fromEmail: string,
-    fromName: string,
-  ): string {
-    const lines: string[] = [];
-    lines.push(`From: "${fromName}" <${fromEmail}>`);
-    lines.push(`To: ${message.to.join(', ')}`);
-    if (message.cc?.length) lines.push(`Cc: ${message.cc.join(', ')}`);
-    if (message.bcc?.length) lines.push(`Bcc: ${message.bcc.join(', ')}`);
-    lines.push(`Subject: ${message.subject}`);
-    lines.push(`Date: ${new Date().toUTCString()}`);
-    lines.push('MIME-Version: 1.0');
+  private buildRawMessage(message: EmailMessage, fromHeader: string): string {
+    const headers: string[] = [];
+    headers.push(`From: ${fromHeader}`);
+    headers.push(`To: ${message.to.join(', ')}`);
+    if (message.cc?.length) headers.push(`Cc: ${message.cc.join(', ')}`);
+    if (message.bcc?.length) headers.push(`Bcc: ${message.bcc.join(', ')}`);
+    headers.push(`Subject: ${message.subject}`);
+    headers.push(`Date: ${new Date().toUTCString()}`);
+    headers.push('MIME-Version: 1.0');
 
-    if (message.text) {
-      const boundary = `boundary_${Date.now()}`;
-      lines.push(`Content-Type: multipart/alternative; boundary="${boundary}"`);
-      lines.push('');
-      lines.push(`--${boundary}`);
-      lines.push('Content-Type: text/plain; charset=utf-8');
-      lines.push('');
-      lines.push(message.text);
-      lines.push(`--${boundary}`);
-      lines.push('Content-Type: text/html; charset=utf-8');
-      lines.push('');
-      lines.push(message.html);
-      lines.push(`--${boundary}--`);
+    const bodyPart = this.buildBodyPart(message);
+
+    let lines: string[];
+    if (message.attachments?.length) {
+      const mixedBoundary = `mixed_${Date.now()}`;
+      lines = [
+        ...headers,
+        `Content-Type: multipart/mixed; boundary="${mixedBoundary}"`,
+        '',
+        `--${mixedBoundary}`,
+        ...bodyPart,
+        ...message.attachments.flatMap((a) =>
+          this.buildAttachmentPart(a, mixedBoundary),
+        ),
+        `--${mixedBoundary}--`,
+      ];
     } else {
-      lines.push('Content-Type: text/html; charset=utf-8');
-      lines.push('');
-      lines.push(message.html);
+      lines = [...headers, ...bodyPart];
     }
 
     return Buffer.from(lines.join('\r\n'))
@@ -85,5 +83,55 @@ export class GmailEmailAdapter implements IEmailSenderPort {
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/, '');
+  }
+
+  /**
+   * Builds the message body part (Content-Type header + body). When embedded in a
+   * multipart/mixed message the caller precedes this with a boundary delimiter.
+   */
+  private buildBodyPart(message: EmailMessage): string[] {
+    if (message.text) {
+      const altBoundary = `alt_${Date.now()}`;
+      return [
+        `Content-Type: multipart/alternative; boundary="${altBoundary}"`,
+        '',
+        `--${altBoundary}`,
+        'Content-Type: text/plain; charset=utf-8',
+        '',
+        message.text,
+        `--${altBoundary}`,
+        'Content-Type: text/html; charset=utf-8',
+        '',
+        message.html,
+        `--${altBoundary}--`,
+      ];
+    }
+    return ['Content-Type: text/html; charset=utf-8', '', message.html];
+  }
+
+  private buildAttachmentPart(
+    attachment: EmailAttachment,
+    boundary: string,
+  ): string[] {
+    const contentType = attachment.contentType ?? 'application/octet-stream';
+    const disposition = attachment.cid ? 'inline' : 'attachment';
+    const lines = [
+      `--${boundary}`,
+      `Content-Type: ${contentType}; name="${attachment.filename}"`,
+      'Content-Transfer-Encoding: base64',
+      `Content-Disposition: ${disposition}; filename="${attachment.filename}"`,
+    ];
+    if (attachment.cid) {
+      lines.push(`Content-ID: <${attachment.cid}>`);
+    }
+    lines.push('');
+    lines.push(...this.chunkBase64(attachment.content));
+    return lines;
+  }
+
+  /** Splits a base64 string into 76-char lines per RFC 2045. */
+  private chunkBase64(content: string): string[] {
+    const normalized = content.replace(/[\r\n]/g, '');
+    return normalized.match(/.{1,76}/g) ?? [normalized];
   }
 }

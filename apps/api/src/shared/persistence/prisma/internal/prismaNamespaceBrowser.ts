@@ -89,8 +89,8 @@ export const ModelName = {
   ProjectTeamMember: 'ProjectTeamMember',
   ProjectRisk: 'ProjectRisk',
   Report: 'Report',
-  TokenVault2OAuthAccount: 'TokenVault2OAuthAccount',
-  TokenVault2OAuthToken: 'TokenVault2OAuthToken',
+  TokenVaultOAuthAccount: 'TokenVaultOAuthAccount',
+  TokenVaultOAuthToken: 'TokenVaultOAuthToken',
   UserProfile: 'UserProfile',
   UserPhoneNumber: 'UserPhoneNumber',
   UserAddress: 'UserAddress',
@@ -419,15 +419,16 @@ export const FormFieldDefinitionScalarFieldEnum = {
   label: 'label',
   fieldType: 'fieldType',
   mandatory: 'mandatory',
-  fieldOptionsJson: 'fieldOptionsJson',
   isHidden: 'isHidden',
   isEncrypted: 'isEncrypted',
   enabled: 'enabled',
   sortOrder: 'sortOrder',
+  stepId: 'stepId',
+  stepName: 'stepName',
   conditionJson: 'conditionJson',
   dependentOptionsJson: 'dependentOptionsJson',
+  viewPermissions: 'viewPermissions',
   validationRulesJson: 'validationRulesJson',
-  viewPermissionsJson: 'viewPermissionsJson',
   createdBy: 'createdBy',
   disabledBy: 'disabledBy',
   createdAt: 'createdAt',
@@ -492,7 +493,7 @@ export const DocumentReferenceScalarFieldEnum = {
   fileSize: 'fileSize',
   isPublic: 'isPublic',
   uploadedById: 'uploadedById',
-  storageOwnerSub: 'storageOwnerSub',
+  storageOwnerId: 'storageOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -721,6 +722,7 @@ export const ProjectScalarFieldEnum = {
   managerId: 'managerId',
   sponsorId: 'sponsorId',
   tags: 'tags',
+  isPublic: 'isPublic',
   metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -862,7 +864,7 @@ export const ReportScalarFieldEnum = {
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
 
 
-export const TokenVault2OAuthAccountScalarFieldEnum = {
+export const TokenVaultOAuthAccountScalarFieldEnum = {
   id: 'id',
   provider: 'provider',
   email: 'email',
@@ -877,10 +879,10 @@ export const TokenVault2OAuthAccountScalarFieldEnum = {
   deletedAt: 'deletedAt'
 } as const
 
-export type TokenVault2OAuthAccountScalarFieldEnum = (typeof TokenVault2OAuthAccountScalarFieldEnum)[keyof typeof TokenVault2OAuthAccountScalarFieldEnum]
+export type TokenVaultOAuthAccountScalarFieldEnum = (typeof TokenVaultOAuthAccountScalarFieldEnum)[keyof typeof TokenVaultOAuthAccountScalarFieldEnum]
 
 
-export const TokenVault2OAuthTokenScalarFieldEnum = {
+export const TokenVaultOAuthTokenScalarFieldEnum = {
   id: 'id',
   accountId: 'accountId',
   clientId: 'clientId',
@@ -896,7 +898,7 @@ export const TokenVault2OAuthTokenScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TokenVault2OAuthTokenScalarFieldEnum = (typeof TokenVault2OAuthTokenScalarFieldEnum)[keyof typeof TokenVault2OAuthTokenScalarFieldEnum]
+export type TokenVaultOAuthTokenScalarFieldEnum = (typeof TokenVaultOAuthTokenScalarFieldEnum)[keyof typeof TokenVaultOAuthTokenScalarFieldEnum]
 
 
 export const UserProfileScalarFieldEnum = {

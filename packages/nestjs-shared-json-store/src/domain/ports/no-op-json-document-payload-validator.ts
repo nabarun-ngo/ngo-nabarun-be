@@ -3,7 +3,7 @@ import { IJsonDocumentPayloadValidatorPort } from './json-document-payload-valid
 
 @Injectable()
 export class NoOpJsonDocumentPayloadValidator implements IJsonDocumentPayloadValidatorPort {
-  validate(): void {
+  validate(_namespace: string, _key: string, _payload: Record<string, unknown>): void {
     // Permissive default — no schema registered means no validation.
   }
 }

@@ -5,14 +5,14 @@ import {
 } from '@nabarun-ngo/nestjs-shared-persistence';
 import type { PrismaClient } from '../prisma/client';
 import type {
-  TokenVault2OAuthAccountWhereInput,
-  TokenVault2OAuthAccountWhereUniqueInput,
-  TokenVault2OAuthAccountCreateInput,
-  TokenVault2OAuthAccountUncheckedCreateInput,
-  TokenVault2OAuthAccountUpdateInput,
-  TokenVault2OAuthAccountUncheckedUpdateInput,
-  TokenVault2OAuthAccountOrderByWithRelationInput,
-} from '../prisma/models';
+  TokenVaultOAuthAccountWhereInput,
+  TokenVaultOAuthAccountWhereUniqueInput,
+  TokenVaultOAuthAccountCreateInput,
+  TokenVaultOAuthAccountUncheckedCreateInput,
+  TokenVaultOAuthAccountUpdateInput,
+  TokenVaultOAuthAccountUncheckedUpdateInput,
+  TokenVaultOAuthAccountOrderByWithRelationInput,
+} from '../prisma/models/TokenVaultOAuthAccount';
 import {
   OAuthAccount,
   OAuthAccountFilter,
@@ -38,20 +38,20 @@ type AccountRow = {
 export class OAuthAccountPrismaRepository
   extends PrismaCrudRepositoryBase<
     PrismaClient,
-    'tokenVault2OAuthAccount',
+    'tokenVaultOAuthAccount',
     OAuthAccount,
     string,
     OAuthAccountFilter,
     AccountRow,
-    TokenVault2OAuthAccountWhereInput,
-    TokenVault2OAuthAccountWhereUniqueInput,
-    ({} & TokenVault2OAuthAccountUncheckedCreateInput) | ({} & TokenVault2OAuthAccountCreateInput),
-    ({} & TokenVault2OAuthAccountUncheckedUpdateInput) | ({} & TokenVault2OAuthAccountUpdateInput),
-    TokenVault2OAuthAccountOrderByWithRelationInput
+    TokenVaultOAuthAccountWhereInput,
+    TokenVaultOAuthAccountWhereUniqueInput,
+    ({} & TokenVaultOAuthAccountUncheckedCreateInput) | ({} & TokenVaultOAuthAccountCreateInput),
+    ({} & TokenVaultOAuthAccountUncheckedUpdateInput) | ({} & TokenVaultOAuthAccountUpdateInput),
+    TokenVaultOAuthAccountOrderByWithRelationInput
   >
   implements IOAuthAccountRepository {
   constructor(database: BasePrismaService<PrismaClient>) {
-    super(database, 'tokenVault2OAuthAccount');
+    super(database, 'tokenVaultOAuthAccount');
   }
 
   async findByProviderAndEmail(provider: string, email: string): Promise<OAuthAccount | null> {
@@ -82,7 +82,7 @@ export class OAuthAccountPrismaRepository
 
   protected toCreateInput(
     entity: OAuthAccount,
-  ): ({} & TokenVault2OAuthAccountUncheckedCreateInput) | ({} & TokenVault2OAuthAccountCreateInput) {
+  ): ({} & TokenVaultOAuthAccountUncheckedCreateInput) | ({} & TokenVaultOAuthAccountCreateInput) {
     return {
       id: entity.id,
       provider: entity.provider,
@@ -101,7 +101,7 @@ export class OAuthAccountPrismaRepository
   protected toUpdateInput(
     _id: string,
     entity: OAuthAccount,
-  ): ({} & TokenVault2OAuthAccountUncheckedUpdateInput) | ({} & TokenVault2OAuthAccountUpdateInput) {
+  ): ({} & TokenVaultOAuthAccountUncheckedUpdateInput) | ({} & TokenVaultOAuthAccountUpdateInput) {
     return {
       email: entity.email,
       externalId: entity.externalId ?? null,
@@ -114,18 +114,18 @@ export class OAuthAccountPrismaRepository
     };
   }
 
-  protected toUniqueWhere(id: string): TokenVault2OAuthAccountWhereUniqueInput {
+  protected toUniqueWhere(id: string): TokenVaultOAuthAccountWhereUniqueInput {
     return { id };
   }
 
-  protected toFilterWhere(filter?: OAuthAccountFilter): TokenVault2OAuthAccountWhereInput {
+  protected toFilterWhere(filter?: OAuthAccountFilter): TokenVaultOAuthAccountWhereInput {
     return {
       ...(filter?.provider ? { provider: filter.provider } : {}),
       ...(filter?.email ? { email: filter.email } : {}),
     };
   }
 
-  protected defaultOrderBy(): TokenVault2OAuthAccountOrderByWithRelationInput {
+  protected defaultOrderBy(): TokenVaultOAuthAccountOrderByWithRelationInput {
     return { createdAt: 'desc' };
   }
 

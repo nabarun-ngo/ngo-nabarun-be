@@ -1,11 +1,8 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
-import { PrismaClient } from '../../../../shared/persistence/prisma/client';
 import { RiskCategory, RiskProbability, RiskSeverity, RiskStatus } from '../../domain/enums/risk.enum';
-import { randomUUID } from 'crypto';
+import { ProjectFacade } from '../../application/services/project.facade';
 
 @ApiTags('ProjectRisk')
 @ApiBearerAuth('jwt')
@@ -13,19 +10,18 @@ import { randomUUID } from 'crypto';
 @UseGuards(UnifiedAuthGuard)
 @Controller('projects/:projectId/risks')
 export class ProjectRiskController {
-  constructor(private readonly db: BasePrismaService<PrismaClient>) { }
+  constructor(private readonly projectFacade: ProjectFacade) {}
 
   @Get()
   @RequirePermissions('read:risk')
-  async list(@Param('projectId') projectId: string) {
-    const items = await this.db.client.projectRisk.findMany({ where: { projectId, deletedAt: null }, orderBy: { identifiedDate: 'desc' } });
-    return { items, total: items.length };
+  list(@Param('projectId') projectId: string) {
+    return this.projectFacade.listProjectRisks(projectId);
   }
 
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   @RequirePermissions('create:risk')
-  async create(
+  create(
     @Param('projectId') projectId: string,
     @Body()
     dto: {
@@ -40,41 +36,21 @@ export class ProjectRiskController {
       ownerId?: string;
     },
   ) {
-    return this.db.client.projectRisk.create({
-      data: {
-        id: randomUUID(),
-        projectId,
-        title: dto.title,
-        category: dto.category,
-        severity: dto.severity,
-        probability: dto.probability,
-        identifiedDate: new Date(dto.identifiedDate),
-        description: dto.description,
-        impact: dto.impact,
-        mitigationPlan: dto.mitigationPlan,
-        ownerId: dto.ownerId,
-        status: RiskStatus.IDENTIFIED,
-      },
-    });
+    return this.projectFacade.createProjectRisk(projectId, dto);
   }
 
   @Put(':id/update')
   @RequirePermissions('update:risk')
-  async update(
+  update(
     @Param('id') id: string,
     @Body() dto: { title?: string; severity?: RiskSeverity; probability?: RiskProbability; mitigationPlan?: string; status?: RiskStatus },
   ) {
-    return this.db.client.projectRisk.update({ where: { id }, data: dto });
+    return this.projectFacade.updateProjectRisk(id, dto);
   }
 
   @Patch(':id/resolve')
   @RequirePermissions('update:risk')
-  async resolve(@Param('id') id: string) {
-    const risk = await this.db.client.projectRisk.findUnique({ where: { id } });
-    if (!risk) throw new BusinessException('Risk not found');
-    if ((risk.severity === RiskSeverity.HIGH || risk.severity === RiskSeverity.CRITICAL) && !risk.mitigationPlan) {
-      throw new BusinessException('Mitigation plan required for high/critical risks');
-    }
-    return this.db.client.projectRisk.update({ where: { id }, data: { status: RiskStatus.CLOSED, resolvedDate: new Date() } });
+  resolve(@Param('id') id: string) {
+    return this.projectFacade.resolveProjectRisk(id);
   }
 }

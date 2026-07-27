@@ -4,30 +4,19 @@ import { GetNotificationsAdminQuery } from './get-notifications-admin.query';
 import { INotificationRepository } from '../../../domain/repositories/notification.repository';
 import { NotificationMapper } from '../../mappers/notification.mapper';
 import { NotificationResponseDto } from '../../dtos/notification-response.dto';
-import { Page } from '@nabarun-ngo/nestjs-shared-core';
+import { PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 
 @QueryHandler(GetNotificationsAdminQuery)
 export class GetNotificationsAdminHandler
-  implements IQueryHandler<GetNotificationsAdminQuery, Page<NotificationResponseDto>> {
+  implements IQueryHandler<GetNotificationsAdminQuery, PagedResponse<NotificationResponseDto>> {
   constructor(
     @Inject(INotificationRepository)
     private readonly notificationRepo: INotificationRepository,
   ) { }
 
-  async execute(query: GetNotificationsAdminQuery): Promise<Page<NotificationResponseDto>> {
-    const page = await this.notificationRepo.findPaged({
-      pageIndex: query.pageIndex,
-      pageSize: query.pageSize,
-      props: {
-        type: query.type,
-        category: query.category,
-        referenceId: query.referenceId,
-        referenceType: query.referenceType,
-        fromDate: query.fromDate,
-        toDate: query.toDate,
-      },
-    });
+  async execute(query: GetNotificationsAdminQuery): Promise<PagedResponse<NotificationResponseDto>> {
+    const page = await this.notificationRepo.findPaged(query.filter);
     const dtos = page.content.map((n) => NotificationMapper.toDto(n));
-    return new Page(dtos, page.totalSize, page.pageIndex, page.pageSize);
+    return new PagedResponse(dtos, page.totalSize, page.pageIndex, page.pageSize);
   }
 }

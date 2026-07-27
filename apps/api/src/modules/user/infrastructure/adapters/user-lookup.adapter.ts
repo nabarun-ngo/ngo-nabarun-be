@@ -29,6 +29,15 @@ export class UserLookupAdapter implements IUserLookupPort {
     return users.map((u) => this.toUserInfo(u, u.idpSub));
   }
 
+  async findByEmail(email: string): Promise<UserInfo | null> {
+    const normalized = email.trim();
+    if (!normalized) {
+      return null;
+    }
+    const user = await this.repo.findByEmail(normalized);
+    return user ? this.toUserInfo(user) : null;
+  }
+
   private toUserInfo(user: User, idpSub?: string): UserInfo {
     return {
       id: user.id,

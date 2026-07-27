@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { Response } from 'express';
-import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import {
   ApiAutoResponse,
   ApiAutoPrimitiveResponse,
@@ -65,6 +65,7 @@ export class Dms2Controller {
     @Body() body: UploadDocumentRequestDto,
     @CurrentUser() authUser: AuthUser,
   ): Promise<DocumentResponseDto> {
+    const userId = requireUserId(authUser);
     return this.commandBus.execute(
       new UploadDocumentCommand(
         Buffer.from(body.fileBase64, 'base64'),
@@ -72,9 +73,9 @@ export class Dms2Controller {
         body.contentType,
         body.mappings,
         body.visibility ?? DocumentVisibility.Private,
-        authUser.userId!,
+        userId,
         authUser.permissions ?? [],
-        authUser.idpSub,
+        userId,
       ),
     );
   }
@@ -91,7 +92,7 @@ export class Dms2Controller {
       new ListDocumentsQuery(
         entityType,
         entityId,
-        authUser.userId!,
+        requireUserId(authUser),
         authUser.permissions ?? [],
       ),
     );
@@ -105,7 +106,7 @@ export class Dms2Controller {
     @CurrentUser() authUser: AuthUser,
   ): Promise<string> {
     return this.queryBus.execute(
-      new GetSignedUrlQuery(id, authUser.userId!, authUser.permissions ?? []),
+      new GetSignedUrlQuery(id, requireUserId(authUser), authUser.permissions ?? []),
     );
   }
 
@@ -128,7 +129,7 @@ export class Dms2Controller {
     @CurrentUser() authUser: AuthUser,
   ): Promise<StreamableFile> {
     const result: DownloadDocumentResult = await this.queryBus.execute(
-      new DownloadDocumentQuery(id, authUser.userId!, authUser.permissions ?? []),
+      new DownloadDocumentQuery(id, requireUserId(authUser), authUser.permissions ?? []),
     );
 
     res.set({
@@ -151,7 +152,7 @@ export class Dms2Controller {
       new RenameDocumentCommand(
         id,
         body.newName,
-        authUser.userId!,
+        requireUserId(authUser),
         authUser.permissions ?? [],
       ),
     );
@@ -166,7 +167,7 @@ export class Dms2Controller {
     @CurrentUser() authUser: AuthUser,
   ): Promise<void> {
     return this.commandBus.execute(
-      new DeleteDocumentCommand(id, authUser.userId!, authUser.permissions ?? []),
+      new DeleteDocumentCommand(id, requireUserId(authUser), authUser.permissions ?? []),
     );
   }
 }

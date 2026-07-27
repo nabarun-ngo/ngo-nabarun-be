@@ -12,7 +12,7 @@ import {
   AuthUserRoleUpdateInput,
   AuthUserRoleUncheckedUpdateInput,
   AuthUserRoleOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/AuthUserRole';
 import { UserRole, UserRoleFilter } from '@nabarun-ngo/nestjs-shared-auth/domain/aggregates/user-role/user-role.aggregate';
 import { DirectRolePermissionView, IUserRoleRepository } from '@nabarun-ngo/nestjs-shared-auth/domain/repositories/user-role.repository';
 

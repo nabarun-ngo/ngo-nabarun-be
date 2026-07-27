@@ -14,6 +14,9 @@ import { IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 import { UserPrismaRepository } from '../../shared/persistence/user/user.prisma-repository';
 import { Auth0IdentityAdapter } from './infrastructure/external/auth0-identity.adapter';
 import { UserLookupAdapter } from './infrastructure/adapters/user-lookup.adapter';
+import { UserDonationScheduleReadAdapter } from './infrastructure/adapters/user-donation-schedule-read.adapter';
+import { IUserDonationScheduleReadPort } from './domain/ports/user-donation-schedule-read.port';
+import { UserFacade } from './application/services/user.facade';
 
 import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
 import { UpdateUserProfileHandler } from './application/commands/update-user-profile/update-user-profile.handler';
@@ -28,11 +31,19 @@ import { GetMyProfileHandler } from './application/queries/get-my-profile/get-my
 import { ListUsersHandler } from './application/queries/list-users/list-users.handler';
 import { GetUserReferenceDataHandler } from './application/queries/get-user-reference-data/get-user-reference-data.handler';
 import { GetUserConnectionsHandler } from './application/queries/get-user-connections/get-user-connections.handler';
+import { GetUserByEmailHandler } from './application/queries/get-user-by-email/get-user-by-email.handler';
 
-import { OnUserCreatedHandler } from './application/event-handlers/on-user-created/on-user-created.handler';
-import { OnUserProfileUpdatedHandler } from './application/event-handlers/on-user-profile-updated/on-user-profile-updated.handler';
-import { OnUserDeletedHandler } from './application/event-handlers/on-user-deleted/on-user-deleted.handler';
-import { OnUserStatusChangedHandler } from './application/event-handlers/on-user-status-changed/on-user-status-changed.handler';
+import { OnUserCreatedHandler } from './application/handlers/events/on-user-created/on-user-created.handler';
+import { OnUserProfileUpdatedHandler } from './application/handlers/events/on-user-profile-updated/on-user-profile-updated.handler';
+import { OnUserDeletedHandler } from './application/handlers/events/on-user-deleted/on-user-deleted.handler';
+import { OnUserStatusChangedHandler } from './application/handlers/events/on-user-status-changed/on-user-status-changed.handler';
+
+import { UserCreatedCorrespondenceResolver } from './application/notifications/user-created-correspondence.resolver';
+import { UserDeletedCorrespondenceResolver } from './application/notifications/user-deleted-correspondence.resolver';
+
+import { Auth0UserCreationHandler } from './application/handlers/workflow/auth0-user-creation.handler';
+import { UserNotRegisteredTaskHandler } from './application/handlers/workflow/user-not-registered.handler';
+import { UserDeleteAndDataCleanupHandler } from './application/handlers/workflow/user-delete-cleanup.handler';
 
 import { UserController } from './presentation/controllers/user.controller';
 
@@ -60,6 +71,7 @@ const QUERY_HANDLERS = [
   ListUsersHandler,
   GetUserReferenceDataHandler,
   GetUserConnectionsHandler,
+  GetUserByEmailHandler,
 ];
 
 const EVENT_HANDLERS = [
@@ -67,6 +79,20 @@ const EVENT_HANDLERS = [
   OnUserProfileUpdatedHandler,
   OnUserDeletedHandler,
   OnUserStatusChangedHandler,
+];
+
+// Pure correspondence resolvers for user-domain events. Discovered app-wide by
+// the correspondence package's DiscoveryService — registered here to co-locate
+// them with the events they react to.
+const NOTIFICATION_RESOLVERS = [
+  UserCreatedCorrespondenceResolver,
+  UserDeletedCorrespondenceResolver,
+];
+
+const WORKFLOW_HANDLERS = [
+  Auth0UserCreationHandler,
+  UserNotRegisteredTaskHandler,
+  UserDeleteAndDataCleanupHandler,
 ];
 
 export interface UserModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
@@ -109,15 +135,21 @@ export class UserModule {
         { provide: IIdentityProvider, useClass: Auth0IdentityAdapter },
 
         UserLookupAdapter,
+        UserDonationScheduleReadAdapter,
+        UserFacade,
         { provide: IUserLookupPort, useClass: UserLookupAdapter },
+        { provide: IUserDonationScheduleReadPort, useClass: UserDonationScheduleReadAdapter },
 
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
         ...EVENT_HANDLERS,
+        ...NOTIFICATION_RESOLVERS,
+        ...WORKFLOW_HANDLERS,
       ],
       exports: [
-        IUserRepository,
         IUserLookupPort,
+        IUserDonationScheduleReadPort,
+        UserFacade,
       ],
     };
   }

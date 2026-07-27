@@ -1,5 +1,18 @@
 {
   "subject": "You were mentioned in a comment",
-  "htmlTemplate": "<p>Hi {{recipientName}}, <strong>{{mentionedByName}}</strong> mentioned you in a comment: <em>{{commentText}}</em></p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "You were mentioned",
+        "subHeading": "New comment"
+      },
+      "content": {
+        "salutation": "Hi {{recipientName}},",
+        "paragraph1_blue": "{{mentionedByName}} mentioned you in a comment:",
+        "paragraph3_blue": "{{commentText}}"
+      }
+    }
+  },
   "textTemplate": "Hi {{recipientName}}, {{mentionedByName}} mentioned you: {{commentText}}"
 }

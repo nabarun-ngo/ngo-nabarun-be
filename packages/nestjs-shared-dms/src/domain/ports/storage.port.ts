@@ -13,9 +13,10 @@ export interface StorageUploadParams {
    * that don't have an equivalent concept. */
   token: string;
   content: Buffer;
-  /** Identity of the uploading user, for adapters that store files under a
-   * specific user's account (e.g. Google Drive, via TokenVaultModule). */
-  ownerSub?: string;
+  /** App profile UUID (`userId`) for adapters that store files under a
+   * specific user's account (e.g. Google Drive, via TokenVaultModule).
+   * Shared-bucket providers (e.g. Firebase) ignore this. */
+  ownerId?: string;
 }
 
 export interface StorageUploadResult {
@@ -32,30 +33,25 @@ export interface StorageUploadResult {
  * (Firebase Storage, Google Drive, ...) can be swapped via configuration
  * without touching application logic.
  *
- * `ownerSub` is only meaningful to per-user providers (e.g. Google Drive);
+ * `ownerId` is the app profile UUID (`userId`) for per-user providers (e.g. Google Drive);
  * shared-bucket providers (e.g. Firebase) ignore it.
  */
 export interface IStorageProvider {
   uploadFile(params: StorageUploadParams): Promise<StorageUploadResult>;
-  deleteFile(remotePath: string, ownerSub?: string): Promise<void>;
+  deleteFile(remotePath: string, ownerId?: string): Promise<void>;
   getSignedUrl(
     remotePath: string,
-    ownerSub?: string,
+    ownerId?: string,
     expireAfter?: number,
   ): Promise<string>;
   downloadFile(
     remotePath: string,
-    ownerSub?: string,
+    ownerId?: string,
   ): Promise<Readable>;
   /**
-   * Renames / updates the display name of an already-uploaded file.
-   *
-   * This is optional — storage backends that use content-addressable keys
-   * (e.g. Firebase Storage) or that do not expose a rename API natively may
-   * leave this unimplemented. Callers MUST guard with `if (provider.renameFile)`
-   * before invoking, and must treat a missing implementation as a no-op.
-   *
-   * TODO: Implement in FirebaseStorageAdapter and GoogleDriveStorageAdapter.
+   * Optional — not all providers support in-place rename.
+   * Implementations that do not support rename should omit this method;
+   * callers must check for its presence before invoking.
    */
-  renameFile?(remotePath: string, newName: string, ownerSub?: string): Promise<void>;
+  renameFile?(remotePath: string, newName: string, ownerId?: string): Promise<void>;
 }

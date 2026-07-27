@@ -76,7 +76,8 @@ export class ActivityDetailDto {
 }
 
 export class ActivityDetailFilterDto {
-  @ApiPropertyOptional({ enum: ActivityScale }) scale?: ActivityScale;
+  @IsOptional() @IsString() @ApiPropertyOptional() projectId?: string;
+  @IsOptional() @IsEnum(ActivityScale) @ApiPropertyOptional({ enum: ActivityScale }) scale?: ActivityScale;
   @ApiPropertyOptional({ enum: ActivityStatus }) status?: ActivityStatus;
   @ApiPropertyOptional({ enum: ActivityType }) type?: ActivityType;
   @ApiPropertyOptional() assignedTo?: string;

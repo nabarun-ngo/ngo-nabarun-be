@@ -2,8 +2,8 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { ICACHE_PORT, ICachePort, IUserLookupPort, UserInfo } from '@nabarun-ngo/nestjs-shared-core';
 import { IUserAccessPort } from '../../application/ports/user-access.port';
 import { AuthUser, ScopedRoleContext } from '../../application/models/auth-user';
-import { AUTH2_OPTIONS } from '../auth-options.token';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AUTH_OPTIONS } from '../auth-options.token';
+import { AuthModuleOptions } from '../../auth-options';
 import { IUserRoleRepository } from '../../domain/repositories/user-role.repository';
 import { IUserRoleGroupRepository } from '../../domain/repositories/user-role-group.repository';
 
@@ -13,7 +13,7 @@ export class UserAccessAdapter implements IUserAccessPort {
   constructor(
     @Inject(IUserRoleRepository) private readonly userRoleRepo: IUserRoleRepository,
     @Inject(IUserRoleGroupRepository) private readonly userRoleGroupRepo: IUserRoleGroupRepository,
-    @Inject(AUTH2_OPTIONS) private readonly options: Auth2ModuleOptions,
+    @Inject(AUTH_OPTIONS) private readonly options: AuthModuleOptions,
     @Inject(ICACHE_PORT) private readonly cache: ICachePort,
     @Optional() @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort | null,
   ) { }

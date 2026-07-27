@@ -1,6 +1,6 @@
 import { EventBus } from '@nestjs/cqrs';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
-import { LockingService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { ILockingPort } from '@nabarun-ngo/nestjs-shared-persistence';
 import { CreateTransactionHandler } from './create-transaction.handler';
 import { CreateTransactionCommand } from './create-transaction.command';
 import { TransactionRefType } from '../../../domain/enums/transaction.enum';
@@ -24,7 +24,7 @@ describe('CreateTransactionHandler', () => {
     const eventBus = { publishAll: jest.fn() } as unknown as EventBus;
     const lockingService = {
       withLocks: jest.fn((_keys: string[], fn: () => Promise<string>) => fn()),
-    } as unknown as LockingService;
+    } as unknown as ILockingPort;
 
     const handler = new CreateTransactionHandler(accountRepository as any, eventBus, lockingService);
     const ref = await handler.execute(

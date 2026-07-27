@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsDate, IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { ProjectCategory, ProjectPhase, ProjectStatus } from '../../domain/enums/project.enum';
 import { KeyValueOption } from '../ports/project-reference-data.port';
 
@@ -20,6 +20,7 @@ export class CreateProjectDto {
   @IsString() @ApiProperty() managerId!: string;
   @IsOptional() @IsString() @ApiPropertyOptional() sponsorId?: string;
   @IsOptional() @IsArray() @IsString({ each: true }) @ApiPropertyOptional({ type: [String] }) tags?: string[];
+  @IsOptional() @IsBoolean() @ApiPropertyOptional() isPublic?: boolean;
   @IsOptional() @ApiPropertyOptional() metadata?: Record<string, unknown>;
 }
 
@@ -35,6 +36,7 @@ export class UpdateProjectDto {
   @IsOptional() @IsNumber() @Min(0) @ApiPropertyOptional() targetBeneficiaryCount?: number;
   @IsOptional() @IsString() @ApiPropertyOptional() sponsorId?: string;
   @IsOptional() @IsArray() @IsString({ each: true }) @ApiPropertyOptional({ type: [String] }) tags?: string[];
+  @IsOptional() @IsBoolean() @ApiPropertyOptional() isPublic?: boolean;
   @IsOptional() @ApiPropertyOptional() metadata?: Record<string, unknown>;
 }
 
@@ -58,6 +60,7 @@ export class ProjectDetailDto {
   @ApiProperty() managerId!: string;
   @ApiPropertyOptional() sponsorId?: string;
   @ApiProperty({ type: [String] }) tags!: string[];
+  @ApiProperty() isPublic!: boolean;
   @ApiPropertyOptional() metadata?: Record<string, unknown>;
   @ApiProperty() createdAt!: Date;
   @ApiProperty() updatedAt!: Date;
@@ -72,6 +75,7 @@ export class ProjectDetailFilterDto {
   @ApiPropertyOptional() sponsorId?: string;
   @ApiPropertyOptional() location?: string;
   @ApiPropertyOptional({ type: [String] }) tags?: string[];
+  @ApiPropertyOptional() isPublic?: boolean;
 }
 
 export class ProjectRefDataDto {

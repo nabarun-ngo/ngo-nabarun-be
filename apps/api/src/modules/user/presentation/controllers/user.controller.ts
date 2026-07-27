@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 
 import { CreateUserCommand } from '../../application/commands/create-user/create-user.command';
@@ -59,7 +59,9 @@ export class UserController {
   @Get('profile/me')
   @ApiOperation({ summary: 'Get authenticated user profile' })
   getMyProfile(@CurrentUser() user: AuthUser): Promise<UserResponseDto> {
-    return this.queryBus.execute(new GetMyProfileQuery(user.idpSub));
+    return this.queryBus.execute(
+      new GetMyProfileQuery({ userId: user.userId, idpSub: user.idpSub }),
+    );
   }
 
   @Put('profile/me')
@@ -68,10 +70,9 @@ export class UserController {
     @CurrentUser() user: AuthUser,
     @Body() dto: UpdateUserProfileDto,
   ): Promise<UserResponseDto> {
-    const profileId = this.requireProfileId(user);
     return this.commandBus.execute(
       new UpdateUserProfileCommand({
-        userId: profileId,
+        userId: requireUserId(user),
         detail: {
           title: dto.title,
           firstName: dto.firstName,
@@ -89,7 +90,7 @@ export class UserController {
           permanentAddress: dto.permanentAddress,
           socialMediaLinks: dto.socialMediaLinks,
         },
-        requestorId: this.requireUserId(user),
+        requestorId: requireUserId(user),
       }),
     );
   }
@@ -98,9 +99,11 @@ export class UserController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Initiate password change for authenticated user' })
   initiatePasswordChange(@CurrentUser() user: AuthUser): Promise<void> {
-    const profileId = this.requireProfileId(user);
     return this.commandBus.execute(
-      new InitiatePasswordChangeCommand({ userId: profileId, requestorId: this.requireUserId(user) }),
+      new InitiatePasswordChangeCommand({
+        userId: requireUserId(user),
+        requestorId: requireUserId(user),
+      }),
     );
   }
 
@@ -136,7 +139,7 @@ export class UserController {
         picture: dto.picture,
         isPublic: dto.isPublic,
         adminPassword: dto.adminPassword,
-        createdById: this.requireUserId(user),
+        createdById: requireUserId(user),
       }),
     );
   }
@@ -188,7 +191,7 @@ export class UserController {
     @CurrentUser() user: AuthUser,
   ): Promise<GrantConnectionResponseDto> {
     return this.commandBus.execute(
-      new GrantUserConnectionCommand({ userId: id, connectionKey: dto.connectionKey, adminId: this.requireUserId(user) }),
+      new GrantUserConnectionCommand({ userId: id, connectionKey: dto.connectionKey, adminId: requireUserId(user) }),
     );
   }
 
@@ -205,7 +208,7 @@ export class UserController {
     @CurrentUser() user: AuthUser,
   ): Promise<void> {
     return this.commandBus.execute(
-      new RevokeUserConnectionCommand({ userId: id, connectionKey, adminId: this.requireUserId(user) }),
+      new RevokeUserConnectionCommand({ userId: id, connectionKey, adminId: requireUserId(user) }),
     );
   }
 
@@ -232,7 +235,7 @@ export class UserController {
         detail: {
           status: dto.status,
         },
-        adminId: this.requireUserId(user),
+        adminId: requireUserId(user),
       }),
     );
   }
@@ -246,33 +249,7 @@ export class UserController {
     @CurrentUser() user: AuthUser,
   ): Promise<void> {
     return this.commandBus.execute(
-      new DeleteUserCommand({ userId: id, adminId: this.requireUserId(user) }),
+      new DeleteUserCommand({ userId: id, adminId: requireUserId(user) }),
     );
-  }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  private requireProfileId(user: AuthUser): string {
-    const enriched = user as AuthUser & { profileId?: string };
-    if (!enriched.profileId) {
-      throw new Error('profileId not available on enriched user — ensure UserModule is wired after AuthModule');
-    }
-    return enriched.profileId;
-  }
-
-  /**
-   * Returns the app profile UUID of the acting user.
-   * Throws if `userId` is not populated — which indicates a module wiring problem
-   * (UserModule must be imported AFTER AuthModule so IUserLookupPort is resolved).
-   *
-   * NEVER use `user.idpSub` as an audit field — always call this helper instead.
-   */
-  private requireUserId(user: AuthUser): string {
-    if (!user.userId) {
-      throw new Error(
-        'userId not available on AuthUser — ensure UserModule is imported AFTER AuthModule',
-      );
-    }
-    return user.userId;
   }
 }

@@ -15,6 +15,7 @@ export class UpdateProjectCommand {
       targetBeneficiaryCount?: number;
       sponsorId?: string;
       tags?: string[];
+      isPublic?: boolean;
       metadata?: Record<string, unknown>;
     },
   ) {}

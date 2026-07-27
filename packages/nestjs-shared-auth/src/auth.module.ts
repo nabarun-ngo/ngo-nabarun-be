@@ -1,14 +1,23 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Inject, Injectable, Module, Optional, Provider } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { DiscoveryModule } from '@nestjs/core';
-import { BaseDynamicModule, DynamicModuleAsyncOptions } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BaseDynamicModule,
+  BaseModuleValidator,
+  DynamicModuleAsyncOptions,
+  ICACHE_PORT,
+  IUserLookupPort,
+  registerModuleValidator,
+} from '@nabarun-ngo/nestjs-shared-core';
 
-import { Auth2ModuleOptions } from './auth-options';
-import { Auth2OptionsSchema } from './auth.schema';
-import { AUTH2_OPTIONS } from './infrastructure/auth-options.token';
+import { AuthModuleOptions } from './auth-options';
+import { AuthOptionsSchema } from './auth.schema';
+import { AUTH_OPTIONS } from './infrastructure/auth-options.token';
 
 import { IApiKeyRepository } from './domain/repositories/api-key.repository';
 import { IRoleRepository } from './domain/repositories/role.repository';
@@ -52,16 +61,17 @@ import { ListUserRolesHandler } from './application/queries/list-user-roles/list
 import { ListUserGroupsHandler } from './application/queries/list-user-groups/list-user-groups.handler';
 import { ResolveUserAccessHandler } from './application/queries/resolve-user-access/resolve-user-access.handler';
 
-import { OnApiKeyUsedHandler } from './application/event-handlers/on-api-key-used/on-api-key-used.handler';
-import { OnApiKeyRevokedHandler } from './application/event-handlers/on-api-key-revoked/on-api-key-revoked.handler';
-import { OnApiKeyPermissionsUpdatedHandler } from './application/event-handlers/on-api-key-permissions-updated/on-api-key-permissions-updated.handler';
-import { OnUserRoleGrantedHandler } from './application/event-handlers/on-user-role-granted/on-user-role-granted.handler';
-import { OnUserRoleRevokedHandler } from './application/event-handlers/on-user-role-revoked/on-user-role-revoked.handler';
-import { OnUserRoleGroupGrantedHandler } from './application/event-handlers/on-user-role-group-granted/on-user-role-group-granted.handler';
-import { OnUserRoleGroupRevokedHandler } from './application/event-handlers/on-user-role-group-revoked/on-user-role-group-revoked.handler';
+import { OnApiKeyUsedHandler } from './application/handlers/events/on-api-key-used/on-api-key-used.handler';
+import { OnApiKeyRevokedHandler } from './application/handlers/events/on-api-key-revoked/on-api-key-revoked.handler';
+import { OnApiKeyPermissionsUpdatedHandler } from './application/handlers/events/on-api-key-permissions-updated/on-api-key-permissions-updated.handler';
+import { OnUserRoleGrantedHandler } from './application/handlers/events/on-user-role-granted/on-user-role-granted.handler';
+import { OnUserRoleRevokedHandler } from './application/handlers/events/on-user-role-revoked/on-user-role-revoked.handler';
+import { OnUserRoleGroupGrantedHandler } from './application/handlers/events/on-user-role-group-granted/on-user-role-group-granted.handler';
+import { OnUserRoleGroupRevokedHandler } from './application/handlers/events/on-user-role-group-revoked/on-user-role-group-revoked.handler';
 
 import { UnifiedAuthGuard } from './presentation/guards/unified-auth.guard';
 import { AppThrottlerGuard } from './presentation/guards/app-throttler.guard';
+import { resolveThrottlers } from './presentation/utilities/resolve-throttlers.util';
 import { PermissionsGuard } from './presentation/guards/permissions.guard';
 import { RolesGuard } from './presentation/guards/roles.guard';
 import { RoleGroupsGuard } from './presentation/guards/role-groups.guard';
@@ -74,8 +84,8 @@ import { PermissionsController } from './presentation/controllers/permissions.co
 import { RoleGroupsController } from './presentation/controllers/role-groups.controller';
 import { UserRolesController } from './presentation/controllers/user-roles.controller';
 
-export interface Auth2ModuleAsyncOptions
-  extends DynamicModuleAsyncOptions<Auth2ModuleOptions> { }
+export interface AuthModuleAsyncOptions
+  extends DynamicModuleAsyncOptions<AuthModuleOptions> { }
 
 const COMMAND_HANDLERS = [
   GenerateApiKeyHandler,
@@ -112,20 +122,81 @@ const EVENT_HANDLERS = [
   OnUserRoleGroupRevokedHandler,
 ];
 
-@Module({})
-export class Auth2Module extends BaseDynamicModule {
-  static forRoot(options: Auth2ModuleOptions): DynamicModule {
-    return Auth2Module._build([
-      Auth2Module.createOptionsProvider(AUTH2_OPTIONS, Auth2OptionsSchema, options),
-    ]);
+const AUTH_MODULE_VALIDATOR = Symbol('AuthModule.internalValidator');
+
+const USER_LOOKUP_PORT_MISSING_MSG =
+  '[AuthModule] IUserLookupPort is not provided. ' +
+  'JWT auth will not resolve app profile UUID (userId) or display data on AuthUser.userInfo. ' +
+  'Role expansion via AuthFacade.getUsersByRole() will return []. ' +
+  'Fix: register IUserLookupPort in UserModule and import UserModule before AuthModule.';
+
+@Injectable()
+class AuthModuleValidator extends BaseModuleValidator {
+  constructor(
+    moduleRef: ModuleRef,
+    @Optional() @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort | null,
+  ) {
+    super(moduleRef);
   }
 
-  static forRootAsync(options: Auth2ModuleAsyncOptions): DynamicModule {
-    return Auth2Module._build(
+  protected getModuleName(): string {
+    return 'AuthModule';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      IApiKeyRepository,
+      'Register IApiKeyRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      IRoleRepository,
+      'Register IRoleRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      IPermissionRepository,
+      'Register IPermissionRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      IRoleGroupRepository,
+      'Register IRoleGroupRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      IUserRoleRepository,
+      'Register IUserRoleRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      IUserRoleGroupRepository,
+      'Register IUserRoleGroupRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      ICACHE_PORT,
+      'Register { provide: ICACHE_PORT, useExisting: CacheService } in IntegrationsModule. Requires DatabaseModule.',
+    );
+
+    if (!this.userLookup) {
+      this.warn(USER_LOOKUP_PORT_MISSING_MSG);
+    }
+  }
+}
+
+@Module({})
+export class AuthModule extends BaseDynamicModule {
+  static forRoot(options: AuthModuleOptions): DynamicModule {
+    const validated = AuthOptionsSchema.parse(options);
+    return AuthModule._build(
+      [AuthModule.createOptionsProvider(AUTH_OPTIONS, AuthOptionsSchema, validated)],
+      [],
+      resolveThrottlers(validated.throttler),
+      validated,
+    );
+  }
+
+  static forRootAsync(options: AuthModuleAsyncOptions): DynamicModule {
+    return AuthModule._build(
       [
-        Auth2Module.createAsyncOptionsProvider(
-          AUTH2_OPTIONS,
-          Auth2OptionsSchema,
+        AuthModule.createAsyncOptionsProvider(
+          AUTH_OPTIONS,
+          AuthOptionsSchema,
           options,
         ),
       ],
@@ -133,24 +204,48 @@ export class Auth2Module extends BaseDynamicModule {
     );
   }
 
+  private static buildThrottlerModuleOptions(
+    authOptions: AuthModuleOptions,
+    throttlers: ReturnType<typeof resolveThrottlers>,
+  ) {
+    const storageRedisUrl = authOptions.throttler?.storageRedisUrl;
+
+    return {
+      throttlers,
+      ...(storageRedisUrl
+        ? { storage: new ThrottlerStorageRedisService(storageRedisUrl) }
+        : {}),
+    };
+  }
+
   private static _build(
     optionsProviders: Provider[],
     extraImports: any[] = [],
+    syncThrottlers?: ReturnType<typeof resolveThrottlers>,
+    syncAuthOptions?: AuthModuleOptions,
   ): DynamicModule {
+    const throttlerImport = syncThrottlers
+      ? ThrottlerModule.forRoot(
+          AuthModule.buildThrottlerModuleOptions(
+            syncAuthOptions ?? ({} as AuthModuleOptions),
+            syncThrottlers,
+          ),
+        )
+      : ThrottlerModule.forRootAsync({
+          inject: [AUTH_OPTIONS],
+          useFactory: (authOptions: AuthModuleOptions) =>
+            AuthModule.buildThrottlerModuleOptions(
+              authOptions,
+              resolveThrottlers(authOptions.throttler),
+            ),
+        });
+
     return {
-      module: Auth2Module,
+      module: AuthModule,
       global: true,
       imports: [
         ...extraImports,
-        ThrottlerModule.forRoot({
-          throttlers: [
-            { name: 'default', ttl: 60_000, limit: 30 },
-            { name: 'publicGet', ttl: 60_000, limit: 60 },
-            { name: 'publicFormPost', ttl: 60_000, limit: 10 },
-            { name: 'newsletter', ttl: 3_600_000, limit: 3 },
-            { name: 'publicPostGlobal', ttl: 3_600_000, limit: 100 },
-          ],
-        }),
+        throttlerImport,
         CqrsModule,
         HttpModule,
         DiscoveryModule,
@@ -165,6 +260,7 @@ export class Auth2Module extends BaseDynamicModule {
       ],
       providers: [
         ...optionsProviders,
+        registerModuleValidator(AUTH_MODULE_VALIDATOR, AuthModuleValidator),
 
         { provide: APP_GUARD, useClass: AppThrottlerGuard },
         { provide: APP_GUARD, useClass: UnifiedAuthGuard },
@@ -185,7 +281,7 @@ export class Auth2Module extends BaseDynamicModule {
         ...EVENT_HANDLERS,
       ],
       exports: [
-        AUTH2_OPTIONS,
+        AUTH_OPTIONS,
         IJwtVerifierPort,
         IApiKeyVerifierPort,
         IUserAccessPort,

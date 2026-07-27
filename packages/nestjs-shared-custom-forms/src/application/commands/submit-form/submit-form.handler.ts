@@ -1,5 +1,6 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
 import {
   FieldConditionViolatedError,
   FieldValidationRuleViolatedError,
@@ -8,19 +9,14 @@ import {
 } from '../../../domain/errors/form.errors';
 import { FormAccessPolicy } from '../../../domain/policies/form-access.policy';
 import { FormPolicy } from '../../../domain/policies/form.policy';
-import { FormEntityTypePolicy } from '../../../domain/policies/form-entity-type.policy';
+import { ICustomFormEntityAccessPort } from '../../../domain/ports/entity-access.port';
+import { FormSubmission } from '../../../domain/aggregates/form-submission/form-submission.aggregate';
 import { IFormRepository } from '../../../domain/repositories/form.repository';
 import { IFormSubmissionRepository } from '../../../domain/repositories/form-submission.repository';
-import { IFormEntityAccessPort } from '../../../domain/ports/form-entity-access.port';
 import { CUSTOM_FORMS_OPTIONS } from '../../../infrastructure/custom-forms-options.token';
 import { CustomFormsModuleOptions } from '../../../custom-forms.schema';
-import { FieldValueCodecService } from '../../../infrastructure/services/field-value-codec.service';
-import { checkFormRecordAccess } from '../../utilities/form-record-access.util';
-import {
-  buildParsedValuesByFieldDefId,
-  serialiseFormFieldValues,
-  validateVisibleFields,
-} from '../../utilities/form-submission-values.util';
+import { FormSubmissionValidationService } from '../../services/form-submission-validation.service';
+import { assertCustomFormEntityAccess } from '../../utilities/custom-form-entity-access.util';
 import { SubmitFormCommand } from './submit-form.command';
 
 @CommandHandler(SubmitFormCommand)
@@ -31,17 +27,23 @@ export class SubmitFormHandler implements ICommandHandler<SubmitFormCommand, voi
     private readonly formRepo: IFormRepository,
     @Inject(IFormSubmissionRepository)
     private readonly submissionRepo: IFormSubmissionRepository,
-    @Optional()
-    @Inject(IFormEntityAccessPort)
-    private readonly accessPort: IFormEntityAccessPort | null,
     @Inject(CUSTOM_FORMS_OPTIONS)
     private readonly options: CustomFormsModuleOptions,
-    private readonly codec: FieldValueCodecService,
+    @Optional()
+    @Inject(ICustomFormEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
+    private readonly validation: FormSubmissionValidationService,
     private readonly eventBus: EventBus,
   ) {}
 
   async execute(cmd: SubmitFormCommand): Promise<void> {
-    FormEntityTypePolicy.assertEntityTypeRegistered(cmd.entityType, this.options.entityTypes);
+    await assertCustomFormEntityAccess(this.options, this.accessPort, {
+      entityType: cmd.entityType,
+      entityId: cmd.entityId,
+      userId: cmd.userId,
+      userPermissions: cmd.userPermissions,
+      action: 'write',
+    });
 
     const form = await this.formRepo.findByIdWithFields(cmd.formId);
     if (!form) throw new FormNotFoundError(cmd.formId);
@@ -49,40 +51,36 @@ export class SubmitFormHandler implements ICommandHandler<SubmitFormCommand, voi
     FormAccessPolicy.assertHasPermission(form, 'write', cmd.userPermissions);
     FormPolicy.assertPublishedAndEnabled(form);
 
-    await checkFormRecordAccess(this.accessPort, {
-      formId:          form.id,
-      entityId:        cmd.entityId,
-      userId:          cmd.userId,
-      userPermissions: cmd.userPermissions,
-      action:          'write',
-    });
-
     let submission = await this.submissionRepo.findByEntity(
       cmd.entityType,
       cmd.entityId,
       cmd.formId,
     );
 
-    const existingByFieldDefId = new Map<string, string | null>(
-      (submission?.fieldValues ?? []).map((v) => [v.fieldDefId, v.value]),
-    );
-
     if (cmd.values && Object.keys(cmd.values).length > 0) {
-      const serialisedValues = await serialiseFormFieldValues({
+      const existingParsedByFieldDefId = this.validation.parsedValuesByFieldDefId(
+        form,
+        submission?.fieldValues ?? [],
+      );
+
+      const updates = this.validation.buildDraftUpdates({
         form,
         values: cmd.values,
-        existingValuesByFieldDefId: existingByFieldDefId,
+        existingParsedByFieldDefId,
         userId: cmd.userId,
         userPermissions: cmd.userPermissions,
-        codec: this.codec,
       });
 
-      submission = await this.submissionRepo.upsertDraft(
-        cmd.entityType,
-        cmd.entityId,
-        cmd.formId,
-        serialisedValues,
-      );
+      if (!submission) {
+        submission = FormSubmission.create({
+          entityType: cmd.entityType,
+          entityId: cmd.entityId,
+          formId: cmd.formId,
+        });
+      }
+
+      submission.saveDraft(updates);
+      submission = await this.submissionRepo.saveDraft(submission, form);
 
       const draftEvents = [...submission.domainEvents];
       submission.clearEvents();
@@ -90,30 +88,38 @@ export class SubmitFormHandler implements ICommandHandler<SubmitFormCommand, voi
     }
 
     if (!submission) {
-      submission = await this.submissionRepo.upsertDraft(
-        cmd.entityType,
-        cmd.entityId,
-        cmd.formId,
-        [],
-      );
+      submission = FormSubmission.create({
+        entityType: cmd.entityType,
+        entityId: cmd.entityId,
+        formId: cmd.formId,
+      });
+      submission = await this.submissionRepo.saveDraft(submission, form);
     }
 
-    const storedByFieldDefId = new Map<string, string | null>(
-      submission.fieldValues.map((v) => [v.fieldDefId, v.value]),
+    const parsedByDefId = this.validation.parsedValuesByFieldDefId(
+      form,
+      submission.fieldValues,
     );
-    const parsedByDefId = await buildParsedValuesByFieldDefId(form, storedByFieldDefId, this.codec);
 
-    const validation = validateVisibleFields(form, parsedByDefId, cmd.userPermissions);
-    if (validation.missingMandatory.length > 0) {
-      throw new MandatoryFieldMissingError(validation.missingMandatory[0]);
+    const validationResult = this.validation.validateVisibleFields(
+      form,
+      parsedByDefId,
+      cmd.userPermissions,
+    );
+    if (validationResult.missingMandatory.length > 0) {
+      throw new MandatoryFieldMissingError(validationResult.missingMandatory[0]);
     }
-    if (validation.conditionViolations.length > 0) {
-      throw new FieldConditionViolatedError(validation.conditionViolations[0]);
+    if (validationResult.conditionViolations.length > 0) {
+      throw new FieldConditionViolatedError(validationResult.conditionViolations[0]);
     }
-    if (validation.validationViolations.length > 0) {
-      const fieldKey = validation.validationViolations[0];
+    if (validationResult.validationViolations.length > 0) {
+      const fieldKey = validationResult.validationViolations[0];
       const def = form.fields.find((f) => f.key === fieldKey);
-      throw new FieldValidationRuleViolatedError(fieldKey, def?.validationRules?.regexErrMsg);
+      const parsedValue = def ? parsedByDefId.get(def.id) : undefined;
+      throw new FieldValidationRuleViolatedError(
+        fieldKey,
+        def?.validationRules?.regexErrMsgForValue(def.fieldType, parsedValue),
+      );
     }
 
     submission.submit(cmd.userId);

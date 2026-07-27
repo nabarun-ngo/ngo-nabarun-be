@@ -1,9 +1,12 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiAutoPagedResponse, BaseFilter, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { UnifiedAuthGuard, PermissionsGuard, RequirePermissions } from '@nabarun-ngo/nestjs-shared-auth';
 import { GetNotificationsAdminQuery } from '../../application/queries/get-notifications-admin/get-notifications-admin.query';
 import { GetAdminNotificationsRequestDto } from '../../application/dtos/notification.request.dto';
+import { NotificationResponseDto } from '../../application/dtos/notification-response.dto';
+import { NotificationFilter } from '../../domain/aggregates/notification.aggregate';
 
 @ApiTags('correspondence / admin')
 @Controller('correspondence/admin/notifications')
@@ -12,17 +15,21 @@ export class NotificationAdminController {
   constructor(private readonly queryBus: QueryBus) { }
 
   @Get()
-  @ApiOperation({ summary: 'List all notifications (admin)' })
   @RequirePermissions('read:notifications')
-  async list(@Query() query: GetAdminNotificationsRequestDto) {
+  @ApiOperation({ summary: 'List all notifications (admin)' })
+  @ApiAutoPagedResponse(NotificationResponseDto)
+  async list(
+    @Query() query: GetAdminNotificationsRequestDto,
+  ): Promise<PagedResponse<NotificationResponseDto>> {
     return this.queryBus.execute(
       new GetNotificationsAdminQuery(
-        query.pageIndex,
-        query.pageSize,
-        undefined,
-        undefined,
-        query.referenceId,
-        query.referenceType,
+        new BaseFilter<NotificationFilter>(
+          { referenceId: query.referenceId, referenceType: query.referenceType },
+          query.pageIndex,
+          query.pageSize,
+          query.sortBy,
+          query.sortDir,
+        ),
       ),
     );
   }

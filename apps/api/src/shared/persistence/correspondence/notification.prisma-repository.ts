@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence'
 import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
-import { Notification, NotificationFilter, NotificationType, NotificationCategory, NotificationPriority } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/notification.aggregate';
+import { Notification, NotificationFilter, NotificationType, NotificationPriority } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/notification.aggregate';
 import { UserNotification } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/user-notification.aggregate';
 import { INotificationRepository } from '@nabarun-ngo/nestjs-shared-correspondence/domain/repositories/notification.repository';
 
@@ -160,7 +160,7 @@ export class NotificationPrismaRepository implements INotificationRepository {
   }
 
   private toDomain(row: any): Notification {
-    return new Notification(row.id, row.title, row.body, row.type as NotificationType, row.category as NotificationCategory, {
+    return new Notification(row.id, row.title, row.body, row.type as NotificationType, row.category as string, {
       priority: row.priority as NotificationPriority,
       action:
         row.actionUrl || row.actionType || row.actionData

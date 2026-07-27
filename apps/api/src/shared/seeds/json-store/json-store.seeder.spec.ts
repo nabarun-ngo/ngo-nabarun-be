@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { seedJsonStore } from './json-store.seeder';
+import { seedJsonStoreData } from './json-store-seed.runner';
 import { JsonStoreSeedData } from './json-store-seed.types';
 
 function buildPrisma() {
@@ -12,7 +12,7 @@ function buildPrisma() {
 
 type MockPrisma = ReturnType<typeof buildPrisma>;
 
-describe('seedJsonStore', () => {
+describe('seedJsonStoreData', () => {
   let prisma: MockPrisma;
 
   beforeEach(() => {
@@ -27,13 +27,13 @@ describe('seedJsonStore', () => {
       ],
     };
 
-    await seedJsonStore(prisma as any, data);
+    await seedJsonStoreData(prisma as any, data);
 
     expect(prisma.jsonStoreDocument.upsert).toHaveBeenCalledTimes(2);
   });
 
   it('does nothing when documents array is empty', async () => {
-    await seedJsonStore(prisma as any, { documents: [] });
+    await seedJsonStoreData(prisma as any, { documents: [] });
 
     expect(prisma.jsonStoreDocument.upsert).not.toHaveBeenCalled();
   });
@@ -49,7 +49,7 @@ describe('seedJsonStore', () => {
         documents: [{ namespace: 'my-ns', key: 'my-key', payload, onConflict: 'upsert' }],
       };
 
-      await seedJsonStore(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
 
       expect(prisma.jsonStoreDocument.upsert).toHaveBeenCalledWith({
         where: { json_store_key_namespace_unique: { key: 'my-key', namespace: 'my-ns' } },
@@ -64,7 +64,7 @@ describe('seedJsonStore', () => {
         documents: [{ namespace: 'my-ns', key: 'my-key', payload }],
       };
 
-      await seedJsonStore(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
 
       expect(prisma.jsonStoreDocument.upsert).toHaveBeenCalledWith(
         expect.objectContaining({ update: { payload } }),
@@ -77,8 +77,8 @@ describe('seedJsonStore', () => {
         documents: [{ namespace: 'correspondence', key: 'onboarding', payload }],
       };
 
-      await seedJsonStore(prisma as any, data);
-      await seedJsonStore(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
 
       expect(prisma.jsonStoreDocument.upsert).toHaveBeenCalledTimes(2);
       expect(prisma.jsonStoreDocument.upsert).toHaveBeenLastCalledWith(
@@ -100,7 +100,7 @@ describe('seedJsonStore', () => {
         ],
       };
 
-      await seedJsonStore(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
 
       expect(prisma.jsonStoreDocument.upsert).toHaveBeenCalledWith({
         where: {
@@ -117,7 +117,7 @@ describe('seedJsonStore', () => {
         documents: [{ namespace: 'ns', key: 'k', payload, onConflict: 'skip-if-exists' }],
       };
 
-      await seedJsonStore(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
 
       expect(prisma.jsonStoreDocument.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -150,7 +150,7 @@ describe('seedJsonStore', () => {
         ],
       };
 
-      await seedJsonStore(prisma as any, data);
+      await seedJsonStoreData(prisma as any, data);
 
       const calls = prisma.jsonStoreDocument.upsert.mock.calls;
       expect(calls[0][0].update).toEqual({ payload: { subject: 'Welcome!' } });

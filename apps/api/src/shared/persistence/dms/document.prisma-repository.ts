@@ -8,7 +8,7 @@ import {
   DocumentReferenceWhereInput,
   DocumentReferenceWhereUniqueInput,
   DocumentReferenceOrderByWithRelationInput,
-} from '../prisma/models';
+} from '../prisma/models/DocumentReference';
 import { DocumentFilter, IDocumentRepository } from '@nabarun-ngo/nestjs-shared-dms';
 import { Document } from '@nabarun-ngo/nestjs-shared-dms/domain/aggregates/document.aggregate';
 import { DocumentMapping } from '@nabarun-ngo/nestjs-shared-dms/domain/entities/document-mapping.entity';
@@ -37,7 +37,7 @@ type DocumentReferenceRow = {
   fileSize: number | null;
   isPublic: boolean;
   uploadedById: string | null;
-  storageOwnerSub: string | null;
+  storageOwnerId: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -159,7 +159,7 @@ export class DocumentPrismaRepository
       mappings,
       visibility,
       row.uploadedById ?? undefined,
-      row.storageOwnerSub ?? undefined,
+      row.storageOwnerId ?? undefined,
       row.createdAt,
       row.updatedAt ?? undefined,
       row.deletedAt ?? undefined,
@@ -176,7 +176,7 @@ export class DocumentPrismaRepository
       fileSize: entity.fileSize,
       isPublic: entity.visibility === DocumentVisibility.Public,
       uploadedById: entity.uploadedById ?? null,
-      storageOwnerSub: entity.storageOwnerSub ?? null,
+      storageOwnerId: entity.storageOwnerId ?? null,
       createdAt: entity.createdAt,
       mappings: {
         create: [...entity.mappings].map((m) => ({

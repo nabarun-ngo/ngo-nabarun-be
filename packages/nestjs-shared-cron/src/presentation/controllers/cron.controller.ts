@@ -16,7 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiAutoResponse, ApiAutoVoidResponse, SuccessResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { RequirePermissions, UseApiKey } from '@nabarun-ngo/nestjs-shared-auth';
 import { TriggerCronJobsCommand } from '../../application/commands/trigger-cron-jobs/trigger-cron-jobs.command';
 import { CreateCronJobCommand } from '../../application/commands/create-cron-job/create-cron-job.command';
@@ -51,36 +51,32 @@ export class CronController {
   @ApiAutoResponse(TriggerResultDto, { wrapInSuccessResponse: true })
   async trigger(
     @Headers('x-cloudscheduler-scheduletime') scheduleTime?: string,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(new TriggerCronJobsCommand(scheduleTime)),
-    );
+  ): Promise<TriggerResultDto> {
+    return this.commandBus.execute(new TriggerCronJobsCommand(scheduleTime));
   }
 
   @Get('jobs')
   @RequirePermissions('read:cron')
   @ApiOperation({ summary: 'List all cron job definitions with next-run time' })
   @ApiAutoResponse(CronJobDto, { wrapInSuccessResponse: true, isArray: true })
-  async getJobs() {
-    return new SuccessResponse(await this.queryBus.execute(new GetCronJobsQuery()));
+  async getJobs(): Promise<CronJobDto[]> {
+    return this.queryBus.execute(new GetCronJobsQuery());
   }
 
   @Post('jobs')
   @RequirePermissions('update:cron')
   @ApiOperation({ summary: 'Create or upsert a cron job definition' })
   @ApiAutoResponse(CronJobDto, { status: 201, wrapInSuccessResponse: true })
-  async createJob(@Body() dto: CreateCronJobRequestDto) {
-    return new SuccessResponse(
-      await this.commandBus.execute(
-        new CreateCronJobCommand({
-          name: dto.name,
-          description: dto.description,
-          expression: dto.expression,
-          handler: dto.handler,
-          enabled: dto.enabled ?? true,
-          inputData: dto.inputData,
-        }),
-      ),
+  async createJob(@Body() dto: CreateCronJobRequestDto): Promise<CronJobDto> {
+    return this.commandBus.execute(
+      new CreateCronJobCommand({
+        name: dto.name,
+        description: dto.description,
+        expression: dto.expression,
+        handler: dto.handler,
+        enabled: dto.enabled ?? true,
+        inputData: dto.inputData,
+      }),
     );
   }
 
@@ -91,19 +87,16 @@ export class CronController {
   async updateJob(
     @Param('name') name: string,
     @Body() dto: UpdateCronJobRequestDto,
-  ) {
-    return new SuccessResponse(
-      await this.commandBus.execute(new UpdateCronJobCommand(name, dto)),
-    );
+  ): Promise<CronJobDto> {
+    return this.commandBus.execute(new UpdateCronJobCommand(name, dto));
   }
 
   @Delete('jobs/:name')
   @RequirePermissions('update:cron')
   @ApiOperation({ summary: 'Delete a cron job definition' })
   @ApiAutoVoidResponse()
-  async deleteJob(@Param('name') name: string) {
+  async deleteJob(@Param('name') name: string): Promise<void> {
     await this.commandBus.execute(new DeleteCronJobCommand(name));
-    return new SuccessResponse();
   }
 
   /**
@@ -118,8 +111,8 @@ export class CronController {
   async runJob(
     @Param('name') name: string,
     @Body() body: Record<string, any>,
-  ) {
+  ): Promise<string> {
     const result = await this.commandBus.execute(new RunCronJobCommand(name, body));
-    return new SuccessResponse(result.id);
+    return result.id;
   }
 }

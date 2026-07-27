@@ -1,35 +1,29 @@
-export const COMMENT_ENTITY_ACCESS_PORT = Symbol('COMMENT_ENTITY_ACCESS_PORT');
-
-export type CommentAccessAction = 'read' | 'write';
+export const ICommentEntityAccessPort = Symbol('ICommentEntityAccessPort');
 
 /**
  * Optional port for record-level (entity-instance) access checks.
- * Consumers implement this when a permission check alone is not sufficient —
- * e.g. checking that the user is a member of the specific donation/task.
+ * Consumers implement `IEntityAccessPort` from `@nabarun-ngo/nestjs-shared-core`
+ * when a permission check alone is not sufficient — e.g. checking that the user
+ * is a member of the specific donation/task.
  *
- * Registration is optional — handlers use @Optional() @Inject(COMMENT_ENTITY_ACCESS_PORT).
+ * Registration is optional — handlers use @Optional() @Inject(ICommentEntityAccessPort).
  * If no provider is registered, record-level checks are skipped (permission-based
- * tier still applies via CommentEntityTypePolicy).
+ * tier still applies via EntityTypePolicy).
  *
  * @example
+ * import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
+ * import { ICommentEntityAccessPort } from '@nabarun-ngo/nestjs-shared-comment';
+ *
  * @Injectable()
- * export class MyCommentEntityAccessAdapter implements ICommentEntityAccessPort {
+ * export class CommentEntityAccessAdapter implements IEntityAccessPort {
  *   async canAccess({ entityType, entityId, userId, userPermissions, action }) {
  *     switch (entityType) {
- *       case 'donation': return this.donations.canUserAccess(entityId, userId, action);
- *       case 'task':     return this.tasks.canUserAccess(entityId, userId, action);
+ *       case 'donation': return this.donations.canUserAccess(entityId!, userId, action);
+ *       case 'task':     return this.tasks.canUserAccess(entityId!, userId, action);
  *       default:         return false;
  *     }
  *   }
  * }
+ *
+ * // { provide: ICommentEntityAccessPort, useClass: CommentEntityAccessAdapter }
  */
-export interface ICommentEntityAccessPort {
-  canAccess(params: {
-    entityType: string;
-    entityId: string;
-    userId: string;
-    /** Already resolved by the auth guard — no extra DB call needed. */
-    userPermissions: string[];
-    action: CommentAccessAction;
-  }): Promise<boolean>;
-}

@@ -1,11 +1,12 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { BypassSuccessEnvelope } from '@nabarun-ngo/nestjs-shared-core';
-import { PublicGetThrottle, UseApiKey } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoResponse, BypassSuccessEnvelope } from '@nabarun-ngo/nestjs-shared-core';
+import { UseApiKey } from '@nabarun-ngo/nestjs-shared-auth';
+import { PublicSiteDynamicContentResponseDto } from '../../application/dtos/public-site-dynamic-content-response.dto';
+import { PublicSiteDynamicContent } from '../../public-site.schema';
 import { GetStaticContentQuery } from '../../application/queries/get-static-content/get-static-content.query';
 import { GetDynamicContentQuery } from '../../application/queries/get-dynamic-content/get-dynamic-content.query';
-import { GetFormDefinitionQuery } from '../../application/queries/get-form-definition/get-form-definition.query';
 
 @ApiTags('PublicSiteContents')
 @Controller('public-site/contents')
@@ -13,26 +14,18 @@ import { GetFormDefinitionQuery } from '../../application/queries/get-form-defin
 @ApiSecurity('api-key')
 @BypassSuccessEnvelope()
 export class PublicSiteContentsController {
-  constructor(private readonly queryBus: QueryBus) { }
+  constructor(private readonly queryBus: QueryBus) {}
 
   @Get('static')
-  @PublicGetThrottle()
   @ApiOperation({ summary: 'Get static public site content' })
   getStatic() {
     return this.queryBus.execute(new GetStaticContentQuery());
   }
 
   @Get('dynamic')
-  @PublicGetThrottle()
-  @ApiOperation({ summary: 'Get dynamic public site content (team, events)' })
-  getDynamic() {
+  @ApiOperation({ summary: 'Get dynamic public site content (team, projects, events)' })
+  @ApiAutoResponse(PublicSiteDynamicContentResponseDto)
+  getDynamic(): Promise<PublicSiteDynamicContent> {
     return this.queryBus.execute(new GetDynamicContentQuery());
-  }
-
-  @Get(':formId/form-defination')
-  @PublicGetThrottle()
-  @ApiOperation({ summary: 'Get form definition for a public form' })
-  getFormDefinition(@Param('formId') formId: string) {
-    return this.queryBus.execute(new GetFormDefinitionQuery(formId));
   }
 }

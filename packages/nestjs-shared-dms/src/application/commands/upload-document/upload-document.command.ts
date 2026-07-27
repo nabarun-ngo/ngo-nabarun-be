@@ -7,6 +7,7 @@ export class UploadDocumentCommand {
     readonly visibility: string,
     readonly userId: string,
     readonly userPermissions: string[],
-    readonly storageOwnerSub?: string,
+    /** App profile UUID for per-user storage providers; omit for shared-bucket only. */
+    readonly storageOwnerId?: string,
   ) {}
 }

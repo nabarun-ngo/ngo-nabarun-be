@@ -1,19 +1,17 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { EntityTypePolicyUtil, checkEntityRecordAccess } from '@nabarun-ngo/nestjs-shared-core';
-import { Comment2ModuleOptions } from '../../../comment.schema';
-import { COMMENT2_OPTIONS } from '../../../infrastructure/comment-options.token';
+import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
+import { CommentModuleOptions } from '../../../comment.schema';
+import { COMMENT_OPTIONS } from '../../../infrastructure/comment-options.token';
 import {
   CommentNotFoundError,
   CommentOwnershipError,
 } from '../../../domain/errors/comment.errors';
-import {
-  COMMENT_ENTITY_ACCESS_PORT,
-  ICommentEntityAccessPort,
-} from '../../../domain/ports/entity-access.port';
+import { ICommentEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { ICommentRepository } from '../../../domain/repositories/comment.repository';
 import { CommentResponseDto } from '../../dtos/comment.dtos';
 import { CommentResponseMapper } from '../../mappers/comment-response.mapper';
+import { assertCommentEntityAccess } from '../../utilities/comment-entity-access.util';
 import { UpdateCommentCommand } from './update-comment.command';
 
 @CommandHandler(UpdateCommentCommand)
@@ -23,11 +21,11 @@ export class UpdateCommentHandler
   constructor(
     @Inject(ICommentRepository)
     private readonly repo: ICommentRepository,
-    @Inject(COMMENT2_OPTIONS)
-    private readonly options: Comment2ModuleOptions,
+    @Inject(COMMENT_OPTIONS)
+    private readonly options: CommentModuleOptions,
     @Optional()
-    @Inject(COMMENT_ENTITY_ACCESS_PORT)
-    private readonly accessPort: ICommentEntityAccessPort | null,
+    @Inject(ICommentEntityAccessPort)
+    private readonly accessPort: IEntityAccessPort | null,
     private readonly eventBus: EventBus,
   ) { }
 
@@ -36,32 +34,13 @@ export class UpdateCommentHandler
     if (!comment) throw new CommentNotFoundError(cmd.id);
     if (comment.authorId !== cmd.authorId) throw new CommentOwnershipError();
 
-    // 1. Permission check on the entity type
-    const entityConfig = EntityTypePolicyUtil.findConfig(
-      comment.entityType,
-      this.options.allowedEntityTypes,
-      'COMMENT',
-    );
-    EntityTypePolicyUtil.assertHasPermission(
-      entityConfig?.writePermissions,
-      cmd.userPermissions,
-      'write',
-      comment.entityType,
-      'COMMENT',
-    );
-
-    // 2. Optional record-level access check
-    await checkEntityRecordAccess(
-      this.accessPort,
-      {
-        entityType: comment.entityType,
-        entityId: comment.entityId,
-        userId: cmd.authorId,
-        userPermissions: cmd.userPermissions,
-        action: 'write',
-      },
-      'COMMENT',
-    );
+    await assertCommentEntityAccess(this.options, this.accessPort, {
+      entityType: comment.entityType,
+      entityId: comment.entityId,
+      userId: cmd.authorId,
+      userPermissions: cmd.userPermissions,
+      action: 'write',
+    });
 
     // 3. Domain update — aggregate records new mentions in CommentUpdatedEvent
     const { updated } = comment.update(cmd.content, cmd.mentions);

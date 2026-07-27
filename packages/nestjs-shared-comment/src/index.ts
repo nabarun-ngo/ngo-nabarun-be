@@ -1,6 +1,15 @@
 // Module
-export { Comment2Module as CommentModule } from './comment.module';
-export { Comment2ModuleOptions as CommentModuleOptions , EntityTypeAccessConfig as CommentEntityTypeAccessConfig } from './comment.schema';
+export { CommentModule } from './comment.module';
+export type { CommentModuleOverrides } from './comment.module';
+export { CommentModuleOptions, EntityTypeAccessConfig as CommentEntityTypeAccessConfig } from './comment.schema';
+
+// Application — outbound notification port (host provides the adapter)
+export {
+  COMMENT_NOTIFICATION_PORT,
+  type ICommentNotificationPort,
+  type CommentMentionNotification,
+  type CommentAddedNotification,
+} from './application/ports/comment-notification.port';
 
 // Domain — errors
 export {
@@ -23,12 +32,9 @@ export { CommentMentionEvent } from './application/events/comment-mention.event'
 export { Comment } from './domain/aggregates/comment.aggregate';
 export { CommentMention } from './domain/entities/comment-mention.entity';
 
-// Domain — ports and repository (consumers need these to provide implementations)
-export {
-  COMMENT_ENTITY_ACCESS_PORT,
-  ICommentEntityAccessPort,
-  CommentAccessAction,
-} from './domain/ports/entity-access.port';
+// Domain — ports and repository
+// **Host persistence only** for ICommentRepository — integrate via CommentModule HTTP or future CommentFacade.
+export { ICommentEntityAccessPort } from './domain/ports/entity-access.port';
 export {
   ICommentRepository,
   CommentFilter,
@@ -49,5 +55,5 @@ export {
   CommentMentionResponseDto,
 } from './application/dtos/comment.dtos';
 
-// Infrastructure — options token (needed when consumers inject COMMENT2_OPTIONS)
-export { COMMENT2_OPTIONS as COMMENT_OPTIONS} from './infrastructure/comment-options.token';
+// Infrastructure — options token (needed when consumers inject COMMENT_OPTIONS)
+export { COMMENT_OPTIONS } from './infrastructure/comment-options.token';

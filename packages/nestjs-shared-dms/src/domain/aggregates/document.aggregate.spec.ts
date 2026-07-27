@@ -16,7 +16,7 @@ const BASE_PARAMS = {
   mappedTo: [] as DocumentMapping[],
   visibility: DocumentVisibility.Private,
   uploadedById: 'user-1' as string | undefined,
-  storageOwnerSub: undefined as string | undefined,
+  storageOwnerId: undefined as string | undefined,
 };
 
 function buildDocument(overrides: Partial<typeof BASE_PARAMS> = {}): Document {
@@ -85,10 +85,10 @@ describe('Document aggregate', () => {
       expect(doc.isPublic).toBe(false);
     });
 
-    it('storageOwnerSub is set when provided', () => {
-      const doc = buildDocument({ storageOwnerSub: 'google-sub-1' });
+    it('storageOwnerId is set when provided', () => {
+      const doc = buildDocument({ storageOwnerId: 'user-uuid-1' });
 
-      expect(doc.storageOwnerSub).toBe('google-sub-1');
+      expect(doc.storageOwnerId).toBe('user-uuid-1');
     });
 
     it('isDeleted is false on a fresh document', () => {

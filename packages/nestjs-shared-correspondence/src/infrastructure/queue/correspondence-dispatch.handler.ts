@@ -1,8 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { QueueHandler, IQueueHandler, Job, JobExecutionContext } from '@nabarun-ngo/nestjs-shared-queue';
 import { CorrespondenceDispatchJob } from '../../application/jobs/correspondence-dispatch.job';
-import { IEmailDispatchPort } from '../../application/ports/email-dispatch.port';
-import { IPushNotificationPort, PUSH_NOTIFICATION_PORT } from '../../domain/ports/push-notification.port';
+import { EmailDispatchService } from '../../application/dispatch/email-dispatch.service';
+import { IPushNotificationPort } from '../../domain/ports/push-notification.port';
 import { INotificationRepository } from '../../domain/repositories/notification.repository';
 import { IUserNotificationRepository } from '../../domain/repositories/user-notification.repository';
 
@@ -15,9 +15,8 @@ export class CorrespondenceDispatchHandler
   private readonly logger = new Logger(CorrespondenceDispatchHandler.name);
 
   constructor(
-    @Inject(IEmailDispatchPort)
-    private readonly emailDispatchPort: IEmailDispatchPort,
-    @Inject(PUSH_NOTIFICATION_PORT)
+    private readonly emailDispatchService: EmailDispatchService,
+    @Inject(IPushNotificationPort)
     private readonly pushPort: IPushNotificationPort,
     @Inject(INotificationRepository)
     private readonly notificationRepo: INotificationRepository,
@@ -34,7 +33,7 @@ export class CorrespondenceDispatchHandler
 
     if (payload.sendEmail && payload.emailAddresses?.length && payload.templateKey) {
       try {
-        await this.emailDispatchPort.sendFromTemplate({
+        await this.emailDispatchService.sendFromTemplate({
           templateKey: payload.templateKey,
           templateData: payload.templateData,
           to: payload.emailAddresses,

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { QueueFacade } from '@nabarun-ngo/nestjs-shared-queue';
 import {
-  DISPATCH_QUEUE_PORT,
   IDispatchQueuePort,
   CorrespondenceDispatchPayload,
 } from '@nabarun-ngo/nestjs-shared-correspondence';
@@ -19,6 +18,6 @@ export class QueueDispatchAdapter implements IDispatchQueuePort {
 }
 
 export const DISPATCH_QUEUE_PORT_PROVIDER = {
-  provide: DISPATCH_QUEUE_PORT,
+  provide: IDispatchQueuePort,
   useClass: QueueDispatchAdapter,
 };

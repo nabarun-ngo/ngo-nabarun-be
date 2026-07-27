@@ -7,10 +7,16 @@ import { IProjectRepository } from './domain/repositories/project.repository';
 import { IActivityRepository } from './domain/repositories/activity.repository';
 import { IBeneficiaryRepository } from './domain/repositories/beneficiary.repository';
 import { IGoalRepository } from './domain/repositories/goal.repository';
+import { ITeamMemberRepository } from './domain/repositories/team-member.repository';
+import { IProjectRiskRepository } from './domain/repositories/project-risk.repository';
+import { IMilestoneRepository } from './domain/repositories/milestone.repository';
 import { ProjectPrismaRepository } from '../../shared/persistence/project/project.prisma-repository';
 import { ActivityPrismaRepository } from '../../shared/persistence/project/activity.prisma-repository';
 import { BeneficiaryPrismaRepository } from '../../shared/persistence/project/beneficiary.prisma-repository';
 import { GoalPrismaRepository } from '../../shared/persistence/project/goal.prisma-repository';
+import { TeamMemberPrismaRepository } from '../../shared/persistence/project/team-member.prisma-repository';
+import { ProjectRiskPrismaRepository } from '../../shared/persistence/project/project-risk.prisma-repository';
+import { MilestonePrismaRepository } from '../../shared/persistence/project/milestone.prisma-repository';
 import { CreateProjectHandler } from './application/commands/create-project/create-project.handler';
 import { UpdateProjectHandler } from './application/commands/update-project/update-project.handler';
 import { CreateActivityHandler } from './application/commands/create-activity/create-activity.handler';
@@ -30,7 +36,27 @@ import { GetBeneficiaryByIdHandler } from './application/queries/get-beneficiary
 import { ListGoalsHandler } from './application/queries/list-goals/list-goals.handler';
 import { GetProjectProgressHandler } from './application/queries/get-project-progress/get-project-progress.handler';
 import { GetProjectDashboardHandler } from './application/queries/get-project-dashboard/get-project-dashboard.handler';
-import { OnActivityCompletedHandler } from './application/event-handlers/on-activity-completed/on-activity-completed.handler';
+import { CountBeneficiariesHandler } from './application/queries/count-beneficiaries/count-beneficiaries.handler';
+import {
+  AddTeamMemberHandler,
+  DeactivateTeamMemberHandler,
+  ListTeamMembersHandler,
+  UpdateTeamMemberHandler,
+} from './application/handlers/team-member.handlers';
+import {
+  CreateProjectRiskHandler,
+  ListProjectRisksHandler,
+  ResolveProjectRiskHandler,
+  UpdateProjectRiskHandler,
+} from './application/handlers/project-risk.handlers';
+import {
+  CompleteMilestoneHandler,
+  CreateMilestoneHandler,
+  ListMilestonesHandler,
+  UpdateMilestoneHandler,
+} from './application/handlers/milestone.handlers';
+import { ProjectFacade } from './application/services/project.facade';
+import { OnActivityCompletedHandler } from './application/handlers/events/on-activity-completed/on-activity-completed.handler';
 import { ProjectReportProvider } from './application/reports/project-report.provider';
 import { ActivityReportProvider } from './application/reports/activity-report.provider';
 import { ProjectController } from './presentation/controllers/project.controller';
@@ -60,6 +86,18 @@ const COMMAND_HANDLERS = [
   UpdateGoalProgressHandler,
 ];
 
+const SUBRESOURCE_COMMAND_HANDLERS = [
+  AddTeamMemberHandler,
+  UpdateTeamMemberHandler,
+  DeactivateTeamMemberHandler,
+  CreateProjectRiskHandler,
+  UpdateProjectRiskHandler,
+  ResolveProjectRiskHandler,
+  CreateMilestoneHandler,
+  UpdateMilestoneHandler,
+  CompleteMilestoneHandler,
+];
+
 const QUERY_HANDLERS = [
   ListProjectsHandler,
   GetProjectByIdHandler,
@@ -70,6 +108,10 @@ const QUERY_HANDLERS = [
   ListGoalsHandler,
   GetProjectProgressHandler,
   GetProjectDashboardHandler,
+  CountBeneficiariesHandler,
+  ListTeamMembersHandler,
+  ListProjectRisksHandler,
+  ListMilestonesHandler,
 ];
 
 const EVENT_HANDLERS = [OnActivityCompletedHandler];
@@ -101,12 +143,17 @@ export class ProjectModule {
         { provide: IActivityRepository, useClass: ActivityPrismaRepository },
         { provide: IBeneficiaryRepository, useClass: BeneficiaryPrismaRepository },
         { provide: IGoalRepository, useClass: GoalPrismaRepository },
+        { provide: ITeamMemberRepository, useClass: TeamMemberPrismaRepository },
+        { provide: IProjectRiskRepository, useClass: ProjectRiskPrismaRepository },
+        { provide: IMilestoneRepository, useClass: MilestonePrismaRepository },
         ...COMMAND_HANDLERS,
+        ...SUBRESOURCE_COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
         ...EVENT_HANDLERS,
         ...REPORT_PROVIDERS,
+        ProjectFacade,
       ],
-      exports: [IProjectRepository, IActivityRepository, ProjectReportProvider, ActivityReportProvider],
+      exports: [ProjectFacade, ProjectReportProvider, ActivityReportProvider],
     };
   }
 }

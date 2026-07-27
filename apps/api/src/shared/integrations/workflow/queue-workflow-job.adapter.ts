@@ -9,7 +9,7 @@ import {
   WorkflowQueueJobType,
   WorkflowTimerJob,
 } from '@nabarun-ngo/nestjs-shared-workflow';
-import { QueueProcessingService } from '@nabarun-ngo/nestjs-shared-queue';
+import { QueueFacade } from '@nabarun-ngo/nestjs-shared-queue';
 
 const JOB_NAME_BY_TYPE: Record<WorkflowQueueJobType, string> = {
   serviceTask: ProcessServiceTaskJob.name,
@@ -19,7 +19,7 @@ const JOB_NAME_BY_TYPE: Record<WorkflowQueueJobType, string> = {
 
 @Injectable()
 export class QueueWorkflowJobAdapter implements IWorkflowQueuePort {
-  constructor(private readonly queueProcessing: QueueProcessingService) { }
+  constructor(private readonly queueFacade: QueueFacade) {}
 
   async enqueue(
     jobType: WorkflowQueueJobType,
@@ -49,15 +49,10 @@ export class QueueWorkflowJobAdapter implements IWorkflowQueuePort {
       jobOptions.delay = Math.max(0, options.runAt.getTime() - Date.now());
     }
 
-    const job = await this.queueProcessing.addJob(
-      jobName,
-      { payload },
-      jobOptions,
-    );
+    const job = await this.queueFacade.dispatch(jobName, { payload }, jobOptions);
     return { id: job.id! };
   }
 
-  /** Schedule an SLA timer (WorkflowTimerJob) before escalation. */
   async enqueueTimer(
     payload: WorkflowQueueJobPayload,
     options?: { dedupeKey?: string; runAt?: Date },
@@ -74,11 +69,7 @@ export class QueueWorkflowJobAdapter implements IWorkflowQueuePort {
       jobOptions.delay = Math.max(0, options.runAt.getTime() - Date.now());
     }
 
-    const job = await this.queueProcessing.addJob(
-      WorkflowTimerJob.name,
-      { payload },
-      jobOptions,
-    );
+    const job = await this.queueFacade.dispatch(WorkflowTimerJob.name, { payload }, jobOptions);
     return { id: job.id! };
   }
 }

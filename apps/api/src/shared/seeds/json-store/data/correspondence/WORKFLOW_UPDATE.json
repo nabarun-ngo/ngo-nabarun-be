@@ -1,5 +1,17 @@
 {
   "subject": "Workflow update: {{workflowName}}",
-  "htmlTemplate": "<p>Hi {{recipientName}}, workflow <strong>{{workflowName}}</strong> ({{instanceId}}) status: {{status}}.</p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "Workflow update",
+        "subHeading": "{{workflowName}}"
+      },
+      "content": {
+        "salutation": "Hi {{recipientName}},",
+        "paragraph1_blue": "Workflow {{workflowName}} ({{instanceId}}) status: {{status}}."
+      }
+    }
+  },
   "textTemplate": "Workflow {{workflowName}} ({{instanceId}}) update: {{status}}."
 }

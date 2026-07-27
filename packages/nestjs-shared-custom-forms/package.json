@@ -1,8 +1,13 @@
 {
   "name": "@nabarun-ngo/nestjs-shared-custom-forms",
   "version": "1.0.0",
-  "private": true,
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist && rimraf .turbo",
@@ -22,6 +27,7 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./schemas/custom-forms.ruleset.json": "./schemas/custom-forms.ruleset.json",
     "./*": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"

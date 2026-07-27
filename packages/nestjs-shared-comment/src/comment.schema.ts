@@ -8,19 +8,18 @@ export interface EntityTypeConfig {
 
 export type { EntityTypeConfig as EntityTypeAccessConfig };
 
-export interface Comment2NotificationOptions {
-  /** Template key for mention emails. Defaults to 'COMMENT_MENTION'. */
-  mentionTemplateKey?: string;
-  /** Template key for subscriber emails on comment-added. Defaults to 'COMMENT_ADDED'. */
-  subscriberTemplateKey?: string;
+export interface CommentNotificationOptions {
   /**
-   * When false, subscriber notifications (mode=resource) are suppressed entirely.
-   * Defaults to true.
+   * When false, subscriber notifications (comment-added fan-out) are suppressed
+   * entirely — the outbound notification port is not called. Defaults to true.
+   *
+   * Notification wording, template keys, and channels are owned by the host
+   * adapter implementing ICommentNotificationPort, not by this module.
    */
   notifySubscribers?: boolean;
 }
 
-export interface Comment2ModuleOptions {
+export interface CommentModuleOptions {
   /**
    * Every entity type the comment module will serve must be listed here.
    * Requests for unlisted entity types are rejected with 403.
@@ -30,5 +29,5 @@ export interface Comment2ModuleOptions {
   /**
    * Correspondence notification settings. When omitted, defaults apply.
    */
-  notifications?: Comment2NotificationOptions;
+  notifications?: CommentNotificationOptions;
 }

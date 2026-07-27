@@ -2,8 +2,8 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { IRecaptchaPort } from '../../application/ports/recaptcha.port';
-import { AUTH2_OPTIONS } from '../auth-options.token';
-import { Auth2ModuleOptions } from '../../auth-options';
+import { AUTH_OPTIONS } from '../auth-options.token';
+import { AuthModuleOptions } from '../../auth-options';
 
 
 interface RecaptchaVerifyResponse {
@@ -21,7 +21,7 @@ export class RecaptchaAdapter implements IRecaptchaPort {
 
   constructor(
     private readonly httpService: HttpService,
-    @Inject(AUTH2_OPTIONS) private readonly options: Auth2ModuleOptions,
+    @Inject(AUTH_OPTIONS) private readonly options: AuthModuleOptions,
   ) {}
 
   async verify(token: string, action: string, threshold: number): Promise<boolean> {
@@ -29,7 +29,7 @@ export class RecaptchaAdapter implements IRecaptchaPort {
     if (!secretKey) {
       this.logger.warn(
         'reCAPTCHA secret key is not configured — all captcha checks will pass. ' +
-          'Set recaptcha.secretKey in Auth2ModuleOptions to protect public endpoints.',
+          'Set recaptcha.secretKey in AuthModuleOptions to protect public endpoints.',
       );
       return true;
     }

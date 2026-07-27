@@ -208,15 +208,15 @@ export type ProjectRisk = Prisma.ProjectRiskModel
  */
 export type Report = Prisma.ReportModel
 /**
- * Model TokenVault2OAuthAccount
+ * Model TokenVaultOAuthAccount
  * 
  */
-export type TokenVault2OAuthAccount = Prisma.TokenVault2OAuthAccountModel
+export type TokenVaultOAuthAccount = Prisma.TokenVaultOAuthAccountModel
 /**
- * Model TokenVault2OAuthToken
+ * Model TokenVaultOAuthToken
  * 
  */
-export type TokenVault2OAuthToken = Prisma.TokenVault2OAuthTokenModel
+export type TokenVaultOAuthToken = Prisma.TokenVaultOAuthTokenModel
 /**
  * Model UserProfile
  * 

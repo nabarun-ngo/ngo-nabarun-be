@@ -1,13 +1,18 @@
 {
   "name": "@nabarun-ngo/nestjs-shared-correspondence",
   "version": "1.0.0",
-  "private": true,
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist && rimraf .turbo",
     "prebuild": "npm run clean",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node ../../scripts/copy-assets.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "test": "jest"
@@ -15,7 +20,8 @@
   "dependencies": {
     "@nabarun-ngo/nestjs-shared-core": "*",
     "@nabarun-ngo/nestjs-shared-auth": "*",
-    "@nabarun-ngo/nestjs-shared-queue": "*"
+    "@nabarun-ngo/nestjs-shared-queue": "*",
+    "handlebars": "^4.7.8"
   },
   "exports": {
     ".": {

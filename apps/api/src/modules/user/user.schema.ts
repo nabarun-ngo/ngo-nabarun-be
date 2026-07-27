@@ -70,7 +70,7 @@ export type IdpOptions = z.infer<typeof IdpOptionsSchema>;
 export const UserModuleOptionsSchema = z.object({
   /** Auth0 Management API credentials and connection configuration. */
   idp: IdpOptionsSchema,
-  /** Default role keys to grant on admin user create (via Auth2 GrantUserRoleCommand). */
+  /** Default role keys to grant on admin user create (via Auth GrantUserRoleCommand). */
   defaultRoleKeys: z.array(z.string()).optional().default([]),
   /** Number of days before a provisioned password expires (written to IdP app_metadata). */
   passwordExpiresInDays: z.coerce.number().int().min(1).optional().default(90),

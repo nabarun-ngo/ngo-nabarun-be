@@ -12,7 +12,12 @@ async function main() {
 
   applyConfig(app, {
     globalPrefix: 'api',
-    globalPrefixExclusions: [{ path: 'newsletter', method: RequestMethod.POST }],
+    globalPrefixExclusions: [
+      { path: 'newsletter', method: RequestMethod.POST },
+      { path: 'health', method: RequestMethod.GET },
+      { path: 'ready', method: RequestMethod.GET },
+      { path: 'metrics', method: RequestMethod.GET },
+    ],
     environment: config.getOrThrow<string>(Configkey.NODE_ENV),
     appName: `${config.get<string>(Configkey.APP_NAME) ?? 'NestJS'} API`,
     corsOrigins: config.get<string>(Configkey.CORS_ALLOWED_ORIGIN)?.split(','),

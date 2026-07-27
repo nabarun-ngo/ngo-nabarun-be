@@ -16,7 +16,7 @@ export class DocumentAccessDeniedError extends BusinessError {
 export class EntityTypeForbiddenError extends BusinessError {
   constructor(entityType: string) {
     super(
-      `entityType "${entityType}" is not registered with Dms2Module`,
+      `entityType "${entityType}" is not registered with DmsModule`,
       'DOCUMENT_ENTITY_TYPE_FORBIDDEN',
       403,
     );

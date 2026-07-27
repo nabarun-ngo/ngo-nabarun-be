@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { EntityTypePolicyUtil, checkEntityRecordAccess } from '@nabarun-ngo/nestjs-shared-core';
+import { IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
 import { Document } from '../../../domain/aggregates/document.aggregate';
 import { DocumentMapping } from '../../../domain/entities/document-mapping.entity';
 import { DocumentVisibility } from '../../../domain/enums/document-visibility.enum';
@@ -11,9 +11,10 @@ import { IDocumentEntityAccessPort } from '../../../domain/ports/entity-access.p
 import { IStorageProvider } from '../../../domain/ports/storage.port';
 import { IDocumentRepository } from '../../../domain/repositories/document.repository';
 import { DMS2_OPTIONS } from '../../../infrastructure/dms-options.application-token';
-import { Dms2ModuleOptions, EntityTypeConfig } from '../../../dms.schema';
+import { DmsModuleOptions, EntityTypeConfig } from '../../../dms.schema';
 import { DocumentResponseDto } from '../../../presentation/dtos/document-response.dto';
 import { DocumentResponseMapper } from '../../mappers/document-response.mapper';
+import { assertDocumentEntityAccess } from '../../utilities/document-entity-access.util';
 import { UploadDocumentCommand } from './upload-document.command';
 
 // HIGH-2: TODO — Install the `file-type` npm package (`npm i file-type`) and call
@@ -50,10 +51,10 @@ export class UploadDocumentHandler
     @Inject(IStorageProvider)
     private readonly storageProvider: IStorageProvider,
     @Inject(DMS2_OPTIONS)
-    private readonly options: Dms2ModuleOptions,
+    private readonly options: DmsModuleOptions,
     @Optional()
     @Inject(IDocumentEntityAccessPort)
-    private readonly accessPort: IDocumentEntityAccessPort | null,
+    private readonly accessPort: IEntityAccessPort | null,
     private readonly eventBus: EventBus,
   ) { }
 
@@ -66,15 +67,20 @@ export class UploadDocumentHandler
       visibility,
       userId,
       userPermissions,
-      storageOwnerSub,
+      storageOwnerId,
     } = command;
 
     // 1. Allowlist + permission check per mapping
-    const configs: (EntityTypeConfig | null)[] = mappings.map((m) => {
-      const config = EntityTypePolicyUtil.findConfig(m.entityType, this.options.allowedEntityTypes, 'DOCUMENT');
-      EntityTypePolicyUtil.assertHasPermission(config?.writePermissions, userPermissions, 'write', m.entityType, 'DOCUMENT');
-      return config;
-    });
+    const configs: (EntityTypeConfig | null)[] = await Promise.all(
+      mappings.map((m) =>
+        assertDocumentEntityAccess(this.options, this.accessPort, {
+          entityType: m.entityType,
+          userId,
+          userPermissions,
+          action: 'write',
+        }),
+      ),
+    );
 
     // 2. Upload policy: file size and declared MIME type
     DocumentUploadPolicy.assertSizeAllowed(fileBuffer.length, this.options.maxFileSizeMb);
@@ -109,18 +115,20 @@ export class UploadDocumentHandler
     if (!this.accessPort && mappings.length > 0) {
       this.logger.warn(
         `[DMS2] IDocumentEntityAccessPort is not configured — record-level entity access check ` +
-        `is BYPASSED for upload by user ${userId}. Register IDocumentEntityAccessPort to enable ` +
-        `entity-level access control.`,
+        `is BYPASSED for upload by user ${userId}. Register an IEntityAccessPort adapter on ` +
+        `IDocumentEntityAccessPort to enable entity-level access control.`,
       );
     }
 
     // 4. Optional record-level access check (write) — all mappings must pass
     for (const m of mappings) {
-      await checkEntityRecordAccess(
-        this.accessPort,
-        { entityType: m.entityType, entityId: m.entityId, userId, userPermissions, action: 'write' },
-        'DOCUMENT',
-      );
+      await assertDocumentEntityAccess(this.options, this.accessPort, {
+        entityType: m.entityType,
+        entityId: m.entityId,
+        userId,
+        userPermissions,
+        action: 'write',
+      });
     }
 
     // MEDIUM-3: Sanitize fileName before embedding in the storage key to prevent path
@@ -134,7 +142,7 @@ export class UploadDocumentHandler
       contentType,
       token: accessToken,
       content: fileBuffer,
-      ownerSub: storageOwnerSub,
+      ownerId: storageOwnerId,
     });
 
     // 6. Build mapping entities
@@ -152,7 +160,7 @@ export class UploadDocumentHandler
       mappedTo,
       visibility: visibility as DocumentVisibility,
       uploadedById: userId,
-      storageOwnerSub,
+      storageOwnerId,
     });
 
     // 8. Persist — HIGH-1: compensating storage delete if DB insert fails to avoid
@@ -161,7 +169,7 @@ export class UploadDocumentHandler
       await this.repo.create(document);
     } catch (dbError) {
       try {
-        await this.storageProvider.deleteFile(result.remotePath, storageOwnerSub);
+        await this.storageProvider.deleteFile(result.remotePath, storageOwnerId);
       } catch (deleteError: any) {
         // Compensating delete failed — the blob is now orphaned. Log for manual cleanup.
         this.logger.error(
@@ -185,7 +193,7 @@ export class UploadDocumentHandler
           try {
             document.softDelete();
             await this.repo.update(document.id, document);
-            await this.storageProvider.deleteFile(result.remotePath, storageOwnerSub);
+            await this.storageProvider.deleteFile(result.remotePath, storageOwnerId);
           } catch (rollbackError: any) {
             this.logger.error(
               `[DMS2] Document limit exceeded (TOCTOU race) and rollback failed for ` +

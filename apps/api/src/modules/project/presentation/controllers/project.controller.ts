@@ -97,7 +97,9 @@ export class ProjectController {
     @Query('pageSize') pageSize?: number,
     @Query() filter?: ActivityDetailFilterDto,
   ): Promise<ActivityListResponseDto> {
-    return this.queryBus.execute(new ListActivitiesQuery(id, filter ?? {}, pageIndex, pageSize));
+    return this.queryBus.execute(
+      new ListActivitiesQuery({ ...filter, projectId: id }, pageIndex, pageSize),
+    );
   }
 
   @Post(':id/activity')

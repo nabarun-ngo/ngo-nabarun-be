@@ -28,8 +28,8 @@ JsonStore (workflow definitions)     Custom Forms (entityType: workflow)
 |-------|----------------|----------------|
 | Engine | `packages/nestjs-shared-workflow` | DSL, state machine, CQRS, HTTP controllers |
 | Persistence | `apps/api/src/persistence/workflow/` | Prisma repositories |
-| Integrations | `apps/api/src/integrations/workflow/` | JsonStore, forms, queue, user resolution |
-| Host handlers | `apps/api/src/modules/workflow/` | `@WorkflowTaskHandler`, cron starts |
+| Integrations | `apps/api/src/shared/integrations/workflow/` | JsonStore, forms, queue, user resolution |
+| Host handlers | `apps/api/src/shared/integrations/workflow/handlers/` + `{module}/application/handlers/workflow/` | `@WorkflowTaskHandler`, cron starts |
 | Definitions | `apps/api/prisma/seeds/json-store/workflow/` | Published BPMN-lite JSON |
 | Forms | `apps/api/prisma/seeds/workflow-forms.*` | Custom form definitions per `formKey` |
 
@@ -110,7 +110,6 @@ const workflowModule = WorkflowModule.forRoot(
 
 // imports:
 workflowModule,
-WorkflowHostModule.forRoot({ imports: [workflowModule] }),
 CustomFormsModule.forRootAsync({
   // ...
   entityTypes: [
@@ -120,7 +119,7 @@ CustomFormsModule.forRootAsync({
 }),
 ```
 
-`WorkflowModule` is **not global**. Import it where you need `WorkflowFacade` (e.g. `WorkflowHostModule`).
+`WorkflowModule` is **not global**. Import it in modules that inject `WorkflowFacade` (e.g. `UserModule`, `FinanceModule`, `IntegrationsModule`).
 
 Required port adapters are registered in `IntegrationsModule` and `PersistenceModule`. Boot fails fast via `RequiredPortsGuard` if any are missing.
 
@@ -173,6 +172,8 @@ If `requester` is omitted and `initiatedById` is set, the engine treats the call
 ---
 
 ## BPMN-lite definition DSL
+
+**Authoring guide:** For a complete, user-friendly walkthrough of designing workflow definitions (elements, flows, forms, conditions, examples, and checklist), see **[definition-guide.md](./definition-guide.md)**.
 
 Definitions are stored in JsonStore namespace `workflow`, validated by `WorkflowDefinitionSchema` (Zod).
 
@@ -270,7 +271,7 @@ Field types: `text`, `number`, `date`, `select` (with `Yes`/`No` or `Approve`/`D
 
 ## Service task handlers (host)
 
-Register handlers in `apps/api/src/modules/workflow/` using `@WorkflowTaskHandler`:
+Register domain handlers in the owning module under `application/handlers/workflow/` (e.g. `user`, `finance`, `reporting`). Cross-cutting glue (validation, cron starts, user-delete cleanup) lives in `shared/integrations/workflow/handlers/`. Use `@WorkflowTaskHandler`:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -294,7 +295,7 @@ export class MyHandler implements WorkflowTaskHandlerContract {
 }
 ```
 
-Add the class to `WorkflowHostModule` providers. `TaskHandlerRegistryService` discovers handlers at boot.
+Add the class to the owning module's `providers` array. `TaskHandlerRegistryService` discovers handlers at boot from any imported module.
 
 ### Built-in / stub handlers
 
@@ -317,7 +318,7 @@ Service tasks always enqueue asynchronously (`ProcessServiceTaskJob`). Idempoten
 Cron jobs enqueue `StartWorkflowCronJob` (class name = BullMQ job name). The host handler calls `WorkflowFacade` directly:
 
 ```typescript
-// apps/api/src/modules/workflow/handlers/start-workflow-cron.handler.ts
+// apps/api/src/shared/integrations/workflow/start-workflow-cron.handler.ts
 @QueueHandler(StartWorkflowCronJob)
 export class StartWorkflowCronHandler { /* ... */ }
 ```
@@ -397,15 +398,15 @@ Pass `idempotencyKey` on start/complete for safe retries (24h TTL by default).
 
 - Request form: `MY_TYPE:request`
 - Task forms: one per `userTask.formKey`
-- Update `workflow-forms.seed.ts` or regenerate manifest
+- Update form seeds under `apps/api/src/shared/seeds/`
 
 ### 3. Add validation rules
 
-In `validate-inputs.handler.ts`, add mandatory fields for `MY_TYPE` (or extend `workflow-forms.generated.json` via migrator).
+In `validate-inputs.handler.ts`, add mandatory fields for `MY_TYPE` in `REQUIRED_BY_DEFINITION`.
 
 ### 4. Implement service handlers
 
-Create `@WorkflowTaskHandler` classes for each `serviceTask.handler` value and register in `WorkflowHostModule`.
+Create `@WorkflowTaskHandler` classes for each `serviceTask.handler` value and register them in the owning module (or `IntegrationsModule` for cross-cutting handlers).
 
 ### 5. Seed and test
 
@@ -422,29 +423,6 @@ Add workflow permissions to relevant roles in `apps/api/prisma/seeds/auth.seed.t
 - `create:workflow`, `read:workflow`, `update:workflow`
 - `read:task`, `update:task`
 - `admin:workflows`, `manage:workflow-definitions` (admins only)
-
----
-
-## Migrating from stage templates
-
-One-time conversion from `be-nestjs-stage` step/task JSON to BPMN-lite:
-
-```bash
-npx ts-node apps/api/scripts/workflow/migrate-stage-templates.ts \
-  --input C:/path/to/be-nestjs-stage/src/modules/workflow/infrastructure/templates \
-  --output apps/api/prisma/seeds/json-store/workflow \
-  --forms-output apps/api/prisma/seeds/workflow-forms.generated.json \
-  --skip JOIN_REQUEST,CONTACT_REQUEST
-```
-
-The script:
-
-- Maps stage steps → elements + exclusive/parallel gateways
-- Normalizes role names to monorepo RBAC keys (`GROUP_COORDINATOR` → `SECRETARY`, etc.)
-- Strips `step_*_task_*.` prefixes from condition expressions
-- Emits a forms manifest consumed by `workflow-forms.seed.ts`
-
-**Review migrated output** before committing — complex loops and auto-close tasks may need hand-tuning.
 
 ---
 
@@ -518,7 +496,7 @@ Add routing contract tests when introducing branching logic for a new workflow.
 | Symptom | What to check |
 |---------|---------------|
 | Module won't boot | `RequiredPortsGuard` log — missing port adapter |
-| Handler not found | Handler class in `WorkflowHostModule` providers? |
+| Handler not found | Handler class registered in an imported module's providers? |
 | Task not in inbox | `candidateRoles` vs user's roles; user resolution adapter |
 | Wrong branch taken | Instance `context` vs gateway `condition` |
 | Form save fails | Form published? `formKey` matches? `entityType: workflow` registered? |
@@ -538,14 +516,14 @@ packages/nestjs-shared-workflow/
   src/workflow.module.ts
 
 apps/api/
-  src/integrations/workflow/               # Port adapters
-  src/persistence/workflow/              # Repositories
-  src/modules/workflow/                   # Host handlers
-  prisma/seeds/json-store/workflow/        # Definition seeds
-  prisma/seeds/workflow-forms.seed.ts      # Form seeds
-  scripts/workflow/migrate-stage-templates.ts
+  src/shared/integrations/workflow/       # Port adapters + cross-cutting handlers
+  src/modules/user/application/handlers/workflow/  # User lifecycle task handlers
+  src/modules/finance/application/handlers/workflow/
+  src/modules/reporting/application/handlers/workflow/
+  src/shared/seeds/json-store/data/workflow/  # Definition seeds
 
 docs/workflow/
+  definition-guide.md                    # Authoring workflow definitions (start here for DSL)
   developer-guide.md                       # This file
   runbooks.md                              # Operations
 ```

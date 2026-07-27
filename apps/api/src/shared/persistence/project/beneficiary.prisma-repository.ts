@@ -20,6 +20,20 @@ export class BeneficiaryPrismaRepository implements IBeneficiaryRepository {
   }
   async count(filter: BeneficiaryFilter): Promise<number> { return this.db.client.beneficiary.count({ where: this.where(filter) }); }
   async countByProject(projectId: string): Promise<number> { return this.count({ projectId }); }
+  async countForProjects(projectIds: string[], filter?: BeneficiaryFilter): Promise<number> {
+    if (projectIds.length === 0) {
+      return 0;
+    }
+    return this.db.client.beneficiary.count({
+      where: {
+        deletedAt: null,
+        projectId: { in: projectIds },
+        ...(filter?.status ? { status: filter.status } : {}),
+        ...(filter?.type ? { type: filter.type } : {}),
+        ...(filter?.category ? { category: filter.category } : {}),
+      },
+    });
+  }
   async findPaged(filter?: BaseFilter<BeneficiaryFilter>): Promise<Page<Beneficiary>> {
     const where = this.where(filter?.props);
     const [rows, total] = await Promise.all([

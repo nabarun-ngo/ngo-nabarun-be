@@ -4,7 +4,7 @@ import { InitiateOAuthCommand } from '../commands/initiate-oauth/initiate-oauth.
 import type { InitiateOAuthResult } from '../commands/initiate-oauth/initiate-oauth.handler';
 import { GetValidTokenQuery } from '../queries/get-valid-token/get-valid-token.query';
 
-export const TOKEN_VAULT2_FACADE = Symbol('TOKEN_VAULT2_FACADE');
+export const TOKEN_VAULT_FACADE = Symbol('TOKEN_VAULT_FACADE');
 
 /**
  * The primary programmatic API for external module consumers.
@@ -14,7 +14,7 @@ export const TOKEN_VAULT2_FACADE = Symbol('TOKEN_VAULT2_FACADE');
  * clean, provider-agnostic interface — callers never need to know about
  * `IOAuthProvider`, `OAuthToken`, CQRS, or encryption internals.
  *
- * Inject via the `TOKEN_VAULT2_FACADE` symbol to keep the dependency on
+ * Inject via the `TOKEN_VAULT_FACADE` symbol to keep the dependency on
  * the concrete class out of consumer modules.
  */
 @Injectable()

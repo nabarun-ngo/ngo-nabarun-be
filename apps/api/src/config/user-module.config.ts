@@ -1,9 +1,10 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UserModule } from "../modules/user/user.module";
 import { Configkey } from "../shared/config-keys";
+import { WORKFLOW_MODULE } from "./workflow-module.config";
 
 export const USER_MODULE = UserModule.forRootAsync({
-    imports: [ConfigModule],
+    imports: [ConfigModule, WORKFLOW_MODULE],
     inject: [ConfigService],
     useFactory: (config: ConfigService) => ({
         idp: {

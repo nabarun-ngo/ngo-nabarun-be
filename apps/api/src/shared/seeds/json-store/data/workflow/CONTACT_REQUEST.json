@@ -4,7 +4,12 @@
   "name": "Contact & Support Request",
   "description": "Handle contact and support requests",
   "elements": [
-    { "id": "start", "type": "startEvent", "name": "Start" },
+    {
+      "id": "start",
+      "type": "startEvent",
+      "name": "Start",
+      "formKey": "CONTACT_REQUEST:request"
+    },
     {
       "id": "svc_validate",
       "type": "serviceTask",

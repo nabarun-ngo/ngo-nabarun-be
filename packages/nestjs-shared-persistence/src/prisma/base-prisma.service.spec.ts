@@ -12,7 +12,7 @@ function makeMockPrismaClient() {
 
 async function buildModule(
   mockClient: any,
-  options: any = { postgresUrl: 'postgresql://x', redisUrl: 'redis://x', prismaClientFactory: () => mockClient },
+  options: any = { redisUrl: 'redis://x', prismaClientFactory: () => mockClient },
 ) {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -61,7 +61,6 @@ describe('BasePrismaService', () => {
 
   it('does not apply audit extension when enableAuditExtension is false', async () => {
     const svc = await buildModule(mockClient, {
-      postgresUrl: 'postgresql://x',
       redisUrl: 'redis://x',
       prismaClientFactory: () => mockClient,
       auditedModels: ['User'],
@@ -72,7 +71,6 @@ describe('BasePrismaService', () => {
 
   it('does not apply audit extension when auditedModels is empty', async () => {
     const svc = await buildModule(mockClient, {
-      postgresUrl: 'postgresql://x',
       redisUrl: 'redis://x',
       prismaClientFactory: () => mockClient,
       auditedModels: [],

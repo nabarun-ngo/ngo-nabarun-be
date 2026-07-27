@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { UserReferenceDataPayloadSchema } from './user-reference-data.schema';
 
-const userReferenceDataSeedDir = join(__dirname, '../../../prisma/seeds/json-store/user-reference-data');
+const userReferenceDataSeedDir = join(__dirname, '../../shared/seeds/json-store/data/user-reference-data');
 
 describe('UserReferenceDataPayloadSchema', () => {
   it('accepts payloads with _comment metadata', () => {
@@ -23,7 +23,9 @@ describe('UserReferenceDataPayloadSchema', () => {
   });
 
   it('validates all user-reference-data seed files', () => {
-    const files = readdirSync(userReferenceDataSeedDir).filter((f) => f.endsWith('.json'));
+    const files = readdirSync(userReferenceDataSeedDir).filter(
+      (f) => f.endsWith('.json') && !f.startsWith('_'),
+    );
 
     for (const file of files) {
       const payload = JSON.parse(readFileSync(join(userReferenceDataSeedDir, file), 'utf-8'));

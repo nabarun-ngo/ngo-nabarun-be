@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import { CreateAccountCommand } from '../../application/commands/create-account/create-account.command';
 import { UpdateAccountCommand } from '../../application/commands/update-account/update-account.command';
@@ -88,7 +88,7 @@ export class AccountController {
   @Put(':id/update/me')
   async updateSelf(@Param('id') id: string, @Body() dto: UpdateAccountSelfDto, @CurrentUser() user: AuthUser): Promise<AccountDetailDto> {
     const account = await this.commandBus.execute(
-      new UpdateAccountCommand({ id, bankDetail: dto.bankDetail, upiDetail: dto.upiDetail, actorUserId: user.userId }),
+      new UpdateAccountCommand({ id, bankDetail: dto.bankDetail, upiDetail: dto.upiDetail, actorUserId: requireUserId(user) }),
     );
     return AccountMapper.toDto(account, { includeBankDetail: true, includeUpiDetail: true });
   }
@@ -144,7 +144,7 @@ export class AccountController {
         txnType: 'TRANSFER',
         currency: 'INR',
         txnRefType: TransactionRefType.NONE,
-        actorUserId: user.userId,
+        actorUserId: requireUserId(user),
       }),
     );
   }

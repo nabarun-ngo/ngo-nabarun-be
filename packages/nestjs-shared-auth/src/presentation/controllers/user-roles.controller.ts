@@ -32,6 +32,7 @@ import {
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { RequirePermissions } from '../decorators/require-permissions.decorator';
 import { AuthUser } from '../../application/models/auth-user';
+import { requireUserId } from '../../application/utilities/require-user-id.util';
 
 @ApiBearerAuth('jwt')
 @ApiSecurity('api-key')
@@ -43,9 +44,9 @@ export class UserRolesController {
     private readonly queryBus: QueryBus,
   ) { }
 
-  /** Returns the best available caller ID for audit fields: prefers app userId over raw IdP sub. */
+  /** Audit fields use app profile UUID only. */
   private auditId(caller: AuthUser): string {
-    return caller.userId ?? caller.idpSub;
+    return requireUserId(caller);
   }
 
   @Get('roles')

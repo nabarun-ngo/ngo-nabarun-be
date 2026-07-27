@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./shared/persistence/prisma/client";
 import { seedAuth } from "./shared/seeds/auth/auth.seeder";
@@ -10,7 +11,7 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-    // Auth2 seeding
+    // Auth seeding
     await seedAuth(prisma);
     // JsonStore seeding
     await seedJsonStore(prisma);

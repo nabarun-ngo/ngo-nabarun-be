@@ -111,7 +111,7 @@ describe('DownloadDocumentHandler', () => {
     await expect(handler.execute(query)).rejects.toThrow(DocumentAccessDeniedError);
   });
 
-  it('passes storageOwnerSub to downloadFile for Drive-backed documents', async () => {
+  it('passes storageOwnerId to downloadFile for Drive-backed documents', async () => {
     const doc = Document.create({
       fileName: 'report.pdf',
       contentType: 'application/pdf',
@@ -120,7 +120,7 @@ describe('DownloadDocumentHandler', () => {
       publicToken: 'token-abc',
       mappedTo: [DocumentMapping.create({ refId: 'entity-1', refType: 'donation' })],
       visibility: DocumentVisibility.Private,
-      storageOwnerSub: 'google-sub-1',
+      storageOwnerId: 'user-uuid-1',
     });
     doc.clearEvents();
     const repo = makeRepo(doc);
@@ -129,7 +129,7 @@ describe('DownloadDocumentHandler', () => {
 
     await handler.execute(BASE_QUERY);
 
-    expect(storage.downloadFile).toHaveBeenCalledWith('drive-file-id', 'google-sub-1');
+    expect(storage.downloadFile).toHaveBeenCalledWith('drive-file-id', 'user-uuid-1');
   });
 
   it('calls record-level accessPort and throws when denied', async () => {

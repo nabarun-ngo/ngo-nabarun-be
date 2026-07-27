@@ -3,19 +3,24 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JsonStoreModule } from '@nabarun-ngo/nestjs-shared-json-store';
 import { GOOGLE_SCOPES, TokenVaultModule } from '@nabarun-ngo/nestjs-shared-token-vault';
+import { COMMENT_NOTIFICATION_PORT } from '@nabarun-ngo/nestjs-shared-comment';
 import { Configkey } from '../config-keys';
+import { CORRESPONDENCE_MODULE } from '../../config/correspondence-module.config';
 import { CACHE_PORT_PROVIDER } from './cache/cache-port.adapter';
 import { CRON_JOB_STORE_PROVIDER } from './cron/json-store-cron-job.adapter';
 import { CRON_JOB_QUEUE_PROVIDER } from './cron/queue-cron-job.adapter';
 import { DISPATCH_QUEUE_PORT_PROVIDER } from './correspondence/queue-dispatch.adapter';
 import { TEMPLATE_PORT_PROVIDER } from './correspondence/json-store-template.adapter';
+import { CommentNotificationAdapter } from './correspondence/comment-notification.adapter';
 import { ZodJsonDocumentPayloadValidatorAdapter } from './json-store/json-document-payload-validator.adapter';
 import { OAUTH_ACCESS_TOKEN_PROVIDER } from './oauth/token-vault-oauth-access-token.adapter';
 import { WORKFLOW_DEFINITION_PROVIDER } from './workflow/json-store-workflow-definition.adapter';
 import { WORKFLOW_QUEUE_PROVIDER } from './workflow/queue-workflow-job.adapter';
 import { WORKFLOW_FORM_DATA_PROVIDER } from './workflow/workflow-form-data.adapter';
 import { WORKFLOW_USER_RESOLUTION_PROVIDER } from './workflow/workflow-user-resolution.adapter';
-import { WORKFLOW_FORM_ACCESS_PROVIDER } from './workflow/workflow-form-access.adapter';
+import { ValidateInputsHandler } from './workflow/handlers/workflow/validate-inputs.handler';
+import { OnUserDeletedWorkflowHandler } from './workflow/handlers/events/on-user-deleted-workflow.handler';
+import { StartWorkflowCronHandler } from './workflow/handlers/queue/start-workflow-cron.handler';
 import { IUserReferenceDataPort } from '../../modules/user/application/ports/user-reference-data.port';
 import { UserReferenceDataAdapter } from '../../modules/user/infrastructure/adapters/user-reference-data.adapter';
 import { IFinanceReferenceDataPort } from '../../modules/finance/application/ports/finance-reference-data.port';
@@ -36,11 +41,19 @@ const PORT_PROVIDERS = [
   WORKFLOW_QUEUE_PROVIDER,
   WORKFLOW_FORM_DATA_PROVIDER,
   WORKFLOW_USER_RESOLUTION_PROVIDER,
-  WORKFLOW_FORM_ACCESS_PROVIDER,
   { provide: IUserReferenceDataPort, useClass: UserReferenceDataAdapter },
   { provide: IFinanceReferenceDataPort, useClass: FinanceReferenceDataAdapter },
   { provide: IProjectReferenceDataPort, useClass: ProjectReferenceDataAdapter },
   { provide: IMeetingCalendarPort, useClass: GoogleCalendarMeetingAdapter },
+  // Comment context's outbound notification port → CorrespondenceFacade adapter.
+  // Exported globally so CommentModule's handlers resolve it without a wrapper module.
+  { provide: COMMENT_NOTIFICATION_PORT, useClass: CommentNotificationAdapter },
+];
+
+const WORKFLOW_HANDLERS = [
+  ValidateInputsHandler,
+  OnUserDeletedWorkflowHandler,
+  StartWorkflowCronHandler,
 ];
 
 const PORT_EXPORTS = PORT_PROVIDERS.map((p) => p.provide);
@@ -69,6 +82,8 @@ export class IntegrationsModule {
       imports: [
         ...(options.imports ?? []),
         CqrsModule,
+        // Provides CorrespondenceFacade for the comment notification adapter.
+        CORRESPONDENCE_MODULE,
         jsonStoreModule,
         TokenVaultModule.forRootAsync({
           imports: [ConfigModule],
@@ -90,7 +105,7 @@ export class IntegrationsModule {
           }),
         }),
       ],
-      providers: [...PORT_PROVIDERS],
+      providers: [...PORT_PROVIDERS, ...WORKFLOW_HANDLERS],
       exports: [...PORT_EXPORTS, jsonStoreModule],
     };
   }

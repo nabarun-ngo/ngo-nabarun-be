@@ -1,9 +1,6 @@
+import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
+import { UserNotificationFilter } from '../../../domain/aggregates/user-notification.aggregate';
+
 export class GetUserNotificationsQuery {
-  constructor(
-    public readonly userId: string,
-    public readonly pageIndex?: number,
-    public readonly pageSize?: number,
-    public readonly isRead?: boolean,
-    public readonly isArchived?: boolean,
-  ) {}
+  constructor(public readonly filter: BaseFilter<UserNotificationFilter>) {}
 }

@@ -86,6 +86,7 @@ export class ProjectPrismaRepository implements IProjectRepository {
       ...(props?.sponsorId ? { sponsorId: props.sponsorId } : {}),
       ...(props?.location ? { location: { contains: props.location, mode: 'insensitive' } } : {}),
       ...(props?.tags?.length ? { tags: { hasSome: props.tags } } : {}),
+      ...(props?.isPublic !== undefined ? { isPublic: props.isPublic } : {}),
       deletedAt: null,
     };
   }

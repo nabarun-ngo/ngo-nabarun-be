@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import { CreateMeetingCommand } from '../../application/commands/create-meeting/create-meeting.command';
 import { UpdateMeetingCommand } from '../../application/commands/update-meeting/update-meeting.command';
@@ -32,7 +32,7 @@ export class MeetingController {
   @HttpCode(HttpStatus.CREATED)
   @RequirePermissions('create:meeting')
   async createMeeting(@Body() dto: CreateMeetingDto, @CurrentUser() user: AuthUser): Promise<MeetingDetailDto> {
-    const meeting = await this.commandBus.execute(new CreateMeetingCommand({ ...dto, createdById: user.userId }));
+    const meeting = await this.commandBus.execute(new CreateMeetingCommand({ ...dto, createdById: requireUserId(user) }));
     return MeetingMapper.toDto(meeting);
   }
 
@@ -45,7 +45,7 @@ export class MeetingController {
     @Query() filter?: MeetingDetailFilterDto,
   ): Promise<MeetingListResponseDto> {
     return this.queryBus.execute(
-      new ListMeetingsQuery({ ...filter, participantId: filter?.participantId ?? user.userId }, pageIndex, pageSize),
+      new ListMeetingsQuery({ ...filter, participantId: filter?.participantId ?? requireUserId(user) }, pageIndex, pageSize),
     );
   }
 

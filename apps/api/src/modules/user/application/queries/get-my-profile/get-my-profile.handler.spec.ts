@@ -24,42 +24,72 @@ function makeUser(isProfileComplete = true): User {
 }
 
 describe('GetMyProfileHandler', () => {
-  let repo: jest.Mocked<Pick<IUserRepository, 'findByIdPSub'>>;
+  let repo: jest.Mocked<Pick<IUserRepository, 'findById' | 'findByIdPSub'>>;
   let handler: GetMyProfileHandler;
 
   beforeEach(() => {
-    repo = { findByIdPSub: jest.fn().mockResolvedValue(makeUser()) };
+    repo = {
+      findById: jest.fn().mockResolvedValue(makeUser()),
+      findByIdPSub: jest.fn().mockResolvedValue(makeUser()),
+    };
     handler = new GetMyProfileHandler(repo as unknown as IUserRepository);
   });
 
-  it('returns the user DTO when found by idpSub', async () => {
-    const result = await handler.execute(new GetMyProfileQuery('auth0|abc'));
+  it('returns the user DTO when found by userId', async () => {
+    const result = await handler.execute(
+      new GetMyProfileQuery({ userId: 'user-id-1' }),
+    );
 
     expect(result.email).toBe('john@example.com');
     expect(result.isProfileComplete).toBe(true);
+    expect(repo.findById).toHaveBeenCalledWith('user-id-1');
+    expect(repo.findByIdPSub).not.toHaveBeenCalled();
   });
 
-  it('queries the repository with the given idpSub', async () => {
-    await handler.execute(new GetMyProfileQuery('auth0|abc'));
+  it('falls back to idpSub when userId lookup misses', async () => {
+    repo.findById.mockResolvedValue(null);
+
+    const result = await handler.execute(
+      new GetMyProfileQuery({ userId: 'missing-id', idpSub: 'auth0|abc' }),
+    );
+
+    expect(result.email).toBe('john@example.com');
+    expect(repo.findById).toHaveBeenCalledWith('missing-id');
+    expect(repo.findByIdPSub).toHaveBeenCalledWith('auth0|abc');
+  });
+
+  it('returns the user DTO when found by idpSub only', async () => {
+    const result = await handler.execute(
+      new GetMyProfileQuery({ idpSub: 'auth0|abc' }),
+    );
+
+    expect(result.email).toBe('john@example.com');
+    expect(repo.findById).not.toHaveBeenCalled();
     expect(repo.findByIdPSub).toHaveBeenCalledWith('auth0|abc');
   });
 
   it('includes missingFields in the response', async () => {
-    repo.findByIdPSub.mockResolvedValue(makeUser(false));
-    const result = await handler.execute(new GetMyProfileQuery('auth0|abc'));
+    repo.findById.mockResolvedValue(makeUser(false));
+    const result = await handler.execute(
+      new GetMyProfileQuery({ userId: 'user-id-1' }),
+    );
 
     expect(result.missingFields).toBeDefined();
     expect(Array.isArray(result.missingFields)).toBe(true);
   });
 
   it('missingFields is empty when profile is complete', async () => {
-    const result = await handler.execute(new GetMyProfileQuery('auth0|abc'));
+    const result = await handler.execute(
+      new GetMyProfileQuery({ userId: 'user-id-1' }),
+    );
     expect(result.missingFields).toEqual([]);
   });
 
   it('missingFields lists absent required fields', async () => {
-    repo.findByIdPSub.mockResolvedValue(makeUser(false));
-    const result = await handler.execute(new GetMyProfileQuery('auth0|abc'));
+    repo.findById.mockResolvedValue(makeUser(false));
+    const result = await handler.execute(
+      new GetMyProfileQuery({ userId: 'user-id-1' }),
+    );
 
     expect(result.missingFields).toEqual(
       expect.arrayContaining(['dateOfBirth', 'gender']),
@@ -67,7 +97,11 @@ describe('GetMyProfileHandler', () => {
   });
 
   it('throws UserNotFoundError when no user is found', async () => {
+    repo.findById.mockResolvedValue(null);
     repo.findByIdPSub.mockResolvedValue(null);
-    await expect(handler.execute(new GetMyProfileQuery('auth0|ghost'))).rejects.toThrow(UserNotFoundError);
+
+    await expect(
+      handler.execute(new GetMyProfileQuery({ userId: 'ghost', idpSub: 'auth0|ghost' })),
+    ).rejects.toThrow(UserNotFoundError);
   });
 });

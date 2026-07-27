@@ -140,6 +140,8 @@ export class Form extends AggregateRoot<string> {
     isHidden?: boolean;
     isEncrypted?: boolean;
     sortOrder?: number;
+    stepId?: string | null;
+    stepName?: string | null;
     condition?: FieldCondition | null;
     dependentOptions?: DependentOptions | null;
     createdBy?: string;
@@ -176,6 +178,8 @@ export class Form extends AggregateRoot<string> {
       isHidden?: boolean;
       isEncrypted?: boolean;
       sortOrder?: number;
+      stepId?: string | null;
+      stepName?: string | null;
       condition?: FieldCondition | null;
       dependentOptions?: DependentOptions | null;
       viewPermissions?: string[];

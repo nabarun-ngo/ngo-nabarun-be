@@ -1,25 +1,36 @@
-import { DynamicModule, Module, ModuleMetadata, Provider } from '@nestjs/common';
+import { DynamicModule, Inject, Injectable, Module, ModuleMetadata, Optional, Provider } from '@nestjs/common';
+import { DiscoveryModule, ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { z } from 'zod';
-import { BaseDynamicModule, DynamicModuleAsyncOptions, createRequiredPortsGuard } from '@nabarun-ngo/nestjs-shared-core';
-import { Correspondence2OptionsSchema } from './correspondence.schema';
-import { CORRESPONDENCE2_OPTIONS } from './correspondence-options.token';
-
-export { CORRESPONDENCE2_OPTIONS };
-
+import {
+  BaseDynamicModule,
+  BaseModuleValidator,
+  DynamicModuleAsyncOptions,
+  IUserLookupPort,
+  registerModuleValidator,
+} from '@nabarun-ngo/nestjs-shared-core';
+import { IUserRolePort } from '@nabarun-ngo/nestjs-shared-auth';
+import { CorrespondenceOptionsSchema } from './correspondence.schema';
+import { CORRESPONDENCE_OPTIONS } from './correspondence-options.token';
 import { INotificationRepository } from './domain/repositories/notification.repository';
 import { IUserNotificationRepository } from './domain/repositories/user-notification.repository';
 import { IResourceSubscriptionRepository } from './domain/repositories/resource-subscription.repository';
-import { EMAIL_SENDER_PORT } from './domain/ports/email-sender.port';
-import { PUSH_NOTIFICATION_PORT } from './domain/ports/push-notification.port';
-import { DISPATCH_QUEUE_PORT } from './domain/ports/dispatch-queue.port';
-import { TEMPLATE_PORT } from './domain/ports/template.port';
-import { IEmailDispatchPort } from './application/ports/email-dispatch.port';
+import { IEmailSenderPort } from './domain/ports/email-sender.port';
+import { IPushNotificationPort } from './domain/ports/push-notification.port';
+import { IDispatchQueuePort } from './domain/ports/dispatch-queue.port';
+import { ITemplatePort } from './domain/ports/template.port';
+import { ILayoutRendererPort } from './domain/ports/layout-renderer.port';
 
-import { Correspondence2Orchestrator } from './application/orchestrator/correspondence-orchestrator';
-import { SubscriptionResolutionService } from './application/services/subscription-resolution.service';
-import { EmailDispatchService } from './application/services/email-dispatch.service';
-import { RetentionSchedulerService } from './application/services/retention-scheduler.service';
+import { CorrespondenceOrchestrator } from './application/dispatch/correspondence-orchestrator';
+import { SubscriptionResolutionService } from './application/dispatch/subscription-resolution.service';
+import { EmailDispatchService } from './application/dispatch/email-dispatch.service';
+import { RetentionSchedulerService } from './application/retention/retention-scheduler.service';
+
+import { CorrespondenceEventResolverRegistry } from './application/dispatch/inbound/correspondence-event-resolver.registry';
+import { CorrespondenceEventSubscriber } from './application/dispatch/inbound/correspondence-event.subscriber';
+import { CorrespondenceFacade } from './application/facade/correspondence.facade';
+import { DispatchSpecHandler } from './application/commands/dispatch-spec/dispatch-spec.handler';
+import { SendEmailHandler } from './application/commands/send-email/send-email.handler';
 
 import { MarkUserNotificationReadHandler } from './application/commands/mark-user-notification-read/mark-user-notification-read.handler';
 import { MarkAllUserNotificationsReadHandler } from './application/commands/mark-all-user-notifications-read/mark-all-user-notifications-read.handler';
@@ -38,14 +49,10 @@ import { GetNotificationsAdminHandler } from './application/queries/get-notifica
 import { GetUserSubscriptionsHandler } from './application/queries/get-user-subscriptions/get-user-subscriptions.handler';
 import { GetResourceSubscribersHandler } from './application/queries/get-resource-subscribers/get-resource-subscribers.handler';
 
-import { OnNotificationCreatedHandler } from './application/event-handlers/on-notification-created/on-notification-created.handler';
-import { OnUserNotificationReadHandler } from './application/event-handlers/on-user-notification-read/on-user-notification-read.handler';
-import { OnSubscriptionDeactivatedHandler } from './application/event-handlers/on-subscription-deactivated/on-subscription-deactivated.handler';
-import { OnSubscriptionReactivatedHandler } from './application/event-handlers/on-subscription-reactivated/on-subscription-reactivated.handler';
-
 import { GmailEmailAdapter } from './infrastructure/email/gmail-email.adapter';
 import { SmtpEmailAdapter } from './infrastructure/email/smtp-email.adapter';
 import { FallbackEmailAdapter } from './infrastructure/email/fallback-email.adapter';
+import { HandlebarsLayoutRendererAdapter } from './infrastructure/templates/handlebars-layout-renderer.adapter';
 
 import { OneSignalPushAdapter } from './infrastructure/push/onesignal-push.adapter';
 
@@ -56,13 +63,14 @@ import { PurgeSubscriptionsHandler } from './infrastructure/queue/purge-subscrip
 import { UserNotificationController } from './presentation/controllers/user-notification.controller';
 import { NotificationAdminController } from './presentation/controllers/notification-admin.controller';
 import { SubscriptionController } from './presentation/controllers/subscription.controller';
+import { EmailProviderController } from './presentation/controllers/email-provider.controller';
 
-export type Correspondence2ModuleOptions = z.infer<typeof Correspondence2OptionsSchema>;
+export type CorrespondenceModuleOptions = z.infer<typeof CorrespondenceOptionsSchema>;
 
-export interface Correspondence2AsyncOptions
-  extends DynamicModuleAsyncOptions<Correspondence2ModuleOptions> { }
+export interface CorrespondenceAsyncOptions
+  extends DynamicModuleAsyncOptions<CorrespondenceModuleOptions> { }
 
-export interface Correspondence2ModuleOverrides {
+export interface CorrespondenceModuleOverrides {
   /**
    * Host modules that export `IUserLookupPort` and/or `IUserRolePort`.
    * Both ports are @Optional — omit if user / role resolution is not needed.
@@ -72,40 +80,84 @@ export interface Correspondence2ModuleOverrides {
   queueModule?: DynamicModule;
 }
 
-const CorrespondenceRequiredPortsGuard = createRequiredPortsGuard('Correspondence2Module', [
-  {
-    token: TEMPLATE_PORT,
-    fixHint:
-      'Register { provide: TEMPLATE_PORT, useClass: JsonStoreTemplateAdapter } in IntegrationsModule.',
-  },
-  {
-    token: DISPATCH_QUEUE_PORT,
-    fixHint:
-      'Register { provide: DISPATCH_QUEUE_PORT, useClass: QueueDispatchAdapter } in IntegrationsModule. Requires QueueModule.',
-  },
-]);
+const CORRESPONDENCE_MODULE_VALIDATOR = Symbol('CorrespondenceModule.internalValidator');
+
+const USER_LOOKUP_PORT_MISSING_MSG =
+  '[CorrespondenceModule] IUserLookupPort is not provided. ' +
+  'User-targeted notifications and subscriber resolution by userId will be limited. ' +
+  'Fix: import UserModule (exports IUserLookupPort) in CorrespondenceModule.forRoot() imports.';
+
+const USER_ROLE_PORT_MISSING_MSG =
+  '[CorrespondenceModule] IUserRolePort is not provided. ' +
+  'Role-based subscription expansion will be skipped. ' +
+  'Fix: import AuthModule before CorrespondenceModule — AuthModule registers IUserRolePort.';
+
+@Injectable()
+class CorrespondenceModuleValidator extends BaseModuleValidator {
+  constructor(
+    moduleRef: ModuleRef,
+    @Optional() @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort | null,
+    @Optional() @Inject(IUserRolePort) private readonly userRole: IUserRolePort | null,
+  ) {
+    super(moduleRef);
+  }
+
+  protected getModuleName(): string {
+    return 'CorrespondenceModule';
+  }
+
+  protected validateModule(): void {
+    this.requirePort(
+      INotificationRepository,
+      'Register INotificationRepository in PersistenceModule and import PersistenceModule before CorrespondenceModule.',
+    );
+    this.requirePort(
+      IUserNotificationRepository,
+      'Register IUserNotificationRepository in PersistenceModule and import PersistenceModule before CorrespondenceModule.',
+    );
+    this.requirePort(
+      IResourceSubscriptionRepository,
+      'Register IResourceSubscriptionRepository in PersistenceModule and import PersistenceModule before CorrespondenceModule.',
+    );
+    this.requirePort(
+      ITemplatePort,
+      'Register { provide: ITemplatePort, useClass: JsonStoreTemplateAdapter } in IntegrationsModule.',
+    );
+    this.requirePort(
+      IDispatchQueuePort,
+      'Register { provide: IDispatchQueuePort, useClass: QueueDispatchAdapter } in IntegrationsModule. Requires QueueModule.',
+    );
+
+    if (!this.userLookup) {
+      this.warn(USER_LOOKUP_PORT_MISSING_MSG);
+    }
+    if (!this.userRole) {
+      this.warn(USER_ROLE_PORT_MISSING_MSG);
+    }
+  }
+}
 
 @Module({})
-export class Correspondence2Module extends BaseDynamicModule {
+export class CorrespondenceModule extends BaseDynamicModule {
   static forRoot(
-    options: Correspondence2ModuleOptions,
-    overrides: Correspondence2ModuleOverrides = {},
+    options: CorrespondenceModuleOptions,
+    overrides: CorrespondenceModuleOverrides = {},
   ): DynamicModule {
-    const validated = Correspondence2Module.validate(
-      Correspondence2OptionsSchema,
+    const validated = CorrespondenceModule.validateOptions(
+      CorrespondenceOptionsSchema,
       options,
     );
-    const optionsProvider = Correspondence2Module.createOptionsProvider(
-      CORRESPONDENCE2_OPTIONS,
-      Correspondence2OptionsSchema,
+    const optionsProvider = CorrespondenceModule.createOptionsProvider(
+      CORRESPONDENCE_OPTIONS,
+      CorrespondenceOptionsSchema,
       validated,
     );
     if (!overrides.queueModule) {
       throw new Error(
-        '[Correspondence2Module] queueModule override is required. Pass QueueModule.forRoot/forRootAsync from the host.',
+        '[CorrespondenceModule] queueModule override is required. Pass QueueModule.forRoot/forRootAsync from the host.',
       );
     }
-    return Correspondence2Module._build(
+    return CorrespondenceModule._build(
       [optionsProvider],
       overrides.queueModule,
       overrides.imports ?? [],
@@ -113,20 +165,20 @@ export class Correspondence2Module extends BaseDynamicModule {
   }
 
   static forRootAsync(
-    options: Correspondence2AsyncOptions,
-    overrides: Correspondence2ModuleOverrides = {},
+    options: CorrespondenceAsyncOptions,
+    overrides: CorrespondenceModuleOverrides = {},
   ): DynamicModule {
-    const optionsProvider = Correspondence2Module.createAsyncOptionsProvider(
-      CORRESPONDENCE2_OPTIONS,
-      Correspondence2OptionsSchema,
+    const optionsProvider = CorrespondenceModule.createAsyncOptionsProvider(
+      CORRESPONDENCE_OPTIONS,
+      CorrespondenceOptionsSchema,
       options,
     );
     if (!overrides.queueModule) {
       throw new Error(
-        '[Correspondence2Module] queueModule override is required. Pass QueueModule.forRoot/forRootAsync from the host.',
+        '[CorrespondenceModule] queueModule override is required. Pass QueueModule.forRoot/forRootAsync from the host.',
       );
     }
-    return Correspondence2Module._build(
+    return CorrespondenceModule._build(
       [optionsProvider],
       overrides.queueModule,
       options.imports ?? [],
@@ -139,11 +191,11 @@ export class Correspondence2Module extends BaseDynamicModule {
     extraImports: any[] = [],
   ): DynamicModule {
     return {
-      module: Correspondence2Module,
-      imports: [...extraImports, CqrsModule, queueModule],
-      controllers: Correspondence2Module.controllers,
-      providers: Correspondence2Module.providers(optionsProviders),
-      exports: [],
+      module: CorrespondenceModule,
+      imports: [...extraImports, CqrsModule, DiscoveryModule, queueModule],
+      controllers: CorrespondenceModule.controllers,
+      providers: CorrespondenceModule.providers(optionsProviders),
+      exports: [CorrespondenceFacade],
     };
   }
 
@@ -152,20 +204,26 @@ export class Correspondence2Module extends BaseDynamicModule {
       UserNotificationController,
       NotificationAdminController,
       SubscriptionController,
+      EmailProviderController,
     ];
   }
 
-  private static providers(optionsProviders: Provider[]): Provider[] {
+  private static providers(
+    optionsProviders: Provider[],
+  ): Provider[] {
     return [
       ...optionsProviders,
-      CorrespondenceRequiredPortsGuard,
+      registerModuleValidator(CORRESPONDENCE_MODULE_VALIDATOR, CorrespondenceModuleValidator),
 
       GmailEmailAdapter,
       SmtpEmailAdapter,
       FallbackEmailAdapter,
-      { provide: EMAIL_SENDER_PORT, useClass: FallbackEmailAdapter },
+      { provide: IEmailSenderPort, useClass: FallbackEmailAdapter },
 
-      { provide: PUSH_NOTIFICATION_PORT, useClass: OneSignalPushAdapter },
+      { provide: IPushNotificationPort, useClass: OneSignalPushAdapter },
+
+      HandlebarsLayoutRendererAdapter,
+      { provide: ILayoutRendererPort, useClass: HandlebarsLayoutRendererAdapter },
 
       CorrespondenceDispatchHandler,
       PurgeNotificationsHandler,
@@ -173,10 +231,18 @@ export class Correspondence2Module extends BaseDynamicModule {
 
       SubscriptionResolutionService,
       EmailDispatchService,
-      { provide: IEmailDispatchPort, useClass: EmailDispatchService },
       RetentionSchedulerService,
 
-      Correspondence2Orchestrator,
+      CorrespondenceOrchestrator,
+
+      // Event-driven path: discover host resolvers, subscribe to the EventBus.
+      CorrespondenceEventResolverRegistry,
+      CorrespondenceEventSubscriber,
+
+      // Facade path: dispatch(spec) via CommandBus.
+      CorrespondenceFacade,
+      DispatchSpecHandler,
+      SendEmailHandler,
 
       MarkUserNotificationReadHandler,
       MarkAllUserNotificationsReadHandler,
@@ -194,11 +260,6 @@ export class Correspondence2Module extends BaseDynamicModule {
       GetNotificationsAdminHandler,
       GetUserSubscriptionsHandler,
       GetResourceSubscribersHandler,
-
-      OnNotificationCreatedHandler,
-      OnUserNotificationReadHandler,
-      OnSubscriptionDeactivatedHandler,
-      OnSubscriptionReactivatedHandler,
     ];
   }
 }

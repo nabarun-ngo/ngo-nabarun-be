@@ -54,21 +54,29 @@ export class TokenManager {
   }
 
   /**
-   * Returns true when every active token for the join gateway has arrived.
+   * Returns true when every parallel branch token has arrived at the join gateway.
+   * Tokens retain parentGatewayId from the fork gateway; join detection uses
+   * currentElementId at the join node only.
    */
   async isJoinComplete(
     instanceId: string,
     joinGatewayId: string,
     expectedBranchCount: number,
   ): Promise<boolean> {
-    const tokens = await this.tokenRepo.findActiveByInstance(instanceId);
-    const atJoin = tokens.filter(
+    const atJoin = await this.getTokensAtElement(instanceId, joinGatewayId);
+    const arrived = atJoin.filter(
       (t) =>
-        t.parentGatewayId === joinGatewayId &&
-        t.currentElementId === joinGatewayId &&
-        (t.status === WorkflowTokenStatus.Active || t.status === WorkflowTokenStatus.Waiting),
+        t.status === WorkflowTokenStatus.Active || t.status === WorkflowTokenStatus.Waiting,
     );
-    return atJoin.length >= expectedBranchCount;
+    return arrived.length >= expectedBranchCount;
+  }
+
+  async findActiveAtElement(
+    instanceId: string,
+    elementId: string,
+  ): Promise<WorkflowTokenRecord | null> {
+    const tokens = await this.tokenRepo.findActiveByInstance(instanceId);
+    return tokens.find((t) => t.currentElementId === elementId) ?? null;
   }
 
   async getTokensAtElement(

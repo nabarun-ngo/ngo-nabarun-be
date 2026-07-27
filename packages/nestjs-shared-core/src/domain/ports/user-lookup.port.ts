@@ -39,4 +39,5 @@ export interface IUserLookupPort {
   findByIds(ids: string[]): Promise<UserInfo[]>;
   findByIdPSub(idpSub: string): Promise<UserInfo | null>;
   findByIdPSubs(idpSubs: string[]): Promise<UserInfo[]>;
+  findByEmail(email: string): Promise<UserInfo | null>;
 }

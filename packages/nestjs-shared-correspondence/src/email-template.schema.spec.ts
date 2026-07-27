@@ -4,7 +4,7 @@ import { EmailTemplatePayloadSchema } from './email-template.schema';
 
 const correspondenceSeedDir = join(
   __dirname,
-  '../../../apps/api/prisma/seeds/json-store/correspondence',
+  '../../../apps/api/src/shared/seeds/json-store/data/correspondence',
 );
 
 describe('EmailTemplatePayloadSchema', () => {
@@ -18,7 +18,22 @@ describe('EmailTemplatePayloadSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('rejects payloads missing htmlTemplate', () => {
+  it('accepts payloads with structured htmlTemplateData and a layout', () => {
+    const result = EmailTemplatePayloadSchema.safeParse({
+      subject: 'Welcome',
+      layout: 'email',
+      htmlTemplateData: {
+        body: {
+          header: { heading: 'Welcome!' },
+          content: { paragraph1_blue: 'Hi {{name}}' },
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects payloads missing both htmlTemplate and htmlTemplateData', () => {
     const result = EmailTemplatePayloadSchema.safeParse({
       subject: 'Welcome',
     });
@@ -27,7 +42,9 @@ describe('EmailTemplatePayloadSchema', () => {
   });
 
   it('validates all correspondence seed files', () => {
-    const files = readdirSync(correspondenceSeedDir).filter((f) => f.endsWith('.json'));
+    const files = readdirSync(correspondenceSeedDir).filter(
+      (f) => f.endsWith('.json') && !f.startsWith('_'),
+    );
 
     for (const file of files) {
       const payload = JSON.parse(readFileSync(join(correspondenceSeedDir, file), 'utf-8'));

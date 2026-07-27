@@ -34,7 +34,10 @@ src/
 ```
 Presentation  →  Application  →  Domain  ✅
 Infrastructure               →  Domain  ✅
-Application   →  Infrastructure  via interface tokens only ✅
+Application   →  Infrastructure  via interface tokens only ✅  (same module handlers only)
+
+Cross-module  →  Other module Facade  →  Query/Command  →  Handler  →  Port  →  Adapter  ✅
+Cross-module  →  Other module Repository/Adapter port  ❌  (see module-facade-boundary.mdc)
 
 Domain  →  Application      ❌
 Domain  →  Infrastructure   ❌

@@ -6,14 +6,31 @@ describe('FieldValidationRules', () => {
   it('creates rules for text fields with pattern and message', () => {
     const rules = FieldValidationRules.of('^[a-z]+$', 'Lowercase only', CustomFieldType.Text);
 
-    expect(rules.pattern).toBe('^[a-z]+$');
-    expect(rules.regexErrMsg).toBe('Lowercase only');
+    expect(rules.patterns[0].pattern).toBe('^[a-z]+$');
+    expect(rules.patterns[0].regexErrMsg).toBe('Lowercase only');
+    expect(rules.patterns).toHaveLength(1);
   });
 
   it('creates rules without regexErrMsg', () => {
     const rules = FieldValidationRules.of('^\\d+$', undefined, CustomFieldType.Number);
 
-    expect(rules.regexErrMsg).toBeUndefined();
+    expect(rules.patterns[0].regexErrMsg).toBeUndefined();
+  });
+
+  it('creates multiple patterns that must all match', () => {
+    const rules = FieldValidationRules.ofRules(
+      [
+        { pattern: '^[a-z]+$', regexErrMsg: 'Lowercase only' },
+        { pattern: '^.{3,}$', regexErrMsg: 'At least 3 characters' },
+      ],
+      CustomFieldType.Text,
+    );
+
+    expect(rules.patterns).toHaveLength(2);
+    expect(rules.matchesValue(CustomFieldType.Text, 'abc')).toBe(true);
+    expect(rules.matchesValue(CustomFieldType.Text, 'ab')).toBe(false);
+    expect(rules.regexErrMsgForValue(CustomFieldType.Text, 'AB')).toBe('Lowercase only');
+    expect(rules.regexErrMsgForValue(CustomFieldType.Text, 'ab')).toBe('At least 3 characters');
   });
 
   it('rejects empty pattern', () => {
@@ -46,6 +63,12 @@ describe('FieldValidationRules', () => {
     );
   });
 
+  it('rejects empty patterns in request input', () => {
+    expect(() =>
+      FieldValidationRules.fromRequestInput({ patterns: [] }, CustomFieldType.Text),
+    ).toThrow(InvalidFieldDefinitionError);
+  });
+
   it('matches text values against pattern', () => {
     const rules = FieldValidationRules.of('^hello$', undefined, CustomFieldType.Text);
 
@@ -60,10 +83,26 @@ describe('FieldValidationRules', () => {
     expect(rules.matchesValue(CustomFieldType.Number, 4.2)).toBe(false);
   });
 
+  it('reconstructs from legacy persisted single-pattern JSON', () => {
+    const rules = FieldValidationRules.fromPersistedJson({ pattern: '^x$', regexErrMsg: 'Must be x' });
+
+    expect(rules.patterns[0].pattern).toBe('^x$');
+    expect(rules.patterns[0].regexErrMsg).toBe('Must be x');
+  });
+
+  it('reconstructs from persisted patterns array JSON', () => {
+    const rules = FieldValidationRules.fromPersistedJson({
+      patterns: [{ pattern: '^a$' }, { pattern: '^b$', regexErrMsg: 'Need b' }],
+    });
+
+    expect(rules.patterns).toHaveLength(2);
+    expect(rules.toPersistedJson().patterns).toHaveLength(2);
+  });
+
   it('reconstructs from persisted data', () => {
     const rules = FieldValidationRules.fromPersisted('^x$', 'Must be x');
 
-    expect(rules.pattern).toBe('^x$');
-    expect(rules.regexErrMsg).toBe('Must be x');
+    expect(rules.patterns[0].pattern).toBe('^x$');
+    expect(rules.patterns[0].regexErrMsg).toBe('Must be x');
   });
 });

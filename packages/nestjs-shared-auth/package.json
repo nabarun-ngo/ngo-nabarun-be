@@ -1,8 +1,13 @@
 {
   "name": "@nabarun-ngo/nestjs-shared-auth",
   "version": "1.0.0",
-  "private": true,
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist && rimraf .turbo",
@@ -13,6 +18,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@nest-lab/throttler-storage-redis": "^1.2.0",
     "@nabarun-ngo/nestjs-shared-core": "*"
   },
   "exports": {

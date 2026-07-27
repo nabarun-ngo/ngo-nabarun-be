@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { BaseDomain } from '@nabarun-ngo/nestjs-shared-core';
+import type { CustomFieldValueParsed } from '../../value-objects/field-condition/field-condition.vo';
 
 /**
  * Child entity — no repository. Accessed only through the FormFieldValue entity.
@@ -13,8 +14,8 @@ export class FormFieldValueHistoryEntry extends BaseDomain<string> {
   readonly #fieldDefId: string;
   readonly #entityType: string;
   readonly #entityId: string;
-  readonly #oldValue: string | null;
-  readonly #newValue: string | null;
+  readonly #oldValue: CustomFieldValueParsed;
+  readonly #newValue: CustomFieldValueParsed;
   readonly #changedBy: string;
 
   constructor(
@@ -23,8 +24,8 @@ export class FormFieldValueHistoryEntry extends BaseDomain<string> {
     fieldDefId: string,
     entityType: string,
     entityId: string,
-    oldValue: string | null,
-    newValue: string | null,
+    oldValue: CustomFieldValueParsed,
+    newValue: CustomFieldValueParsed,
     changedBy: string,
     createdAt?: Date,
   ) {
@@ -43,8 +44,8 @@ export class FormFieldValueHistoryEntry extends BaseDomain<string> {
     fieldDefId: string;
     entityType: string;
     entityId: string;
-    oldValue: string | null;
-    newValue: string | null;
+    oldValue: CustomFieldValueParsed;
+    newValue: CustomFieldValueParsed;
     changedBy: string;
   }): FormFieldValueHistoryEntry {
     return new FormFieldValueHistoryEntry(
@@ -63,7 +64,7 @@ export class FormFieldValueHistoryEntry extends BaseDomain<string> {
   get fieldDefId(): string { return this.#fieldDefId; }
   get entityType(): string { return this.#entityType; }
   get entityId(): string { return this.#entityId; }
-  get oldValue(): string | null { return this.#oldValue; }
-  get newValue(): string | null { return this.#newValue; }
+  get oldValue(): CustomFieldValueParsed { return this.#oldValue; }
+  get newValue(): CustomFieldValueParsed { return this.#newValue; }
   get changedBy(): string { return this.#changedBy; }
 }

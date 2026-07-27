@@ -47,7 +47,7 @@ export {
   WorkflowIdempotencyConflictError,
 } from './domain/errors/workflow.errors';
 
-// ── Domain — ports (consumers implement adapters) ─────────────────────────────
+// ── Domain — ports (host adapters in IntegrationsModule) ─────────────────────
 export { WORKFLOW_DEFINITION_PORT } from './domain/ports/workflow-definition.port';
 export type { IWorkflowDefinitionPort } from './domain/ports/workflow-definition.port';
 export { parseStoredWorkflowDefinition } from './domain/ports/workflow-definition.port';
@@ -111,8 +111,15 @@ export type {
 } from './domain/ports/workflow-token.repository';
 export { WorkflowTokenStatus } from './domain/ports/workflow-token.repository';
 
+// ── Domain — repository tokens — **host persistence only** (`apps/*/shared/persistence`).
+// Cross-module workflow operations: use WorkflowFacade, not IWorkflow*Repository.
+// (Repository exports above are grouped with their port types for adapter typing.)
+
 // ── Application — facade & services ───────────────────────────────────────────
 export { WorkflowFacade } from './application/services/workflow.facade';
+export { resolveStartEventFormKey } from './application/utilities/resolve-start-event-form-key';
+export { GetWorkflowDefinitionQuery } from './application/queries/get-workflow-definition/get-workflow-definition.query';
+// Internal orchestrator — same-package handlers only; external modules use WorkflowFacade.
 export { WorkflowOrchestratorService } from './application/services/workflow-orchestrator.service';
 export { EventLogService } from './application/services/event-log.service';
 export { TaskHandlerRegistryService } from './application/services/task-handler-registry.service';

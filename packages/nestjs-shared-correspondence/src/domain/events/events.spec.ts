@@ -10,7 +10,7 @@ import { UserNotificationReadEvent, type UserNotificationReadSnapshot } from '@n
 import { UserNotificationArchivedEvent, type UserNotificationArchivedSnapshot } from '@nabarun-ngo/nestjs-shared-correspondence/domain/events/user-notification-archived.event';
 import { NotificationPushDeliveredEvent, type NotificationPushDeliveredSnapshot } from '@nabarun-ngo/nestjs-shared-correspondence/domain/events/notification-push-delivered.event';
 import { SubscriptionDeactivatedEvent, type SubscriptionDeactivatedSnapshot } from '@nabarun-ngo/nestjs-shared-correspondence/domain/events/subscription-deactivated.event';
-import { NotificationType, NotificationCategory } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/notification-type.enum';
+import { NotificationType } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/notification-type.enum';
 import { SubscribedVia } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/subscribed-via.enum';
 
 describe('Domain events', () => {
@@ -20,7 +20,7 @@ describe('Domain events', () => {
         title: 'Hello',
         body: 'World',
         type: NotificationType.INFO,
-        category: NotificationCategory.SYSTEM,
+        category: 'SYSTEM',
       });
       const event = new NotificationCreatedEvent(notification.toSnapshot<NotificationCreatedSnapshot>());
       expect(event.snapshot.id).toBe(notification.id);
@@ -31,7 +31,7 @@ describe('Domain events', () => {
         title: 'Hello',
         body: 'World',
         type: NotificationType.INFO,
-        category: NotificationCategory.SYSTEM,
+        category: 'SYSTEM',
       });
       const event = new NotificationCreatedEvent(notification.toSnapshot<NotificationCreatedSnapshot>());
       expect(event.aggregateId).toBe(notification.id);
@@ -110,7 +110,7 @@ describe('Domain events', () => {
         title: 'T',
         body: 'B',
         type: NotificationType.TASK,
-        category: NotificationCategory.WORKFLOW,
+        category: 'WORKFLOW',
       });
       expect(n.domainEvents[0]).toBeInstanceOf(NotificationCreatedEvent);
     });

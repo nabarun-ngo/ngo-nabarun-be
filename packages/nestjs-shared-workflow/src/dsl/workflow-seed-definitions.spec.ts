@@ -4,7 +4,7 @@ import { parseWorkflowDefinition } from '@nabarun-ngo/nestjs-shared-workflow';
 
 const WORKFLOW_SEED_DIR = join(
   __dirname,
-  '../../../../apps/api/prisma/seeds/json-store/workflow',
+  '../../../../apps/api/src/shared/seeds/json-store/data/workflow',
 );
 
 const EXPECTED_WORKFLOWS = [

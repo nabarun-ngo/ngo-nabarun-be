@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { GetWorkflowTimelineQuery } from './get-workflow-timeline.query';
-import { WorkflowFacade } from '../../services/workflow.facade';
+import { EventLogService } from '../../services/event-log.service';
 import type { WorkflowEventLogEntry } from '../../../domain/ports/workflow-event-log.repository';
 
 @QueryHandler(GetWorkflowTimelineQuery)
@@ -9,9 +9,9 @@ import type { WorkflowEventLogEntry } from '../../../domain/ports/workflow-event
 export class GetWorkflowTimelineHandler
   implements IQueryHandler<GetWorkflowTimelineQuery, WorkflowEventLogEntry[]>
 {
-  constructor(private readonly facade: WorkflowFacade) {}
+  constructor(private readonly eventLog: EventLogService) {}
 
   execute(query: GetWorkflowTimelineQuery): Promise<WorkflowEventLogEntry[]> {
-    return this.facade.getTimeline(query.instanceId, query.options);
+    return this.eventLog.getTimeline(query.instanceId, query.options);
   }
 }

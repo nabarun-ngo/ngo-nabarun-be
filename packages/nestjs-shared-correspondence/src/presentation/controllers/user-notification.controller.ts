@@ -1,7 +1,21 @@
-import { Controller, Get, Patch, Param, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { UnifiedAuthGuard, CurrentUser, AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
+import {
+  ApiAutoPagedResponse,
+  ApiAutoPrimitiveResponse,
+  ApiAutoVoidResponse,
+  BaseFilter,
+  PagedResponse,
+} from '@nabarun-ngo/nestjs-shared-core';
+import {
+  UnifiedAuthGuard,
+  PermissionsGuard,
+  RequirePermissions,
+  CurrentUser,
+  AuthUser,
+  requireUserId,
+} from '@nabarun-ngo/nestjs-shared-auth';
 import { GetUserNotificationsQuery } from '../../application/queries/get-user-notifications/get-user-notifications.query';
 import { GetUnreadCountQuery } from '../../application/queries/get-unread-count/get-unread-count.query';
 import { MarkUserNotificationReadCommand } from '../../application/commands/mark-user-notification-read/mark-user-notification-read.command';
@@ -9,6 +23,8 @@ import { MarkAllUserNotificationsReadCommand } from '../../application/commands/
 import { ArchiveUserNotificationCommand } from '../../application/commands/archive-user-notification/archive-user-notification.command';
 import { ResendPushCommand } from '../../application/commands/resend-push/resend-push.command';
 import { GetUserNotificationsRequestDto } from '../../application/dtos/notification.request.dto';
+import { UserNotificationResponseDto } from '../../application/dtos/user-notification-response.dto';
+import { UserNotificationFilter } from '../../domain/aggregates/user-notification.aggregate';
 
 /**
  * Notification endpoints scoped to the currently authenticated user.
@@ -16,59 +32,71 @@ import { GetUserNotificationsRequestDto } from '../../application/dtos/notificat
  */
 @ApiTags('correspondence / notifications')
 @Controller('correspondence/notifications/me')
-@UseGuards(UnifiedAuthGuard)
+@UseGuards(UnifiedAuthGuard, PermissionsGuard)
 export class UserNotificationController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) { }
 
-  private requireProfileId(user: AuthUser): string {
-    if (!user.userId) throw new UnauthorizedException('User profile not resolved');
-    return user.userId;
-  }
-
   @Get()
+  @RequirePermissions('read:notifications')
   @ApiOperation({ summary: 'List current user notifications (paged)' })
-  async list(@Query() query: GetUserNotificationsRequestDto, @CurrentUser() user: AuthUser) {
+  @ApiAutoPagedResponse(UserNotificationResponseDto)
+  async list(
+    @Query() query: GetUserNotificationsRequestDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<PagedResponse<UserNotificationResponseDto>> {
     return this.queryBus.execute(
       new GetUserNotificationsQuery(
-        this.requireProfileId(user),
-        query.pageIndex,
-        query.pageSize,
-        query.isRead,
-        query.isArchived,
+        new BaseFilter<UserNotificationFilter>(
+          { userId: requireUserId(user), isRead: query.isRead, isArchived: query.isArchived },
+          query.pageIndex,
+          query.pageSize,
+          query.sortBy,
+          query.sortDir,
+        ),
       ),
     );
   }
 
   @Get('unread-count')
+  @RequirePermissions('read:notifications')
   @ApiOperation({ summary: 'Get unread notification count for current user' })
-  async unreadCount(@CurrentUser() user: AuthUser) {
-    return this.queryBus.execute(new GetUnreadCountQuery(this.requireProfileId(user)));
+  @ApiAutoPrimitiveResponse('number')
+  async unreadCount(@CurrentUser() user: AuthUser): Promise<number> {
+    return this.queryBus.execute(new GetUnreadCountQuery(requireUserId(user)));
   }
 
   @Patch('read-all')
+  @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Mark all notifications as read for current user' })
-  async markAllRead(@CurrentUser() user: AuthUser) {
-    return this.commandBus.execute(new MarkAllUserNotificationsReadCommand(this.requireProfileId(user)));
+  @ApiAutoVoidResponse()
+  async markAllRead(@CurrentUser() user: AuthUser): Promise<void> {
+    return this.commandBus.execute(new MarkAllUserNotificationsReadCommand(requireUserId(user)));
   }
 
   @Patch(':id/read')
+  @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Mark a single notification as read' })
-  async markRead(@Param('id') id: string, @CurrentUser() user: AuthUser) {
-    return this.commandBus.execute(new MarkUserNotificationReadCommand(id, this.requireProfileId(user)));
+  @ApiAutoVoidResponse()
+  async markRead(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
+    return this.commandBus.execute(new MarkUserNotificationReadCommand(id, requireUserId(user)));
   }
 
   @Patch(':id/archive')
+  @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Archive a single notification' })
-  async archive(@Param('id') id: string, @CurrentUser() user: AuthUser) {
-    return this.commandBus.execute(new ArchiveUserNotificationCommand(id, this.requireProfileId(user)));
+  @ApiAutoVoidResponse()
+  async archive(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
+    return this.commandBus.execute(new ArchiveUserNotificationCommand(id, requireUserId(user)));
   }
 
   @Patch(':id/resend-push')
+  @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Retry push delivery for a notification' })
-  async resendPush(@Param('id') id: string, @CurrentUser() user: AuthUser) {
-    return this.commandBus.execute(new ResendPushCommand(id, this.requireProfileId(user)));
+  @ApiAutoVoidResponse()
+  async resendPush(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
+    return this.commandBus.execute(new ResendPushCommand(id, requireUserId(user)));
   }
 }

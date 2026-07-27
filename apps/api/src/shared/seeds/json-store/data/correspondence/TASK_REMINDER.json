@@ -1,5 +1,17 @@
 {
   "subject": "Reminder: {{taskName}} is due soon",
-  "htmlTemplate": "<p>Hi {{recipientName}}, workflow task <strong>{{taskName}}</strong> ({{instanceId}}) is approaching its SLA deadline.</p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "Task reminder",
+        "subHeading": "{{taskName}}"
+      },
+      "content": {
+        "salutation": "Hi {{recipientName}},",
+        "paragraph4_orange": "Workflow task {{taskName}} ({{instanceId}}) is approaching its SLA deadline."
+      }
+    }
+  },
   "textTemplate": "Reminder: task {{taskName}} on workflow {{instanceId}} is due soon."
 }

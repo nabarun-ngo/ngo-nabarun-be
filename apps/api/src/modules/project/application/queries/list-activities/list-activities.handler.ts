@@ -16,7 +16,7 @@ export class ListActivitiesHandler implements IQueryHandler<ListActivitiesQuery,
     const page = await this.repo.findPaged({
       pageIndex: filter.pageIndex,
       pageSize: filter.pageSize,
-      props: { ...filter.props, projectId: query.projectId },
+      props: filter.props,
     });
     return {
       items: page.content.map(ActivityMapper.toDto),

@@ -1,15 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { StartWorkflowCommand } from './start-workflow.command';
-import { WorkflowFacade } from '../../services/workflow.facade';
+import { WorkflowOrchestratorService } from '../../services/workflow-orchestrator.service';
 import type { WorkflowInstanceRecord } from '../../../domain/ports/workflow-instance.repository';
 
 @CommandHandler(StartWorkflowCommand)
 @Injectable()
 export class StartWorkflowHandler implements ICommandHandler<StartWorkflowCommand, WorkflowInstanceRecord> {
-  constructor(private readonly facade: WorkflowFacade) {}
+  constructor(private readonly orchestrator: WorkflowOrchestratorService) {}
 
   execute(command: StartWorkflowCommand): Promise<WorkflowInstanceRecord> {
-    return this.facade.startWorkflow(command.params);
+    return this.orchestrator.startWorkflow(command.params);
   }
 }

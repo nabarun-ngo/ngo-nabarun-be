@@ -1,1 +1,1 @@
-export const COMMENT2_OPTIONS = Symbol('COMMENT2_OPTIONS');
+export const COMMENT_OPTIONS = Symbol('COMMENT_OPTIONS');

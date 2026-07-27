@@ -1,5 +1,18 @@
 {
   "subject": "Reminder: pending donation payment",
-  "htmlTemplate": "<p>Dear {{donorName}},</p><p>You have pending donation(s) awaiting payment. Please log in to review and complete payment.</p>",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "Pending donation payment",
+        "subHeading": "Action required"
+      },
+      "content": {
+        "salutation": "Dear {{donorName}},",
+        "paragraph1_blue": "You have pending donation(s) awaiting payment.",
+        "paragraph3_blue": "Please log in to review and complete payment."
+      }
+    }
+  },
   "textTemplate": "Dear {{donorName}}, you have pending donation(s) awaiting payment. Please log in to review and complete payment."
 }

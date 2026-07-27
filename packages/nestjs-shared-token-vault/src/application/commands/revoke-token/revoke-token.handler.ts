@@ -5,7 +5,7 @@ import { OAUTH_PROVIDER_REGISTRY } from '../../ports/oauth-provider.port';
 import type { IOAuthProvider } from '../../ports/oauth-provider.port';
 import { IOAuthTokenRepository } from '../../../domain/repositories/oauth-token.repository';
 import type { IOAuthTokenRepository as ITokenRepo } from '../../../domain/repositories/oauth-token.repository';
-import { TOKEN_VAULT2_OPTIONS, TokenVault2ModuleOptions } from '../../../token-vault-options';
+import { TOKEN_VAULT_OPTIONS, TokenVaultModuleOptions } from '../../../token-vault-options';
 import { ProviderNotConfiguredError, TokenNotFoundError } from '../../../domain/errors/token-vault.errors';
 
 @CommandHandler(RevokeTokenCommand)
@@ -16,7 +16,7 @@ export class RevokeTokenHandler implements ICommandHandler<RevokeTokenCommand, v
   constructor(
     @Inject(OAUTH_PROVIDER_REGISTRY) private readonly registry: Map<string, IOAuthProvider>,
     @Inject(IOAuthTokenRepository) private readonly tokenRepo: ITokenRepo,
-    @Inject(TOKEN_VAULT2_OPTIONS) private readonly options: TokenVault2ModuleOptions,
+    @Inject(TOKEN_VAULT_OPTIONS) private readonly options: TokenVaultModuleOptions,
     private readonly eventBus: EventBus,
   ) {}
 

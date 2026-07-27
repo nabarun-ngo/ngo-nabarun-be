@@ -27,11 +27,12 @@ import { SearchJobsHandler } from "./application/queries/search-jobs/search-jobs
 import { GetQueueStatisticsHandler } from "./application/queries/get-queue-statistics/get-queue-statistics.handler";
 import {
   QUEUE_OPTIONS,
+  QueueModuleInputOptions,
   QueueModuleOptions,
   QueueOptionsSchema,
 } from "./queue.schema";
 
-export type { QueueModuleOptions } from "./queue.schema";
+export type { QueueModuleInputOptions, QueueModuleOptions } from "./queue.schema";
 
 const COMMAND_HANDLERS = [
   DispatchJobHandler,
@@ -105,12 +106,12 @@ const DEFAULT_QUEUE_NAME = "default";
 const DEFAULT_FLOW_PRODUCER_NAME = `${DEFAULT_QUEUE_NAME}-flow-producer`;
 
 export interface QueueModuleAsyncOptions
-  extends DynamicModuleAsyncOptions<QueueModuleOptions> { }
+  extends DynamicModuleAsyncOptions<QueueModuleInputOptions> { }
 
 @Module({})
 export class QueueModule extends BaseDynamicModule {
-  static forRoot(options: QueueModuleOptions): DynamicModule {
-    const validated = QueueModule.validate(QueueOptionsSchema, options);
+  static forRoot(options: QueueModuleInputOptions): DynamicModule {
+    const validated = QueueModule.validateOptions(QueueOptionsSchema, options);
     return QueueModule._build(validated, []);
   }
 

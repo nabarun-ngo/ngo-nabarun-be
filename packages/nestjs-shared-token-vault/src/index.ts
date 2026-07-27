@@ -1,16 +1,16 @@
 // ── Module ────────────────────────────────────────────────────────────────────
 export {
-  TokenVault2Module as TokenVaultModule,
-  TokenVault2AsyncOptions as TokenVaultAsyncOptions,
-  TokenVault2ModuleOptions as TokenVaultModuleOptions,
+  TokenVaultModule,
+  TokenVaultAsyncOptions,
+  TokenVaultModuleOptions,
 } from './token-vault.module';
 
 // ── Configuration ─────────────────────────────────────────────────────────────
-export { TOKEN_VAULT2_OPTIONS as TOKEN_VAULT_OPTIONS } from './token-vault-options';
-export { TokenVault2OptionsSchema as TokenVaultOptionsSchema } from './token-vault.schema';
+export { TOKEN_VAULT_OPTIONS } from './token-vault-options';
+export { TokenVaultOptionsSchema } from './token-vault.schema';
 
 // ── Primary Consumer API ──────────────────────────────────────────────────────
-export { TokenVaultFacade, TOKEN_VAULT2_FACADE as TOKEN_VAULT_FACADE } from './application/services/token-vault.facade';
+export { TokenVaultFacade, TOKEN_VAULT_FACADE } from './application/services/token-vault.facade';
 
 // ── Provider Registry ─────────────────────────────────────────────────────────
 export { OAUTH_PROVIDER_REGISTRY } from './application/ports/oauth-provider.port';
@@ -33,7 +33,8 @@ export type { OAuthTokenFilter, OAuthAccountSnapshot } from './domain/aggregates
 export { EncryptedToken } from './domain/value-objects/encrypted-token.vo';
 export { TokenScope } from './domain/value-objects/token-scope.vo';
 
-// ── Domain Repositories (injection tokens) ────────────────────────────────────
+// ── Domain Repositories — **host persistence only** (`apps/*/shared/persistence`) ──
+// Cross-module token/OAuth access: TokenVaultFacade only.
 export { IOAuthAccountRepository } from './domain/repositories/oauth-account.repository';
 export type { IOAuthAccountRepository as IOAuthAccountRepositoryInterface } from './domain/repositories/oauth-account.repository';
 export { IOAuthTokenRepository } from './domain/repositories/oauth-token.repository';

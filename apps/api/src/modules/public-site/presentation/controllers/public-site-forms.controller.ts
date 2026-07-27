@@ -1,47 +1,76 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   ExpectedRecaptchaAction,
   Public,
-  PublicFormPostThrottle,
+  UseApiKey,
 } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
-import { SubmitPublicFormCommand } from '../../application/commands/submit-public-form/submit-public-form.command';
-import { SubmitPublicFormResult } from '../../application/commands/submit-public-form/submit-public-form.handler';
+import { ApiAutoResponse, BypassSuccessEnvelope } from '@nabarun-ngo/nestjs-shared-core';
+import { SubmitPublicWorkflowFormCommand } from '../../application/commands/submit-public-workflow-form/submit-public-workflow-form.command';
+import { SubmitDynamicPublicFormCommand } from '../../application/commands/submit-dynamic-public-form/submit-dynamic-public-form.command';
+import { GetPublicWorkflowFormDefinitionQuery } from '../../application/queries/get-public-workflow-form-definition/get-public-workflow-form-definition.query';
+import { GetDynamicPublicFormDefinitionQuery } from '../../application/queries/get-dynamic-public-form-definition/get-dynamic-public-form-definition.query';
+import { PublicFormSubmitResponseDto } from '../../application/dtos/public-form-submit-response.dto';
+import { PublicFormDefinitionDto } from '../../application/mappers/public-form-definition.mapper';
 
 @ApiTags('PublicSiteForms')
-@Controller('public-site/forms')
+@Controller('public-site')
 @Public()
 export class PublicSiteFormsController {
-  constructor(private readonly commandBus: CommandBus) { }
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
-  @Post('submit-contact-request')
-  @PublicFormPostThrottle()
-  @ExpectedRecaptchaAction('submit_contact')
-  @ApiOperation({ summary: 'Submit contact request' })
-  @ApiAutoResponse(Object as never)
-  submitContact(@Body() body: Record<string, unknown>) {
-    return this.commandBus.execute(new SubmitPublicFormCommand('contact', body));
-  }
-
-  @Post('submit-join-request')
-  @PublicFormPostThrottle()
-  @ExpectedRecaptchaAction('submit_join')
-  @ApiOperation({ summary: 'Submit join / volunteer request' })
-  @ApiAutoResponse(Object as never)
-  submitJoin(@Body() body: Record<string, unknown>) {
-    return this.commandBus.execute(new SubmitPublicFormCommand('volunteer', body));
-  }
-
-  @Post('submit-dynamic-form/:formId')
-  @PublicFormPostThrottle()
-  @ApiOperation({ summary: 'Submit a generic dynamic public form' })
-  @ApiAutoResponse(Object as never)
-  submitDynamic(
-    @Param('formId') formId: string,
+  @Post('workflow-forms/:workflowName/submit')
+  @ExpectedRecaptchaAction('submit_public_workflow_form')
+  @ApiOperation({ summary: 'Submit a public workflow-backed form' })
+  @ApiAutoResponse(PublicFormSubmitResponseDto)
+  submitWorkflowForm(
+    @Param('workflowName') workflowName: string,
     @Body() body: Record<string, unknown>,
-  ): Promise<SubmitPublicFormResult> {
-    return this.commandBus.execute(new SubmitPublicFormCommand(formId, body));
+  ): Promise<PublicFormSubmitResponseDto> {
+    return this.commandBus.execute(
+      new SubmitPublicWorkflowFormCommand(workflowName, body),
+    );
+  }
+
+  @Get('workflow-forms/:workflowName/form-defination')
+  @UseApiKey()
+  @ApiSecurity('api-key')
+  @BypassSuccessEnvelope()
+  @ApiOperation({ summary: 'Get field definitions for a public workflow form' })
+  getWorkflowFormDefinition(
+    @Param('workflowName') workflowName: string,
+  ): Promise<PublicFormDefinitionDto> {
+    return this.queryBus.execute(
+      new GetPublicWorkflowFormDefinitionQuery(workflowName),
+    );
+  }
+
+  @Post('dynamic-forms/:publicFormKey/submit')
+  @ApiOperation({ summary: 'Submit a standalone dynamic public form' })
+  @ApiAutoResponse(PublicFormSubmitResponseDto)
+  submitDynamicForm(
+    @Param('publicFormKey') publicFormKey: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<PublicFormSubmitResponseDto> {
+    return this.commandBus.execute(
+      new SubmitDynamicPublicFormCommand(publicFormKey, body),
+    );
+  }
+
+  @Get('dynamic-forms/:publicFormKey/form-defination')
+  @UseApiKey()
+  @ApiSecurity('api-key')
+  @BypassSuccessEnvelope()
+  @ApiOperation({ summary: 'Get field definitions for a dynamic public form' })
+  getDynamicFormDefinition(
+    @Param('publicFormKey') publicFormKey: string,
+  ): Promise<PublicFormDefinitionDto> {
+    return this.queryBus.execute(
+      new GetDynamicPublicFormDefinitionQuery(publicFormKey),
+    );
   }
 }

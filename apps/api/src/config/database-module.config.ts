@@ -9,10 +9,11 @@ const DATABASE_MODULE = DatabaseModule.forRootAsync({
     imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: (config: ConfigService) => ({
-        postgresUrl: config.getOrThrow<string>(Configkey.DATABASE_URL),
         redisUrl: config.getOrThrow<string>(Configkey.REDIS_URL),
-        prismaClientFactory: (url: string) =>
-            new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) }),
+        prismaClientFactory: () => {
+            const url = config.getOrThrow<string>(Configkey.DATABASE_URL);
+            return new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
+        },
         enableAuditExtension: config.get<boolean>(Configkey.ENABLE_DB_AUDIT) ?? false,
         auditedModels: config.get<string>(Configkey.DB_AUDIT_MODELS)?.split(',') ?? [],
         cacheStoreTtl: config.get<number>(Configkey.REDIS_CACHE_TTL) ?? 600_000,
@@ -21,5 +22,5 @@ const DATABASE_MODULE = DatabaseModule.forRootAsync({
 });
 
 export const PERSISTANCE_MODULE = PersistenceModule.forRoot({
-    imports: [DATABASE_MODULE]
+    imports: [DATABASE_MODULE],
 });
