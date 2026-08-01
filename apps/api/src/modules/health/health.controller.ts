@@ -1,14 +1,15 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Public } from '@nabarun-ngo/nestjs-shared-auth';
+import { IgnoreCaptcha, Public } from '@nabarun-ngo/nestjs-shared-auth';
 import { Response } from 'express';
 import { HealthService } from './health.service';
 
 @ApiTags('Health')
 @Controller()
 @Public()
+@IgnoreCaptcha()
 export class HealthController {
-  constructor(private readonly healthService: HealthService) {}
+  constructor(private readonly healthService: HealthService) { }
 
   @Get('health')
   @ApiOperation({ summary: 'Liveness probe — process is running' })

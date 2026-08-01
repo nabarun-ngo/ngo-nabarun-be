@@ -11,7 +11,6 @@
     "type-check": "turbo run type-check",
     "clean": "turbo run clean && rimraf .turbo",
     "start": "npm run start --workspace=apps/api",
-    "start:watch": "npm run start:watch --workspace=apps/api",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "changeset": "changeset",
     "changeset:status": "changeset status",
@@ -20,7 +19,11 @@
     "release:publish": "changeset publish",
     "release:ci": "npm run type-check && npm run release:build && npm run release:publish",
     "release": "npm run release:ci",
-    "publish:package": "node scripts/publish-package.mjs"
+    "publish:package": "node scripts/publish-package.mjs",
+    "start:redis": "powershell -ExecutionPolicy Bypass -File \"./scripts/Start-Redis.ps1\"",
+    "start:watch": "npm run start:redis && npm run start:watch --workspace=apps/api && start npm run watch:packages ",
+    "start:debug": "npm run start:redis && npm run start:debug --workspace=apps/api && start npm run watch:packages ",
+    "watch:packages": "turbo watch build --filter=./packages/*"
   },
   "dependencies": {
     "@googleapis/calendar": "^15.0.0",

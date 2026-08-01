@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": false,
+    "declarationMap": true,
     "types": [
       "jest",
       "node"

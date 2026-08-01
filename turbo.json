@@ -16,6 +16,12 @@
     },
     "clean": {
       "cache": false
+    },
+    "watch": {
+      "dependsOn": [
+        "^build"
+      ],
+      "persistent": true
     }
   }
 }
