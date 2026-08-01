@@ -21,6 +21,10 @@ export interface PrismaClientLike {
   $connect(): Promise<void>;
   $disconnect(): Promise<void>;
   $extends(extension: unknown): unknown;
+  $queryRaw<T>(
+    query: TemplateStringsArray,
+    ...values: unknown[]
+  ): Promise<T>;
   $transaction<R>(
     fn: (tx: unknown) => Promise<R>,
     options?: unknown,
@@ -47,9 +51,9 @@ export interface PrismaClientLike {
 @Injectable()
 export class BasePrismaService<TClient extends PrismaClientLike = PrismaClientLike>
   implements
-    AuditedDatabaseClient<TClient>,
-    OnModuleInit,
-    OnApplicationShutdown {
+  AuditedDatabaseClient<TClient>,
+  OnModuleInit,
+  OnApplicationShutdown {
 
   /** Allows untyped model accessor forwarding via the runtime Proxy (e.g. `this.prisma.user`). */
   [key: string]: any;
@@ -105,5 +109,10 @@ export class BasePrismaService<TClient extends PrismaClientLike = PrismaClientLi
     this.logger.log(`Application shutdown: ${signal}`);
     await this.rawClient.$disconnect();
     this.logger.debug("Database disconnected");
+  }
+
+  async healthCheck(): Promise<boolean> {
+    await this.rawClient.$queryRaw`SELECT 1`;
+    return true;
   }
 }
