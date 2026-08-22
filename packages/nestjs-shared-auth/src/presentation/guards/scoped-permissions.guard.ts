@@ -40,13 +40,12 @@ export class ScopedPermissionsGuard implements CanActivate {
       throw new ForbiddenException('Entity scope could not be resolved from the request.');
     }
 
-    const scopeKey = `${entityType}:${entityId}`;
-    const scopedPermissions = user.scopedRoles?.[scopeKey]?.permissions ?? [];
+    const scopedPermissions = user.scopedAccess.find(f => f.entityId === entityId && f.entityType === entityType)?.permissions ?? [];
 
     if (required.every((p) => scopedPermissions.includes(p))) return true;
 
     throw new ForbiddenException(
-      `Insufficient permissions for ${scopeKey}. Required: ${required.join(', ')}.`,
+      `Insufficient permissions for ${entityId}:${entityType}. Required: ${required.join(', ')}.`,
     );
   }
 

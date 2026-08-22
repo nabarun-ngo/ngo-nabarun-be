@@ -9,6 +9,7 @@ import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthUser } from '../../application/models/auth-user';
 import { CurrentUserResponseDto } from '../../application/dtos/response/auth-response.dtos';
+import { mapAuthUserToResponse } from '../../application/mappers/current-user-response.mapper';
 
 @ApiBearerAuth('jwt')
 @ApiSecurity('api-key')
@@ -20,7 +21,7 @@ export class MeController {
   @ApiAutoResponse(CurrentUserResponseDto, {
     description: 'Current user profile and permissions',
   })
-  getMe(@CurrentUser() user: AuthUser): AuthUser {
-    return user;
+  getMe(@CurrentUser() user: AuthUser): CurrentUserResponseDto {
+    return mapAuthUserToResponse(user);
   }
 }

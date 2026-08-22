@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { ICACHE_PORT, ICachePort, IUserLookupPort, UserInfo } from '@nabarun-ngo/nestjs-shared-core';
 import { IUserAccessPort } from '../../application/ports/user-access.port';
-import { AuthUser, ScopedRoleContext } from '../../application/models/auth-user';
+import { AuthUser, ScopedRbacContext } from '../../application/models/auth-user';
 import { AUTH_OPTIONS } from '../auth-options.token';
 import { AuthModuleOptions } from '../../auth-options';
 import { IUserRoleRepository } from '../../domain/repositories/user-role.repository';
@@ -55,19 +55,20 @@ export class UserAccessAdapter implements IUserAccessPort {
       userInfo = await this.userLookup.findByIdPSub(idpSub);
     }
 
+    console.log(userInfo);
+
     const permissionSet = new Set<string>();
     const roleSet = new Set<string>();
     const groupSet = new Set<string>();
-    const scopedRoles: Record<string, ScopedRoleContext> = {};
-
+    const scopedRole: Record<string, ScopedRbacContext> = {};
+    const key = (entityId: string, entityType: string) => `${entityType}:${entityId}`;
     for (const view of directRoles) {
       if (view.entityId && view.entityType) {
-        const key = `${view.entityType}:${view.entityId}`;
-        scopedRoles[key] ??= { permissions: [], roles: [], roleGroups: [] };
-        scopedRoles[key].roles.push(view.roleKey);
-        view.permissionKeys.forEach((k) => {
-          if (!scopedRoles[key].permissions.includes(k)) scopedRoles[key].permissions.push(k);
-        });
+        const roleKey = key(view.entityId, view.entityType);
+        scopedRole[roleKey].entityId = view.entityId;
+        scopedRole[roleKey].entityType = view.entityType;
+        scopedRole[roleKey].permissions.push(...view.permissionKeys);
+        scopedRole[roleKey].userRoles.push(view.roleKey);
       } else {
         roleSet.add(view.roleKey);
         view.permissionKeys.forEach((k) => permissionSet.add(k));
@@ -76,16 +77,17 @@ export class UserAccessAdapter implements IUserAccessPort {
 
     for (const view of groupMemberships) {
       if (view.entityId && view.entityType) {
-        const key = `${view.entityType}:${view.entityId}`;
-        scopedRoles[key] ??= { permissions: [], roles: [], roleGroups: [] };
-        if (!scopedRoles[key].roleGroups.includes(view.groupKey)) {
-          scopedRoles[key].roleGroups.push(view.groupKey);
+        const roleKey = key(view.entityId, view.entityType);
+        scopedRole[roleKey].entityId = view.entityId;
+        scopedRole[roleKey].entityType = view.entityType;
+        if (!scopedRole[roleKey].roleGroups.includes(view.groupKey)) {
+          scopedRole[roleKey].roleGroups.push(view.groupKey);
         }
         view.roleKeys.forEach((k) => {
-          if (!scopedRoles[key].roles.includes(k)) scopedRoles[key].roles.push(k);
+          if (!scopedRole[roleKey].userRoles.includes(k)) scopedRole[roleKey].userRoles.push(k);
         });
         view.permissionKeys.forEach((k) => {
-          if (!scopedRoles[key].permissions.includes(k)) scopedRoles[key].permissions.push(k);
+          if (!scopedRole[roleKey].permissions.includes(k)) scopedRole[roleKey].permissions.push(k);
         });
       } else {
         groupSet.add(view.groupKey);
@@ -96,10 +98,11 @@ export class UserAccessAdapter implements IUserAccessPort {
 
     for (const view of directPermissions) {
       if (view.entityId && view.entityType) {
-        const key = `${view.entityType}:${view.entityId}`;
-        scopedRoles[key] ??= { permissions: [], roles: [], roleGroups: [] };
-        if (!scopedRoles[key].permissions.includes(view.permissionKey)) {
-          scopedRoles[key].permissions.push(view.permissionKey);
+        const roleKey = key(view.entityId, view.entityType);
+        scopedRole[roleKey].entityId = view.entityId;
+        scopedRole[roleKey].entityType = view.entityType;
+        if (!scopedRole[roleKey].permissions.includes(view.permissionKey)) {
+          scopedRole[roleKey].permissions.push(view.permissionKey);
         }
       } else {
         permissionSet.add(view.permissionKey);
@@ -114,7 +117,7 @@ export class UserAccessAdapter implements IUserAccessPort {
       roleGroups: [...groupSet],
       permissions: [...permissionSet],
       userRoles: [...roleSet],
-      scopedRoles,
+      scopedAccess: Object.values(scopedRole),
     };
   }
 }

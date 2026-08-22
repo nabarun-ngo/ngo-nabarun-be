@@ -20178,9 +20178,91 @@
           "permissions"
         ]
       },
-      "AuthUserInfoResponseDto": {
+      "EntityScopeResponseDto": {
         "type": "object",
         "properties": {
+          "permissions": {
+            "example": [
+              "read:projects",
+              "update:project"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "userRoles": {
+            "example": [
+              "volunteer_coordinator"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "roleGroups": {
+            "example": [
+              "field_team"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "entityId": {
+            "type": "string",
+            "example": "proj-A"
+          },
+          "entityType": {
+            "type": "string",
+            "example": "project"
+          }
+        },
+        "required": [
+          "permissions",
+          "userRoles",
+          "roleGroups",
+          "entityId",
+          "entityType"
+        ]
+      },
+      "CurrentUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "example": [
+              "read:projects",
+              "update:project"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "userRoles": {
+            "example": [
+              "volunteer_coordinator"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "roleGroups": {
+            "example": [
+              "field_team"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scopedAccess": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntityScopeResponseDto"
+            }
+          },
           "id": {
             "type": "string",
             "example": "b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41"
@@ -20213,15 +20295,7 @@
             "type": "object",
             "description": "Extra profile attributes — carried as a Map, so it serialises to an empty object",
             "example": {}
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "CurrentUserResponseDto": {
-        "type": "object",
-        "properties": {
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -20229,53 +20303,6 @@
               "apikey"
             ],
             "example": "jwt"
-          },
-          "idpSub": {
-            "type": "string",
-            "example": "auth0|65f1a2b3c4d5e6f708192a3b"
-          },
-          "userId": {
-            "type": "string",
-            "example": "b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41"
-          },
-          "userInfo": {
-            "$ref": "#/components/schemas/AuthUserInfoResponseDto"
-          },
-          "permissions": {
-            "example": [
-              "read:projects",
-              "update:project"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "userRoles": {
-            "example": [
-              "volunteer_coordinator"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "roleGroups": {
-            "example": [
-              "field_team"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "email": {
-            "type": "string",
-            "example": "asha.verma@example.org"
-          },
-          "name": {
-            "type": "string",
-            "example": "Asha Verma"
           },
           "idpClaims": {
             "type": "object",
@@ -20285,38 +20312,14 @@
               "email": "asha.verma@example.org",
               "iat": 1773480600
             }
-          },
-          "scopedRoles": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "Entity-scoped role contexts, keyed by \"entityType:entityId\"",
-            "example": {
-              "project:proj-A": {
-                "permissions": [
-                  "read:projects",
-                  "update:project"
-                ],
-                "roles": [
-                  "volunteer_coordinator"
-                ],
-                "roleGroups": [
-                  "field_team"
-                ]
-              }
-            }
           }
         },
         "required": [
-          "type",
-          "idpSub"
+          "permissions",
+          "userRoles",
+          "roleGroups",
+          "id",
+          "type"
         ]
       },
       "SuccessResponseCurrentUserResponseDto": {
@@ -21338,7 +21341,7 @@
               "type": "string"
             }
           },
-          "roles": {
+          "userRoles": {
             "example": [
               "volunteer_coordinator"
             ],
@@ -21356,55 +21359,16 @@
               "type": "string"
             }
           },
-          "scopedRoles": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "boolean"
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                ]
-              }
-            },
-            "example": {
-              "project:proj-A": {
-                "permissions": [
-                  "read:projects",
-                  "update:project"
-                ],
-                "roles": [
-                  "volunteer_coordinator"
-                ],
-                "roleGroups": [
-                  "field_team"
-                ]
-              }
+          "scopedAccess": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntityScopeResponseDto"
             }
           }
         },
         "required": [
           "permissions",
-          "roles",
+          "userRoles",
           "roleGroups"
         ]
       },

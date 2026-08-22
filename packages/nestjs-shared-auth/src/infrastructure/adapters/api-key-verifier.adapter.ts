@@ -40,6 +40,9 @@ export class ApiKeyVerifierAdapter implements IApiKeyVerifierPort {
       userId: keyInfo.ownerId ?? undefined,
       permissions: keyInfo.permissions,
       name: keyInfo.name,
+      roleGroups: [],
+      userRoles: [],
+      scopedAccess: [],
     };
 
     const ttl = this.options.cache?.apiKeyTtlMs ?? 1_800_000;
