@@ -68,6 +68,7 @@ export class EarningPrismaRepository implements IEarningRepository {
       ...(props?.category ? { category: { in: props.category } } : {}),
       ...(props?.source ? { source: props.source } : {}),
       ...(props?.status ? { status: { in: props.status } } : {}),
+      ...(props?.accountId ? { accountId: props.accountId } : {}),
       ...(props?.startDate || props?.endDate
         ? {
           earningDate: {

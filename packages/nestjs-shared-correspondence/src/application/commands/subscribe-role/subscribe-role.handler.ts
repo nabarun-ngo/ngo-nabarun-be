@@ -5,6 +5,9 @@ import { SubscribeRoleCommand } from './subscribe-role.command';
 import { IResourceSubscriptionRepository } from '../../../domain/repositories/resource-subscription.repository';
 import { ResourceSubscription } from '../../../domain/aggregates/resource-subscription.aggregate';
 import { SubscriptionChannel } from '../../../domain/entities/subscription-channel.entity';
+import { CORRESPONDENCE_OPTIONS } from '../../../correspondence-options.token';
+import type { CorrespondenceModuleOptions } from '../../../correspondence.schema';
+import { assertResourceTypeAllowed } from '../../utilities/resource-type-access.util';
 
 @CommandHandler(SubscribeRoleCommand)
 export class SubscribeRoleHandler implements ICommandHandler<SubscribeRoleCommand> {
@@ -12,9 +15,13 @@ export class SubscribeRoleHandler implements ICommandHandler<SubscribeRoleComman
     @Inject(IResourceSubscriptionRepository)
     private readonly subscriptionRepo: IResourceSubscriptionRepository,
     private readonly eventBus: EventBus,
+    @Inject(CORRESPONDENCE_OPTIONS)
+    private readonly options: CorrespondenceModuleOptions,
   ) {}
 
   async execute(command: SubscribeRoleCommand): Promise<void> {
+    assertResourceTypeAllowed(command.resourceType, this.options.allowedResourceTypes);
+
     const existing = await this.subscriptionRepo.findByRoleAndResource(
       command.roleName,
       command.resourceType,

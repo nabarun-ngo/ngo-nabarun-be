@@ -11,7 +11,7 @@ import {
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
 import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoResponse, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
 import { FieldOption } from '../../domain/value-objects/field-option/field-option.vo';
 import { FieldCondition } from '../../domain/value-objects/field-condition/field-condition.vo';
 import { DependentOptions } from '../../domain/value-objects/dependent-options/dependent-options.vo';
@@ -38,6 +38,7 @@ export class FormFieldController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @RequirePermissions('update:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormFieldDefinitionResponseDto, { status: 201 })
   addField(
     @Param('formId') formId: string,
@@ -88,6 +89,7 @@ export class FormFieldController {
 
   @Patch('sort-order/bulk')
   @RequirePermissions('update:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormFieldDefinitionResponseDto, { isArray: true })
   bulkUpdateSortOrder(
     @Param('formId') formId: string,
@@ -106,6 +108,8 @@ export class FormFieldController {
 
   @Patch(':fieldId')
   @RequirePermissions('update:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
+  @ApiUuidParam('fieldId', 'Identifier of the form field')
   @ApiAutoResponse(FormFieldDefinitionResponseDto)
   updateField(
     @Param('formId') formId: string,
@@ -175,6 +179,8 @@ export class FormFieldController {
 
   @Post(':fieldId/disable')
   @RequirePermissions('disable:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
+  @ApiUuidParam('fieldId', 'Identifier of the form field')
   @ApiAutoResponse(FormFieldDefinitionResponseDto)
   disableField(
     @Param('formId') formId: string,

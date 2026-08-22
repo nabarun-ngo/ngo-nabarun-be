@@ -1,6 +1,6 @@
 import { CorrespondenceFacade, NotificationSpec } from '@nabarun-ngo/nestjs-shared-correspondence';
 import { CommentNotificationAdapter } from './comment-notification.adapter';
-import { EmailTemplateKey } from '../../email-template-key';
+import { EmailTemplateKey } from '../../enums/email-template-key';
 
 describe('CommentNotificationAdapter', () => {
   let dispatch: jest.Mock<Promise<void>, [NotificationSpec]>;

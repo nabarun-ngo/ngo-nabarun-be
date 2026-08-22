@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IFinanceReferenceDataPort, KeyValueOption } from '../ports/finance-reference-data.port';
 
+function keyValueOptions(value: unknown): KeyValueOption[] {
+  return Array.isArray(value) ? value as KeyValueOption[] : [];
+}
+
 export interface FinanceReportReferenceData {
   acc_type: KeyValueOption[];
   donationType: KeyValueOption[];
@@ -29,15 +33,15 @@ export class FinanceReportReferenceDataService {
     ]);
 
     return {
-      acc_type: accountRef.accountTypes ?? [],
-      donationType: donationRef.donationTypes ?? [],
-      donationStatus: donationRef.donationStatuses ?? [],
-      paymentMethod: donationRef.paymentMethods ?? [],
-      upiOption: donationRef.upiOptions ?? [],
-      earn_categories: earningRef.earningCategories ?? [],
-      earn_status: earningRef.earningStatuses ?? [],
-      exp_categories: expenseRef.expenseRefTypes ?? [],
-      exp_status: expenseRef.expenseStatuses ?? [],
+      acc_type: keyValueOptions(accountRef.accountTypes),
+      donationType: keyValueOptions(donationRef.donationTypes),
+      donationStatus: keyValueOptions(donationRef.donationStatuses),
+      paymentMethod: keyValueOptions(donationRef.paymentMethods),
+      upiOption: keyValueOptions(donationRef.upiOptions),
+      earn_categories: keyValueOptions(earningRef.earningCategories),
+      earn_status: keyValueOptions(earningRef.earningStatuses),
+      exp_categories: keyValueOptions(expenseRef.expenseRefTypes),
+      exp_status: keyValueOptions(expenseRef.expenseStatuses),
     };
   }
 }

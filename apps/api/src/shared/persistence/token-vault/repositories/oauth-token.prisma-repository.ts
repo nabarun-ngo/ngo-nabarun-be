@@ -183,12 +183,21 @@ export class OAuthTokenPrismaRepository
   }
 
   protected toFilterWhere(filter?: OAuthTokenFilter): TokenVaultOAuthTokenWhereInput {
+    const account = filter?.account?.trim();
     return {
       ...(filter?.provider ? { provider: filter.provider } : {}),
       ...(filter?.email ? { email: filter.email } : {}),
       ...(filter?.clientId ? { clientId: filter.clientId } : {}),
       ...(filter?.ownerSub ? { ownerSub: filter.ownerSub } : {}),
       ...(filter?.scope ? { scope: { contains: filter.scope } } : {}),
+      ...(account ? {
+        OR: [
+          { accountId: { equals: account, mode: 'insensitive' } },
+          { email: { contains: account, mode: 'insensitive' } },
+          { account: { is: { email: { contains: account, mode: 'insensitive' } } } },
+          { account: { is: { name: { contains: account, mode: 'insensitive' } } } },
+        ],
+      } : {}),
     };
   }
 

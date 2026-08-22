@@ -1,10 +1,8 @@
 {
-  "_comment": "Account type options (legacy Firebase ACCOUNT_TYPES).",
+  "_comment": "Account type options — instrument-based types.",
   "items": [
-    { "key": "PRINCIPAL", "value": "Principal" },
-    { "key": "GENERAL", "value": "General" },
-    { "key": "DONATION", "value": "Donation (Cashier)" },
-    { "key": "PUBLIC_DONATION", "value": "Public Donation" },
-    { "key": "WALLET", "value": "Wallet" }
+    { "key": "BANK", "value": "Bank Account", "description": "ORG,INDIVIDUAL" },
+    { "key": "INVESTMENT", "value": "Investment Account", "description": "ORG,INDIVIDUAL" },
+    { "key": "WALLET", "value": "Wallet", "description": "INDIVIDUAL" }
   ]
 }

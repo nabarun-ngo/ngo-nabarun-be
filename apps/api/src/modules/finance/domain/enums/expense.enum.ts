@@ -3,7 +3,7 @@ export enum ExpenseStatus {
   SUBMITTED = 'SUBMITTED',
   FINALIZED = 'FINALIZED',
   SETTLED = 'SETTLED',
-  REJECTED = 'REJECTED',
+  SEND_BACK = 'SEND_BACK',
 }
 
 export enum ExpenseRefType {

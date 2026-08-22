@@ -6,6 +6,8 @@ export enum Configkey {
   AUTH0_DOMAIN = 'AUTH0_DOMAIN',
   AUTH0_MANAGEMENT_CLIENT_ID = 'AUTH0_MANAGEMENT_CLIENT_ID',
   AUTH0_MANAGEMENT_CLIENT_SECRET = 'AUTH0_MANAGEMENT_CLIENT_SECRET',
+  /** SPA / Universal Login application client ID — used for password-change tickets & redirect. */
+  SPA_CLIENT_ID = 'SPA_CLIENT_ID',
 
   // Jwks
   JWT_JWKS_URI = 'JWT_JWKS_URI',
@@ -29,9 +31,6 @@ export enum Configkey {
   GOOGLE_CLIENT_ID = 'GOOGLE_CLIENT_ID',
   GOOGLE_CLIENT_SECRET = 'GOOGLE_CLIENT_SECRET',
   //GOOGLE_REDIRECT_URI = 'GOOGLE_REDIRECT_URI',
-
-  // Fathom (meeting notes webhook)
-  FATHOM_WEBHOOK_SECRET = 'FATHOM_WEBHOOK_SECRET',
 
   // Firebase
   FIREBASE_FILESTORAGE_BUCKET = 'FIREBASE_FILESTORAGE_BUCKET',

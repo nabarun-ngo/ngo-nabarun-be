@@ -29,6 +29,17 @@ export class Permission extends AggregateRoot<string> {
     return new Permission({ id: randomUUID(), key: data.key, description: data.description });
   }
 
+  updateDescription(description?: string): void {
+    this.#description = description;
+    this.touch();
+  }
+
+  restore(): void {
+    if (!this.#deletedAt) return;
+    this.#deletedAt = undefined;
+    this.touch();
+  }
+
   softDelete(): void {
     if (this.#deletedAt) return;
     this.#deletedAt = new Date();

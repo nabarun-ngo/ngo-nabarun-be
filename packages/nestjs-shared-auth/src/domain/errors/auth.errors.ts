@@ -46,6 +46,18 @@ export class RoleGroupNotFoundError extends BusinessError {
   }
 }
 
+export class CatalogKeyConflictError extends BusinessError {
+  constructor(kind: string, key: string) {
+    super(`${kind} '${key}' already exists.`, 'CATALOG_KEY_CONFLICT', 409);
+  }
+}
+
+export class CatalogInUseError extends BusinessError {
+  constructor(kind: string, key: string, reason: string) {
+    super(`Cannot delete ${kind} '${key}': ${reason}.`, 'CATALOG_IN_USE', 409);
+  }
+}
+
 export class UserRoleNotFoundError extends BusinessError {
   constructor(id: string) {
     super(`User role assignment '${id}' not found.`, 'USER_ROLE_NOT_FOUND', 404);
@@ -67,6 +79,22 @@ export class UserRoleAlreadyRevokedError extends BusinessError {
     super(
       `User role assignment '${id}' has already been revoked.`,
       'USER_ROLE_ALREADY_REVOKED',
+      400,
+    );
+  }
+}
+
+export class UserPermissionNotFoundError extends BusinessError {
+  constructor(id: string) {
+    super(`User permission grant '${id}' not found.`, 'USER_PERMISSION_NOT_FOUND', 404);
+  }
+}
+
+export class UserPermissionAlreadyRevokedError extends BusinessError {
+  constructor(id: string) {
+    super(
+      `User permission grant '${id}' has already been revoked.`,
+      'USER_PERMISSION_ALREADY_REVOKED',
       400,
     );
   }

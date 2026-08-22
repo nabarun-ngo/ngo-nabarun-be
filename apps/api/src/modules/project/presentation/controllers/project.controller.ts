@@ -1,7 +1,8 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiNoContentResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoResponse, ApiPaginationQuery, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateProjectCommand } from '../../application/commands/create-project/create-project.command';
 import { UpdateProjectCommand } from '../../application/commands/update-project/update-project.command';
 import { CreateActivityCommand } from '../../application/commands/create-activity/create-activity.command';
@@ -31,6 +32,10 @@ import {
 } from '../../application/dtos/activity.dto';
 import { ProjectListResponseDto } from '../../application/dtos/project-list.dto';
 import { ActivityListResponseDto } from '../../application/dtos/activity-list.dto';
+import {
+  ProjectDashboardResponseDto,
+  ProjectProgressResponseDto,
+} from '../../application/dtos/project-progress.dto';
 
 @ApiTags('Project')
 @ApiBearerAuth('jwt')
@@ -41,13 +46,16 @@ export class ProjectController {
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) { }
 
   @Get('static/referenceData')
-  @RequirePermissions('read:project')
+  @RequirePermissions('read:projects')
+  @ApiAutoResponse(ProjectRefDataDto)
   getReferenceData(): Promise<ProjectRefDataDto> {
     return this.queryBus.execute(new GetProjectReferenceDataQuery());
   }
 
   @Get()
-  @RequirePermissions('read:project')
+  @RequirePermissions('read:projects')
+  @ApiPaginationQuery()
+  @ApiAutoResponse(ProjectListResponseDto)
   listProjects(
     @Query('pageIndex') pageIndex?: number,
     @Query('pageSize') pageSize?: number,
@@ -59,38 +67,62 @@ export class ProjectController {
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   @RequirePermissions('create:project')
+  @ApiAutoResponse(ProjectDetailDto, { status: HttpStatus.CREATED })
   async createProject(@Body() dto: CreateProjectDto): Promise<ProjectDetailDto> {
     const project = await this.commandBus.execute(new CreateProjectCommand(dto));
     return ProjectMapper.toDto(project);
   }
 
+  @Get('activities')
+  @RequirePermissions('read:activities')
+  @ApiPaginationQuery()
+  @ApiAutoResponse(ActivityListResponseDto)
+  listAllActivities(
+    @Query('pageIndex') pageIndex?: number,
+    @Query('pageSize') pageSize?: number,
+    @Query() filter?: ActivityDetailFilterDto,
+  ): Promise<ActivityListResponseDto> {
+    return this.queryBus.execute(new ListActivitiesQuery(filter ?? {}, pageIndex, pageSize));
+  }
+
   @Get(':id/progress')
-  @RequirePermissions('read:project')
-  getProgress(@Param('id') id: string) {
+  @RequirePermissions('read:projects')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiAutoResponse(ProjectProgressResponseDto)
+  getProgress(@Param('id') id: string): Promise<ProjectProgressResponseDto> {
     return this.queryBus.execute(new GetProjectProgressQuery(id));
   }
 
   @Get(':id/dashboard')
-  @RequirePermissions('read:project')
-  getDashboard(@Param('id') id: string) {
+  @RequirePermissions('read:projects')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiAutoResponse(ProjectDashboardResponseDto)
+  getDashboard(@Param('id') id: string): Promise<ProjectDashboardResponseDto> {
     return this.queryBus.execute(new GetProjectDashboardQuery(id));
   }
 
   @Get(':id')
-  @RequirePermissions('read:project')
+  @RequirePermissions('read:projects')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiAutoResponse(ProjectDetailDto)
   getProjectById(@Param('id') id: string): Promise<ProjectDetailDto> {
     return this.queryBus.execute(new GetProjectByIdQuery(id));
   }
 
   @Patch(':id/update')
   @RequirePermissions('update:project')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiAutoResponse(ProjectDetailDto)
   async updateProject(@Param('id') id: string, @Body() dto: UpdateProjectDto): Promise<ProjectDetailDto> {
     const project = await this.commandBus.execute(new UpdateProjectCommand({ id, ...dto }));
     return ProjectMapper.toDto(project);
   }
 
   @Get(':id/activities')
-  @RequirePermissions('read:activity')
+  @RequirePermissions('read:activities')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiPaginationQuery()
+  @ApiAutoResponse(ActivityListResponseDto)
   listActivities(
     @Param('id') id: string,
     @Query('pageIndex') pageIndex?: number,
@@ -105,6 +137,8 @@ export class ProjectController {
   @Post(':id/activity')
   @HttpCode(HttpStatus.CREATED)
   @RequirePermissions('create:activity')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiAutoResponse(ActivityDetailDto, { status: HttpStatus.CREATED })
   async createActivity(@Param('id') id: string, @Body() dto: CreateActivityDto): Promise<ActivityDetailDto> {
     const activity = await this.commandBus.execute(new CreateActivityCommand({ ...dto, projectId: id }));
     return ActivityMapper.toDto(activity);
@@ -112,6 +146,9 @@ export class ProjectController {
 
   @Patch(':id/activity/:activityId')
   @RequirePermissions('update:activity')
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiUuidParam('activityId', 'Identifier of the activity')
+  @ApiAutoResponse(ActivityDetailDto)
   async updateActivity(
     @Param('activityId') activityId: string,
     @Body() dto: UpdateActivityDto,
@@ -123,6 +160,9 @@ export class ProjectController {
   @Post(':id/activity/:activityId/link-expense')
   @RequirePermissions('update:activity')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiUuidParam('id', 'Identifier of the project')
+  @ApiUuidParam('activityId', 'Identifier of the activity')
+  @ApiNoContentResponse({ description: 'Expense linked to the activity — no response body' })
   linkExpense(@Param('activityId') activityId: string, @Body() dto: LinkExpenseToActivityDto): Promise<void> {
     return this.commandBus.execute(new LinkExpenseToActivityCommand({ activityId, expenseId: dto.expenseId }));
   }

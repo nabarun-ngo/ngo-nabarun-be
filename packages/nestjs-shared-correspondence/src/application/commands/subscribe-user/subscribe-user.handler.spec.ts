@@ -18,7 +18,7 @@ function makeActiveUserSub() {
   });
 }
 
-function buildHandler(findByUserResult: any = null) {
+function buildHandler(findByUserResult = null, options = {}) {
   const repo: jest.Mocked<IResourceSubscriptionRepository> = {
     findByUserAndResource: jest.fn().mockResolvedValue(findByUserResult),
     create: jest.fn().mockResolvedValue(undefined),
@@ -35,7 +35,7 @@ function buildHandler(findByUserResult: any = null) {
   } as any;
 
   const eventBus = { publishAll: jest.fn() };
-  const handler = new SubscribeUserHandler(repo, eventBus as any);
+  const handler = new SubscribeUserHandler(repo, eventBus as any, options);
   return { handler, repo };
 }
 
@@ -113,5 +113,21 @@ describe('SubscribeUserHandler', () => {
     );
     await handler.execute(cmd);
     expect(repo.findByUserAndResource).toHaveBeenCalledWith('user-1', 'project', 'proj-123');
+  });
+
+  it('rejects resource types not in the allowlist', async () => {
+    const { handler, repo } = buildHandler(null, {
+      allowedResourceTypes: [{ resourceType: 'project' }, { resourceType: 'request' }],
+    });
+    const cmd = new SubscribeUserCommand(
+      'user-1',
+      'user1@test.com',
+      'donation',
+      SubscribedVia.MANUAL,
+    );
+    await expect(handler.execute(cmd)).rejects.toThrow(
+      /entityType "donation" is not registered with the correspondence module/,
+    );
+    expect(repo.create).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import { Type } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { ENVELOPE_EXAMPLES, PAGINATION_EXAMPLES } from './swagger-examples';
 
 /**
  * Creates a concrete SuccessResponse class for a specific type.
@@ -12,10 +13,10 @@ export function createSuccessResponseType<T>(
 ) {
   if (isArray) {
     class ConcreteSuccessResponseArray {
-      @ApiProperty() info: string;
-      @ApiProperty() timestamp: Date;
-      @ApiProperty() traceId?: string;
-      @ApiProperty() message: string;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.info }) info: string;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.timestamp }) timestamp: Date;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.traceId }) traceId?: string;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.message }) message: string;
       @ApiProperty({
         type: () => modelClass,
         description: 'Response payload data',
@@ -38,10 +39,10 @@ export function createSuccessResponseType<T>(
     }>;
   } else {
     class ConcreteSuccessResponse {
-      @ApiProperty() info: string;
-      @ApiProperty() timestamp: Date;
-      @ApiProperty() traceId?: string;
-      @ApiProperty() message: string;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.info }) info: string;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.timestamp }) timestamp: Date;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.traceId }) traceId?: string;
+      @ApiProperty({ example: ENVELOPE_EXAMPLES.message }) message: string;
       @ApiProperty({
         type: () => modelClass,
         description: 'Response payload data',
@@ -77,13 +78,13 @@ export function createPageType<T>(modelClass: Type<T>) {
     })
     content: T[];
 
-    @ApiProperty({ description: 'Current page index (0-based)' })
+    @ApiProperty({ description: 'Current page index (0-based)', example: PAGINATION_EXAMPLES.pageIndex })
     pageIndex: number;
 
-    @ApiProperty({ description: 'Page size (number of items per page)' })
+    @ApiProperty({ description: 'Page size (number of items per page)', example: PAGINATION_EXAMPLES.pageSize })
     pageSize: number;
 
-    @ApiProperty({ description: 'Total number of items across all pages' })
+    @ApiProperty({ description: 'Total number of items across all pages', example: PAGINATION_EXAMPLES.totalSize })
     totalSize: number;
   }
 
@@ -107,10 +108,10 @@ export function createPagedSuccessResponseType<T>(modelClass: Type<T>) {
   const PageType = createPageType(modelClass);
 
   class ConcretePagedSuccessResponse {
-    @ApiProperty() info: string;
-    @ApiProperty() timestamp: Date;
-    @ApiProperty() traceId?: string;
-    @ApiProperty() message: string;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.info }) info: string;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.timestamp }) timestamp: Date;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.traceId }) traceId?: string;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.message }) message: string;
     @ApiProperty({
       type: () => PageType,
       description: 'Paginated response payload',
@@ -137,10 +138,10 @@ export function createPagedSuccessResponseType<T>(modelClass: Type<T>) {
  */
 export function createVoidSuccessResponseType() {
   class ConcreteVoidSuccessResponse {
-    @ApiProperty() info: string;
-    @ApiProperty() timestamp: Date;
-    @ApiProperty() traceId?: string;
-    @ApiProperty() message: string;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.info }) info: string;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.timestamp }) timestamp: Date;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.traceId }) traceId?: string;
+    @ApiProperty({ example: ENVELOPE_EXAMPLES.message }) message: string;
   }
 
   Object.defineProperty(ConcreteVoidSuccessResponse, 'name', {

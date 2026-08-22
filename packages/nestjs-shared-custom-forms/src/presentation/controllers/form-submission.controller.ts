@@ -10,11 +10,23 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiProperty, ApiPropertyOptional, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiProperty,
+  ApiPropertyOptional,
+  ApiQuery,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  ApiAutoResponse,
+  ApiAutoVoidResponse,
+  ApiKeyParam,
+  ApiUuidParam,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { SaveFormDraftCommand } from '../../application/commands/save-form-draft/save-form-draft.command';
 import { SubmitFormCommand } from '../../application/commands/submit-form/submit-form.command';
 import { ClearFormSubmissionCommand } from '../../application/commands/clear-form-submission/clear-form-submission.command';
@@ -30,24 +42,27 @@ import {
 } from '../../application/dtos/response/form-response.dtos';
 
 class FormSubmissionQueryDto {
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid', example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   @IsString()
   @IsNotEmpty()
   formId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'PROJECT' })
   @IsString()
   @IsNotEmpty()
   entityType: string;
 
-  @ApiProperty()
+  @ApiProperty({ format: 'uuid', example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   @IsString()
   @IsNotEmpty()
   entityId: string;
 }
 
 class FormSubmissionHistoryQueryDto extends FormSubmissionQueryDto {
-  @ApiPropertyOptional({ description: 'Filter to a specific field key' })
+  @ApiPropertyOptional({
+    description: 'Filter to a specific field key',
+    example: 'emergency_contact',
+  })
   @IsString()
   @IsOptional()
   fieldKey?: string;
@@ -67,6 +82,13 @@ export class FormSubmissionController {
   @Post('draft')
   @HttpCode(HttpStatus.OK)
   @RequirePermissions('write:form_submissions')
+  @ApiQuery({
+    name: 'formId',
+    type: String,
+    format: 'uuid',
+    example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55',
+    description: 'Identifier of the form being drafted',
+  })
   @ApiAutoResponse(ResolvedFormFieldValueResponseDto, { isArray: true })
   saveDraft(
     @Query('formId') formId: string,
@@ -88,6 +110,13 @@ export class FormSubmissionController {
   @Post('submit')
   @HttpCode(HttpStatus.OK)
   @RequirePermissions('submit:form_submissions')
+  @ApiQuery({
+    name: 'formId',
+    type: String,
+    format: 'uuid',
+    example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55',
+    description: 'Identifier of the form being submitted',
+  })
   @ApiAutoVoidResponse()
   submitForm(
     @Query('formId') formId: string,
@@ -146,6 +175,9 @@ export class FormSubmissionController {
   @Delete(':entityType/:entityId/:formId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @RequirePermissions('clear:form_submissions')
+  @ApiKeyParam('entityType', 'PROJECT', 'Type of the entity the submission belongs to')
+  @ApiUuidParam('entityId', 'Identifier of the entity the submission belongs to')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoVoidResponse({ status: 204 })
   clearSubmission(
     @Param('entityType') entityType: string,

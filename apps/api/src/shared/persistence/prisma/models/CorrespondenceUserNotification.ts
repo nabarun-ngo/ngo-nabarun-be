@@ -541,10 +541,6 @@ export type CorrespondenceUserNotificationUncheckedUpdateManyWithoutNotification
   deleteMany?: Prisma.CorrespondenceUserNotificationScalarWhereInput | Prisma.CorrespondenceUserNotificationScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type CorrespondenceUserNotificationCreateWithoutNotificationInput = {
   id?: string
   userId: string

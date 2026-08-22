@@ -1,0 +1,50 @@
+{
+  "slug": "complete-member-profile",
+  "title": "Complete a member profile",
+  "categoryKey": "members",
+  "summary": "Fill required fields and save a member profile.",
+  "updatedAt": "2026-08-15",
+  "relatedSlugs": ["getting-started"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "You need permission to update members. Open the member from the Members list, then choose Complete profile."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "text": "Incomplete profiles stay visible until required fields are filled."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Required information"
+    },
+    {
+      "type": "steps",
+      "items": [
+        "Confirm name and contact details",
+        "Fill membership status",
+        "Review address and extras",
+        "Save"
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Common problems"
+    },
+    {
+      "type": "bullets",
+      "items": [
+        "Save stays disabled until required fields are valid",
+        "Ask an admin if you cannot open Complete profile"
+      ]
+    }
+  ]
+}

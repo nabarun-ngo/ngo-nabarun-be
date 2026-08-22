@@ -94,6 +94,7 @@ export type UserProfileCountAggregateOutputType = {
   gender: number
   about: number
   picture: number
+  roleKeys: number
   status: number
   isPublic: number
   isSameAddress: number
@@ -176,6 +177,7 @@ export type UserProfileCountAggregateInputType = {
   gender?: true
   about?: true
   picture?: true
+  roleKeys?: true
   status?: true
   isPublic?: true
   isSameAddress?: true
@@ -287,6 +289,7 @@ export type UserProfileGroupByOutputType = {
   gender: string | null
   about: string | null
   picture: string | null
+  roleKeys: string[]
   status: string
   isPublic: boolean
   isSameAddress: boolean | null
@@ -334,6 +337,7 @@ export type UserProfileWhereInput = {
   gender?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   about?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   picture?: Prisma.StringNullableFilter<"UserProfile"> | string | null
+  roleKeys?: Prisma.StringNullableListFilter<"UserProfile">
   status?: Prisma.StringFilter<"UserProfile"> | string
   isPublic?: Prisma.BoolFilter<"UserProfile"> | boolean
   isSameAddress?: Prisma.BoolNullableFilter<"UserProfile"> | boolean | null
@@ -347,10 +351,12 @@ export type UserProfileWhereInput = {
   phoneNumbers?: Prisma.UserPhoneNumberListRelationFilter
   addresses?: Prisma.UserAddressListRelationFilter
   socialMediaLinks?: Prisma.UserSocialLinkListRelationFilter
-  initiatedWorkflows?: Prisma.WorkflowInstanceListRelationFilter
-  receivedWorkflows?: Prisma.WorkflowInstanceListRelationFilter
+  initiatedRequests?: Prisma.RequestListRelationFilter
+  receivedRequests?: Prisma.RequestListRelationFilter
+  assignedRequests?: Prisma.RequestListRelationFilter
+  claimedRequests?: Prisma.RequestListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
-  donations?: Prisma.DonationListRelationFilter
+  donor?: Prisma.XOR<Prisma.DonorNullableScalarRelationFilter, Prisma.DonorWhereInput> | null
   confirmedDonations?: Prisma.DonationListRelationFilter
   accountCreator?: Prisma.AccountListRelationFilter
   transactionCreator?: Prisma.TransactionListRelationFilter
@@ -387,6 +393,7 @@ export type UserProfileOrderByWithRelationInput = {
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
   picture?: Prisma.SortOrderInput | Prisma.SortOrder
+  roleKeys?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSameAddress?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -400,10 +407,12 @@ export type UserProfileOrderByWithRelationInput = {
   phoneNumbers?: Prisma.UserPhoneNumberOrderByRelationAggregateInput
   addresses?: Prisma.UserAddressOrderByRelationAggregateInput
   socialMediaLinks?: Prisma.UserSocialLinkOrderByRelationAggregateInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceOrderByRelationAggregateInput
-  receivedWorkflows?: Prisma.WorkflowInstanceOrderByRelationAggregateInput
+  initiatedRequests?: Prisma.RequestOrderByRelationAggregateInput
+  receivedRequests?: Prisma.RequestOrderByRelationAggregateInput
+  assignedRequests?: Prisma.RequestOrderByRelationAggregateInput
+  claimedRequests?: Prisma.RequestOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
-  donations?: Prisma.DonationOrderByRelationAggregateInput
+  donor?: Prisma.DonorOrderByWithRelationInput
   confirmedDonations?: Prisma.DonationOrderByRelationAggregateInput
   accountCreator?: Prisma.AccountOrderByRelationAggregateInput
   transactionCreator?: Prisma.TransactionOrderByRelationAggregateInput
@@ -443,6 +452,7 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   gender?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   about?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   picture?: Prisma.StringNullableFilter<"UserProfile"> | string | null
+  roleKeys?: Prisma.StringNullableListFilter<"UserProfile">
   status?: Prisma.StringFilter<"UserProfile"> | string
   isPublic?: Prisma.BoolFilter<"UserProfile"> | boolean
   isSameAddress?: Prisma.BoolNullableFilter<"UserProfile"> | boolean | null
@@ -456,10 +466,12 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   phoneNumbers?: Prisma.UserPhoneNumberListRelationFilter
   addresses?: Prisma.UserAddressListRelationFilter
   socialMediaLinks?: Prisma.UserSocialLinkListRelationFilter
-  initiatedWorkflows?: Prisma.WorkflowInstanceListRelationFilter
-  receivedWorkflows?: Prisma.WorkflowInstanceListRelationFilter
+  initiatedRequests?: Prisma.RequestListRelationFilter
+  receivedRequests?: Prisma.RequestListRelationFilter
+  assignedRequests?: Prisma.RequestListRelationFilter
+  claimedRequests?: Prisma.RequestListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
-  donations?: Prisma.DonationListRelationFilter
+  donor?: Prisma.XOR<Prisma.DonorNullableScalarRelationFilter, Prisma.DonorWhereInput> | null
   confirmedDonations?: Prisma.DonationListRelationFilter
   accountCreator?: Prisma.AccountListRelationFilter
   transactionCreator?: Prisma.TransactionListRelationFilter
@@ -496,6 +508,7 @@ export type UserProfileOrderByWithAggregationInput = {
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
   picture?: Prisma.SortOrderInput | Prisma.SortOrder
+  roleKeys?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSameAddress?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -528,6 +541,7 @@ export type UserProfileScalarWhereWithAggregatesInput = {
   gender?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   about?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   picture?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
+  roleKeys?: Prisma.StringNullableListFilter<"UserProfile">
   status?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   isPublic?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
   isSameAddress?: Prisma.BoolNullableWithAggregatesFilter<"UserProfile"> | boolean | null
@@ -552,6 +566,7 @@ export type UserProfileCreateInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -565,10 +580,12 @@ export type UserProfileCreateInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -605,6 +622,7 @@ export type UserProfileUncheckedCreateInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -618,10 +636,12 @@ export type UserProfileUncheckedCreateInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -658,6 +678,7 @@ export type UserProfileUpdateInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -671,10 +692,12 @@ export type UserProfileUpdateInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -711,6 +734,7 @@ export type UserProfileUncheckedUpdateInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -724,10 +748,12 @@ export type UserProfileUncheckedUpdateInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -764,6 +790,7 @@ export type UserProfileCreateManyInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -788,6 +815,7 @@ export type UserProfileUpdateManyMutationInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -812,6 +840,7 @@ export type UserProfileUncheckedUpdateManyInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -846,6 +875,7 @@ export type UserProfileCountOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   about?: Prisma.SortOrder
   picture?: Prisma.SortOrder
+  roleKeys?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSameAddress?: Prisma.SortOrder
@@ -978,26 +1008,26 @@ export type UserProfileUpdateOneWithoutAccountCreatorNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutAccountCreatorInput, Prisma.UserProfileUpdateWithoutAccountCreatorInput>, Prisma.UserProfileUncheckedUpdateWithoutAccountCreatorInput>
 }
 
-export type UserProfileCreateNestedOneWithoutDonationsInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutDonationsInput, Prisma.UserProfileUncheckedCreateWithoutDonationsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutDonationsInput
+export type UserProfileCreateNestedOneWithoutDonorInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutDonorInput, Prisma.UserProfileUncheckedCreateWithoutDonorInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutDonorInput
   connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneWithoutDonorNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutDonorInput, Prisma.UserProfileUncheckedCreateWithoutDonorInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutDonorInput
+  upsert?: Prisma.UserProfileUpsertWithoutDonorInput
+  disconnect?: Prisma.UserProfileWhereInput | boolean
+  delete?: Prisma.UserProfileWhereInput | boolean
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutDonorInput, Prisma.UserProfileUpdateWithoutDonorInput>, Prisma.UserProfileUncheckedUpdateWithoutDonorInput>
 }
 
 export type UserProfileCreateNestedOneWithoutConfirmedDonationsInput = {
   create?: Prisma.XOR<Prisma.UserProfileCreateWithoutConfirmedDonationsInput, Prisma.UserProfileUncheckedCreateWithoutConfirmedDonationsInput>
   connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutConfirmedDonationsInput
   connect?: Prisma.UserProfileWhereUniqueInput
-}
-
-export type UserProfileUpdateOneWithoutDonationsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutDonationsInput, Prisma.UserProfileUncheckedCreateWithoutDonationsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutDonationsInput
-  upsert?: Prisma.UserProfileUpsertWithoutDonationsInput
-  disconnect?: Prisma.UserProfileWhereInput | boolean
-  delete?: Prisma.UserProfileWhereInput | boolean
-  connect?: Prisma.UserProfileWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutDonationsInput, Prisma.UserProfileUpdateWithoutDonationsInput>, Prisma.UserProfileUncheckedUpdateWithoutDonationsInput>
 }
 
 export type UserProfileUpdateOneWithoutConfirmedDonationsNestedInput = {
@@ -1294,6 +1324,79 @@ export type UserProfileUpdateOneWithoutApprovedReportsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutApprovedReportsInput, Prisma.UserProfileUpdateWithoutApprovedReportsInput>, Prisma.UserProfileUncheckedUpdateWithoutApprovedReportsInput>
 }
 
+export type UserProfileCreateNestedOneWithoutInitiatedRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutInitiatedRequestsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileCreateNestedOneWithoutReceivedRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutReceivedRequestsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileCreateNestedOneWithoutAssignedRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutAssignedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutAssignedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutAssignedRequestsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileCreateNestedOneWithoutClaimedRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutClaimedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutClaimedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutClaimedRequestsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneWithoutInitiatedRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutInitiatedRequestsInput
+  upsert?: Prisma.UserProfileUpsertWithoutInitiatedRequestsInput
+  disconnect?: Prisma.UserProfileWhereInput | boolean
+  delete?: Prisma.UserProfileWhereInput | boolean
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutInitiatedRequestsInput, Prisma.UserProfileUpdateWithoutInitiatedRequestsInput>, Prisma.UserProfileUncheckedUpdateWithoutInitiatedRequestsInput>
+}
+
+export type UserProfileUpdateOneWithoutReceivedRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutReceivedRequestsInput
+  upsert?: Prisma.UserProfileUpsertWithoutReceivedRequestsInput
+  disconnect?: Prisma.UserProfileWhereInput | boolean
+  delete?: Prisma.UserProfileWhereInput | boolean
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutReceivedRequestsInput, Prisma.UserProfileUpdateWithoutReceivedRequestsInput>, Prisma.UserProfileUncheckedUpdateWithoutReceivedRequestsInput>
+}
+
+export type UserProfileUpdateOneWithoutAssignedRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutAssignedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutAssignedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutAssignedRequestsInput
+  upsert?: Prisma.UserProfileUpsertWithoutAssignedRequestsInput
+  disconnect?: Prisma.UserProfileWhereInput | boolean
+  delete?: Prisma.UserProfileWhereInput | boolean
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutAssignedRequestsInput, Prisma.UserProfileUpdateWithoutAssignedRequestsInput>, Prisma.UserProfileUncheckedUpdateWithoutAssignedRequestsInput>
+}
+
+export type UserProfileUpdateOneWithoutClaimedRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutClaimedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutClaimedRequestsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutClaimedRequestsInput
+  upsert?: Prisma.UserProfileUpsertWithoutClaimedRequestsInput
+  disconnect?: Prisma.UserProfileWhereInput | boolean
+  delete?: Prisma.UserProfileWhereInput | boolean
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutClaimedRequestsInput, Prisma.UserProfileUpdateWithoutClaimedRequestsInput>, Prisma.UserProfileUncheckedUpdateWithoutClaimedRequestsInput>
+}
+
+export type UserProfileCreateroleKeysInput = {
+  set: string[]
+}
+
+export type UserProfileUpdateroleKeysInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type UserProfileCreateNestedOneWithoutPhoneNumbersInput = {
   create?: Prisma.XOR<Prisma.UserProfileCreateWithoutPhoneNumbersInput, Prisma.UserProfileUncheckedCreateWithoutPhoneNumbersInput>
   connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutPhoneNumbersInput
@@ -1336,38 +1439,6 @@ export type UserProfileUpdateOneRequiredWithoutSocialMediaLinksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutSocialMediaLinksInput, Prisma.UserProfileUpdateWithoutSocialMediaLinksInput>, Prisma.UserProfileUncheckedUpdateWithoutSocialMediaLinksInput>
 }
 
-export type UserProfileCreateNestedOneWithoutInitiatedWorkflowsInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedWorkflowsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutInitiatedWorkflowsInput
-  connect?: Prisma.UserProfileWhereUniqueInput
-}
-
-export type UserProfileCreateNestedOneWithoutReceivedWorkflowsInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedWorkflowsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutReceivedWorkflowsInput
-  connect?: Prisma.UserProfileWhereUniqueInput
-}
-
-export type UserProfileUpdateOneWithoutInitiatedWorkflowsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedWorkflowsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutInitiatedWorkflowsInput
-  upsert?: Prisma.UserProfileUpsertWithoutInitiatedWorkflowsInput
-  disconnect?: Prisma.UserProfileWhereInput | boolean
-  delete?: Prisma.UserProfileWhereInput | boolean
-  connect?: Prisma.UserProfileWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutInitiatedWorkflowsInput, Prisma.UserProfileUpdateWithoutInitiatedWorkflowsInput>, Prisma.UserProfileUncheckedUpdateWithoutInitiatedWorkflowsInput>
-}
-
-export type UserProfileUpdateOneWithoutReceivedWorkflowsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedWorkflowsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutReceivedWorkflowsInput
-  upsert?: Prisma.UserProfileUpsertWithoutReceivedWorkflowsInput
-  disconnect?: Prisma.UserProfileWhereInput | boolean
-  delete?: Prisma.UserProfileWhereInput | boolean
-  connect?: Prisma.UserProfileWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutReceivedWorkflowsInput, Prisma.UserProfileUpdateWithoutReceivedWorkflowsInput>, Prisma.UserProfileUncheckedUpdateWithoutReceivedWorkflowsInput>
-}
-
 export type UserProfileCreateWithoutAssignedActivitiesInput = {
   id?: string
   email: string
@@ -1380,6 +1451,7 @@ export type UserProfileCreateWithoutAssignedActivitiesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1393,10 +1465,12 @@ export type UserProfileCreateWithoutAssignedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -1432,6 +1506,7 @@ export type UserProfileUncheckedCreateWithoutAssignedActivitiesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1445,10 +1520,12 @@ export type UserProfileUncheckedCreateWithoutAssignedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1489,6 +1566,7 @@ export type UserProfileCreateWithoutOrganizedActivitiesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1502,10 +1580,12 @@ export type UserProfileCreateWithoutOrganizedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -1541,6 +1621,7 @@ export type UserProfileUncheckedCreateWithoutOrganizedActivitiesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1554,10 +1635,12 @@ export type UserProfileUncheckedCreateWithoutOrganizedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1609,6 +1692,7 @@ export type UserProfileUpdateWithoutAssignedActivitiesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1622,10 +1706,12 @@ export type UserProfileUpdateWithoutAssignedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -1661,6 +1747,7 @@ export type UserProfileUncheckedUpdateWithoutAssignedActivitiesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1674,10 +1761,12 @@ export type UserProfileUncheckedUpdateWithoutAssignedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1724,6 +1813,7 @@ export type UserProfileUpdateWithoutOrganizedActivitiesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1737,10 +1827,12 @@ export type UserProfileUpdateWithoutOrganizedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -1776,6 +1868,7 @@ export type UserProfileUncheckedUpdateWithoutOrganizedActivitiesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1789,10 +1882,12 @@ export type UserProfileUncheckedUpdateWithoutOrganizedActivitiesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1828,6 +1923,7 @@ export type UserProfileCreateWithoutAccountsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1841,9 +1937,11 @@ export type UserProfileCreateWithoutAccountsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -1880,6 +1978,7 @@ export type UserProfileUncheckedCreateWithoutAccountsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1893,9 +1992,11 @@ export type UserProfileUncheckedCreateWithoutAccountsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1937,6 +2038,7 @@ export type UserProfileCreateWithoutAccountCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -1950,10 +2052,12 @@ export type UserProfileCreateWithoutAccountCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
   expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
@@ -1989,6 +2093,7 @@ export type UserProfileUncheckedCreateWithoutAccountCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2002,10 +2107,12 @@ export type UserProfileUncheckedCreateWithoutAccountCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
   expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2057,6 +2164,7 @@ export type UserProfileUpdateWithoutAccountsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2070,9 +2178,11 @@ export type UserProfileUpdateWithoutAccountsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -2109,6 +2219,7 @@ export type UserProfileUncheckedUpdateWithoutAccountsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2122,9 +2233,11 @@ export type UserProfileUncheckedUpdateWithoutAccountsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2172,6 +2285,7 @@ export type UserProfileUpdateWithoutAccountCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2185,10 +2299,12 @@ export type UserProfileUpdateWithoutAccountCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
   expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
@@ -2224,6 +2340,7 @@ export type UserProfileUncheckedUpdateWithoutAccountCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2237,10 +2354,12 @@ export type UserProfileUncheckedUpdateWithoutAccountCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
   expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2264,7 +2383,7 @@ export type UserProfileUncheckedUpdateWithoutAccountCreatorInput = {
   createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
-export type UserProfileCreateWithoutDonationsInput = {
+export type UserProfileCreateWithoutDonorInput = {
   id?: string
   email: string
   idpSub?: string | null
@@ -2276,6 +2395,7 @@ export type UserProfileCreateWithoutDonationsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2289,8 +2409,10 @@ export type UserProfileCreateWithoutDonationsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
@@ -2316,7 +2438,7 @@ export type UserProfileCreateWithoutDonationsInput = {
   createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
 }
 
-export type UserProfileUncheckedCreateWithoutDonationsInput = {
+export type UserProfileUncheckedCreateWithoutDonorInput = {
   id?: string
   email: string
   idpSub?: string | null
@@ -2328,6 +2450,7 @@ export type UserProfileUncheckedCreateWithoutDonationsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2341,8 +2464,10 @@ export type UserProfileUncheckedCreateWithoutDonationsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2368,9 +2493,130 @@ export type UserProfileUncheckedCreateWithoutDonationsInput = {
   createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
-export type UserProfileCreateOrConnectWithoutDonationsInput = {
+export type UserProfileCreateOrConnectWithoutDonorInput = {
   where: Prisma.UserProfileWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutDonationsInput, Prisma.UserProfileUncheckedCreateWithoutDonationsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutDonorInput, Prisma.UserProfileUncheckedCreateWithoutDonorInput>
+}
+
+export type UserProfileUpsertWithoutDonorInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutDonorInput, Prisma.UserProfileUncheckedUpdateWithoutDonorInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutDonorInput, Prisma.UserProfileUncheckedCreateWithoutDonorInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutDonorInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutDonorInput, Prisma.UserProfileUncheckedUpdateWithoutDonorInput>
+}
+
+export type UserProfileUpdateWithoutDonorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
+  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutDonorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
+  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserProfileCreateWithoutConfirmedDonationsInput = {
@@ -2385,6 +2631,7 @@ export type UserProfileCreateWithoutConfirmedDonationsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2398,10 +2645,12 @@ export type UserProfileCreateWithoutConfirmedDonationsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
   expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
@@ -2437,6 +2686,7 @@ export type UserProfileUncheckedCreateWithoutConfirmedDonationsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2450,10 +2700,12 @@ export type UserProfileUncheckedCreateWithoutConfirmedDonationsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
   expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2482,121 +2734,6 @@ export type UserProfileCreateOrConnectWithoutConfirmedDonationsInput = {
   create: Prisma.XOR<Prisma.UserProfileCreateWithoutConfirmedDonationsInput, Prisma.UserProfileUncheckedCreateWithoutConfirmedDonationsInput>
 }
 
-export type UserProfileUpsertWithoutDonationsInput = {
-  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutDonationsInput, Prisma.UserProfileUncheckedUpdateWithoutDonationsInput>
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutDonationsInput, Prisma.UserProfileUncheckedCreateWithoutDonationsInput>
-  where?: Prisma.UserProfileWhereInput
-}
-
-export type UserProfileUpdateToOneWithWhereWithoutDonationsInput = {
-  where?: Prisma.UserProfileWhereInput
-  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutDonationsInput, Prisma.UserProfileUncheckedUpdateWithoutDonationsInput>
-}
-
-export type UserProfileUpdateWithoutDonationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
-  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
-  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
-  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
-  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
-  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
-  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
-  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
-  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
-  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
-  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
-  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
-  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
-  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
-  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
-  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
-  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
-  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
-  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
-  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
-  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
-  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
-  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserProfileUncheckedUpdateWithoutDonationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
-  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
-  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
-  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
-  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
-  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
-  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
-  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
-  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
-  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
-  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
-  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
-  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
-  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
-  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
-  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
-  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
-  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
-  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
-  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
-  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
-  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
-  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
-}
-
 export type UserProfileUpsertWithoutConfirmedDonationsInput = {
   update: Prisma.XOR<Prisma.UserProfileUpdateWithoutConfirmedDonationsInput, Prisma.UserProfileUncheckedUpdateWithoutConfirmedDonationsInput>
   create: Prisma.XOR<Prisma.UserProfileCreateWithoutConfirmedDonationsInput, Prisma.UserProfileUncheckedCreateWithoutConfirmedDonationsInput>
@@ -2620,6 +2757,7 @@ export type UserProfileUpdateWithoutConfirmedDonationsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2633,10 +2771,12 @@ export type UserProfileUpdateWithoutConfirmedDonationsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
   expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
@@ -2672,6 +2812,7 @@ export type UserProfileUncheckedUpdateWithoutConfirmedDonationsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2685,10 +2826,12 @@ export type UserProfileUncheckedUpdateWithoutConfirmedDonationsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
   expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2724,6 +2867,7 @@ export type UserProfileCreateWithoutTransactionCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2737,10 +2881,12 @@ export type UserProfileCreateWithoutTransactionCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
@@ -2776,6 +2922,7 @@ export type UserProfileUncheckedCreateWithoutTransactionCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2789,10 +2936,12 @@ export type UserProfileUncheckedCreateWithoutTransactionCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2844,6 +2993,7 @@ export type UserProfileUpdateWithoutTransactionCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2857,10 +3007,12 @@ export type UserProfileUpdateWithoutTransactionCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
@@ -2896,6 +3048,7 @@ export type UserProfileUncheckedUpdateWithoutTransactionCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2909,10 +3062,12 @@ export type UserProfileUncheckedUpdateWithoutTransactionCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2948,6 +3103,7 @@ export type UserProfileCreateWithoutExpenseCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -2961,10 +3117,12 @@ export type UserProfileCreateWithoutExpenseCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3000,6 +3158,7 @@ export type UserProfileUncheckedCreateWithoutExpenseCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3013,10 +3172,12 @@ export type UserProfileUncheckedCreateWithoutExpenseCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3057,6 +3218,7 @@ export type UserProfileCreateWithoutExpensePaidByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3070,10 +3232,12 @@ export type UserProfileCreateWithoutExpensePaidByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3109,6 +3273,7 @@ export type UserProfileUncheckedCreateWithoutExpensePaidByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3122,10 +3287,12 @@ export type UserProfileUncheckedCreateWithoutExpensePaidByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3166,6 +3333,7 @@ export type UserProfileCreateWithoutExpenseSubmittedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3179,10 +3347,12 @@ export type UserProfileCreateWithoutExpenseSubmittedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3218,6 +3388,7 @@ export type UserProfileUncheckedCreateWithoutExpenseSubmittedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3231,10 +3402,12 @@ export type UserProfileUncheckedCreateWithoutExpenseSubmittedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3275,6 +3448,7 @@ export type UserProfileCreateWithoutExpenseFinalizedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3288,10 +3462,12 @@ export type UserProfileCreateWithoutExpenseFinalizedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3327,6 +3503,7 @@ export type UserProfileUncheckedCreateWithoutExpenseFinalizedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3340,10 +3517,12 @@ export type UserProfileUncheckedCreateWithoutExpenseFinalizedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3384,6 +3563,7 @@ export type UserProfileCreateWithoutExpenseSettledByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3397,10 +3577,12 @@ export type UserProfileCreateWithoutExpenseSettledByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3436,6 +3618,7 @@ export type UserProfileUncheckedCreateWithoutExpenseSettledByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3449,10 +3632,12 @@ export type UserProfileUncheckedCreateWithoutExpenseSettledByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3493,6 +3678,7 @@ export type UserProfileCreateWithoutExpenseRejectedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3506,10 +3692,12 @@ export type UserProfileCreateWithoutExpenseRejectedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3545,6 +3733,7 @@ export type UserProfileUncheckedCreateWithoutExpenseRejectedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3558,10 +3747,12 @@ export type UserProfileUncheckedCreateWithoutExpenseRejectedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3602,6 +3793,7 @@ export type UserProfileCreateWithoutExpenseUpdatedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3615,10 +3807,12 @@ export type UserProfileCreateWithoutExpenseUpdatedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3654,6 +3848,7 @@ export type UserProfileUncheckedCreateWithoutExpenseUpdatedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3667,10 +3862,12 @@ export type UserProfileUncheckedCreateWithoutExpenseUpdatedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3711,6 +3908,7 @@ export type UserProfileCreateWithoutExpensesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3724,10 +3922,12 @@ export type UserProfileCreateWithoutExpensesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -3763,6 +3963,7 @@ export type UserProfileUncheckedCreateWithoutExpensesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -3776,10 +3977,12 @@ export type UserProfileUncheckedCreateWithoutExpensesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3831,6 +4034,7 @@ export type UserProfileUpdateWithoutExpenseCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3844,10 +4048,12 @@ export type UserProfileUpdateWithoutExpenseCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -3883,6 +4089,7 @@ export type UserProfileUncheckedUpdateWithoutExpenseCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3896,10 +4103,12 @@ export type UserProfileUncheckedUpdateWithoutExpenseCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -3946,6 +4155,7 @@ export type UserProfileUpdateWithoutExpensePaidByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3959,10 +4169,12 @@ export type UserProfileUpdateWithoutExpensePaidByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -3998,6 +4210,7 @@ export type UserProfileUncheckedUpdateWithoutExpensePaidByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4011,10 +4224,12 @@ export type UserProfileUncheckedUpdateWithoutExpensePaidByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4061,6 +4276,7 @@ export type UserProfileUpdateWithoutExpenseSubmittedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4074,10 +4290,12 @@ export type UserProfileUpdateWithoutExpenseSubmittedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -4113,6 +4331,7 @@ export type UserProfileUncheckedUpdateWithoutExpenseSubmittedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4126,10 +4345,12 @@ export type UserProfileUncheckedUpdateWithoutExpenseSubmittedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4176,6 +4397,7 @@ export type UserProfileUpdateWithoutExpenseFinalizedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4189,10 +4411,12 @@ export type UserProfileUpdateWithoutExpenseFinalizedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -4228,6 +4452,7 @@ export type UserProfileUncheckedUpdateWithoutExpenseFinalizedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4241,10 +4466,12 @@ export type UserProfileUncheckedUpdateWithoutExpenseFinalizedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4291,6 +4518,7 @@ export type UserProfileUpdateWithoutExpenseSettledByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4304,10 +4532,12 @@ export type UserProfileUpdateWithoutExpenseSettledByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -4343,6 +4573,7 @@ export type UserProfileUncheckedUpdateWithoutExpenseSettledByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4356,10 +4587,12 @@ export type UserProfileUncheckedUpdateWithoutExpenseSettledByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4406,6 +4639,7 @@ export type UserProfileUpdateWithoutExpenseRejectedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4419,10 +4653,12 @@ export type UserProfileUpdateWithoutExpenseRejectedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -4458,6 +4694,7 @@ export type UserProfileUncheckedUpdateWithoutExpenseRejectedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4471,10 +4708,12 @@ export type UserProfileUncheckedUpdateWithoutExpenseRejectedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4521,6 +4760,7 @@ export type UserProfileUpdateWithoutExpenseUpdatedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4534,10 +4774,12 @@ export type UserProfileUpdateWithoutExpenseUpdatedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -4573,6 +4815,7 @@ export type UserProfileUncheckedUpdateWithoutExpenseUpdatedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4586,10 +4829,12 @@ export type UserProfileUncheckedUpdateWithoutExpenseUpdatedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4636,6 +4881,7 @@ export type UserProfileUpdateWithoutExpensesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4649,10 +4895,12 @@ export type UserProfileUpdateWithoutExpensesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -4688,6 +4936,7 @@ export type UserProfileUncheckedUpdateWithoutExpensesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4701,10 +4950,12 @@ export type UserProfileUncheckedUpdateWithoutExpensesInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4740,6 +4991,7 @@ export type UserProfileCreateWithoutEarningCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -4753,10 +5005,12 @@ export type UserProfileCreateWithoutEarningCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -4792,6 +5046,7 @@ export type UserProfileUncheckedCreateWithoutEarningCreatorInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -4805,10 +5060,12 @@ export type UserProfileUncheckedCreateWithoutEarningCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -4849,6 +5106,7 @@ export type UserProfileCreateWithoutEarningReceivedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -4862,10 +5120,12 @@ export type UserProfileCreateWithoutEarningReceivedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -4901,6 +5161,7 @@ export type UserProfileUncheckedCreateWithoutEarningReceivedByInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -4914,10 +5175,12 @@ export type UserProfileUncheckedCreateWithoutEarningReceivedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -4969,6 +5232,7 @@ export type UserProfileUpdateWithoutEarningCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -4982,10 +5246,12 @@ export type UserProfileUpdateWithoutEarningCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -5021,6 +5287,7 @@ export type UserProfileUncheckedUpdateWithoutEarningCreatorInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5034,10 +5301,12 @@ export type UserProfileUncheckedUpdateWithoutEarningCreatorInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -5084,6 +5353,7 @@ export type UserProfileUpdateWithoutEarningReceivedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5097,10 +5367,12 @@ export type UserProfileUpdateWithoutEarningReceivedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -5136,6 +5408,7 @@ export type UserProfileUncheckedUpdateWithoutEarningReceivedByInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5149,10 +5422,12 @@ export type UserProfileUncheckedUpdateWithoutEarningReceivedByInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -5188,6 +5463,7 @@ export type UserProfileCreateWithoutCreatedMeetingsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5201,10 +5477,12 @@ export type UserProfileCreateWithoutCreatedMeetingsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -5240,6 +5518,7 @@ export type UserProfileUncheckedCreateWithoutCreatedMeetingsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5253,10 +5532,12 @@ export type UserProfileUncheckedCreateWithoutCreatedMeetingsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -5308,6 +5589,7 @@ export type UserProfileUpdateWithoutCreatedMeetingsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5321,10 +5603,12 @@ export type UserProfileUpdateWithoutCreatedMeetingsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -5360,6 +5644,7 @@ export type UserProfileUncheckedUpdateWithoutCreatedMeetingsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5373,10 +5658,12 @@ export type UserProfileUncheckedUpdateWithoutCreatedMeetingsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -5412,6 +5699,7 @@ export type UserProfileCreateWithoutManagedProjectsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5425,10 +5713,12 @@ export type UserProfileCreateWithoutManagedProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -5464,6 +5754,7 @@ export type UserProfileUncheckedCreateWithoutManagedProjectsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5477,10 +5768,12 @@ export type UserProfileUncheckedCreateWithoutManagedProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -5521,6 +5814,7 @@ export type UserProfileCreateWithoutSponsoredProjectsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5534,10 +5828,12 @@ export type UserProfileCreateWithoutSponsoredProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -5573,6 +5869,7 @@ export type UserProfileUncheckedCreateWithoutSponsoredProjectsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5586,10 +5883,12 @@ export type UserProfileUncheckedCreateWithoutSponsoredProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -5641,6 +5940,7 @@ export type UserProfileUpdateWithoutManagedProjectsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5654,10 +5954,12 @@ export type UserProfileUpdateWithoutManagedProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -5693,6 +5995,7 @@ export type UserProfileUncheckedUpdateWithoutManagedProjectsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5706,10 +6009,12 @@ export type UserProfileUncheckedUpdateWithoutManagedProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -5756,6 +6061,7 @@ export type UserProfileUpdateWithoutSponsoredProjectsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5769,10 +6075,12 @@ export type UserProfileUpdateWithoutSponsoredProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -5808,6 +6116,7 @@ export type UserProfileUncheckedUpdateWithoutSponsoredProjectsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5821,10 +6130,12 @@ export type UserProfileUncheckedUpdateWithoutSponsoredProjectsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -5860,6 +6171,7 @@ export type UserProfileCreateWithoutProjectTeamMembersInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5873,10 +6185,12 @@ export type UserProfileCreateWithoutProjectTeamMembersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -5912,6 +6226,7 @@ export type UserProfileUncheckedCreateWithoutProjectTeamMembersInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -5925,10 +6240,12 @@ export type UserProfileUncheckedCreateWithoutProjectTeamMembersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -5980,6 +6297,7 @@ export type UserProfileUpdateWithoutProjectTeamMembersInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -5993,10 +6311,12 @@ export type UserProfileUpdateWithoutProjectTeamMembersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -6032,6 +6352,7 @@ export type UserProfileUncheckedUpdateWithoutProjectTeamMembersInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6045,10 +6366,12 @@ export type UserProfileUncheckedUpdateWithoutProjectTeamMembersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -6084,6 +6407,7 @@ export type UserProfileCreateWithoutRiskOwnersInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6097,10 +6421,12 @@ export type UserProfileCreateWithoutRiskOwnersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -6136,6 +6462,7 @@ export type UserProfileUncheckedCreateWithoutRiskOwnersInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6149,10 +6476,12 @@ export type UserProfileUncheckedCreateWithoutRiskOwnersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -6204,6 +6533,7 @@ export type UserProfileUpdateWithoutRiskOwnersInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6217,10 +6547,12 @@ export type UserProfileUpdateWithoutRiskOwnersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -6256,6 +6588,7 @@ export type UserProfileUncheckedUpdateWithoutRiskOwnersInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6269,10 +6602,12 @@ export type UserProfileUncheckedUpdateWithoutRiskOwnersInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -6308,6 +6643,7 @@ export type UserProfileCreateWithoutRequestedReportsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6321,10 +6657,12 @@ export type UserProfileCreateWithoutRequestedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -6360,6 +6698,7 @@ export type UserProfileUncheckedCreateWithoutRequestedReportsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6373,10 +6712,12 @@ export type UserProfileUncheckedCreateWithoutRequestedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -6417,6 +6758,7 @@ export type UserProfileCreateWithoutApprovedReportsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6430,10 +6772,12 @@ export type UserProfileCreateWithoutApprovedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -6469,6 +6813,7 @@ export type UserProfileUncheckedCreateWithoutApprovedReportsInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6482,10 +6827,12 @@ export type UserProfileUncheckedCreateWithoutApprovedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -6537,6 +6884,7 @@ export type UserProfileUpdateWithoutRequestedReportsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6550,10 +6898,12 @@ export type UserProfileUpdateWithoutRequestedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -6589,6 +6939,7 @@ export type UserProfileUncheckedUpdateWithoutRequestedReportsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6602,10 +6953,12 @@ export type UserProfileUncheckedUpdateWithoutRequestedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -6652,6 +7005,7 @@ export type UserProfileUpdateWithoutApprovedReportsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6665,10 +7019,12 @@ export type UserProfileUpdateWithoutApprovedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -6704,6 +7060,7 @@ export type UserProfileUncheckedUpdateWithoutApprovedReportsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6717,10 +7074,12 @@ export type UserProfileUncheckedUpdateWithoutApprovedReportsInput = {
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -6744,6 +7103,950 @@ export type UserProfileUncheckedUpdateWithoutApprovedReportsInput = {
   createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
+export type UserProfileCreateWithoutInitiatedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileUncheckedCreateWithoutInitiatedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningUncheckedCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningUncheckedCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskUncheckedCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileCreateOrConnectWithoutInitiatedRequestsInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedRequestsInput>
+}
+
+export type UserProfileCreateWithoutReceivedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileUncheckedCreateWithoutReceivedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningUncheckedCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningUncheckedCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskUncheckedCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileCreateOrConnectWithoutReceivedRequestsInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedRequestsInput>
+}
+
+export type UserProfileCreateWithoutAssignedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileUncheckedCreateWithoutAssignedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningUncheckedCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningUncheckedCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskUncheckedCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileCreateOrConnectWithoutAssignedRequestsInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutAssignedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutAssignedRequestsInput>
+}
+
+export type UserProfileCreateWithoutClaimedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileUncheckedCreateWithoutClaimedRequestsInput = {
+  id?: string
+  email: string
+  idpSub?: string | null
+  title?: string | null
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  dateOfBirth?: Date | string | null
+  gender?: string | null
+  about?: string | null
+  picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
+  status: string
+  isPublic?: boolean
+  isSameAddress?: boolean | null
+  isProfileComplete?: boolean
+  version?: number
+  createdById?: string | null
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
+  addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
+  confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
+  accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
+  transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
+  expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  expensePaidBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPaidByInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSubmittedByInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinalizedByInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSettledByInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutRejectedByInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUserProfileInput
+  earningCreator?: Prisma.EarningUncheckedCreateNestedManyWithoutCreatedByInput
+  earningReceivedBy?: Prisma.EarningUncheckedCreateNestedManyWithoutReceivedByInput
+  requestedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutRequestedByInput
+  approvedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutApprovedByInput
+  managedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutManagerInput
+  sponsoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSponsorInput
+  assignedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutAssigneeInput
+  organizedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutOrganizerInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedCreateNestedManyWithoutUserInput
+  riskOwners?: Prisma.ProjectRiskUncheckedCreateNestedManyWithoutOwnerInput
+  createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserProfileCreateOrConnectWithoutClaimedRequestsInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutClaimedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutClaimedRequestsInput>
+}
+
+export type UserProfileUpsertWithoutInitiatedRequestsInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutInitiatedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutInitiatedRequestsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedRequestsInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutInitiatedRequestsInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutInitiatedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutInitiatedRequestsInput>
+}
+
+export type UserProfileUpdateWithoutInitiatedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutInitiatedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUpsertWithoutReceivedRequestsInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutReceivedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutReceivedRequestsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedRequestsInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutReceivedRequestsInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutReceivedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutReceivedRequestsInput>
+}
+
+export type UserProfileUpdateWithoutReceivedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutReceivedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUpsertWithoutAssignedRequestsInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutAssignedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutAssignedRequestsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutAssignedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutAssignedRequestsInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutAssignedRequestsInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutAssignedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutAssignedRequestsInput>
+}
+
+export type UserProfileUpdateWithoutAssignedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutAssignedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUpsertWithoutClaimedRequestsInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutClaimedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutClaimedRequestsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutClaimedRequestsInput, Prisma.UserProfileUncheckedCreateWithoutClaimedRequestsInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutClaimedRequestsInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutClaimedRequestsInput, Prisma.UserProfileUncheckedUpdateWithoutClaimedRequestsInput>
+}
+
+export type UserProfileUpdateWithoutClaimedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutClaimedRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
+  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
+  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
+  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
+  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
+  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
+  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
+  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
+  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
+  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
+  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
+  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
+  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
+  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
+  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
+  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
+  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
+  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
+  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
+  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
+  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
+  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
 export type UserProfileCreateWithoutPhoneNumbersInput = {
   id?: string
   email: string
@@ -6756,6 +8059,7 @@ export type UserProfileCreateWithoutPhoneNumbersInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6768,10 +8072,12 @@ export type UserProfileCreateWithoutPhoneNumbersInput = {
   deletedAt?: Date | string | null
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -6808,6 +8114,7 @@ export type UserProfileUncheckedCreateWithoutPhoneNumbersInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6820,10 +8127,12 @@ export type UserProfileUncheckedCreateWithoutPhoneNumbersInput = {
   deletedAt?: Date | string | null
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -6876,6 +8185,7 @@ export type UserProfileUpdateWithoutPhoneNumbersInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6888,10 +8198,12 @@ export type UserProfileUpdateWithoutPhoneNumbersInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -6928,6 +8240,7 @@ export type UserProfileUncheckedUpdateWithoutPhoneNumbersInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -6940,10 +8253,12 @@ export type UserProfileUncheckedUpdateWithoutPhoneNumbersInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -6980,6 +8295,7 @@ export type UserProfileCreateWithoutAddressesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -6992,10 +8308,12 @@ export type UserProfileCreateWithoutAddressesInput = {
   deletedAt?: Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -7032,6 +8350,7 @@ export type UserProfileUncheckedCreateWithoutAddressesInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -7044,10 +8363,12 @@ export type UserProfileUncheckedCreateWithoutAddressesInput = {
   deletedAt?: Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -7100,6 +8421,7 @@ export type UserProfileUpdateWithoutAddressesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -7112,10 +8434,12 @@ export type UserProfileUpdateWithoutAddressesInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -7152,6 +8476,7 @@ export type UserProfileUncheckedUpdateWithoutAddressesInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -7164,10 +8489,12 @@ export type UserProfileUncheckedUpdateWithoutAddressesInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -7204,6 +8531,7 @@ export type UserProfileCreateWithoutSocialMediaLinksInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -7216,10 +8544,12 @@ export type UserProfileCreateWithoutSocialMediaLinksInput = {
   deletedAt?: Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
@@ -7256,6 +8586,7 @@ export type UserProfileUncheckedCreateWithoutSocialMediaLinksInput = {
   gender?: string | null
   about?: string | null
   picture?: string | null
+  roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
   isSameAddress?: boolean | null
@@ -7268,10 +8599,12 @@ export type UserProfileUncheckedCreateWithoutSocialMediaLinksInput = {
   deletedAt?: Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
   addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
+  initiatedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedByInput
+  receivedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutInitiatedForInput
+  assignedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutAssigneeInput
+  claimedRequests?: Prisma.RequestUncheckedCreateNestedManyWithoutClaimedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserProfileInput
   confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
   accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
   transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -7324,6 +8657,7 @@ export type UserProfileUpdateWithoutSocialMediaLinksInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -7336,10 +8670,12 @@ export type UserProfileUpdateWithoutSocialMediaLinksInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
@@ -7376,6 +8712,7 @@ export type UserProfileUncheckedUpdateWithoutSocialMediaLinksInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -7388,458 +8725,12 @@ export type UserProfileUncheckedUpdateWithoutSocialMediaLinksInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
   addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
+  initiatedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedByNestedInput
+  receivedRequests?: Prisma.RequestUncheckedUpdateManyWithoutInitiatedForNestedInput
+  assignedRequests?: Prisma.RequestUncheckedUpdateManyWithoutAssigneeNestedInput
+  claimedRequests?: Prisma.RequestUncheckedUpdateManyWithoutClaimedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
-  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
-  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
-  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
-  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
-  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
-  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
-  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
-  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
-  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
-  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
-  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
-  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
-  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
-  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
-  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
-  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
-  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
-  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
-  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
-  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
-  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserProfileCreateWithoutInitiatedWorkflowsInput = {
-  id?: string
-  email: string
-  idpSub?: string | null
-  title?: string | null
-  firstName: string
-  middleName?: string | null
-  lastName: string
-  dateOfBirth?: Date | string | null
-  gender?: string | null
-  about?: string | null
-  picture?: string | null
-  status: string
-  isPublic?: boolean
-  isSameAddress?: boolean | null
-  isProfileComplete?: boolean
-  version?: number
-  createdById?: string | null
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  deletedAt?: Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
-  addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
-  socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  receivedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedForInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
-  confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
-  accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
-  transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
-  expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
-  expensePaidBy?: Prisma.ExpenseCreateNestedManyWithoutPaidByInput
-  expenseSubmittedBy?: Prisma.ExpenseCreateNestedManyWithoutSubmittedByInput
-  expenseFinalizedBy?: Prisma.ExpenseCreateNestedManyWithoutFinalizedByInput
-  expenseSettledBy?: Prisma.ExpenseCreateNestedManyWithoutSettledByInput
-  expenseRejectedBy?: Prisma.ExpenseCreateNestedManyWithoutRejectedByInput
-  expenseUpdatedBy?: Prisma.ExpenseCreateNestedManyWithoutUpdatedByInput
-  expenses?: Prisma.ExpenseCreateNestedManyWithoutUserProfileInput
-  earningCreator?: Prisma.EarningCreateNestedManyWithoutCreatedByInput
-  earningReceivedBy?: Prisma.EarningCreateNestedManyWithoutReceivedByInput
-  requestedReports?: Prisma.ReportCreateNestedManyWithoutRequestedByInput
-  approvedReports?: Prisma.ReportCreateNestedManyWithoutApprovedByInput
-  managedProjects?: Prisma.ProjectCreateNestedManyWithoutManagerInput
-  sponsoredProjects?: Prisma.ProjectCreateNestedManyWithoutSponsorInput
-  assignedActivities?: Prisma.ActivityCreateNestedManyWithoutAssigneeInput
-  organizedActivities?: Prisma.ActivityCreateNestedManyWithoutOrganizerInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberCreateNestedManyWithoutUserInput
-  riskOwners?: Prisma.ProjectRiskCreateNestedManyWithoutOwnerInput
-  createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserProfileUncheckedCreateWithoutInitiatedWorkflowsInput = {
-  id?: string
-  email: string
-  idpSub?: string | null
-  title?: string | null
-  firstName: string
-  middleName?: string | null
-  lastName: string
-  dateOfBirth?: Date | string | null
-  gender?: string | null
-  about?: string | null
-  picture?: string | null
-  status: string
-  isPublic?: boolean
-  isSameAddress?: boolean | null
-  isProfileComplete?: boolean
-  version?: number
-  createdById?: string | null
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  deletedAt?: Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
-  addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
-  socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedForInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
-  confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
-  accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
-  transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
-  expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
-  expensePaidBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPaidByInput
-  expenseSubmittedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSubmittedByInput
-  expenseFinalizedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinalizedByInput
-  expenseSettledBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSettledByInput
-  expenseRejectedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutRejectedByInput
-  expenseUpdatedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUpdatedByInput
-  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUserProfileInput
-  earningCreator?: Prisma.EarningUncheckedCreateNestedManyWithoutCreatedByInput
-  earningReceivedBy?: Prisma.EarningUncheckedCreateNestedManyWithoutReceivedByInput
-  requestedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutRequestedByInput
-  approvedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutApprovedByInput
-  managedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutManagerInput
-  sponsoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSponsorInput
-  assignedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutAssigneeInput
-  organizedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutOrganizerInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedCreateNestedManyWithoutUserInput
-  riskOwners?: Prisma.ProjectRiskUncheckedCreateNestedManyWithoutOwnerInput
-  createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserProfileCreateOrConnectWithoutInitiatedWorkflowsInput = {
-  where: Prisma.UserProfileWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedWorkflowsInput>
-}
-
-export type UserProfileCreateWithoutReceivedWorkflowsInput = {
-  id?: string
-  email: string
-  idpSub?: string | null
-  title?: string | null
-  firstName: string
-  middleName?: string | null
-  lastName: string
-  dateOfBirth?: Date | string | null
-  gender?: string | null
-  about?: string | null
-  picture?: string | null
-  status: string
-  isPublic?: boolean
-  isSameAddress?: boolean | null
-  isProfileComplete?: boolean
-  version?: number
-  createdById?: string | null
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  deletedAt?: Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberCreateNestedManyWithoutUserInput
-  addresses?: Prisma.UserAddressCreateNestedManyWithoutUserInput
-  socialMediaLinks?: Prisma.UserSocialLinkCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceCreateNestedManyWithoutInitiatedByInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationCreateNestedManyWithoutDonorInput
-  confirmedDonations?: Prisma.DonationCreateNestedManyWithoutConfirmedByInput
-  accountCreator?: Prisma.AccountCreateNestedManyWithoutCreatedByInput
-  transactionCreator?: Prisma.TransactionCreateNestedManyWithoutCreatedByInput
-  expenseCreator?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
-  expensePaidBy?: Prisma.ExpenseCreateNestedManyWithoutPaidByInput
-  expenseSubmittedBy?: Prisma.ExpenseCreateNestedManyWithoutSubmittedByInput
-  expenseFinalizedBy?: Prisma.ExpenseCreateNestedManyWithoutFinalizedByInput
-  expenseSettledBy?: Prisma.ExpenseCreateNestedManyWithoutSettledByInput
-  expenseRejectedBy?: Prisma.ExpenseCreateNestedManyWithoutRejectedByInput
-  expenseUpdatedBy?: Prisma.ExpenseCreateNestedManyWithoutUpdatedByInput
-  expenses?: Prisma.ExpenseCreateNestedManyWithoutUserProfileInput
-  earningCreator?: Prisma.EarningCreateNestedManyWithoutCreatedByInput
-  earningReceivedBy?: Prisma.EarningCreateNestedManyWithoutReceivedByInput
-  requestedReports?: Prisma.ReportCreateNestedManyWithoutRequestedByInput
-  approvedReports?: Prisma.ReportCreateNestedManyWithoutApprovedByInput
-  managedProjects?: Prisma.ProjectCreateNestedManyWithoutManagerInput
-  sponsoredProjects?: Prisma.ProjectCreateNestedManyWithoutSponsorInput
-  assignedActivities?: Prisma.ActivityCreateNestedManyWithoutAssigneeInput
-  organizedActivities?: Prisma.ActivityCreateNestedManyWithoutOrganizerInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberCreateNestedManyWithoutUserInput
-  riskOwners?: Prisma.ProjectRiskCreateNestedManyWithoutOwnerInput
-  createdMeetings?: Prisma.MeetingCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserProfileUncheckedCreateWithoutReceivedWorkflowsInput = {
-  id?: string
-  email: string
-  idpSub?: string | null
-  title?: string | null
-  firstName: string
-  middleName?: string | null
-  lastName: string
-  dateOfBirth?: Date | string | null
-  gender?: string | null
-  about?: string | null
-  picture?: string | null
-  status: string
-  isPublic?: boolean
-  isSameAddress?: boolean | null
-  isProfileComplete?: boolean
-  version?: number
-  createdById?: string | null
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  deletedAt?: Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUncheckedCreateNestedManyWithoutUserInput
-  addresses?: Prisma.UserAddressUncheckedCreateNestedManyWithoutUserInput
-  socialMediaLinks?: Prisma.UserSocialLinkUncheckedCreateNestedManyWithoutUserInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedCreateNestedManyWithoutInitiatedByInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutAccountHolderInput
-  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutDonorInput
-  confirmedDonations?: Prisma.DonationUncheckedCreateNestedManyWithoutConfirmedByInput
-  accountCreator?: Prisma.AccountUncheckedCreateNestedManyWithoutCreatedByInput
-  transactionCreator?: Prisma.TransactionUncheckedCreateNestedManyWithoutCreatedByInput
-  expenseCreator?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
-  expensePaidBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPaidByInput
-  expenseSubmittedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSubmittedByInput
-  expenseFinalizedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinalizedByInput
-  expenseSettledBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSettledByInput
-  expenseRejectedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutRejectedByInput
-  expenseUpdatedBy?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUpdatedByInput
-  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutUserProfileInput
-  earningCreator?: Prisma.EarningUncheckedCreateNestedManyWithoutCreatedByInput
-  earningReceivedBy?: Prisma.EarningUncheckedCreateNestedManyWithoutReceivedByInput
-  requestedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutRequestedByInput
-  approvedReports?: Prisma.ReportUncheckedCreateNestedManyWithoutApprovedByInput
-  managedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutManagerInput
-  sponsoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSponsorInput
-  assignedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutAssigneeInput
-  organizedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutOrganizerInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedCreateNestedManyWithoutUserInput
-  riskOwners?: Prisma.ProjectRiskUncheckedCreateNestedManyWithoutOwnerInput
-  createdMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserProfileCreateOrConnectWithoutReceivedWorkflowsInput = {
-  where: Prisma.UserProfileWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedWorkflowsInput>
-}
-
-export type UserProfileUpsertWithoutInitiatedWorkflowsInput = {
-  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutInitiatedWorkflowsInput, Prisma.UserProfileUncheckedUpdateWithoutInitiatedWorkflowsInput>
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutInitiatedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutInitiatedWorkflowsInput>
-  where?: Prisma.UserProfileWhereInput
-}
-
-export type UserProfileUpdateToOneWithWhereWithoutInitiatedWorkflowsInput = {
-  where?: Prisma.UserProfileWhereInput
-  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutInitiatedWorkflowsInput, Prisma.UserProfileUncheckedUpdateWithoutInitiatedWorkflowsInput>
-}
-
-export type UserProfileUpdateWithoutInitiatedWorkflowsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
-  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
-  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedForNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
-  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
-  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
-  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
-  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
-  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
-  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
-  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
-  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
-  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
-  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
-  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
-  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
-  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
-  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
-  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
-  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
-  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
-  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
-  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
-  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
-  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserProfileUncheckedUpdateWithoutInitiatedWorkflowsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
-  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
-  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  receivedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedForNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
-  confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
-  accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
-  transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
-  expenseCreator?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
-  expensePaidBy?: Prisma.ExpenseUncheckedUpdateManyWithoutPaidByNestedInput
-  expenseSubmittedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSubmittedByNestedInput
-  expenseFinalizedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutFinalizedByNestedInput
-  expenseSettledBy?: Prisma.ExpenseUncheckedUpdateManyWithoutSettledByNestedInput
-  expenseRejectedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutRejectedByNestedInput
-  expenseUpdatedBy?: Prisma.ExpenseUncheckedUpdateManyWithoutUpdatedByNestedInput
-  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutUserProfileNestedInput
-  earningCreator?: Prisma.EarningUncheckedUpdateManyWithoutCreatedByNestedInput
-  earningReceivedBy?: Prisma.EarningUncheckedUpdateManyWithoutReceivedByNestedInput
-  requestedReports?: Prisma.ReportUncheckedUpdateManyWithoutRequestedByNestedInput
-  approvedReports?: Prisma.ReportUncheckedUpdateManyWithoutApprovedByNestedInput
-  managedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutManagerNestedInput
-  sponsoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutSponsorNestedInput
-  assignedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutAssigneeNestedInput
-  organizedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutOrganizerNestedInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUncheckedUpdateManyWithoutUserNestedInput
-  riskOwners?: Prisma.ProjectRiskUncheckedUpdateManyWithoutOwnerNestedInput
-  createdMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserProfileUpsertWithoutReceivedWorkflowsInput = {
-  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutReceivedWorkflowsInput, Prisma.UserProfileUncheckedUpdateWithoutReceivedWorkflowsInput>
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutReceivedWorkflowsInput, Prisma.UserProfileUncheckedCreateWithoutReceivedWorkflowsInput>
-  where?: Prisma.UserProfileWhereInput
-}
-
-export type UserProfileUpdateToOneWithWhereWithoutReceivedWorkflowsInput = {
-  where?: Prisma.UserProfileWhereInput
-  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutReceivedWorkflowsInput, Prisma.UserProfileUncheckedUpdateWithoutReceivedWorkflowsInput>
-}
-
-export type UserProfileUpdateWithoutReceivedWorkflowsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUpdateManyWithoutUserNestedInput
-  addresses?: Prisma.UserAddressUpdateManyWithoutUserNestedInput
-  socialMediaLinks?: Prisma.UserSocialLinkUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUpdateManyWithoutInitiatedByNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUpdateManyWithoutDonorNestedInput
-  confirmedDonations?: Prisma.DonationUpdateManyWithoutConfirmedByNestedInput
-  accountCreator?: Prisma.AccountUpdateManyWithoutCreatedByNestedInput
-  transactionCreator?: Prisma.TransactionUpdateManyWithoutCreatedByNestedInput
-  expenseCreator?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
-  expensePaidBy?: Prisma.ExpenseUpdateManyWithoutPaidByNestedInput
-  expenseSubmittedBy?: Prisma.ExpenseUpdateManyWithoutSubmittedByNestedInput
-  expenseFinalizedBy?: Prisma.ExpenseUpdateManyWithoutFinalizedByNestedInput
-  expenseSettledBy?: Prisma.ExpenseUpdateManyWithoutSettledByNestedInput
-  expenseRejectedBy?: Prisma.ExpenseUpdateManyWithoutRejectedByNestedInput
-  expenseUpdatedBy?: Prisma.ExpenseUpdateManyWithoutUpdatedByNestedInput
-  expenses?: Prisma.ExpenseUpdateManyWithoutUserProfileNestedInput
-  earningCreator?: Prisma.EarningUpdateManyWithoutCreatedByNestedInput
-  earningReceivedBy?: Prisma.EarningUpdateManyWithoutReceivedByNestedInput
-  requestedReports?: Prisma.ReportUpdateManyWithoutRequestedByNestedInput
-  approvedReports?: Prisma.ReportUpdateManyWithoutApprovedByNestedInput
-  managedProjects?: Prisma.ProjectUpdateManyWithoutManagerNestedInput
-  sponsoredProjects?: Prisma.ProjectUpdateManyWithoutSponsorNestedInput
-  assignedActivities?: Prisma.ActivityUpdateManyWithoutAssigneeNestedInput
-  organizedActivities?: Prisma.ActivityUpdateManyWithoutOrganizerNestedInput
-  projectTeamMembers?: Prisma.ProjectTeamMemberUpdateManyWithoutUserNestedInput
-  riskOwners?: Prisma.ProjectRiskUpdateManyWithoutOwnerNestedInput
-  createdMeetings?: Prisma.MeetingUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserProfileUncheckedUpdateWithoutReceivedWorkflowsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  idpSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isSameAddress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isProfileComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  phoneNumbers?: Prisma.UserPhoneNumberUncheckedUpdateManyWithoutUserNestedInput
-  addresses?: Prisma.UserAddressUncheckedUpdateManyWithoutUserNestedInput
-  socialMediaLinks?: Prisma.UserSocialLinkUncheckedUpdateManyWithoutUserNestedInput
-  initiatedWorkflows?: Prisma.WorkflowInstanceUncheckedUpdateManyWithoutInitiatedByNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutAccountHolderNestedInput
-  donations?: Prisma.DonationUncheckedUpdateManyWithoutDonorNestedInput
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserProfileNestedInput
   confirmedDonations?: Prisma.DonationUncheckedUpdateManyWithoutConfirmedByNestedInput
   accountCreator?: Prisma.AccountUncheckedUpdateManyWithoutCreatedByNestedInput
   transactionCreator?: Prisma.TransactionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -7873,10 +8764,11 @@ export type UserProfileCountOutputType = {
   phoneNumbers: number
   addresses: number
   socialMediaLinks: number
-  initiatedWorkflows: number
-  receivedWorkflows: number
+  initiatedRequests: number
+  receivedRequests: number
+  assignedRequests: number
+  claimedRequests: number
   accounts: number
-  donations: number
   confirmedDonations: number
   accountCreator: number
   transactionCreator: number
@@ -7905,10 +8797,11 @@ export type UserProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   phoneNumbers?: boolean | UserProfileCountOutputTypeCountPhoneNumbersArgs
   addresses?: boolean | UserProfileCountOutputTypeCountAddressesArgs
   socialMediaLinks?: boolean | UserProfileCountOutputTypeCountSocialMediaLinksArgs
-  initiatedWorkflows?: boolean | UserProfileCountOutputTypeCountInitiatedWorkflowsArgs
-  receivedWorkflows?: boolean | UserProfileCountOutputTypeCountReceivedWorkflowsArgs
+  initiatedRequests?: boolean | UserProfileCountOutputTypeCountInitiatedRequestsArgs
+  receivedRequests?: boolean | UserProfileCountOutputTypeCountReceivedRequestsArgs
+  assignedRequests?: boolean | UserProfileCountOutputTypeCountAssignedRequestsArgs
+  claimedRequests?: boolean | UserProfileCountOutputTypeCountClaimedRequestsArgs
   accounts?: boolean | UserProfileCountOutputTypeCountAccountsArgs
-  donations?: boolean | UserProfileCountOutputTypeCountDonationsArgs
   confirmedDonations?: boolean | UserProfileCountOutputTypeCountConfirmedDonationsArgs
   accountCreator?: boolean | UserProfileCountOutputTypeCountAccountCreatorArgs
   transactionCreator?: boolean | UserProfileCountOutputTypeCountTransactionCreatorArgs
@@ -7967,15 +8860,29 @@ export type UserProfileCountOutputTypeCountSocialMediaLinksArgs<ExtArgs extends 
 /**
  * UserProfileCountOutputType without action
  */
-export type UserProfileCountOutputTypeCountInitiatedWorkflowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkflowInstanceWhereInput
+export type UserProfileCountOutputTypeCountInitiatedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RequestWhereInput
 }
 
 /**
  * UserProfileCountOutputType without action
  */
-export type UserProfileCountOutputTypeCountReceivedWorkflowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkflowInstanceWhereInput
+export type UserProfileCountOutputTypeCountReceivedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RequestWhereInput
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountAssignedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RequestWhereInput
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountClaimedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RequestWhereInput
 }
 
 /**
@@ -7983,13 +8890,6 @@ export type UserProfileCountOutputTypeCountReceivedWorkflowsArgs<ExtArgs extends
  */
 export type UserProfileCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AccountWhereInput
-}
-
-/**
- * UserProfileCountOutputType without action
- */
-export type UserProfileCountOutputTypeCountDonationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DonationWhereInput
 }
 
 /**
@@ -8159,6 +9059,7 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   gender?: boolean
   about?: boolean
   picture?: boolean
+  roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
   isSameAddress?: boolean
@@ -8172,10 +9073,12 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   phoneNumbers?: boolean | Prisma.UserProfile$phoneNumbersArgs<ExtArgs>
   addresses?: boolean | Prisma.UserProfile$addressesArgs<ExtArgs>
   socialMediaLinks?: boolean | Prisma.UserProfile$socialMediaLinksArgs<ExtArgs>
-  initiatedWorkflows?: boolean | Prisma.UserProfile$initiatedWorkflowsArgs<ExtArgs>
-  receivedWorkflows?: boolean | Prisma.UserProfile$receivedWorkflowsArgs<ExtArgs>
+  initiatedRequests?: boolean | Prisma.UserProfile$initiatedRequestsArgs<ExtArgs>
+  receivedRequests?: boolean | Prisma.UserProfile$receivedRequestsArgs<ExtArgs>
+  assignedRequests?: boolean | Prisma.UserProfile$assignedRequestsArgs<ExtArgs>
+  claimedRequests?: boolean | Prisma.UserProfile$claimedRequestsArgs<ExtArgs>
   accounts?: boolean | Prisma.UserProfile$accountsArgs<ExtArgs>
-  donations?: boolean | Prisma.UserProfile$donationsArgs<ExtArgs>
+  donor?: boolean | Prisma.UserProfile$donorArgs<ExtArgs>
   confirmedDonations?: boolean | Prisma.UserProfile$confirmedDonationsArgs<ExtArgs>
   accountCreator?: boolean | Prisma.UserProfile$accountCreatorArgs<ExtArgs>
   transactionCreator?: boolean | Prisma.UserProfile$transactionCreatorArgs<ExtArgs>
@@ -8213,6 +9116,7 @@ export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   gender?: boolean
   about?: boolean
   picture?: boolean
+  roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
   isSameAddress?: boolean
@@ -8237,6 +9141,7 @@ export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   gender?: boolean
   about?: boolean
   picture?: boolean
+  roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
   isSameAddress?: boolean
@@ -8261,6 +9166,7 @@ export type UserProfileSelectScalar = {
   gender?: boolean
   about?: boolean
   picture?: boolean
+  roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
   isSameAddress?: boolean
@@ -8273,15 +9179,17 @@ export type UserProfileSelectScalar = {
   deletedAt?: boolean
 }
 
-export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "idpSub" | "title" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "gender" | "about" | "picture" | "status" | "isPublic" | "isSameAddress" | "isProfileComplete" | "version" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["userProfile"]>
+export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "idpSub" | "title" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "gender" | "about" | "picture" | "roleKeys" | "status" | "isPublic" | "isSameAddress" | "isProfileComplete" | "version" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["userProfile"]>
 export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   phoneNumbers?: boolean | Prisma.UserProfile$phoneNumbersArgs<ExtArgs>
   addresses?: boolean | Prisma.UserProfile$addressesArgs<ExtArgs>
   socialMediaLinks?: boolean | Prisma.UserProfile$socialMediaLinksArgs<ExtArgs>
-  initiatedWorkflows?: boolean | Prisma.UserProfile$initiatedWorkflowsArgs<ExtArgs>
-  receivedWorkflows?: boolean | Prisma.UserProfile$receivedWorkflowsArgs<ExtArgs>
+  initiatedRequests?: boolean | Prisma.UserProfile$initiatedRequestsArgs<ExtArgs>
+  receivedRequests?: boolean | Prisma.UserProfile$receivedRequestsArgs<ExtArgs>
+  assignedRequests?: boolean | Prisma.UserProfile$assignedRequestsArgs<ExtArgs>
+  claimedRequests?: boolean | Prisma.UserProfile$claimedRequestsArgs<ExtArgs>
   accounts?: boolean | Prisma.UserProfile$accountsArgs<ExtArgs>
-  donations?: boolean | Prisma.UserProfile$donationsArgs<ExtArgs>
+  donor?: boolean | Prisma.UserProfile$donorArgs<ExtArgs>
   confirmedDonations?: boolean | Prisma.UserProfile$confirmedDonationsArgs<ExtArgs>
   accountCreator?: boolean | Prisma.UserProfile$accountCreatorArgs<ExtArgs>
   transactionCreator?: boolean | Prisma.UserProfile$transactionCreatorArgs<ExtArgs>
@@ -8315,10 +9223,12 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     phoneNumbers: Prisma.$UserPhoneNumberPayload<ExtArgs>[]
     addresses: Prisma.$UserAddressPayload<ExtArgs>[]
     socialMediaLinks: Prisma.$UserSocialLinkPayload<ExtArgs>[]
-    initiatedWorkflows: Prisma.$WorkflowInstancePayload<ExtArgs>[]
-    receivedWorkflows: Prisma.$WorkflowInstancePayload<ExtArgs>[]
+    initiatedRequests: Prisma.$RequestPayload<ExtArgs>[]
+    receivedRequests: Prisma.$RequestPayload<ExtArgs>[]
+    assignedRequests: Prisma.$RequestPayload<ExtArgs>[]
+    claimedRequests: Prisma.$RequestPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
-    donations: Prisma.$DonationPayload<ExtArgs>[]
+    donor: Prisma.$DonorPayload<ExtArgs> | null
     confirmedDonations: Prisma.$DonationPayload<ExtArgs>[]
     accountCreator: Prisma.$AccountPayload<ExtArgs>[]
     transactionCreator: Prisma.$TransactionPayload<ExtArgs>[]
@@ -8354,6 +9264,7 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     gender: string | null
     about: string | null
     picture: string | null
+    roleKeys: string[]
     status: string
     isPublic: boolean
     isSameAddress: boolean | null
@@ -8761,10 +9672,12 @@ export interface Prisma__UserProfileClient<T, Null = never, ExtArgs extends runt
   phoneNumbers<T extends Prisma.UserProfile$phoneNumbersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$phoneNumbersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPhoneNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   addresses<T extends Prisma.UserProfile$addressesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$addressesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserAddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   socialMediaLinks<T extends Prisma.UserProfile$socialMediaLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$socialMediaLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserSocialLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  initiatedWorkflows<T extends Prisma.UserProfile$initiatedWorkflowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$initiatedWorkflowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowInstancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  receivedWorkflows<T extends Prisma.UserProfile$receivedWorkflowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$receivedWorkflowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowInstancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  initiatedRequests<T extends Prisma.UserProfile$initiatedRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$initiatedRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedRequests<T extends Prisma.UserProfile$receivedRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$receivedRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedRequests<T extends Prisma.UserProfile$assignedRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$assignedRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  claimedRequests<T extends Prisma.UserProfile$claimedRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$claimedRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.UserProfile$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  donations<T extends Prisma.UserProfile$donationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$donationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DonationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  donor<T extends Prisma.UserProfile$donorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$donorArgs<ExtArgs>>): Prisma.Prisma__DonorClient<runtime.Types.Result.GetResult<Prisma.$DonorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   confirmedDonations<T extends Prisma.UserProfile$confirmedDonationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$confirmedDonationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DonationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accountCreator<T extends Prisma.UserProfile$accountCreatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$accountCreatorArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactionCreator<T extends Prisma.UserProfile$transactionCreatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$transactionCreatorArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8827,6 +9740,7 @@ export interface UserProfileFieldRefs {
   readonly gender: Prisma.FieldRef<"UserProfile", 'String'>
   readonly about: Prisma.FieldRef<"UserProfile", 'String'>
   readonly picture: Prisma.FieldRef<"UserProfile", 'String'>
+  readonly roleKeys: Prisma.FieldRef<"UserProfile", 'String[]'>
   readonly status: Prisma.FieldRef<"UserProfile", 'String'>
   readonly isPublic: Prisma.FieldRef<"UserProfile", 'Boolean'>
   readonly isSameAddress: Prisma.FieldRef<"UserProfile", 'Boolean'>
@@ -9302,51 +10216,99 @@ export type UserProfile$socialMediaLinksArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
- * UserProfile.initiatedWorkflows
+ * UserProfile.initiatedRequests
  */
-export type UserProfile$initiatedWorkflowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserProfile$initiatedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the WorkflowInstance
+   * Select specific fields to fetch from the Request
    */
-  select?: Prisma.WorkflowInstanceSelect<ExtArgs> | null
+  select?: Prisma.RequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the WorkflowInstance
+   * Omit specific fields from the Request
    */
-  omit?: Prisma.WorkflowInstanceOmit<ExtArgs> | null
+  omit?: Prisma.RequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.WorkflowInstanceInclude<ExtArgs> | null
-  where?: Prisma.WorkflowInstanceWhereInput
-  orderBy?: Prisma.WorkflowInstanceOrderByWithRelationInput | Prisma.WorkflowInstanceOrderByWithRelationInput[]
-  cursor?: Prisma.WorkflowInstanceWhereUniqueInput
+  include?: Prisma.RequestInclude<ExtArgs> | null
+  where?: Prisma.RequestWhereInput
+  orderBy?: Prisma.RequestOrderByWithRelationInput | Prisma.RequestOrderByWithRelationInput[]
+  cursor?: Prisma.RequestWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.WorkflowInstanceScalarFieldEnum | Prisma.WorkflowInstanceScalarFieldEnum[]
+  distinct?: Prisma.RequestScalarFieldEnum | Prisma.RequestScalarFieldEnum[]
 }
 
 /**
- * UserProfile.receivedWorkflows
+ * UserProfile.receivedRequests
  */
-export type UserProfile$receivedWorkflowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserProfile$receivedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the WorkflowInstance
+   * Select specific fields to fetch from the Request
    */
-  select?: Prisma.WorkflowInstanceSelect<ExtArgs> | null
+  select?: Prisma.RequestSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the WorkflowInstance
+   * Omit specific fields from the Request
    */
-  omit?: Prisma.WorkflowInstanceOmit<ExtArgs> | null
+  omit?: Prisma.RequestOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.WorkflowInstanceInclude<ExtArgs> | null
-  where?: Prisma.WorkflowInstanceWhereInput
-  orderBy?: Prisma.WorkflowInstanceOrderByWithRelationInput | Prisma.WorkflowInstanceOrderByWithRelationInput[]
-  cursor?: Prisma.WorkflowInstanceWhereUniqueInput
+  include?: Prisma.RequestInclude<ExtArgs> | null
+  where?: Prisma.RequestWhereInput
+  orderBy?: Prisma.RequestOrderByWithRelationInput | Prisma.RequestOrderByWithRelationInput[]
+  cursor?: Prisma.RequestWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.WorkflowInstanceScalarFieldEnum | Prisma.WorkflowInstanceScalarFieldEnum[]
+  distinct?: Prisma.RequestScalarFieldEnum | Prisma.RequestScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.assignedRequests
+ */
+export type UserProfile$assignedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Request
+   */
+  select?: Prisma.RequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Request
+   */
+  omit?: Prisma.RequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RequestInclude<ExtArgs> | null
+  where?: Prisma.RequestWhereInput
+  orderBy?: Prisma.RequestOrderByWithRelationInput | Prisma.RequestOrderByWithRelationInput[]
+  cursor?: Prisma.RequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RequestScalarFieldEnum | Prisma.RequestScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.claimedRequests
+ */
+export type UserProfile$claimedRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Request
+   */
+  select?: Prisma.RequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Request
+   */
+  omit?: Prisma.RequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RequestInclude<ExtArgs> | null
+  where?: Prisma.RequestWhereInput
+  orderBy?: Prisma.RequestOrderByWithRelationInput | Prisma.RequestOrderByWithRelationInput[]
+  cursor?: Prisma.RequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RequestScalarFieldEnum | Prisma.RequestScalarFieldEnum[]
 }
 
 /**
@@ -9374,27 +10336,22 @@ export type UserProfile$accountsArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * UserProfile.donations
+ * UserProfile.donor
  */
-export type UserProfile$donationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserProfile$donorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Donation
+   * Select specific fields to fetch from the Donor
    */
-  select?: Prisma.DonationSelect<ExtArgs> | null
+  select?: Prisma.DonorSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Donation
+   * Omit specific fields from the Donor
    */
-  omit?: Prisma.DonationOmit<ExtArgs> | null
+  omit?: Prisma.DonorOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.DonationInclude<ExtArgs> | null
-  where?: Prisma.DonationWhereInput
-  orderBy?: Prisma.DonationOrderByWithRelationInput | Prisma.DonationOrderByWithRelationInput[]
-  cursor?: Prisma.DonationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DonationScalarFieldEnum | Prisma.DonationScalarFieldEnum[]
+  include?: Prisma.DonorInclude<ExtArgs> | null
+  where?: Prisma.DonorWhereInput
 }
 
 /**

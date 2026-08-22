@@ -9,15 +9,12 @@ import {
 } from '@nabarun-ngo/nestjs-shared-correspondence';
 import { DonationRaisedEvent } from '../../domain/events/donation-raised.event';
 import { IDonationRepository } from '../../domain/repositories/donation.repository';
+import { IDonorRepository } from '../../domain/repositories/donor.repository';
+import { DonorType } from '../../domain/enums/donor-type.enum';
 import { DonationMapper } from '../mappers/donation.mapper';
+import { buildDonationDonorEnrichment } from '../mappers/donation-donor-display.helper';
 import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
-/**
- * Resolves DonationRaisedEvent to a donor notification. Enriches the thin domain
- * event via the donation repository, then builds the display-ready spec (wording,
- * template key, channels) — the mapping that previously lived in the correspondence
- * notification-policy registry.
- */
 @Injectable()
 @CorrespondenceEventResolver()
 export class DonationRaisedCorrespondenceResolver
@@ -28,16 +25,22 @@ export class DonationRaisedCorrespondenceResolver
   constructor(
     @Inject(IDonationRepository)
     private readonly donationRepository: IDonationRepository,
+    @Inject(IDonorRepository)
+    private readonly donorRepository: IDonorRepository,
   ) { }
 
   async resolve(event: DonationRaisedEvent): Promise<NotificationSpec[] | null> {
     const donation = await this.donationRepository.findById(event.donationId);
-    if (!donation?.donorEmail) {
-      this.logger.warn('No donor email for donation ' + donation?.id);
+    if (!donation?.donorId) {
+      this.logger.warn('No donor for donation ' + donation?.id);
       return null;
     }
 
-    const donationDto = DonationMapper.toDto(donation) as unknown as Record<string, unknown>;
+    const donor = await this.donorRepository.findById(donation.donorId);
+    if (!donor) return null;
+
+    const enrichment = buildDonationDonorEnrichment(donor);
+    const donationDto = DonationMapper.toDto(donation, enrichment) as unknown as Record<string, unknown>;
     const donationPeriod =
       donation.startDate && donation.endDate
         ? formatDate(donation.startDate) + ' - ' + formatDate(donation.endDate)
@@ -46,16 +49,20 @@ export class DonationRaisedCorrespondenceResolver
     const email = {
       templateKey: EmailTemplateKey.DonationCreated,
       templateData: { donation: donationDto, donationPeriod },
-      overrideEmails: donation.donorEmail ? [donation.donorEmail] : undefined,
+      overrideEmails: enrichment?.donorEmail ? [enrichment.donorEmail] : undefined,
     };
 
-    if (!donation.donorId) {
+    if (donor.type === DonorType.GUEST || !donor.userProfileId) {
+      if (!enrichment?.donorEmail) {
+        this.logger.warn('No donor email for guest donation ' + donation.id);
+        return null;
+      }
       return [{ recipients: { mode: 'users', userIds: [] }, channels: { email } }];
     }
 
     return [
       {
-        recipients: { mode: 'users', userIds: [donation.donorId] },
+        recipients: { mode: 'users', userIds: [donor.userProfileId] },
         channels: {
           inApp: {
             title: 'Donation raised',

@@ -1,0 +1,14 @@
+export enum AssetStatus {
+  AVAILABLE = 'AVAILABLE',
+  ASSIGNED = 'ASSIGNED',
+  MAINTENANCE = 'MAINTENANCE',
+  RETIRED = 'RETIRED',
+}
+
+export enum AssetCategory {
+  EQUIPMENT = 'EQUIPMENT',
+  FURNITURE = 'FURNITURE',
+  ELECTRONICS = 'ELECTRONICS',
+  VEHICLE = 'VEHICLE',
+  OTHER = 'OTHER',
+}

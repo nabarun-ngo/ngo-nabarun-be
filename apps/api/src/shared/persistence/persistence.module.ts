@@ -7,6 +7,7 @@ import {
   IRoleRepository,
   IUserRoleGroupRepository,
   IUserRoleRepository,
+  IUserPermissionRepository,
 } from '@nabarun-ngo/nestjs-shared-auth';
 import { ICommentRepository } from '@nabarun-ngo/nestjs-shared-comment';
 import {
@@ -24,20 +25,13 @@ import {
   IOAuthAccountRepository,
   IOAuthTokenRepository,
 } from '@nabarun-ngo/nestjs-shared-token-vault';
-import {
-  IWorkflowEventLogRepository,
-  IWorkflowIdempotencyRepository,
-  IWorkflowInboxRepository,
-  IWorkflowInstanceRepository,
-  IWorkflowOutboxRepository,
-  IWorkflowTokenRepository,
-} from '@nabarun-ngo/nestjs-shared-workflow';
 import { ApiKeyPrismaRepository } from './auth/repositories/api-key.prisma-repository';
 import { PermissionPrismaRepository } from './auth/repositories/permission.prisma-repository';
 import { RoleGroupPrismaRepository } from './auth/repositories/role-group.prisma-repository';
 import { RolePrismaRepository } from './auth/repositories/role.prisma-repository';
 import { UserRoleGroupPrismaRepository } from './auth/repositories/user-role-group.prisma-repository';
 import { UserRolePrismaRepository } from './auth/repositories/user-role.prisma-repository';
+import { UserPermissionPrismaRepository } from './auth/repositories/user-permission.prisma-repository';
 import { PrismaCommentRepository } from './comment/repositories/comment.prisma-repository';
 import { NotificationPrismaRepository } from './correspondence/repositories/notification.prisma-repository';
 import { ResourceSubscriptionPrismaRepository } from './correspondence/repositories/resource-subscription.prisma-repository';
@@ -48,12 +42,6 @@ import { DocumentPrismaRepository } from './dms/repositories/document.prisma-rep
 import { JsonDocumentPrismaRepository } from './json-store/repositories/json-document.prisma-repository';
 import { OAuthAccountPrismaRepository } from './token-vault/repositories/oauth-account.prisma-repository';
 import { OAuthTokenPrismaRepository } from './token-vault/repositories/oauth-token.prisma-repository';
-import { WorkflowEventLogPrismaRepository } from './workflow/repositories/workflow-event-log.prisma-repository';
-import { WorkflowIdempotencyPrismaRepository } from './workflow/repositories/workflow-idempotency.prisma-repository';
-import { WorkflowInboxPrismaRepository } from './workflow/repositories/workflow-inbox.prisma-repository';
-import { WorkflowInstancePrismaRepository } from './workflow/repositories/workflow-instance.prisma-repository';
-import { WorkflowOutboxPrismaRepository } from './workflow/repositories/workflow-outbox.prisma-repository';
-import { WorkflowTokenPrismaRepository } from './workflow/repositories/workflow-token.prisma-repository';
 import { PostgresAdvisoryLockingAdapter } from './locking/adapter/postgres-advisory-locking.adapter';
 
 export interface PersistenceModuleOptions {
@@ -82,13 +70,8 @@ const REPOSITORY_PROVIDERS = [
   { provide: IPermissionRepository, useClass: PermissionPrismaRepository },
   { provide: IUserRoleRepository, useClass: UserRolePrismaRepository },
   { provide: IUserRoleGroupRepository, useClass: UserRoleGroupPrismaRepository },
+  { provide: IUserPermissionRepository, useClass: UserPermissionPrismaRepository },
   { provide: IApiKeyRepository, useClass: ApiKeyPrismaRepository },
-  { provide: IWorkflowInstanceRepository, useClass: WorkflowInstancePrismaRepository },
-  { provide: IWorkflowEventLogRepository, useClass: WorkflowEventLogPrismaRepository },
-  { provide: IWorkflowInboxRepository, useClass: WorkflowInboxPrismaRepository },
-  { provide: IWorkflowTokenRepository, useClass: WorkflowTokenPrismaRepository },
-  { provide: IWorkflowOutboxRepository, useClass: WorkflowOutboxPrismaRepository },
-  { provide: IWorkflowIdempotencyRepository, useClass: WorkflowIdempotencyPrismaRepository },
 ] as const;
 
 

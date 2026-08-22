@@ -30,9 +30,9 @@ describe('User aggregate', () => {
   // ── create ──────────────────────────────────────────────────────────────────
 
   describe('create()', () => {
-    it('creates a user in DRAFT status', () => {
+    it('creates a user in ACTIVE status', () => {
       const user = User.create({ email: 'a@b.com', firstName: 'A', lastName: 'B' });
-      expect(user.status).toBe(UserStatus.DRAFT);
+      expect(user.status).toBe(UserStatus.ACTIVE);
     });
 
     it('idpSub is undefined immediately after create', () => {
@@ -40,10 +40,9 @@ describe('User aggregate', () => {
       expect(user.idpSub).toBeUndefined();
     });
 
-    it('fires a UserCreatedEvent', () => {
+    it('does not fire UserCreatedEvent until identity is linked', () => {
       const user = User.create({ email: 'a@b.com', firstName: 'A', lastName: 'B' });
-      expect(user.domainEvents).toHaveLength(1);
-      expect(user.domainEvents[0]).toBeInstanceOf(UserCreatedEvent);
+      expect(user.domainEvents).toHaveLength(0);
     });
 
     it('reuses ID and social links from a soft-deleted user', () => {
@@ -102,10 +101,11 @@ describe('User aggregate', () => {
   // ── linkIdentity ─────────────────────────────────────────────────────────────
 
   describe('linkIdentity()', () => {
-    it('sets idpSub', () => {
+    it('sets idpSub without raising UserCreatedEvent', () => {
       const user = User.create({ email: 'a@b.com', firstName: 'A', lastName: 'B' });
       user.linkIdentity('auth0|newSub');
       expect(user.idpSub).toBe('auth0|newSub');
+      expect(user.domainEvents).toHaveLength(0);
     });
 
     it('throws when idpSub is empty', () => {
@@ -119,14 +119,27 @@ describe('User aggregate', () => {
     });
   });
 
-  // ── markSystemPasswordRequired ────────────────────────────────────────────────
+  describe('confirmProvisioned()', () => {
+    it('fires UserCreatedEvent with title and set-password URL', () => {
+      const user = User.create({
+        email: 'a@b.com',
+        firstName: 'A',
+        lastName: 'B',
+        title: 'Ms',
+      });
+      user.linkIdentity('auth0|newSub');
+      user.confirmProvisioned('https://tenant.auth0.com/lo/reset?ticket=abc');
+      expect(user.domainEvents).toHaveLength(1);
+      const event = user.domainEvents[0] as UserCreatedEvent;
+      expect(event).toBeInstanceOf(UserCreatedEvent);
+      expect(event.idpSub).toBe('auth0|newSub');
+      expect(event.title).toBe('Ms');
+      expect(event.setPasswordUrl).toBe('https://tenant.auth0.com/lo/reset?ticket=abc');
+    });
 
-  describe('markSystemPasswordRequired()', () => {
-    it('sets systemGeneratedPassword to true', () => {
-      const user = makeUser();
-      expect(user.systemGeneratedPassword).toBe(false);
-      user.markSystemPasswordRequired();
-      expect(user.systemGeneratedPassword).toBe(true);
+    it('throws when identity is not linked', () => {
+      const user = User.create({ email: 'a@b.com', firstName: 'A', lastName: 'B' });
+      expect(() => user.confirmProvisioned()).toThrow('confirmProvisioned requires linkIdentity first');
     });
   });
 

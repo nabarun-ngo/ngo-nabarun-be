@@ -26,6 +26,8 @@ export class OAuthTokenFilter {
   clientId?: string;
   scope?: string;
   email?: string;
+  /** Account id, email, or display-name fragment used by admin list filtering. */
+  account?: string;
   ownerSub?: string;
 }
 

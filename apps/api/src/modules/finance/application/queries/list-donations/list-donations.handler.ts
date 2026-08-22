@@ -1,38 +1,75 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
+import { IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 import { IDonationRepository } from '../../../domain/repositories/donation.repository';
+import { IDonorRepository } from '../../../domain/repositories/donor.repository';
+import { DonorType } from '../../../domain/enums/donor-type.enum';
 import { DonationListResponseDto } from '../../dtos/donation-list.dto';
 import { DonationMapper } from '../../mappers/donation.mapper';
+import { buildDonationDonorEnrichment } from '../../mappers/donation-donor-display.helper';
 import { ListDonationsQuery } from './list-donations.query';
 
 @QueryHandler(ListDonationsQuery)
 @Injectable()
 export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, DonationListResponseDto> {
-  constructor(@Inject(IDonationRepository) private readonly repo: IDonationRepository) { }
+  constructor(
+    @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
+    @Inject(IDonorRepository) private readonly donorRepository: IDonorRepository,
+    @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort,
+  ) { }
 
   async execute(query: ListDonationsQuery): Promise<DonationListResponseDto> {
-    const filter = new BaseFilter(query.filter, query.pageIndex ?? 0, query.pageSize ?? 20);
-    const page = await this.repo.findPaged({
-      pageIndex: filter.pageIndex,
-      pageSize: filter.pageSize,
+    let donorId = query.filter.donorId;
+    const donorType = query.filter.donorType
+      ?? (query.filter.isGuest === 'Y'
+        ? DonorType.GUEST
+        : query.filter.isGuest === 'N'
+          ? DonorType.MEMBER
+          : undefined);
+    if (query.filter.userProfileId && !donorId) {
+      const donor = await this.donorRepository.findByUserProfileId(query.filter.userProfileId);
+      donorId = donor?.id;
+      if (!donorId) {
+        return { items: [], total: 0, pageIndex: query.pageIndex ?? 0, pageSize: query.pageSize ?? 20 };
+      }
+    }
+
+    const page = await this.donationRepository.findPaged({
+      pageIndex: query.pageIndex ?? 0,
+      pageSize: query.pageSize ?? 20,
       props: {
-        donationId: filter.props?.donationId,
-        donorId: filter.props?.donorId,
-        donorName: filter.props?.donorName,
-        status: filter.props?.status,
-        type: filter.props?.type,
-        isGuest: filter.props?.isGuest === 'Y' ? true : filter.props?.isGuest === 'N' ? false : undefined,
-        startDate_raisedOn: filter.props?.startDate,
-        endDate_raisedOn: filter.props?.endDate,
+        donationId: query.filter.donationId,
+        donorId,
+        status: query.filter.status,
+        type: query.filter.type,
+        donorType,
+        forEventId: query.filter.forEventId,
+        startDate_raisedOn: query.filter.startDate,
+        endDate_raisedOn: query.filter.endDate,
       },
     });
+
+    const donorIds = [...new Set(page.content.map((d) => d.donorId).filter(Boolean))] as string[];
+    const donorMap = new Map(
+      (await Promise.all(donorIds.map((id) => this.donorRepository.findById(id))))
+        .filter(Boolean)
+        .map((d) => [d!.id, d!]),
+    );
+    const memberIds = [...donorMap.values()]
+      .filter((d) => d.type === DonorType.MEMBER && d.userProfileId)
+      .map((d) => d.userProfileId!);
+    const users = memberIds.length > 0 ? await this.userLookup.findByIds(memberIds) : [];
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
     return {
-      items: page.content.map(DonationMapper.toDto),
+      items: page.content.map((donation) => {
+        const donor = donation.donorId ? donorMap.get(donation.donorId) : undefined;
+        const userProfile = donor?.userProfileId ? userMap.get(donor.userProfileId) : undefined;
+        return DonationMapper.toDto(donation, buildDonationDonorEnrichment(donor, userProfile));
+      }),
       total: page.totalSize,
       pageIndex: page.pageIndex,
       pageSize: page.pageSize,
     };
   }
 }
-

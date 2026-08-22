@@ -7,23 +7,45 @@ export const IIdentityProvider = Symbol('IIdentityProvider');
 
 export interface IdentityCreateOptions {
   /**
-   * Password-connection only.
-   * When true the adapter generates a compliant password and sets `reset_password`
-   * in app_metadata. Ignored for passwordless connections.
+   * When true, Auth0 `email_verified` is set on create.
+   * Admin provisioning always uses `false` — verification happens via the
+   * set-password ticket (`mark_email_as_verified`).
    */
-  resetPassword: boolean;
-  /**
-   * Password-connection only. Admin-supplied plain-text password.
-   * When omitted the adapter generates a compliant password.
-   */
-  adminPassword?: string;
   emailVerified?: boolean;
-  /** Password-connection only. Days before the password expires (written to app_metadata). */
 }
 
 export interface IdentityCreateResult {
   /** Opaque IdP subject → stored as `UserProfile.idpSub`. */
   externalSub: string;
+}
+
+export interface PasswordChangeTicketOptions {
+  /** Auth0 user_id / externalSub. */
+  userId: string;
+  /**
+   * When true, Auth0 sets `email_verified` after the user completes the ticket.
+   * Defaults to true for admin provisioning / invite flows.
+   */
+  markEmailAsVerified?: boolean;
+  /**
+   * When true, include the email in the redirect URL after reset.
+   * Defaults to true.
+   */
+  includeEmailInRedirect?: boolean;
+  /**
+   * Ticket lifetime in seconds. Auth0 default is 5 days when omitted / 0.
+   */
+  ttlSec?: number;
+  /**
+   * Classic Universal Login redirect after the ticket is used.
+   * New Universal Login prefers `client_id` → application default login route.
+   */
+  resultUrl?: string;
+}
+
+export interface PasswordChangeTicketResult {
+  /** Hosted Auth0 set-password URL (Management API does not email this). */
+  ticketUrl: string;
 }
 
 // ── Update ────────────────────────────────────────────────────────────────────
@@ -32,8 +54,6 @@ export interface IdentityUserPatch {
   firstName?: string;
   lastName?: string;
   picture?: string;
-  resetPassword?: boolean;
-
 }
 
 // ── Connections ───────────────────────────────────────────────────────────────
@@ -64,8 +84,10 @@ export interface IIdentityProvider {
   /**
    * Provision the user in all configured connections with `provisionOnCreate: true`
    * and link them via Auth0 account linking. Returns the primary identity's `externalSub`.
+   * Password connections always receive a strong system-generated password that is
+   * never returned or emailed.
    */
-  createUser(user: User, options: IdentityCreateOptions): Promise<IdentityCreateResult>;
+  createUser(user: User, options?: IdentityCreateOptions): Promise<IdentityCreateResult>;
 
   /** Sync name / picture to Auth0 after profile update. */
   updateUser(externalSub: string, patch: IdentityUserPatch): Promise<void>;
@@ -74,10 +96,29 @@ export interface IIdentityProvider {
   deleteUser(externalSub: string): Promise<void>;
 
   /**
-   * Iterate every identity linked to the user and send the appropriate re-engagement:
-   * - `password` connection   → change-password ticket email
+   * Create a Management API password-change ticket
+   * (`POST /api/v2/tickets/password-change`) with SPA `client_id`,
+   * `mark_email_as_verified`, and `includeEmailInRedirect`.
+   * Auth0 does not email the ticket, so the URL is returned and delivered by our
+   * own onboarding correspondence.
+   */
+  createPasswordChangeTicket(
+    options: PasswordChangeTicketOptions,
+  ): Promise<PasswordChangeTicketResult>;
+
+  /**
+   * Verify the user's current database password via Authentication API
+   * Resource Owner Password Grant (`oauth.passwordGrant` / login).
+   * Resolves on success; throws `InvalidCredentialsError` when Auth0 rejects.
+   */
+  verifyPassword(email: string, password: string): Promise<void>;
+
+  /**
+   * Self-service reset for an existing member. Iterates every linked identity:
+   * - `password` connection   → Auth0 change-password email (Authentication API)
    * - `passwordless` connection → verification email (re-sends magic-link)
    * Social / enterprise identities are skipped (no server-side reset possible).
+   * Not part of onboarding — new members get the ticket URL in the welcome email.
    */
   sendPasswordReset(externalSub: string): Promise<void>;
 

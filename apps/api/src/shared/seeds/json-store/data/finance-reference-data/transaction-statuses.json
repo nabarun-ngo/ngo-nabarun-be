@@ -1,0 +1,7 @@
+{
+  "_comment": "Transaction status filter/display options.",
+  "items": [
+    { "key": "SUCCESS", "value": "Success" },
+    { "key": "REVERSED", "value": "Reversed" }
+  ]
+}

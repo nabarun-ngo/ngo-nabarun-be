@@ -15,39 +15,48 @@ import {
 const MAX_COMMENT_LENGTH = 10000;
 
 export class MentionDto {
-  @ApiProperty({ description: 'ID of the mentioned user' })
+  @ApiProperty({ description: 'ID of the mentioned user', example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   @IsString()
   @IsNotEmpty()
   userId: string;
 
-  @ApiProperty({ description: 'Display name of the mentioned user' })
+  @ApiProperty({ description: 'Display name of the mentioned user', example: 'Asha Verma' })
   @IsString()
   @IsNotEmpty()
   displayName: string;
 
-  @ApiProperty({ description: 'Email of the mentioned user' })
+  @ApiProperty({ description: 'Email of the mentioned user', example: 'asha.verma@example.org' })
   @IsEmail()
   email: string;
 }
 
 export class CreateCommentDto {
-  @ApiProperty({ description: 'Comment content — may contain @[userId] tokens for client rendering' })
+  @ApiProperty({
+    description: 'Comment content — may contain @[userId] tokens for client rendering',
+    example: 'Please attach the vendor invoice before settlement.',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(MAX_COMMENT_LENGTH)
   content: string;
 
-  @ApiProperty({ description: 'The type of entity being commented on' })
+  @ApiProperty({ description: 'The type of entity being commented on', example: 'PROJECT' })
   @IsString()
   @IsNotEmpty()
   entityType: string;
 
-  @ApiProperty({ description: 'The ID of the entity being commented on' })
+  @ApiProperty({
+    description: 'The ID of the entity being commented on',
+    example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55',
+  })
   @IsString()
   @IsNotEmpty()
   entityId: string;
 
-  @ApiPropertyOptional({ description: 'Parent comment ID when posting a reply' })
+  @ApiPropertyOptional({
+    description: 'Parent comment ID when posting a reply',
+    example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68',
+  })
   @IsString()
   @IsOptional()
   parentId?: string;
@@ -64,7 +73,10 @@ export class CreateCommentDto {
 }
 
 export class UpdateCommentDto {
-  @ApiProperty({ description: 'Updated comment content' })
+  @ApiProperty({
+    description: 'Updated comment content',
+    example: 'Please attach the vendor invoice before settlement.',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(MAX_COMMENT_LENGTH)
@@ -83,24 +95,27 @@ export class UpdateCommentDto {
 }
 
 export class GetCommentsQueryDto {
-  @ApiProperty({ description: 'The type of entity to fetch comments for' })
+  @ApiProperty({ description: 'The type of entity to fetch comments for', example: 'PROJECT' })
   @IsString()
   @IsNotEmpty()
   entityType: string;
 
-  @ApiProperty({ description: 'The ID of the entity to fetch comments for' })
+  @ApiProperty({
+    description: 'The ID of the entity to fetch comments for',
+    example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55',
+  })
   @IsString()
   @IsNotEmpty()
   entityId: string;
 
-  @ApiPropertyOptional({ description: 'Maximum number of root comments to return', default: 50, type: Number })
+  @ApiPropertyOptional({ description: 'Maximum number of root comments to return', default: 50, type: Number, example: 50 })
   @IsInt()
   @Min(1)
   @IsOptional()
   @Type(() => Number)
   limit?: number;
 
-  @ApiPropertyOptional({ description: 'Number of root comments to skip (pagination)', default: 0, type: Number })
+  @ApiPropertyOptional({ description: 'Number of root comments to skip (pagination)', default: 0, type: Number, example: 0 })
   @IsInt()
   @Min(0)
   @IsOptional()
@@ -109,33 +124,33 @@ export class GetCommentsQueryDto {
 }
 
 export class CommentMentionResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   userId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Asha Verma' })
   displayName: string;
 }
 
 export class CommentResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Please attach the vendor invoice before settlement.' })
   content: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   authorId: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Asha Verma' })
   authorName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'PROJECT' })
   entityType: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   entityId: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   parentId?: string;
 
   @ApiProperty({ type: () => [CommentResponseDto] })
@@ -144,26 +159,29 @@ export class CommentResponseDto {
   @ApiProperty({ type: () => [CommentMentionResponseDto] })
   mentions: CommentMentionResponseDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   updatedAt: Date;
 }
 
 export class GetCommentsResponseDto {
-  @ApiProperty({ description: 'Whether the caller is permitted to view comments for this entity' })
+  @ApiProperty({ description: 'Whether the caller is permitted to view comments for this entity', example: true })
   hasAccess: boolean;
 
-  @ApiPropertyOptional({ description: 'Machine-readable denial code when hasAccess is false' })
+  @ApiPropertyOptional({ description: 'Machine-readable denial code when hasAccess is false', example: 'COMMENT_ACCESS_DENIED' })
   reason?: string;
 
-  @ApiPropertyOptional({ description: 'Human-readable denial message when hasAccess is false' })
+  @ApiPropertyOptional({
+    description: 'Human-readable denial message when hasAccess is false',
+    example: 'No read access on PROJECT/3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55',
+  })
   message?: string;
 
   @ApiProperty({ type: () => [CommentResponseDto] })
   comments: CommentResponseDto[];
 
-  @ApiProperty({ description: 'Total number of root comments (before pagination)' })
+  @ApiProperty({ description: 'Total number of root comments (before pagination)', example: 2 })
   total: number;
 }

@@ -53,3 +53,9 @@ export class IdentityProviderError extends BusinessError {
     super(message, 'IDENTITY_PROVIDER_ERROR', 502);
   }
 }
+
+export class InvalidCredentialsError extends BusinessError {
+  constructor() {
+    super('Current password is incorrect', 'INVALID_CREDENTIALS', 401);
+  }
+}

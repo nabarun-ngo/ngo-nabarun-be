@@ -1,0 +1,39 @@
+{
+  "slug": "record-a-donation",
+  "title": "Record a donation",
+  "categoryKey": "finance",
+  "summary": "Create a donation with amount, donor, and payment details.",
+  "updatedAt": "2026-08-15",
+  "relatedSlugs": ["getting-started"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Open donations"
+    },
+    {
+      "type": "paragraph",
+      "text": "From Finance, open Donations. Use Create to start a new donation record."
+    },
+    {
+      "type": "steps",
+      "items": [
+        "Choose or create the donor",
+        "Enter amount and donation type",
+        "Select payment method and status",
+        "Save the donation"
+      ]
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "text": "You may not be able to edit some donations after they are closed. Check Help or ask Finance if Save fails."
+    },
+    {
+      "type": "link",
+      "label": "Organisation policies (external)",
+      "url": "https://example.org/policies",
+      "external": true
+    }
+  ]
+}

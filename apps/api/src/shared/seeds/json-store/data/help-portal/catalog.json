@@ -1,0 +1,51 @@
+{
+  "categories": [
+    { "key": "getting-started", "title": "Getting started", "order": 1 },
+    { "key": "members", "title": "Members", "order": 2 },
+    { "key": "finance", "title": "Finance & donations", "order": 3 },
+    { "key": "meetings", "title": "Events & Meetings", "order": 4 }
+  ],
+  "featuredSlugs": [
+    "getting-started",
+    "complete-member-profile",
+    "record-a-donation"
+  ],
+  "articles": [
+    {
+      "slug": "getting-started",
+      "title": "Getting started with the app",
+      "categoryKey": "getting-started",
+      "summary": "Sign in, find Home, and open Help when you need guidance.",
+      "order": 1,
+      "active": true,
+      "estimatedMinutes": 3
+    },
+    {
+      "slug": "complete-member-profile",
+      "title": "Complete a member profile",
+      "categoryKey": "members",
+      "summary": "Fill required fields and save a member profile.",
+      "order": 1,
+      "active": true,
+      "estimatedMinutes": 5
+    },
+    {
+      "slug": "record-a-donation",
+      "title": "Record a donation",
+      "categoryKey": "finance",
+      "summary": "Create a donation with amount, donor, and payment details.",
+      "order": 1,
+      "active": true,
+      "estimatedMinutes": 6
+    },
+    {
+      "slug": "create-a-meeting",
+      "title": "Create a meeting and invite",
+      "categoryKey": "meetings",
+      "summary": "Set date, agenda, attendees, and save a meeting.",
+      "order": 1,
+      "active": true,
+      "estimatedMinutes": 5
+    }
+  ]
+}

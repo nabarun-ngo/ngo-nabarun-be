@@ -3,29 +3,39 @@ import { CreateDonationHandler } from './create-donation.handler';
 import { CreateDonationCommand } from './create-donation.command';
 import { DonationType } from '../../../domain/enums/donation-type.enum';
 import { Donation } from '../../../domain/aggregates/donation/donation.aggregate';
+import { Donor } from '../../../domain/aggregates/donor/donor.aggregate';
+import { DonorType } from '../../../domain/enums/donor-type.enum';
+import { DonorStatus } from '../../../domain/enums/donor-status.enum';
 
 describe('CreateDonationHandler', () => {
-  it('creates and persists a one-time guest donation', async () => {
+  const donor = new Donor('donor-1', DonorType.GUEST, DonorStatus.ACTIVE, undefined, undefined, 'Guest User');
+
+  it('creates and persists a one-time donation for a donor', async () => {
     const created = Donation.create({
       type: DonationType.ONETIME,
       amount: 500,
-      donorName: 'Guest User',
-      isGuest: true,
+      donorId: 'donor-1',
     });
 
     const donationRepository = {
       findAll: jest.fn().mockResolvedValue([]),
       create: jest.fn().mockResolvedValue(created),
     };
+    const donorRepository = {
+      findById: jest.fn().mockResolvedValue(donor),
+    };
     const eventBus = { publishAll: jest.fn() } as unknown as EventBus;
 
-    const handler = new CreateDonationHandler(donationRepository as any, eventBus);
+    const handler = new CreateDonationHandler(
+      donationRepository as any,
+      donorRepository as any,
+      eventBus,
+    );
     const result = await handler.execute(
       new CreateDonationCommand({
         type: DonationType.ONETIME,
         amount: 500,
-        donorName: 'Guest User',
-        isGuest: true,
+        donorId: 'donor-1',
       }),
     );
 
@@ -39,18 +49,24 @@ describe('CreateDonationHandler', () => {
       findAll: jest.fn().mockResolvedValue([{ id: 'existing' }]),
       create: jest.fn(),
     };
+    const donorRepository = {
+      findById: jest.fn().mockResolvedValue(donor),
+    };
     const eventBus = { publishAll: jest.fn() } as unknown as EventBus;
-    const handler = new CreateDonationHandler(donationRepository as any, eventBus);
+    const handler = new CreateDonationHandler(
+      donationRepository as any,
+      donorRepository as any,
+      eventBus,
+    );
 
     await expect(
       handler.execute(
         new CreateDonationCommand({
           type: DonationType.REGULAR,
           amount: 500,
-          donorId: 'user-1',
+          donorId: 'donor-1',
           startDate: new Date('2026-07-01'),
           endDate: new Date('2026-07-31'),
-          isGuest: false,
         }),
       ),
     ).rejects.toThrow('Donation already exists for this donor in the given period');

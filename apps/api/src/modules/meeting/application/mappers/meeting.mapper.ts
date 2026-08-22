@@ -19,9 +19,6 @@ export class MeetingMapper {
       status: meeting.status,
       hostEmail: meeting.hostEmail,
       createdById: meeting.createdById,
-      recordingUrl: meeting.recordingUrl,
-      meetingNotes: meeting.meetingNotes,
-      meetingActionItems: meeting.meetingActionItems,
       createdAt: meeting.createdAt,
       updatedAt: meeting.updatedAt,
     };

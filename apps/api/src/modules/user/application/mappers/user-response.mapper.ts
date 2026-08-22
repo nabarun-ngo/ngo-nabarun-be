@@ -83,6 +83,7 @@ export class UserResponseMapper {
         linkValue: l.linkValue,
       }),
     );
+    dto.roleKeys = user.roleKeys;
     return dto;
   }
 }

@@ -16,7 +16,7 @@ function makeActiveRoleSub() {
   });
 }
 
-function buildHandler(findByRoleResult: any = null) {
+function buildHandler(findByRoleResult = null, options = {}) {
   const repo: jest.Mocked<IResourceSubscriptionRepository> = {
     findByRoleAndResource: jest.fn().mockResolvedValue(findByRoleResult),
     create: jest.fn().mockResolvedValue(undefined),
@@ -33,7 +33,7 @@ function buildHandler(findByRoleResult: any = null) {
   } as any;
 
   const eventBus = { publishAll: jest.fn() };
-  const handler = new SubscribeRoleHandler(repo, eventBus as any);
+  const handler = new SubscribeRoleHandler(repo, eventBus as any, options);
   return { handler, repo };
 }
 

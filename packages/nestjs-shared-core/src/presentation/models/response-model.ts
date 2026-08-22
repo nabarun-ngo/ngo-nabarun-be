@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ENVELOPE_EXAMPLES } from './swagger-examples';
 
 export class SuccessResponse<T> {
-  @ApiProperty() info: string;
-  @ApiProperty() timestamp: Date;
-  @ApiProperty() traceId?: string;
-  @ApiProperty() message: string;
+  @ApiProperty({ example: ENVELOPE_EXAMPLES.info }) info: string;
+  @ApiProperty({ example: ENVELOPE_EXAMPLES.timestamp }) timestamp: Date;
+  @ApiProperty({ example: ENVELOPE_EXAMPLES.traceId }) traceId?: string;
+  @ApiProperty({ example: ENVELOPE_EXAMPLES.message }) message: string;
   @ApiProperty({ description: 'Response payload data' }) responsePayload?: T;
 
   constructor(payload?: T) {
@@ -23,13 +24,14 @@ export class SuccessResponse<T> {
 }
 
 export class ErrorResponse {
-  @ApiProperty() info: string;
-  @ApiProperty() timestamp: Date;
-  @ApiProperty() traceId?: string;
-  @ApiProperty() messages: string[];
-  @ApiProperty({ required: false }) stackTrace?: string;
-  @ApiProperty({ required: false }) errorCode?: string;
-  @ApiProperty({ required: false }) status?: number;
+  @ApiProperty({ example: 'Error' }) info: string;
+  @ApiProperty({ example: ENVELOPE_EXAMPLES.timestamp }) timestamp: Date;
+  @ApiProperty({ example: ENVELOPE_EXAMPLES.traceId }) traceId?: string;
+  @ApiProperty({ example: ['Requested resource was not found'] }) messages: string[];
+  @ApiProperty({ required: false, example: 'BusinessException: Requested resource was not found' })
+  stackTrace?: string;
+  @ApiProperty({ required: false, example: 'RESOURCE_NOT_FOUND' }) errorCode?: string;
+  @ApiProperty({ required: false, example: 404 }) status?: number;
 
   constructor(err?: Error) {
     this.info = 'Error';

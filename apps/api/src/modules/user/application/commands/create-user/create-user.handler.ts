@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { User } from '../../../domain/aggregates/user/user.aggregate';
 import { UserStatus } from '../../../domain/enums/user-status.enum';
@@ -13,6 +13,8 @@ import { UserResponseMapper } from '../../mappers/user-response.mapper';
 @CommandHandler(CreateUserCommand)
 @Injectable()
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand, UserResponseDto> {
+  private readonly logger = new Logger(CreateUserHandler.name);
+
   constructor(
     @Inject(IUserRepository) private readonly repo: IUserRepository,
     @Inject(IIdentityProvider) private readonly identityProvider: IIdentityProvider,
@@ -26,8 +28,8 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand, Use
 
     const isReuse = !!(existing?.status === UserStatus.DELETED || existing?.deletedAt);
 
-    // 2. Create or reuse aggregate
-    let user = User.create(
+    // 2. Create or reuse aggregate — new users start ACTIVE (not Draft)
+    const user = User.create(
       {
         email: cmd.email,
         firstName: cmd.firstName,
@@ -47,22 +49,32 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand, Use
       user.restoreFromDeletion();
     }
 
-    // 3. Signal whether the IdP adapter must generate the password
-    if (!cmd.adminPassword) {
-      user.markSystemPasswordRequired();
-    }
-
-    // 4. Profile completeness
+    // 3. Profile completeness (independent of lifecycle status)
     user.applyCompleteness(UserProfileCompletenessPolicy.evaluate(user));
 
-    // 5. Provision identity — adapter owns password generation
+    // 4. Provision identity — strong system password, email_verified false, no metadata
     const { externalSub } = await this.identityProvider.createUser(user, {
-      resetPassword: user.systemGeneratedPassword,
-      adminPassword: cmd.adminPassword,
+      emailVerified: false,
     });
-
-    // 6. Link identity + set audit + save
     user.linkIdentity(externalSub);
+
+    // 5. Password-change ticket (Auth0 hosted set-password page).
+    let setPasswordUrl: string | undefined;
+    try {
+      const ticket = await this.identityProvider.createPasswordChangeTicket({
+        userId: externalSub,
+        markEmailAsVerified: true,
+        includeEmailInRedirect: true,
+      });
+      setPasswordUrl = ticket.ticketUrl;
+    } catch (err) {
+      this.logger.error(
+        `Failed to create password-change ticket for ${user.email}: ${err instanceof Error ? err.message : err}`,
+      );
+    }
+
+    // 6. Raise created event — Welcome email (title + set-password / login instructions)
+    user.confirmProvisioned(setPasswordUrl);
     user.setCreatedById(cmd.createdById);
     user.setUpdatedById(cmd.createdById);
 

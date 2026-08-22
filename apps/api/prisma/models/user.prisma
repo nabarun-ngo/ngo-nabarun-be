@@ -1,7 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // User bounded context schema — admin-only provisioning, no self-signup.
-// Roles are owned by Auth (auth_user_role). Phone + Address = child rows for
-// VOs (queryability); SocialLink = child entity with stable linkType key.
+// Roles are owned by Auth (auth_user_role). roleKeys is a denormalized copy of
+// active Auth role keys for member list/detail payloads. Phone + Address =
+// child rows for VOs (queryability); SocialLink = child entity with stable
+// linkType key.
 // ─────────────────────────────────────────────────────────────────────────────
 
 model UserProfile {
@@ -20,6 +22,9 @@ model UserProfile {
   gender      String?   @db.VarChar(10)
   about       String?   @db.Text
   picture     String?   @db.Text
+
+  // Denormalized active Auth role keys (source of truth remains auth_user_role)
+  roleKeys String[] @default([])
 
   // Status / flags
   status            String   @db.VarChar(20)
@@ -43,11 +48,13 @@ model UserProfile {
   addresses        UserAddress[]
   socialMediaLinks UserSocialLink[]
 
-  initiatedWorkflows WorkflowInstance[] @relation("WorkflowInitiatedBy")
-  receivedWorkflows  WorkflowInstance[] @relation("WorkflowInitiatedFor")
+  initiatedRequests Request[] @relation("RequestInitiatedBy")
+  receivedRequests  Request[] @relation("RequestInitiatedFor")
+  assignedRequests  Request[] @relation("RequestAssignee")
+  claimedRequests   Request[] @relation("RequestClaimedBy")
 
   accounts           Account[]     @relation("AccountHolder")
-  donations          Donation[]    @relation("Donation")
+  donor              Donor?
   confirmedDonations Donation[]    @relation("DonationConfirmedBy")
   accountCreator     Account[]     @relation("AccountCreator")
   transactionCreator Transaction[] @relation("TransactionCreator")

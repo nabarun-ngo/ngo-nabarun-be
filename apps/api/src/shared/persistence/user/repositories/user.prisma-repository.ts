@@ -9,11 +9,12 @@ import type {
   UserProfileUpdateInput,
 } from '../../prisma/models/UserProfile';
 import { User, UserRehydrateProps } from '../../../../modules/user/domain/aggregates/user/user.aggregate';
-import { IUserRepository, UserFilter } from '../../../../modules/user/domain/repositories/user.repository';
+import { IUserRepository, UserFilter, UserOverviewAggregates } from '../../../../modules/user/domain/repositories/user.repository';
 import { PhoneNumber } from '../../../../modules/user/domain/value-objects/phone-number.vo';
 import { Address } from '../../../../modules/user/domain/value-objects/address.vo';
 import { SocialLink } from '../../../../modules/user/domain/entities/social-link.entity';
 import { UserStatus } from '../../../../modules/user/domain/enums/user-status.enum';
+import { RequestStatus } from '../../../../modules/request/domain/enums/request-status.enum';
 
 // ── Row types (shape returned by Prisma when children are included) ────────────
 
@@ -37,6 +38,7 @@ export type UserProfileRow = {
   id: string; email: string; idpSub: string | null;
   title: string | null; firstName: string; middleName: string | null; lastName: string;
   dateOfBirth: Date | null; gender: string | null; about: string | null; picture: string | null;
+  roleKeys: string[];
   status: string; isPublic: boolean; isSameAddress: boolean | null;
   isProfileComplete: boolean;
   version: number;
@@ -53,6 +55,103 @@ const INCLUDE_CHILDREN = {
   addresses: true,
   socialMediaLinks: true,
 } as const;
+
+/** Matches Donation.outstandingStatus in finance domain. */
+const OUTSTANDING_DONATION_STATUSES = [
+  'RAISED',
+  'PENDING',
+  'PAYMENT_FAILED',
+  'PAY_LATER',
+  'UPDATE_MISTAKE',
+] as const;
+
+/** Matches dashboard EXPENSE_MINE_UNSETTLED_STATUSES on the frontend. */
+const UNSETTLED_EXPENSE_STATUSES = [
+  'DRAFT',
+  'SUBMITTED',
+  'FINALIZED',
+  'SEND_BACK',
+] as const;
+
+function decimalToNumber(value: { toNumber(): number } | number | string | null | undefined): number {
+  if (value == null) {
+    return 0;
+  }
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return value.toNumber();
+}
+
+function countToNumber(value: bigint | number | string | null | undefined): number {
+  if (value == null) {
+    return 0;
+  }
+  if (typeof value === 'bigint') {
+    return Number(value);
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return value;
+}
+
+/** Match Prisma Json `array_contains: [value]` → PostgreSQL jsonb containment. */
+function jsonbContainsString(column: Prisma.Sql, value: string): Prisma.Sql {
+  return Prisma.sql`${column} @> CAST(${JSON.stringify([value])} AS jsonb)`;
+}
+
+/**
+ * Must stay aligned with RequestPrismaRepository.inboxWhere:
+ * PendingForApproval ∩ approver roles/groups/permissions
+ * OR YetToStart ∩ unclaimed ∩ executor roles/groups/permissions.
+ */
+function buildRequestInboxPredicate(
+  actorRoles: string[],
+  actorGroups: string[],
+  actorPermissions: string[],
+): Prisma.Sql {
+  const approverParts: Prisma.Sql[] = [
+    ...actorRoles.map((role) => jsonbContainsString(Prisma.sql`r."approverRoles"`, role)),
+    ...actorGroups.map((group) => jsonbContainsString(Prisma.sql`r."approverGroups"`, group)),
+    ...actorPermissions.map((permission) =>
+      jsonbContainsString(Prisma.sql`r."approverPermissions"`, permission)),
+  ];
+  const executorParts: Prisma.Sql[] = [
+    ...actorRoles.map((role) => jsonbContainsString(Prisma.sql`r."executorRoles"`, role)),
+    ...actorGroups.map((group) => jsonbContainsString(Prisma.sql`r."executorGroups"`, group)),
+    ...actorPermissions.map((permission) =>
+      jsonbContainsString(Prisma.sql`r."executorPermissions"`, permission)),
+  ];
+
+  const branches: Prisma.Sql[] = [];
+
+  if (approverParts.length) {
+    branches.push(Prisma.sql`(
+      r.status = ${RequestStatus.PendingForApproval}
+      AND (${Prisma.join(approverParts, ' OR ')})
+    )`);
+  }
+
+  if (executorParts.length) {
+    branches.push(Prisma.sql`(
+      r.status = ${RequestStatus.YetToStart}
+      AND r."claimedById" IS NULL
+      AND (${Prisma.join(executorParts, ' OR ')})
+    )`);
+  }
+
+  if (!branches.length) {
+    return Prisma.sql`FALSE`;
+  }
+
+  return Prisma.join(branches, ' OR ');
+}
 
 type UserInclude = typeof INCLUDE_CHILDREN;
 
@@ -117,6 +216,76 @@ export class UserPrismaRepository
     return (rows as UserProfileRow[]).map((r) => this.toDomain(r));
   }
 
+  async getMyOverviewAggregates(
+    userId: string,
+    actorRoles: string[],
+    actorGroups: string[],
+    actorPermissions: string[],
+  ): Promise<UserOverviewAggregates> {
+    const inboxPredicate = buildRequestInboxPredicate(
+      actorRoles,
+      actorGroups,
+      actorPermissions,
+    );
+
+    const rows = await this.client.$queryRaw<Array<{
+      pendingDonations: Prisma.Decimal | number | string | null;
+      walletBalance: Prisma.Decimal | number | string | null;
+      unsettledExpense: Prisma.Decimal | number | string | null;
+      pendingTask: bigint | number | string | null;
+    }>>`
+      SELECT
+        (
+          SELECT COALESCE(SUM(d.amount), 0)
+          FROM finance_donations d
+          INNER JOIN finance_donors dn ON dn.id = d."donorId"
+          WHERE dn."userProfileId" = ${userId}
+            AND d.status IN (${Prisma.join([...OUTSTANDING_DONATION_STATUSES])})
+            AND d."deletedAt" IS NULL
+            AND dn."deletedAt" IS NULL
+        ) AS "pendingDonations",
+        (
+          SELECT COALESCE(SUM(a.balance), 0)
+          FROM finance_accounts a
+          WHERE a."accountHolderId" = ${userId}
+            AND a.type = 'WALLET'
+            AND a.status = 'ACTIVE'
+            AND a."deletedAt" IS NULL
+        ) AS "walletBalance",
+        (
+          SELECT COALESCE(SUM(e.amount), 0)
+          FROM finance_expenses e
+          WHERE e."paidById" = ${userId}
+            AND e.status IN (${Prisma.join([...UNSETTLED_EXPENSE_STATUSES])})
+            AND e."deletedAt" IS NULL
+        ) AS "unsettledExpense",
+        (
+          SELECT COUNT(*)::int
+          FROM requests r
+          WHERE ${inboxPredicate}
+        ) AS "pendingTask"
+    `;
+
+    const row = rows[0];
+    return {
+      pendingDonations: decimalToNumber(row?.pendingDonations),
+      walletBalance: decimalToNumber(row?.walletBalance),
+      unsettledExpense: decimalToNumber(row?.unsettledExpense),
+      pendingTask: countToNumber(row?.pendingTask),
+    };
+  }
+
+  /**
+   * Projection update only — does not increment optimistic version so concurrent
+   * profile edits are not blocked by role-membership sync.
+   */
+  async updateRoleKeysByIdPSub(idpSub: string, roleKeys: string[]): Promise<void> {
+    await this.delegate.updateMany({
+      where: { idpSub, deletedAt: null },
+      data: { roleKeys },
+    });
+  }
+
   // ── Abstract mapping hooks (required by PrismaCrudRepositoryBase) ─────────
 
   protected toDomain(row: UserProfileRow): User {
@@ -155,6 +324,7 @@ export class UserPrismaRepository
       isSameAddress: row.isSameAddress ?? undefined,
       createdById: row.createdById ?? undefined,
       updatedById: row.updatedById ?? undefined,
+      roleKeys: row.roleKeys ?? [],
       primaryPhone: primaryRow
         ? PhoneNumber.of(primaryRow.phoneCode, primaryRow.phoneNumber, primaryRow.hidden)
         : undefined,
@@ -193,6 +363,7 @@ export class UserPrismaRepository
       isPublic: entity.isPublic,
       isSameAddress: entity.isSameAddress ?? null,
       isProfileComplete: entity.isProfileComplete,
+      roleKeys: entity.roleKeys,
       createdById: entity.createdById ?? null,
       updatedById: entity.updatedById ?? null,
       version: entity.version,
@@ -223,6 +394,7 @@ export class UserPrismaRepository
       isPublic: entity.isPublic,
       isSameAddress: entity.isSameAddress ?? null,
       isProfileComplete: entity.isProfileComplete,
+      roleKeys: entity.roleKeys,
       updatedById: entity.updatedById ?? null,
       deletedAt: entity.deletedAt ?? null,
       version: { increment: 1 },

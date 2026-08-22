@@ -47,6 +47,9 @@ describe('CreateUserHandler', () => {
       createUser: jest.fn().mockResolvedValue({ externalSub: 'auth0|new-sub' }),
       updateUser: jest.fn(),
       deleteUser: jest.fn(),
+      createPasswordChangeTicket: jest.fn().mockResolvedValue({
+        ticketUrl: 'https://tenant.auth0.com/lo/reset?ticket=abc',
+      }),
       sendPasswordReset: jest.fn(),
       grantConnection: jest.fn(),
       revokeConnection: jest.fn(),
@@ -60,20 +63,32 @@ describe('CreateUserHandler', () => {
     );
   });
 
-  it('creates and persists a new user', async () => {
+  it('creates and persists a new ACTIVE user', async () => {
     const result = await handler.execute(baseCmd());
 
     expect(repo.create).toHaveBeenCalledTimes(1);
     expect(result.email).toBe('test@example.com');
+    expect(result.status).toBe(UserStatus.ACTIVE);
   });
 
-  it('calls identityProvider.createUser with the new user', async () => {
+  it('provisions IdP with emailVerified false', async () => {
     await handler.execute(baseCmd());
 
     expect(identityProvider.createUser).toHaveBeenCalledTimes(1);
     const [userArg, optsArg] = identityProvider.createUser.mock.calls[0];
     expect(userArg.email).toBe('test@example.com');
-    expect(optsArg.resetPassword).toBe(true); // no adminPassword → system password
+    expect(optsArg).toEqual({ emailVerified: false });
+  });
+
+  it('creates a password-change ticket for the Welcome set-password link', async () => {
+    await handler.execute(baseCmd());
+
+    expect(identityProvider.createPasswordChangeTicket).toHaveBeenCalledWith({
+      userId: 'auth0|new-sub',
+      markEmailAsVerified: true,
+      includeEmailInRedirect: true,
+    });
+    expect(identityProvider.sendPasswordReset).not.toHaveBeenCalled();
   });
 
   it('publishes domain events after persist', async () => {
@@ -91,20 +106,6 @@ describe('CreateUserHandler', () => {
     const persistedUser: User = repo.create.mock.calls[0][0];
     expect(persistedUser.createdById).toBe('admin-id');
     expect(persistedUser.updatedById).toBe('admin-id');
-  });
-
-  it('does not generate a system password when adminPassword is supplied', async () => {
-    const cmd = new CreateUserCommand({
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User',
-      createdById: 'admin-id',
-      adminPassword: 'S3cur3P@ss!',
-    });
-    await handler.execute(cmd);
-    const [, opts] = identityProvider.createUser.mock.calls[0];
-    expect(opts.resetPassword).toBe(false);
-    expect(opts.adminPassword).toBe('S3cur3P@ss!');
   });
 
   it('reuses a soft-deleted user record on email collision', async () => {

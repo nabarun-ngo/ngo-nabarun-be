@@ -1,10 +1,9 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UserModule } from "../modules/user/user.module";
 import { Configkey } from "../shared/enums/config-keys";
-import { WORKFLOW_MODULE } from "./workflow-module.config";
 
 export const USER_MODULE = UserModule.forRootAsync({
-    imports: [ConfigModule, WORKFLOW_MODULE],
+    imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: (config: ConfigService) => ({
         idp: {
@@ -16,7 +15,8 @@ export const USER_MODULE = UserModule.forRootAsync({
                 passwordless_email: { name: 'email', type: 'passwordless' },
             },
         },
+        spaClientId: config.getOrThrow(Configkey.SPA_CLIENT_ID),
+        appFeUrl: config.getOrThrow(Configkey.APP_FE_URL),
         defaultRoleKeys: ['MEMBER'],
-        passwordExpiresInDays: 90,
     }),
 });

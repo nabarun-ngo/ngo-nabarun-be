@@ -43,10 +43,6 @@ export type DonationMinAggregateOutputType = {
   currency: string | null
   status: string | null
   donorId: string | null
-  donorName: string | null
-  donorEmail: string | null
-  donorPhone: string | null
-  isGuest: boolean | null
   startDate: Date | null
   endDate: Date | null
   raisedOn: Date | null
@@ -76,10 +72,6 @@ export type DonationMaxAggregateOutputType = {
   currency: string | null
   status: string | null
   donorId: string | null
-  donorName: string | null
-  donorEmail: string | null
-  donorPhone: string | null
-  isGuest: boolean | null
   startDate: Date | null
   endDate: Date | null
   raisedOn: Date | null
@@ -109,10 +101,6 @@ export type DonationCountAggregateOutputType = {
   currency: number
   status: number
   donorId: number
-  donorName: number
-  donorEmail: number
-  donorPhone: number
-  isGuest: number
   startDate: number
   endDate: number
   raisedOn: number
@@ -155,10 +143,6 @@ export type DonationMinAggregateInputType = {
   currency?: true
   status?: true
   donorId?: true
-  donorName?: true
-  donorEmail?: true
-  donorPhone?: true
-  isGuest?: true
   startDate?: true
   endDate?: true
   raisedOn?: true
@@ -188,10 +172,6 @@ export type DonationMaxAggregateInputType = {
   currency?: true
   status?: true
   donorId?: true
-  donorName?: true
-  donorEmail?: true
-  donorPhone?: true
-  isGuest?: true
   startDate?: true
   endDate?: true
   raisedOn?: true
@@ -221,10 +201,6 @@ export type DonationCountAggregateInputType = {
   currency?: true
   status?: true
   donorId?: true
-  donorName?: true
-  donorEmail?: true
-  donorPhone?: true
-  isGuest?: true
   startDate?: true
   endDate?: true
   raisedOn?: true
@@ -342,10 +318,6 @@ export type DonationGroupByOutputType = {
   currency: string
   status: string
   donorId: string | null
-  donorName: string | null
-  donorEmail: string | null
-  donorPhone: string | null
-  isGuest: boolean | null
   startDate: Date | null
   endDate: Date | null
   raisedOn: Date
@@ -399,10 +371,6 @@ export type DonationWhereInput = {
   currency?: Prisma.StringFilter<"Donation"> | string
   status?: Prisma.StringFilter<"Donation"> | string
   donorId?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorName?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorEmail?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorPhone?: Prisma.StringNullableFilter<"Donation"> | string | null
-  isGuest?: Prisma.BoolNullableFilter<"Donation"> | boolean | null
   startDate?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
   raisedOn?: Prisma.DateTimeFilter<"Donation"> | Date | string
@@ -424,7 +392,7 @@ export type DonationWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Donation"> | Date | string
   version?: Prisma.IntFilter<"Donation"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
-  donor?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
+  donor?: Prisma.XOR<Prisma.DonorNullableScalarRelationFilter, Prisma.DonorWhereInput> | null
   confirmedBy?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   paidToAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
@@ -437,10 +405,6 @@ export type DonationOrderByWithRelationInput = {
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   donorId?: Prisma.SortOrderInput | Prisma.SortOrder
-  donorName?: Prisma.SortOrderInput | Prisma.SortOrder
-  donorEmail?: Prisma.SortOrderInput | Prisma.SortOrder
-  donorPhone?: Prisma.SortOrderInput | Prisma.SortOrder
-  isGuest?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   raisedOn?: Prisma.SortOrder
@@ -462,7 +426,7 @@ export type DonationOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  donor?: Prisma.UserProfileOrderByWithRelationInput
+  donor?: Prisma.DonorOrderByWithRelationInput
   confirmedBy?: Prisma.UserProfileOrderByWithRelationInput
   activity?: Prisma.ActivityOrderByWithRelationInput
   paidToAccount?: Prisma.AccountOrderByWithRelationInput
@@ -478,10 +442,6 @@ export type DonationWhereUniqueInput = Prisma.AtLeast<{
   currency?: Prisma.StringFilter<"Donation"> | string
   status?: Prisma.StringFilter<"Donation"> | string
   donorId?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorName?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorEmail?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorPhone?: Prisma.StringNullableFilter<"Donation"> | string | null
-  isGuest?: Prisma.BoolNullableFilter<"Donation"> | boolean | null
   startDate?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
   raisedOn?: Prisma.DateTimeFilter<"Donation"> | Date | string
@@ -503,7 +463,7 @@ export type DonationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Donation"> | Date | string
   version?: Prisma.IntFilter<"Donation"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
-  donor?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
+  donor?: Prisma.XOR<Prisma.DonorNullableScalarRelationFilter, Prisma.DonorWhereInput> | null
   confirmedBy?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   paidToAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
@@ -516,10 +476,6 @@ export type DonationOrderByWithAggregationInput = {
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   donorId?: Prisma.SortOrderInput | Prisma.SortOrder
-  donorName?: Prisma.SortOrderInput | Prisma.SortOrder
-  donorEmail?: Prisma.SortOrderInput | Prisma.SortOrder
-  donorPhone?: Prisma.SortOrderInput | Prisma.SortOrder
-  isGuest?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   raisedOn?: Prisma.SortOrder
@@ -558,10 +514,6 @@ export type DonationScalarWhereWithAggregatesInput = {
   currency?: Prisma.StringWithAggregatesFilter<"Donation"> | string
   status?: Prisma.StringWithAggregatesFilter<"Donation"> | string
   donorId?: Prisma.StringNullableWithAggregatesFilter<"Donation"> | string | null
-  donorName?: Prisma.StringNullableWithAggregatesFilter<"Donation"> | string | null
-  donorEmail?: Prisma.StringNullableWithAggregatesFilter<"Donation"> | string | null
-  donorPhone?: Prisma.StringNullableWithAggregatesFilter<"Donation"> | string | null
-  isGuest?: Prisma.BoolNullableWithAggregatesFilter<"Donation"> | boolean | null
   startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Donation"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Donation"> | Date | string | null
   raisedOn?: Prisma.DateTimeWithAggregatesFilter<"Donation"> | Date | string
@@ -591,10 +543,6 @@ export type DonationCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -613,7 +561,7 @@ export type DonationCreateInput = {
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
-  donor?: Prisma.UserProfileCreateNestedOneWithoutDonationsInput
+  donor?: Prisma.DonorCreateNestedOneWithoutDonationsInput
   confirmedBy?: Prisma.UserProfileCreateNestedOneWithoutConfirmedDonationsInput
   activity?: Prisma.ActivityCreateNestedOneWithoutDonationsInput
   paidToAccount?: Prisma.AccountCreateNestedOneWithoutDonationsInput
@@ -626,10 +574,6 @@ export type DonationUncheckedCreateInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -659,10 +603,6 @@ export type DonationUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -681,7 +621,7 @@ export type DonationUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  donor?: Prisma.UserProfileUpdateOneWithoutDonationsNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutDonationsNestedInput
   confirmedBy?: Prisma.UserProfileUpdateOneWithoutConfirmedDonationsNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutDonationsNestedInput
   paidToAccount?: Prisma.AccountUpdateOneWithoutDonationsNestedInput
@@ -694,10 +634,6 @@ export type DonationUncheckedUpdateInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -728,10 +664,6 @@ export type DonationCreateManyInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -761,10 +693,6 @@ export type DonationUpdateManyMutationInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -792,10 +720,6 @@ export type DonationUncheckedUpdateManyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -836,10 +760,6 @@ export type DonationCountOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   donorId?: Prisma.SortOrder
-  donorName?: Prisma.SortOrder
-  donorEmail?: Prisma.SortOrder
-  donorPhone?: Prisma.SortOrder
-  isGuest?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   raisedOn?: Prisma.SortOrder
@@ -875,10 +795,6 @@ export type DonationMaxOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   donorId?: Prisma.SortOrder
-  donorName?: Prisma.SortOrder
-  donorEmail?: Prisma.SortOrder
-  donorPhone?: Prisma.SortOrder
-  isGuest?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   raisedOn?: Prisma.SortOrder
@@ -908,10 +824,6 @@ export type DonationMinOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   donorId?: Prisma.SortOrder
-  donorName?: Prisma.SortOrder
-  donorEmail?: Prisma.SortOrder
-  donorPhone?: Prisma.SortOrder
-  isGuest?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   raisedOn?: Prisma.SortOrder
@@ -1023,10 +935,6 @@ export type DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput = {
   deleteMany?: Prisma.DonationScalarWhereInput | Prisma.DonationScalarWhereInput[]
 }
 
-export type NullableBoolFieldUpdateOperationsInput = {
-  set?: boolean | null
-}
-
 export type DonationCreateNestedManyWithoutDonorInput = {
   create?: Prisma.XOR<Prisma.DonationCreateWithoutDonorInput, Prisma.DonationUncheckedCreateWithoutDonorInput> | Prisma.DonationCreateWithoutDonorInput[] | Prisma.DonationUncheckedCreateWithoutDonorInput[]
   connectOrCreate?: Prisma.DonationCreateOrConnectWithoutDonorInput | Prisma.DonationCreateOrConnectWithoutDonorInput[]
@@ -1034,24 +942,10 @@ export type DonationCreateNestedManyWithoutDonorInput = {
   connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
 }
 
-export type DonationCreateNestedManyWithoutConfirmedByInput = {
-  create?: Prisma.XOR<Prisma.DonationCreateWithoutConfirmedByInput, Prisma.DonationUncheckedCreateWithoutConfirmedByInput> | Prisma.DonationCreateWithoutConfirmedByInput[] | Prisma.DonationUncheckedCreateWithoutConfirmedByInput[]
-  connectOrCreate?: Prisma.DonationCreateOrConnectWithoutConfirmedByInput | Prisma.DonationCreateOrConnectWithoutConfirmedByInput[]
-  createMany?: Prisma.DonationCreateManyConfirmedByInputEnvelope
-  connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
-}
-
 export type DonationUncheckedCreateNestedManyWithoutDonorInput = {
   create?: Prisma.XOR<Prisma.DonationCreateWithoutDonorInput, Prisma.DonationUncheckedCreateWithoutDonorInput> | Prisma.DonationCreateWithoutDonorInput[] | Prisma.DonationUncheckedCreateWithoutDonorInput[]
   connectOrCreate?: Prisma.DonationCreateOrConnectWithoutDonorInput | Prisma.DonationCreateOrConnectWithoutDonorInput[]
   createMany?: Prisma.DonationCreateManyDonorInputEnvelope
-  connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
-}
-
-export type DonationUncheckedCreateNestedManyWithoutConfirmedByInput = {
-  create?: Prisma.XOR<Prisma.DonationCreateWithoutConfirmedByInput, Prisma.DonationUncheckedCreateWithoutConfirmedByInput> | Prisma.DonationCreateWithoutConfirmedByInput[] | Prisma.DonationUncheckedCreateWithoutConfirmedByInput[]
-  connectOrCreate?: Prisma.DonationCreateOrConnectWithoutConfirmedByInput | Prisma.DonationCreateOrConnectWithoutConfirmedByInput[]
-  createMany?: Prisma.DonationCreateManyConfirmedByInputEnvelope
   connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
 }
 
@@ -1069,20 +963,6 @@ export type DonationUpdateManyWithoutDonorNestedInput = {
   deleteMany?: Prisma.DonationScalarWhereInput | Prisma.DonationScalarWhereInput[]
 }
 
-export type DonationUpdateManyWithoutConfirmedByNestedInput = {
-  create?: Prisma.XOR<Prisma.DonationCreateWithoutConfirmedByInput, Prisma.DonationUncheckedCreateWithoutConfirmedByInput> | Prisma.DonationCreateWithoutConfirmedByInput[] | Prisma.DonationUncheckedCreateWithoutConfirmedByInput[]
-  connectOrCreate?: Prisma.DonationCreateOrConnectWithoutConfirmedByInput | Prisma.DonationCreateOrConnectWithoutConfirmedByInput[]
-  upsert?: Prisma.DonationUpsertWithWhereUniqueWithoutConfirmedByInput | Prisma.DonationUpsertWithWhereUniqueWithoutConfirmedByInput[]
-  createMany?: Prisma.DonationCreateManyConfirmedByInputEnvelope
-  set?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
-  disconnect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
-  delete?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
-  connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
-  update?: Prisma.DonationUpdateWithWhereUniqueWithoutConfirmedByInput | Prisma.DonationUpdateWithWhereUniqueWithoutConfirmedByInput[]
-  updateMany?: Prisma.DonationUpdateManyWithWhereWithoutConfirmedByInput | Prisma.DonationUpdateManyWithWhereWithoutConfirmedByInput[]
-  deleteMany?: Prisma.DonationScalarWhereInput | Prisma.DonationScalarWhereInput[]
-}
-
 export type DonationUncheckedUpdateManyWithoutDonorNestedInput = {
   create?: Prisma.XOR<Prisma.DonationCreateWithoutDonorInput, Prisma.DonationUncheckedCreateWithoutDonorInput> | Prisma.DonationCreateWithoutDonorInput[] | Prisma.DonationUncheckedCreateWithoutDonorInput[]
   connectOrCreate?: Prisma.DonationCreateOrConnectWithoutDonorInput | Prisma.DonationCreateOrConnectWithoutDonorInput[]
@@ -1094,6 +974,38 @@ export type DonationUncheckedUpdateManyWithoutDonorNestedInput = {
   connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
   update?: Prisma.DonationUpdateWithWhereUniqueWithoutDonorInput | Prisma.DonationUpdateWithWhereUniqueWithoutDonorInput[]
   updateMany?: Prisma.DonationUpdateManyWithWhereWithoutDonorInput | Prisma.DonationUpdateManyWithWhereWithoutDonorInput[]
+  deleteMany?: Prisma.DonationScalarWhereInput | Prisma.DonationScalarWhereInput[]
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
+export type DonationCreateNestedManyWithoutConfirmedByInput = {
+  create?: Prisma.XOR<Prisma.DonationCreateWithoutConfirmedByInput, Prisma.DonationUncheckedCreateWithoutConfirmedByInput> | Prisma.DonationCreateWithoutConfirmedByInput[] | Prisma.DonationUncheckedCreateWithoutConfirmedByInput[]
+  connectOrCreate?: Prisma.DonationCreateOrConnectWithoutConfirmedByInput | Prisma.DonationCreateOrConnectWithoutConfirmedByInput[]
+  createMany?: Prisma.DonationCreateManyConfirmedByInputEnvelope
+  connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
+}
+
+export type DonationUncheckedCreateNestedManyWithoutConfirmedByInput = {
+  create?: Prisma.XOR<Prisma.DonationCreateWithoutConfirmedByInput, Prisma.DonationUncheckedCreateWithoutConfirmedByInput> | Prisma.DonationCreateWithoutConfirmedByInput[] | Prisma.DonationUncheckedCreateWithoutConfirmedByInput[]
+  connectOrCreate?: Prisma.DonationCreateOrConnectWithoutConfirmedByInput | Prisma.DonationCreateOrConnectWithoutConfirmedByInput[]
+  createMany?: Prisma.DonationCreateManyConfirmedByInputEnvelope
+  connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
+}
+
+export type DonationUpdateManyWithoutConfirmedByNestedInput = {
+  create?: Prisma.XOR<Prisma.DonationCreateWithoutConfirmedByInput, Prisma.DonationUncheckedCreateWithoutConfirmedByInput> | Prisma.DonationCreateWithoutConfirmedByInput[] | Prisma.DonationUncheckedCreateWithoutConfirmedByInput[]
+  connectOrCreate?: Prisma.DonationCreateOrConnectWithoutConfirmedByInput | Prisma.DonationCreateOrConnectWithoutConfirmedByInput[]
+  upsert?: Prisma.DonationUpsertWithWhereUniqueWithoutConfirmedByInput | Prisma.DonationUpsertWithWhereUniqueWithoutConfirmedByInput[]
+  createMany?: Prisma.DonationCreateManyConfirmedByInputEnvelope
+  set?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
+  disconnect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
+  delete?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
+  connect?: Prisma.DonationWhereUniqueInput | Prisma.DonationWhereUniqueInput[]
+  update?: Prisma.DonationUpdateWithWhereUniqueWithoutConfirmedByInput | Prisma.DonationUpdateWithWhereUniqueWithoutConfirmedByInput[]
+  updateMany?: Prisma.DonationUpdateManyWithWhereWithoutConfirmedByInput | Prisma.DonationUpdateManyWithWhereWithoutConfirmedByInput[]
   deleteMany?: Prisma.DonationScalarWhereInput | Prisma.DonationScalarWhereInput[]
 }
 
@@ -1117,10 +1029,6 @@ export type DonationCreateWithoutActivityInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1139,7 +1047,7 @@ export type DonationCreateWithoutActivityInput = {
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
-  donor?: Prisma.UserProfileCreateNestedOneWithoutDonationsInput
+  donor?: Prisma.DonorCreateNestedOneWithoutDonationsInput
   confirmedBy?: Prisma.UserProfileCreateNestedOneWithoutConfirmedDonationsInput
   paidToAccount?: Prisma.AccountCreateNestedOneWithoutDonationsInput
 }
@@ -1151,10 +1059,6 @@ export type DonationUncheckedCreateWithoutActivityInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1213,10 +1117,6 @@ export type DonationScalarWhereInput = {
   currency?: Prisma.StringFilter<"Donation"> | string
   status?: Prisma.StringFilter<"Donation"> | string
   donorId?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorName?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorEmail?: Prisma.StringNullableFilter<"Donation"> | string | null
-  donorPhone?: Prisma.StringNullableFilter<"Donation"> | string | null
-  isGuest?: Prisma.BoolNullableFilter<"Donation"> | boolean | null
   startDate?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Donation"> | Date | string | null
   raisedOn?: Prisma.DateTimeFilter<"Donation"> | Date | string
@@ -1246,10 +1146,6 @@ export type DonationCreateWithoutPaidToAccountInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1268,7 +1164,7 @@ export type DonationCreateWithoutPaidToAccountInput = {
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
-  donor?: Prisma.UserProfileCreateNestedOneWithoutDonationsInput
+  donor?: Prisma.DonorCreateNestedOneWithoutDonationsInput
   confirmedBy?: Prisma.UserProfileCreateNestedOneWithoutConfirmedDonationsInput
   activity?: Prisma.ActivityCreateNestedOneWithoutDonationsInput
 }
@@ -1280,10 +1176,6 @@ export type DonationUncheckedCreateWithoutPaidToAccountInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1338,10 +1230,6 @@ export type DonationCreateWithoutDonorInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1371,10 +1259,6 @@ export type DonationUncheckedCreateWithoutDonorInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1408,16 +1292,28 @@ export type DonationCreateManyDonorInputEnvelope = {
   skipDuplicates?: boolean
 }
 
+export type DonationUpsertWithWhereUniqueWithoutDonorInput = {
+  where: Prisma.DonationWhereUniqueInput
+  update: Prisma.XOR<Prisma.DonationUpdateWithoutDonorInput, Prisma.DonationUncheckedUpdateWithoutDonorInput>
+  create: Prisma.XOR<Prisma.DonationCreateWithoutDonorInput, Prisma.DonationUncheckedCreateWithoutDonorInput>
+}
+
+export type DonationUpdateWithWhereUniqueWithoutDonorInput = {
+  where: Prisma.DonationWhereUniqueInput
+  data: Prisma.XOR<Prisma.DonationUpdateWithoutDonorInput, Prisma.DonationUncheckedUpdateWithoutDonorInput>
+}
+
+export type DonationUpdateManyWithWhereWithoutDonorInput = {
+  where: Prisma.DonationScalarWhereInput
+  data: Prisma.XOR<Prisma.DonationUpdateManyMutationInput, Prisma.DonationUncheckedUpdateManyWithoutDonorInput>
+}
+
 export type DonationCreateWithoutConfirmedByInput = {
   id?: string
   type: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1436,7 +1332,7 @@ export type DonationCreateWithoutConfirmedByInput = {
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
-  donor?: Prisma.UserProfileCreateNestedOneWithoutDonationsInput
+  donor?: Prisma.DonorCreateNestedOneWithoutDonationsInput
   activity?: Prisma.ActivityCreateNestedOneWithoutDonationsInput
   paidToAccount?: Prisma.AccountCreateNestedOneWithoutDonationsInput
 }
@@ -1448,10 +1344,6 @@ export type DonationUncheckedCreateWithoutConfirmedByInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1484,22 +1376,6 @@ export type DonationCreateManyConfirmedByInputEnvelope = {
   skipDuplicates?: boolean
 }
 
-export type DonationUpsertWithWhereUniqueWithoutDonorInput = {
-  where: Prisma.DonationWhereUniqueInput
-  update: Prisma.XOR<Prisma.DonationUpdateWithoutDonorInput, Prisma.DonationUncheckedUpdateWithoutDonorInput>
-  create: Prisma.XOR<Prisma.DonationCreateWithoutDonorInput, Prisma.DonationUncheckedCreateWithoutDonorInput>
-}
-
-export type DonationUpdateWithWhereUniqueWithoutDonorInput = {
-  where: Prisma.DonationWhereUniqueInput
-  data: Prisma.XOR<Prisma.DonationUpdateWithoutDonorInput, Prisma.DonationUncheckedUpdateWithoutDonorInput>
-}
-
-export type DonationUpdateManyWithWhereWithoutDonorInput = {
-  where: Prisma.DonationScalarWhereInput
-  data: Prisma.XOR<Prisma.DonationUpdateManyMutationInput, Prisma.DonationUncheckedUpdateManyWithoutDonorInput>
-}
-
 export type DonationUpsertWithWhereUniqueWithoutConfirmedByInput = {
   where: Prisma.DonationWhereUniqueInput
   update: Prisma.XOR<Prisma.DonationUpdateWithoutConfirmedByInput, Prisma.DonationUncheckedUpdateWithoutConfirmedByInput>
@@ -1523,10 +1399,6 @@ export type DonationCreateManyActivityInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1555,10 +1427,6 @@ export type DonationUpdateWithoutActivityInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1577,7 +1445,7 @@ export type DonationUpdateWithoutActivityInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  donor?: Prisma.UserProfileUpdateOneWithoutDonationsNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutDonationsNestedInput
   confirmedBy?: Prisma.UserProfileUpdateOneWithoutConfirmedDonationsNestedInput
   paidToAccount?: Prisma.AccountUpdateOneWithoutDonationsNestedInput
 }
@@ -1589,10 +1457,6 @@ export type DonationUncheckedUpdateWithoutActivityInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1622,10 +1486,6 @@ export type DonationUncheckedUpdateManyWithoutActivityInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1655,10 +1515,6 @@ export type DonationCreateManyPaidToAccountInput = {
   currency: string
   status: string
   donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
@@ -1687,10 +1543,6 @@ export type DonationUpdateWithoutPaidToAccountInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1709,7 +1561,7 @@ export type DonationUpdateWithoutPaidToAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  donor?: Prisma.UserProfileUpdateOneWithoutDonationsNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutDonationsNestedInput
   confirmedBy?: Prisma.UserProfileUpdateOneWithoutConfirmedDonationsNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutDonationsNestedInput
 }
@@ -1721,10 +1573,6 @@ export type DonationUncheckedUpdateWithoutPaidToAccountInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1754,10 +1602,6 @@ export type DonationUncheckedUpdateManyWithoutPaidToAccountInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1786,48 +1630,11 @@ export type DonationCreateManyDonorInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: string
   status: string
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   raisedOn: Date | string
   paidOn?: Date | string | null
   confirmedById?: string | null
-  confirmedOn?: Date | string | null
-  paymentMethod?: string | null
-  paidToAccountId?: string | null
-  forEventId?: string | null
-  paidUsingUPI?: string | null
-  isPaymentNotified?: boolean | null
-  transactionRef?: string | null
-  remarks?: string | null
-  cancelletionReason?: string | null
-  laterPaymentReason?: string | null
-  paymentFailureDetail?: string | null
-  additionalFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  version?: number
-  deletedAt?: Date | string | null
-}
-
-export type DonationCreateManyConfirmedByInput = {
-  id?: string
-  type: string
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency: string
-  status: string
-  donorId?: string | null
-  donorName?: string | null
-  donorEmail?: string | null
-  donorPhone?: string | null
-  isGuest?: boolean | null
-  startDate?: Date | string | null
-  endDate?: Date | string | null
-  raisedOn: Date | string
-  paidOn?: Date | string | null
   confirmedOn?: Date | string | null
   paymentMethod?: string | null
   paidToAccountId?: string | null
@@ -1852,10 +1659,6 @@ export type DonationUpdateWithoutDonorInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1885,10 +1688,6 @@ export type DonationUncheckedUpdateWithoutDonorInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1918,10 +1717,6 @@ export type DonationUncheckedUpdateManyWithoutDonorInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1945,16 +1740,41 @@ export type DonationUncheckedUpdateManyWithoutDonorInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type DonationCreateManyConfirmedByInput = {
+  id?: string
+  type: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: string
+  status: string
+  donorId?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  raisedOn: Date | string
+  paidOn?: Date | string | null
+  confirmedOn?: Date | string | null
+  paymentMethod?: string | null
+  paidToAccountId?: string | null
+  forEventId?: string | null
+  paidUsingUPI?: string | null
+  isPaymentNotified?: boolean | null
+  transactionRef?: string | null
+  remarks?: string | null
+  cancelletionReason?: string | null
+  laterPaymentReason?: string | null
+  paymentFailureDetail?: string | null
+  additionalFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+}
+
 export type DonationUpdateWithoutConfirmedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1973,7 +1793,7 @@ export type DonationUpdateWithoutConfirmedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  donor?: Prisma.UserProfileUpdateOneWithoutDonationsNestedInput
+  donor?: Prisma.DonorUpdateOneWithoutDonationsNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutDonationsNestedInput
   paidToAccount?: Prisma.AccountUpdateOneWithoutDonationsNestedInput
 }
@@ -1985,10 +1805,6 @@ export type DonationUncheckedUpdateWithoutConfirmedByInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2018,10 +1834,6 @@ export type DonationUncheckedUpdateManyWithoutConfirmedByInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   donorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  donorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   raisedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2053,10 +1865,6 @@ export type DonationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   currency?: boolean
   status?: boolean
   donorId?: boolean
-  donorName?: boolean
-  donorEmail?: boolean
-  donorPhone?: boolean
-  isGuest?: boolean
   startDate?: boolean
   endDate?: boolean
   raisedOn?: boolean
@@ -2091,10 +1899,6 @@ export type DonationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   currency?: boolean
   status?: boolean
   donorId?: boolean
-  donorName?: boolean
-  donorEmail?: boolean
-  donorPhone?: boolean
-  isGuest?: boolean
   startDate?: boolean
   endDate?: boolean
   raisedOn?: boolean
@@ -2129,10 +1933,6 @@ export type DonationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   currency?: boolean
   status?: boolean
   donorId?: boolean
-  donorName?: boolean
-  donorEmail?: boolean
-  donorPhone?: boolean
-  isGuest?: boolean
   startDate?: boolean
   endDate?: boolean
   raisedOn?: boolean
@@ -2167,10 +1967,6 @@ export type DonationSelectScalar = {
   currency?: boolean
   status?: boolean
   donorId?: boolean
-  donorName?: boolean
-  donorEmail?: boolean
-  donorPhone?: boolean
-  isGuest?: boolean
   startDate?: boolean
   endDate?: boolean
   raisedOn?: boolean
@@ -2194,7 +1990,7 @@ export type DonationSelectScalar = {
   deletedAt?: boolean
 }
 
-export type DonationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "amount" | "currency" | "status" | "donorId" | "donorName" | "donorEmail" | "donorPhone" | "isGuest" | "startDate" | "endDate" | "raisedOn" | "paidOn" | "confirmedById" | "confirmedOn" | "paymentMethod" | "paidToAccountId" | "forEventId" | "paidUsingUPI" | "isPaymentNotified" | "transactionRef" | "remarks" | "cancelletionReason" | "laterPaymentReason" | "paymentFailureDetail" | "additionalFields" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["donation"]>
+export type DonationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "amount" | "currency" | "status" | "donorId" | "startDate" | "endDate" | "raisedOn" | "paidOn" | "confirmedById" | "confirmedOn" | "paymentMethod" | "paidToAccountId" | "forEventId" | "paidUsingUPI" | "isPaymentNotified" | "transactionRef" | "remarks" | "cancelletionReason" | "laterPaymentReason" | "paymentFailureDetail" | "additionalFields" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["donation"]>
 export type DonationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   donor?: boolean | Prisma.Donation$donorArgs<ExtArgs>
   confirmedBy?: boolean | Prisma.Donation$confirmedByArgs<ExtArgs>
@@ -2217,7 +2013,7 @@ export type DonationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $DonationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Donation"
   objects: {
-    donor: Prisma.$UserProfilePayload<ExtArgs> | null
+    donor: Prisma.$DonorPayload<ExtArgs> | null
     confirmedBy: Prisma.$UserProfilePayload<ExtArgs> | null
     activity: Prisma.$ActivityPayload<ExtArgs> | null
     paidToAccount: Prisma.$AccountPayload<ExtArgs> | null
@@ -2229,10 +2025,6 @@ export type $DonationPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     currency: string
     status: string
     donorId: string | null
-    donorName: string | null
-    donorEmail: string | null
-    donorPhone: string | null
-    isGuest: boolean | null
     startDate: Date | null
     endDate: Date | null
     raisedOn: Date
@@ -2648,7 +2440,7 @@ readonly fields: DonationFieldRefs;
  */
 export interface Prisma__DonationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  donor<T extends Prisma.Donation$donorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Donation$donorArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  donor<T extends Prisma.Donation$donorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Donation$donorArgs<ExtArgs>>): Prisma.Prisma__DonorClient<runtime.Types.Result.GetResult<Prisma.$DonorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   confirmedBy<T extends Prisma.Donation$confirmedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Donation$confirmedByArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   activity<T extends Prisma.Donation$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Donation$activityArgs<ExtArgs>>): Prisma.Prisma__ActivityClient<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   paidToAccount<T extends Prisma.Donation$paidToAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Donation$paidToAccountArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2687,10 +2479,6 @@ export interface DonationFieldRefs {
   readonly currency: Prisma.FieldRef<"Donation", 'String'>
   readonly status: Prisma.FieldRef<"Donation", 'String'>
   readonly donorId: Prisma.FieldRef<"Donation", 'String'>
-  readonly donorName: Prisma.FieldRef<"Donation", 'String'>
-  readonly donorEmail: Prisma.FieldRef<"Donation", 'String'>
-  readonly donorPhone: Prisma.FieldRef<"Donation", 'String'>
-  readonly isGuest: Prisma.FieldRef<"Donation", 'Boolean'>
   readonly startDate: Prisma.FieldRef<"Donation", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"Donation", 'DateTime'>
   readonly raisedOn: Prisma.FieldRef<"Donation", 'DateTime'>
@@ -3117,18 +2905,18 @@ export type DonationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
  */
 export type Donation$donorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UserProfile
+   * Select specific fields to fetch from the Donor
    */
-  select?: Prisma.UserProfileSelect<ExtArgs> | null
+  select?: Prisma.DonorSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UserProfile
+   * Omit specific fields from the Donor
    */
-  omit?: Prisma.UserProfileOmit<ExtArgs> | null
+  omit?: Prisma.DonorOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserProfileInclude<ExtArgs> | null
-  where?: Prisma.UserProfileWhereInput
+  include?: Prisma.DonorInclude<ExtArgs> | null
+  where?: Prisma.DonorWhereInput
 }
 
 /**

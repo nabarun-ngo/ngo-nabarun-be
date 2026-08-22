@@ -29,6 +29,7 @@ model AuthPermission {
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   rolePermissions AuthRolePermission[]
+  userPermissions AuthUserPermission[]
 
   @@map("auth_permission")
 }
@@ -37,6 +38,7 @@ model AuthRole {
   id             String               @id @default(cuid())
   key            String               @unique @db.VarChar(50)
   description    String?
+  isShadow       Boolean              @default(false)
   deletedAt      DateTime?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
@@ -61,6 +63,7 @@ model AuthRoleGroup {
   id             String              @id @default(cuid())
   key            String              @unique @db.VarChar(50)
   description    String?
+  isShadow       Boolean             @default(false)
   deletedAt      DateTime?
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
@@ -121,4 +124,24 @@ model AuthUserRoleGroup {
   @@index([idpSub, ownerId])
   @@index([idpSub, entityType, entityId])
   @@map("auth_user_role_group")
+}
+
+model AuthUserPermission {
+  id           String         @id @default(cuid())
+  idpSub       String         @db.VarChar(100)
+  ownerId      String?        @db.VarChar(100)
+  entityId     String?        @db.VarChar(100)
+  entityType   String?        @db.VarChar(30)
+  permissionId String         @db.VarChar(50)
+  grantedAt    DateTime       @default(now())
+  revokedAt    DateTime?
+  grantedBy    String?        @db.VarChar(100)
+  revokedBy    String?        @db.VarChar(100)
+  note         String?        @db.VarChar(512)
+  permission   AuthPermission @relation(fields: [permissionId], references: [id])
+
+  @@index([idpSub])
+  @@index([idpSub, ownerId])
+  @@index([idpSub, entityType, entityId])
+  @@map("auth_user_permission")
 }

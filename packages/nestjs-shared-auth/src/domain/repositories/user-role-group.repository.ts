@@ -22,4 +22,8 @@ export interface IUserRoleGroupRepository
   createMembershipWithRoles(membership: UserRoleGroup, userRoles: UserRole[]): Promise<void>;
   /** Returns idpSubs of all users who are active members of any group that holds this role. */
   findIdPSubsByRoleKey(roleKey: string): Promise<string[]>;
+  /** Active memberships for a role group. */
+  findActiveByGroupId(groupId: string): Promise<UserRoleGroup[]>;
+  /** Returns idpSubs of all active members of this group. */
+  findIdPSubsByGroupId(groupId: string): Promise<string[]>;
 }

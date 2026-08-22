@@ -1,8 +1,9 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoResponse, ApiPaginationQuery, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateExpenseCommand } from '../../application/commands/create-expense/create-expense.command';
 import { UpdateExpenseCommand } from '../../application/commands/update-expense/update-expense.command';
 import { FinalizeExpenseCommand } from '../../application/commands/finalize-expense/finalize-expense.command';
@@ -23,6 +24,7 @@ export class ExpenseController {
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) { }
 
   @Get('static/referenceData')
+  @ApiAutoResponse(ExpenseRefDataDto)
   getExpenseReferenceData(): Promise<ExpenseRefDataDto> {
     return this.queryBus.execute(new GetExpenseReferenceDataQuery());
   }
@@ -30,6 +32,7 @@ export class ExpenseController {
   @Post('create')
   @HttpCode(HttpStatus.OK)
   @RequirePermissions('create:expense')
+  @ApiAutoResponse(ExpenseDetailDto)
   async createExpense(@Body() dto: CreateExpenseDto, @CurrentUser() user: AuthUser): Promise<ExpenseDetailDto> {
     const expense = await this.commandBus.execute(
       new CreateExpenseCommand({
@@ -49,6 +52,8 @@ export class ExpenseController {
 
   @Put(':id/update')
   @RequirePermissions('update:expense')
+  @ApiUuidParam('id', 'Identifier of the expense')
+  @ApiAutoResponse(ExpenseDetailDto)
   async updateExpense(@Param('id') id: string, @Body() dto: UpdateExpenseDto, @CurrentUser() user: AuthUser): Promise<ExpenseDetailDto> {
     const expense = await this.commandBus.execute(
       new UpdateExpenseCommand({
@@ -69,14 +74,25 @@ export class ExpenseController {
   }
 
   @Post(':id/finalize')
-  @RequirePermissions('create:expense_final')
+  @RequirePermissions('finalize:expense')
+  @ApiUuidParam('id', 'Identifier of the expense')
+  @ApiAutoResponse(ExpenseDetailDto, { status: HttpStatus.CREATED })
   async finalizeExpense(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<ExpenseDetailDto> {
     const expense = await this.commandBus.execute(new FinalizeExpenseCommand({ id, finalizedById: requireUserId(user) }));
     return ExpenseMapper.toDto(expense);
   }
 
   @Post(':id/settle')
-  @RequirePermissions('create:expense_settle')
+  @RequirePermissions('settle:expense')
+  @ApiUuidParam('id', 'Identifier of the expense')
+  @ApiQuery({
+    name: 'accountId',
+    type: String,
+    required: true,
+    example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68',
+    description: 'Identifier of the account the expense is settled from',
+  })
+  @ApiAutoResponse(ExpenseDetailDto, { status: HttpStatus.CREATED })
   async settleExpense(@Param('id') id: string, @Query('accountId') accountId: string, @CurrentUser() user: AuthUser): Promise<ExpenseDetailDto> {
     const expense = await this.commandBus.execute(new SettleExpenseCommand({ id, accountId, settledById: requireUserId(user) }));
     return ExpenseMapper.toDto(expense);
@@ -84,6 +100,8 @@ export class ExpenseController {
 
   @Get('list')
   @RequirePermissions('read:expenses')
+  @ApiPaginationQuery()
+  @ApiAutoResponse(ExpenseListResponseDto)
   listExpenses(
     @Query('pageIndex') pageIndex?: number,
     @Query('pageSize') pageSize?: number,
@@ -93,6 +111,8 @@ export class ExpenseController {
   }
 
   @Get('list/me')
+  @ApiPaginationQuery()
+  @ApiAutoResponse(ExpenseListResponseDto)
   listSelfExpenses(
     @Query('pageIndex') pageIndex?: number,
     @Query('pageSize') pageSize?: number,
@@ -104,6 +124,8 @@ export class ExpenseController {
 
   @Get(':id')
   @RequirePermissions('read:expenses')
+  @ApiUuidParam('id', 'Identifier of the expense')
+  @ApiAutoResponse(ExpenseDetailDto)
   getExpenseById(@Param('id') id: string): Promise<ExpenseDetailDto> {
     return this.queryBus.execute(new GetExpenseByIdQuery(id));
   }

@@ -12,8 +12,9 @@ const defaultOptions: UserModuleOptions = {
       default: { name: 'Username-Password-Authentication', type: 'password', provisionOnCreate: true },
     },
   },
+  spaClientId: 'spa-client-id',
+  appFeUrl: 'https://app.example.com',
   defaultRoleKeys: [],
-  passwordExpiresInDays: 90,
 };
 
 describe('OnUserCreatedHandler', () => {
@@ -32,7 +33,7 @@ describe('OnUserCreatedHandler', () => {
   describe('default role grant', () => {
     it('grants each configured default role via AuthFacade', async () => {
       handler = buildHandler({ ...defaultOptions, defaultRoleKeys: ['MEMBER', 'VOLUNTEER'] });
-      const event = new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', false);
+      const event = new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', undefined, undefined);
 
       await handler.handle(event);
 
@@ -42,14 +43,14 @@ describe('OnUserCreatedHandler', () => {
     });
 
     it('skips role grant when defaultRoleKeys is empty', async () => {
-      const event = new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', false);
+      const event = new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', undefined, undefined);
       await handler.handle(event);
       expect(authFacade.grantRole).not.toHaveBeenCalled();
     });
 
     it('skips role grant when idpSub is absent', async () => {
       handler = buildHandler({ ...defaultOptions, defaultRoleKeys: ['MEMBER'] });
-      const event = new UserCreatedEvent('user-1', 'a@b.com', undefined, false);
+      const event = new UserCreatedEvent('user-1', 'a@b.com', undefined, undefined, undefined);
       await handler.handle(event);
       expect(authFacade.grantRole).not.toHaveBeenCalled();
     });
@@ -60,7 +61,7 @@ describe('OnUserCreatedHandler', () => {
         .mockRejectedValueOnce(new Error('role not found'))
         .mockResolvedValueOnce({ roleId: 'role-2' } as any);
 
-      const event = new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', false);
+      const event = new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', undefined, undefined);
       await expect(handler.handle(event)).resolves.not.toThrow();
       expect(authFacade.grantRole).toHaveBeenCalledTimes(2);
     });

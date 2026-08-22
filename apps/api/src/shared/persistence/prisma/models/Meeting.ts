@@ -50,10 +50,6 @@ export type MeetingMinAggregateOutputType = {
   hostEmail: string | null
   meetLink: string | null
   calendarLink: string | null
-  recordingUrl: string | null
-  meetingNotes: string | null
-  meetingTranscript: string | null
-  meetingActionItems: string | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -77,10 +73,6 @@ export type MeetingMaxAggregateOutputType = {
   hostEmail: string | null
   meetLink: string | null
   calendarLink: string | null
-  recordingUrl: string | null
-  meetingNotes: string | null
-  meetingTranscript: string | null
-  meetingActionItems: string | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -104,10 +96,6 @@ export type MeetingCountAggregateOutputType = {
   hostEmail: number
   meetLink: number
   calendarLink: number
-  recordingUrl: number
-  meetingNotes: number
-  meetingTranscript: number
-  meetingActionItems: number
   createdById: number
   createdAt: number
   updatedAt: number
@@ -141,10 +129,6 @@ export type MeetingMinAggregateInputType = {
   hostEmail?: true
   meetLink?: true
   calendarLink?: true
-  recordingUrl?: true
-  meetingNotes?: true
-  meetingTranscript?: true
-  meetingActionItems?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -168,10 +152,6 @@ export type MeetingMaxAggregateInputType = {
   hostEmail?: true
   meetLink?: true
   calendarLink?: true
-  recordingUrl?: true
-  meetingNotes?: true
-  meetingTranscript?: true
-  meetingActionItems?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -195,10 +175,6 @@ export type MeetingCountAggregateInputType = {
   hostEmail?: true
   meetLink?: true
   calendarLink?: true
-  recordingUrl?: true
-  meetingNotes?: true
-  meetingTranscript?: true
-  meetingActionItems?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -309,10 +285,6 @@ export type MeetingGroupByOutputType = {
   hostEmail: string | null
   meetLink: string | null
   calendarLink: string | null
-  recordingUrl: string | null
-  meetingNotes: string | null
-  meetingTranscript: string | null
-  meetingActionItems: string | null
   createdById: string | null
   createdAt: Date
   updatedAt: Date
@@ -359,10 +331,6 @@ export type MeetingWhereInput = {
   hostEmail?: Prisma.StringNullableFilter<"Meeting"> | string | null
   meetLink?: Prisma.StringNullableFilter<"Meeting"> | string | null
   calendarLink?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  recordingUrl?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingNotes?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingTranscript?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingActionItems?: Prisma.StringNullableFilter<"Meeting"> | string | null
   createdById?: Prisma.StringNullableFilter<"Meeting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Meeting"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Meeting"> | Date | string
@@ -387,10 +355,6 @@ export type MeetingOrderByWithRelationInput = {
   hostEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   meetLink?: Prisma.SortOrderInput | Prisma.SortOrder
   calendarLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  meetingNotes?: Prisma.SortOrderInput | Prisma.SortOrder
-  meetingTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
-  meetingActionItems?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -418,10 +382,6 @@ export type MeetingWhereUniqueInput = Prisma.AtLeast<{
   hostEmail?: Prisma.StringNullableFilter<"Meeting"> | string | null
   meetLink?: Prisma.StringNullableFilter<"Meeting"> | string | null
   calendarLink?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  recordingUrl?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingNotes?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingTranscript?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingActionItems?: Prisma.StringNullableFilter<"Meeting"> | string | null
   createdById?: Prisma.StringNullableFilter<"Meeting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Meeting"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Meeting"> | Date | string
@@ -446,10 +406,6 @@ export type MeetingOrderByWithAggregationInput = {
   hostEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   meetLink?: Prisma.SortOrderInput | Prisma.SortOrder
   calendarLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  meetingNotes?: Prisma.SortOrderInput | Prisma.SortOrder
-  meetingTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
-  meetingActionItems?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -481,10 +437,6 @@ export type MeetingScalarWhereWithAggregatesInput = {
   hostEmail?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
   meetLink?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
   calendarLink?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
-  recordingUrl?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
-  meetingNotes?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
-  meetingTranscript?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
-  meetingActionItems?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
   createdById?: Prisma.StringNullableWithAggregatesFilter<"Meeting"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Meeting"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Meeting"> | Date | string
@@ -508,10 +460,6 @@ export type MeetingCreateInput = {
   hostEmail?: string | null
   meetLink?: string | null
   calendarLink?: string | null
-  recordingUrl?: string | null
-  meetingNotes?: string | null
-  meetingTranscript?: string | null
-  meetingActionItems?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
@@ -535,10 +483,6 @@ export type MeetingUncheckedCreateInput = {
   hostEmail?: string | null
   meetLink?: string | null
   calendarLink?: string | null
-  recordingUrl?: string | null
-  meetingNotes?: string | null
-  meetingTranscript?: string | null
-  meetingActionItems?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -562,10 +506,6 @@ export type MeetingUpdateInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -589,10 +529,6 @@ export type MeetingUncheckedUpdateInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -616,10 +552,6 @@ export type MeetingCreateManyInput = {
   hostEmail?: string | null
   meetLink?: string | null
   calendarLink?: string | null
-  recordingUrl?: string | null
-  meetingNotes?: string | null
-  meetingTranscript?: string | null
-  meetingActionItems?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -643,10 +575,6 @@ export type MeetingUpdateManyMutationInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -669,10 +597,6 @@ export type MeetingUncheckedUpdateManyInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -696,10 +620,6 @@ export type MeetingCountOrderByAggregateInput = {
   hostEmail?: Prisma.SortOrder
   meetLink?: Prisma.SortOrder
   calendarLink?: Prisma.SortOrder
-  recordingUrl?: Prisma.SortOrder
-  meetingNotes?: Prisma.SortOrder
-  meetingTranscript?: Prisma.SortOrder
-  meetingActionItems?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -727,10 +647,6 @@ export type MeetingMaxOrderByAggregateInput = {
   hostEmail?: Prisma.SortOrder
   meetLink?: Prisma.SortOrder
   calendarLink?: Prisma.SortOrder
-  recordingUrl?: Prisma.SortOrder
-  meetingNotes?: Prisma.SortOrder
-  meetingTranscript?: Prisma.SortOrder
-  meetingActionItems?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -754,10 +670,6 @@ export type MeetingMinOrderByAggregateInput = {
   hostEmail?: Prisma.SortOrder
   meetLink?: Prisma.SortOrder
   calendarLink?: Prisma.SortOrder
-  recordingUrl?: Prisma.SortOrder
-  meetingNotes?: Prisma.SortOrder
-  meetingTranscript?: Prisma.SortOrder
-  meetingActionItems?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -837,10 +749,6 @@ export type MeetingCreateWithoutCreatedByInput = {
   hostEmail?: string | null
   meetLink?: string | null
   calendarLink?: string | null
-  recordingUrl?: string | null
-  meetingNotes?: string | null
-  meetingTranscript?: string | null
-  meetingActionItems?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
@@ -863,10 +771,6 @@ export type MeetingUncheckedCreateWithoutCreatedByInput = {
   hostEmail?: string | null
   meetLink?: string | null
   calendarLink?: string | null
-  recordingUrl?: string | null
-  meetingNotes?: string | null
-  meetingTranscript?: string | null
-  meetingActionItems?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
@@ -918,10 +822,6 @@ export type MeetingScalarWhereInput = {
   hostEmail?: Prisma.StringNullableFilter<"Meeting"> | string | null
   meetLink?: Prisma.StringNullableFilter<"Meeting"> | string | null
   calendarLink?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  recordingUrl?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingNotes?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingTranscript?: Prisma.StringNullableFilter<"Meeting"> | string | null
-  meetingActionItems?: Prisma.StringNullableFilter<"Meeting"> | string | null
   createdById?: Prisma.StringNullableFilter<"Meeting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Meeting"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Meeting"> | Date | string
@@ -945,10 +845,6 @@ export type MeetingCreateManyCreatedByInput = {
   hostEmail?: string | null
   meetLink?: string | null
   calendarLink?: string | null
-  recordingUrl?: string | null
-  meetingNotes?: string | null
-  meetingTranscript?: string | null
-  meetingActionItems?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
@@ -971,10 +867,6 @@ export type MeetingUpdateWithoutCreatedByInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -997,10 +889,6 @@ export type MeetingUncheckedUpdateWithoutCreatedByInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1023,10 +911,6 @@ export type MeetingUncheckedUpdateManyWithoutCreatedByInput = {
   hostEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meetLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   calendarLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  meetingActionItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1051,10 +935,6 @@ export type MeetingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   hostEmail?: boolean
   meetLink?: boolean
   calendarLink?: boolean
-  recordingUrl?: boolean
-  meetingNotes?: boolean
-  meetingTranscript?: boolean
-  meetingActionItems?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1079,10 +959,6 @@ export type MeetingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   hostEmail?: boolean
   meetLink?: boolean
   calendarLink?: boolean
-  recordingUrl?: boolean
-  meetingNotes?: boolean
-  meetingTranscript?: boolean
-  meetingActionItems?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1107,10 +983,6 @@ export type MeetingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   hostEmail?: boolean
   meetLink?: boolean
   calendarLink?: boolean
-  recordingUrl?: boolean
-  meetingNotes?: boolean
-  meetingTranscript?: boolean
-  meetingActionItems?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1135,10 +1007,6 @@ export type MeetingSelectScalar = {
   hostEmail?: boolean
   meetLink?: boolean
   calendarLink?: boolean
-  recordingUrl?: boolean
-  meetingNotes?: boolean
-  meetingTranscript?: boolean
-  meetingActionItems?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1146,7 +1014,7 @@ export type MeetingSelectScalar = {
   deletedAt?: boolean
 }
 
-export type MeetingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "extMeetingId" | "summary" | "description" | "type" | "status" | "location" | "startTime" | "endTime" | "agenda" | "outcomes" | "attendees" | "hostEmail" | "meetLink" | "calendarLink" | "recordingUrl" | "meetingNotes" | "meetingTranscript" | "meetingActionItems" | "createdById" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["meeting"]>
+export type MeetingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "extMeetingId" | "summary" | "description" | "type" | "status" | "location" | "startTime" | "endTime" | "agenda" | "outcomes" | "attendees" | "hostEmail" | "meetLink" | "calendarLink" | "createdById" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["meeting"]>
 export type MeetingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.Meeting$createdByArgs<ExtArgs>
 }
@@ -1178,10 +1046,6 @@ export type $MeetingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     hostEmail: string | null
     meetLink: string | null
     calendarLink: string | null
-    recordingUrl: string | null
-    meetingNotes: string | null
-    meetingTranscript: string | null
-    meetingActionItems: string | null
     createdById: string | null
     createdAt: Date
     updatedAt: Date
@@ -1626,10 +1490,6 @@ export interface MeetingFieldRefs {
   readonly hostEmail: Prisma.FieldRef<"Meeting", 'String'>
   readonly meetLink: Prisma.FieldRef<"Meeting", 'String'>
   readonly calendarLink: Prisma.FieldRef<"Meeting", 'String'>
-  readonly recordingUrl: Prisma.FieldRef<"Meeting", 'String'>
-  readonly meetingNotes: Prisma.FieldRef<"Meeting", 'String'>
-  readonly meetingTranscript: Prisma.FieldRef<"Meeting", 'String'>
-  readonly meetingActionItems: Prisma.FieldRef<"Meeting", 'String'>
   readonly createdById: Prisma.FieldRef<"Meeting", 'String'>
   readonly createdAt: Prisma.FieldRef<"Meeting", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Meeting", 'DateTime'>

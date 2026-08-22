@@ -7,6 +7,7 @@ export class RoleGroupResponseMapper {
     dto.id = group.id;
     dto.key = group.key;
     dto.description = group.description;
+    dto.isShadow = group.isShadow;
     dto.roleKeys = group.roleKeys;
     dto.createdAt = group.createdAt;
     return dto;

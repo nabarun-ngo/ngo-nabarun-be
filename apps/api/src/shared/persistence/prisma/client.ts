@@ -45,6 +45,16 @@ export { Prisma }
  */
 export type Activity = Prisma.ActivityModel
 /**
+ * Model Asset
+ * 
+ */
+export type Asset = Prisma.AssetModel
+/**
+ * Model AssetCustodyRecord
+ * 
+ */
+export type AssetCustodyRecord = Prisma.AssetCustodyRecordModel
+/**
  * Model AuditEntityChangeLog
  * 
  */
@@ -89,6 +99,21 @@ export type AuthUserRole = Prisma.AuthUserRoleModel
  * 
  */
 export type AuthUserRoleGroup = Prisma.AuthUserRoleGroupModel
+/**
+ * Model AuthUserPermission
+ * 
+ */
+export type AuthUserPermission = Prisma.AuthUserPermissionModel
+/**
+ * Model Book
+ * 
+ */
+export type Book = Prisma.BookModel
+/**
+ * Model BookLoanRecord
+ * 
+ */
+export type BookLoanRecord = Prisma.BookLoanRecordModel
 /**
  * Model Comment
  * 
@@ -165,6 +190,21 @@ export type DocumentMapping = Prisma.DocumentMappingModel
  */
 export type Account = Prisma.AccountModel
 /**
+ * Model AccountBankInvestDetail
+ * 
+ */
+export type AccountBankInvestDetail = Prisma.AccountBankInvestDetailModel
+/**
+ * Model AccountUpiDetail
+ * 
+ */
+export type AccountUpiDetail = Prisma.AccountUpiDetailModel
+/**
+ * Model Donor
+ * 
+ */
+export type Donor = Prisma.DonorModel
+/**
  * Model Donation
  * 
  */
@@ -230,6 +270,16 @@ export type ProjectRisk = Prisma.ProjectRiskModel
  */
 export type Report = Prisma.ReportModel
 /**
+ * Model Request
+ * 
+ */
+export type Request = Prisma.RequestModel
+/**
+ * Model RequestEvent
+ * 
+ */
+export type RequestEvent = Prisma.RequestEventModel
+/**
  * Model TokenVaultOAuthAccount
  * 
  */
@@ -259,33 +309,3 @@ export type UserAddress = Prisma.UserAddressModel
  * 
  */
 export type UserSocialLink = Prisma.UserSocialLinkModel
-/**
- * Model WorkflowInstance
- * 
- */
-export type WorkflowInstance = Prisma.WorkflowInstanceModel
-/**
- * Model WorkflowEventLog
- * 
- */
-export type WorkflowEventLog = Prisma.WorkflowEventLogModel
-/**
- * Model WorkflowToken
- * 
- */
-export type WorkflowToken = Prisma.WorkflowTokenModel
-/**
- * Model WorkflowTaskInbox
- * 
- */
-export type WorkflowTaskInbox = Prisma.WorkflowTaskInboxModel
-/**
- * Model WorkflowIdempotencyKey
- * 
- */
-export type WorkflowIdempotencyKey = Prisma.WorkflowIdempotencyKeyModel
-/**
- * Model WorkflowOutbox
- * 
- */
-export type WorkflowOutbox = Prisma.WorkflowOutboxModel

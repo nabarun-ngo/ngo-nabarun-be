@@ -21,7 +21,9 @@ import {
   ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoPrimitiveResponse,
+  ApiUuidParam,
   BaseFilter,
+  ENVELOPE_EXAMPLES,
   PagedResponse,
   PaginatedQueryDto,
 } from '@nabarun-ngo/nestjs-shared-core';
@@ -102,6 +104,7 @@ export class ApiKeyController {
             responsePayload: {
               type: 'array',
               items: { type: 'string' },
+              example: ['read:projects', 'update:project'],
             },
           },
         },
@@ -115,6 +118,7 @@ export class ApiKeyController {
   @Patch('permissions/:id')
   @RequirePermissions('update:api_keys')
   @ApiOperation({ summary: 'Update API key permissions' })
+  @ApiUuidParam('id', 'Identifier of the API key (UUID)')
   @ApiBody({ type: UpdateApiKeyPermissionsRequestDto })
   @ApiAutoResponse(ApiKeyResponseDto)
   async updateApiKeyPermissions(
@@ -130,7 +134,11 @@ export class ApiKeyController {
   @Delete('revoke/:id')
   @RequirePermissions('delete:api_keys')
   @ApiOperation({ summary: 'Revoke API key' })
-  @ApiAutoPrimitiveResponse('boolean')
+  @ApiUuidParam('id', 'Identifier of the API key (UUID)')
+  @ApiAutoPrimitiveResponse('boolean', {
+    description: 'API key revoked — payload is `true` on success',
+  })
+  @ApiOkResponse({ example: { ...ENVELOPE_EXAMPLES, responsePayload: true } })
   async revokeApiKey(@Param('id') id: string): Promise<boolean> {
     return this.commandBus.execute(new RevokeApiKeyCommand(id));
   }

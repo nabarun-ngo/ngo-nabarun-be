@@ -1,0 +1,7 @@
+{
+  "_comment": "Transfer reference type labels (eligibility is in transfer-matrix).",
+  "items": [
+    { "key": "ADHOC", "value": "General" },
+    { "key": "ADVANCE_EV", "value": "Advance for Event" }
+  ]
+}

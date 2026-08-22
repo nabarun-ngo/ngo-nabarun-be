@@ -46,13 +46,6 @@ export interface MeetingUpdateProps {
   outcomes?: string;
 }
 
-export interface FathomMeetingData {
-  recordingUrl?: string;
-  meetingNotes?: string;
-  meetingTranscript?: string;
-  meetingActionItems?: string;
-}
-
 export class Meeting extends AggregateRoot<string> {
   #summary: string;
   #type: MeetingType;
@@ -69,10 +62,6 @@ export class Meeting extends AggregateRoot<string> {
   #extMeetingId?: string;
   #meetLink?: string;
   #calendarLink?: string;
-  #recordingUrl?: string;
-  #meetingNotes?: string;
-  #meetingTranscript?: string;
-  #meetingActionItems?: string;
 
   constructor(
     id: string,
@@ -91,10 +80,6 @@ export class Meeting extends AggregateRoot<string> {
     extMeetingId: string | undefined,
     meetLink: string | undefined,
     calendarLink: string | undefined,
-    recordingUrl: string | undefined,
-    meetingNotes: string | undefined,
-    meetingTranscript: string | undefined,
-    meetingActionItems: string | undefined,
     createdAt?: Date,
     updatedAt?: Date,
   ) {
@@ -114,10 +99,6 @@ export class Meeting extends AggregateRoot<string> {
     this.#extMeetingId = extMeetingId;
     this.#meetLink = meetLink;
     this.#calendarLink = calendarLink;
-    this.#recordingUrl = recordingUrl;
-    this.#meetingNotes = meetingNotes;
-    this.#meetingTranscript = meetingTranscript;
-    this.#meetingActionItems = meetingActionItems;
   }
 
   static create(props: MeetingCreateProps): Meeting {
@@ -141,10 +122,6 @@ export class Meeting extends AggregateRoot<string> {
       props.attendees,
       props.hostEmail,
       props.createdById,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
       undefined,
       undefined,
       undefined,
@@ -198,14 +175,6 @@ export class Meeting extends AggregateRoot<string> {
     this.touch();
   }
 
-  applyFathomData(data: FathomMeetingData): void {
-    this.#recordingUrl = data.recordingUrl ?? this.#recordingUrl;
-    this.#meetingNotes = data.meetingNotes ?? this.#meetingNotes;
-    this.#meetingTranscript = data.meetingTranscript ?? this.#meetingTranscript;
-    this.#meetingActionItems = data.meetingActionItems ?? this.#meetingActionItems;
-    this.touch();
-  }
-
   get summary(): string { return this.#summary; }
   get type(): MeetingType { return this.#type; }
   get status(): string { return this.#status; }
@@ -221,8 +190,4 @@ export class Meeting extends AggregateRoot<string> {
   get extMeetingId(): string | undefined { return this.#extMeetingId; }
   get meetLink(): string | undefined { return this.#meetLink; }
   get calendarLink(): string | undefined { return this.#calendarLink; }
-  get recordingUrl(): string | undefined { return this.#recordingUrl; }
-  get meetingNotes(): string | undefined { return this.#meetingNotes; }
-  get meetingTranscript(): string | undefined { return this.#meetingTranscript; }
-  get meetingActionItems(): string | undefined { return this.#meetingActionItems; }
 }

@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiProduces,
   ApiResponse,
   ApiSecurity,
@@ -27,8 +28,10 @@ import {
   ApiAutoResponse,
   ApiAutoPrimitiveResponse,
   ApiAutoVoidResponse,
+  ApiKeyParam,
+  ApiUuidParam,
+  ENVELOPE_EXAMPLES,
 } from '@nabarun-ngo/nestjs-shared-core';
-import { IsNotEmpty, IsString } from 'class-validator';
 import { DocumentVisibility } from '../../domain/enums/document-visibility.enum';
 import { UploadDocumentCommand } from '../../application/commands/upload-document/upload-document.command';
 import { DeleteDocumentCommand } from '../../application/commands/delete-document/delete-document.command';
@@ -39,12 +42,7 @@ import { DownloadDocumentQuery } from '../../application/queries/download-docume
 import { DocumentResponseDto, ListDocumentsResponseDto } from '../dtos/document-response.dto';
 import { DownloadDocumentResult } from '../../application/queries/download-document/download-document.handler';
 import { UploadDocumentRequestDto } from '../dtos/upload-document-request.dto';
-
-class RenameDocumentDto {
-  @IsNotEmpty()
-  @IsString()
-  newName: string;
-}
+import { RenameDocumentRequestDto } from '../dtos/rename-document-request.dto';
 
 @ApiTags('DMS')
 @ApiBearerAuth('jwt')
@@ -82,6 +80,8 @@ export class Dms2Controller {
 
   @Get(':entityType/:entityId/documents')
   @RequirePermissions('read:documents')
+  @ApiKeyParam('entityType', 'PROJECT', 'Type of the entity the documents are mapped to')
+  @ApiUuidParam('entityId', 'Identifier of the entity the documents are mapped to')
   @ApiAutoResponse(ListDocumentsResponseDto)
   listDocuments(
     @Param('entityType') entityType: string,
@@ -100,7 +100,15 @@ export class Dms2Controller {
 
   @Get('document/:id/url')
   @RequirePermissions('read:documents')
-  @ApiAutoPrimitiveResponse('string')
+  @ApiUuidParam('id', 'Identifier of the document')
+  @ApiAutoPrimitiveResponse('string', { description: 'Signed document URL' })
+  @ApiOkResponse({
+    example: {
+      ...ENVELOPE_EXAMPLES,
+      responsePayload:
+        'https://storage.googleapis.com/nabarun-dms/vendor-invoice-2026-0117.pdf?token=abc123',
+    },
+  })
   getSignedUrl(
     @Param('id') id: string,
     @CurrentUser() authUser: AuthUser,
@@ -112,13 +120,15 @@ export class Dms2Controller {
 
   @Get('document/:id/download')
   @RequirePermissions('read:documents')
+  @ApiUuidParam('id', 'Identifier of the document')
   @ApiProduces('application/octet-stream')
   @ApiResponse({
     status: 200,
-    description: 'File downloaded successfully',
+    description:
+      'Binary document stream. The original file name is carried in the Content-Disposition header.',
     content: {
       'application/octet-stream': {
-        schema: { type: 'string', format: 'binary' },
+        schema: { type: 'string', format: 'binary', example: '<binary document bytes>' },
       },
     },
   })
@@ -142,10 +152,11 @@ export class Dms2Controller {
 
   @Patch('document/:id/rename')
   @RequirePermissions('update:documents')
+  @ApiUuidParam('id', 'Identifier of the document')
   @ApiAutoResponse(DocumentResponseDto)
   renameDocument(
     @Param('id') id: string,
-    @Body() body: RenameDocumentDto,
+    @Body() body: RenameDocumentRequestDto,
     @CurrentUser() authUser: AuthUser,
   ): Promise<DocumentResponseDto> {
     return this.commandBus.execute(
@@ -161,6 +172,7 @@ export class Dms2Controller {
   @Delete('document/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @RequirePermissions('delete:documents')
+  @ApiUuidParam('id', 'Identifier of the document')
   @ApiAutoVoidResponse({ status: 204 })
   deleteDocument(
     @Param('id') id: string,

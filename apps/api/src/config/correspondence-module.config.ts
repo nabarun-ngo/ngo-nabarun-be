@@ -12,6 +12,10 @@ export const CORRESPONDENCE_MODULE = CorrespondenceModule.forRootAsync(
         useFactory: (config: ConfigService) => ({
             appName: config.get(Configkey.APP_NAME),
             environment: config.getOrThrow<string>(Configkey.NODE_ENV),
+            allowedResourceTypes: [
+                { resourceType: 'project' },
+                { resourceType: 'request' },
+            ],
             email: {
                 fromName: config.getOrThrow(Configkey.APP_NAME),
                 fromAddress: config.get(Configkey.EMAIL_SENDER),

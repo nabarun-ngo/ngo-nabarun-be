@@ -96,4 +96,12 @@ export class PermissionPrismaRepository
     const row = await this.delegate.findUnique({ where: { key } });
     return row ? this.toDomain(row as PermissionRow) : null;
   }
+
+  async findByKeys(keys: string[]): Promise<Permission[]> {
+    if (keys.length === 0) return [];
+    const rows = await this.delegate.findMany({
+      where: { key: { in: keys }, deletedAt: null },
+    });
+    return (rows as PermissionRow[]).map((row) => this.toDomain(row));
+  }
 }

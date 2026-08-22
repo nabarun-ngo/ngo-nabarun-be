@@ -2,6 +2,7 @@ import { applyDecorators, HttpCode, HttpStatus, Type } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiExtraModels,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiResponse,
   getSchemaPath,
@@ -88,17 +89,27 @@ export function ApiAutoVoidResponse(
     decorators.push(HttpCode(status));
   }
 
-  decorators.push(
-    status === HttpStatus.CREATED
-      ? ApiCreatedResponse({
-          description: description || 'Operation completed successfully',
-          type: ConcreteVoidSuccessResponse,
-        })
-      : ApiOkResponse({
-          description: description || 'Operation completed successfully',
-          type: ConcreteVoidSuccessResponse,
-        }),
-  );
+  if (status === HttpStatus.NO_CONTENT) {
+    // A 204 carries no body, so documenting the envelope under 200 would
+    // advertise a payload the client never receives.
+    decorators.push(
+      ApiNoContentResponse({
+        description: description || 'Operation completed successfully — no response body',
+      }),
+    );
+  } else {
+    decorators.push(
+      status === HttpStatus.CREATED
+        ? ApiCreatedResponse({
+            description: description || 'Operation completed successfully',
+            type: ConcreteVoidSuccessResponse,
+          })
+        : ApiOkResponse({
+            description: description || 'Operation completed successfully',
+            type: ConcreteVoidSuccessResponse,
+          }),
+    );
+  }
 
   return applyDecorators(
     ApiExtraModels(SuccessResponse, ErrorResponse, ConcreteVoidSuccessResponse),

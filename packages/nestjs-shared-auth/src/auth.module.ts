@@ -25,6 +25,7 @@ import { IPermissionRepository } from './domain/repositories/permission.reposito
 import { IRoleGroupRepository } from './domain/repositories/role-group.repository';
 import { IUserRoleRepository } from './domain/repositories/user-role.repository';
 import { IUserRoleGroupRepository } from './domain/repositories/user-role-group.repository';
+import { IUserPermissionRepository } from './domain/repositories/user-permission.repository';
 
 import { IJwtVerifierPort } from './application/ports/jwt-verifier.port';
 import { IApiKeyVerifierPort } from './application/ports/api-key-verifier.port';
@@ -46,8 +47,21 @@ import { RevokeApiKeyHandler } from './application/commands/revoke-api-key/revok
 import { UpdateApiKeyPermissionsHandler } from './application/commands/update-api-key-permissions/update-api-key-permissions.handler';
 import { GrantUserRoleHandler } from './application/commands/grant-user-role/grant-user-role.handler';
 import { RevokeUserRoleHandler } from './application/commands/revoke-user-role/revoke-user-role.handler';
+import { GrantUserPermissionHandler } from './application/commands/grant-user-permission/grant-user-permission.handler';
+import { RevokeUserPermissionHandler } from './application/commands/revoke-user-permission/revoke-user-permission.handler';
 import { AddUserToGroupHandler } from './application/commands/add-user-to-group/add-user-to-group.handler';
 import { RemoveUserFromGroupHandler } from './application/commands/remove-user-from-group/remove-user-from-group.handler';
+import { CreatePermissionHandler } from './application/commands/create-permission/create-permission.handler';
+import { UpdatePermissionHandler } from './application/commands/update-permission/update-permission.handler';
+import { DeletePermissionHandler } from './application/commands/delete-permission/delete-permission.handler';
+import { CreateRoleHandler } from './application/commands/create-role/create-role.handler';
+import { UpdateRoleHandler } from './application/commands/update-role/update-role.handler';
+import { DeleteRoleHandler } from './application/commands/delete-role/delete-role.handler';
+import { SyncRolePermissionsHandler } from './application/commands/sync-role-permissions/sync-role-permissions.handler';
+import { CreateRoleGroupHandler } from './application/commands/create-role-group/create-role-group.handler';
+import { UpdateRoleGroupHandler } from './application/commands/update-role-group/update-role-group.handler';
+import { DeleteRoleGroupHandler } from './application/commands/delete-role-group/delete-role-group.handler';
+import { SyncRoleGroupRolesHandler } from './application/commands/sync-role-group-roles/sync-role-group-roles.handler';
 
 import { ListApiKeysHandler } from './application/queries/list-api-keys/list-api-keys.handler';
 import { ListApiScopesHandler } from './application/queries/list-api-scopes/list-api-scopes.handler';
@@ -59,6 +73,7 @@ import { ListRoleGroupsHandler } from './application/queries/list-role-groups/li
 import { GetRoleGroupHandler } from './application/queries/get-role-group/get-role-group.handler';
 import { ListUserRolesHandler } from './application/queries/list-user-roles/list-user-roles.handler';
 import { ListUserGroupsHandler } from './application/queries/list-user-groups/list-user-groups.handler';
+import { ListUserPermissionsHandler } from './application/queries/list-user-permissions/list-user-permissions.handler';
 import { ResolveUserAccessHandler } from './application/queries/resolve-user-access/resolve-user-access.handler';
 
 import { OnApiKeyUsedHandler } from './application/handlers/events/on-api-key-used/on-api-key-used.handler';
@@ -66,6 +81,8 @@ import { OnApiKeyRevokedHandler } from './application/handlers/events/on-api-key
 import { OnApiKeyPermissionsUpdatedHandler } from './application/handlers/events/on-api-key-permissions-updated/on-api-key-permissions-updated.handler';
 import { OnUserRoleGrantedHandler } from './application/handlers/events/on-user-role-granted/on-user-role-granted.handler';
 import { OnUserRoleRevokedHandler } from './application/handlers/events/on-user-role-revoked/on-user-role-revoked.handler';
+import { OnUserPermissionGrantedHandler } from './application/handlers/events/on-user-permission-granted/on-user-permission-granted.handler';
+import { OnUserPermissionRevokedHandler } from './application/handlers/events/on-user-permission-revoked/on-user-permission-revoked.handler';
 import { OnUserRoleGroupGrantedHandler } from './application/handlers/events/on-user-role-group-granted/on-user-role-group-granted.handler';
 import { OnUserRoleGroupRevokedHandler } from './application/handlers/events/on-user-role-group-revoked/on-user-role-group-revoked.handler';
 
@@ -94,8 +111,21 @@ const COMMAND_HANDLERS = [
   UpdateApiKeyPermissionsHandler,
   GrantUserRoleHandler,
   RevokeUserRoleHandler,
+  GrantUserPermissionHandler,
+  RevokeUserPermissionHandler,
   AddUserToGroupHandler,
   RemoveUserFromGroupHandler,
+  CreatePermissionHandler,
+  UpdatePermissionHandler,
+  DeletePermissionHandler,
+  CreateRoleHandler,
+  UpdateRoleHandler,
+  DeleteRoleHandler,
+  SyncRolePermissionsHandler,
+  CreateRoleGroupHandler,
+  UpdateRoleGroupHandler,
+  DeleteRoleGroupHandler,
+  SyncRoleGroupRolesHandler,
 ];
 
 const QUERY_HANDLERS = [
@@ -107,6 +137,7 @@ const QUERY_HANDLERS = [
   GetPermissionHandler,
   ListUserRolesHandler,
   ListUserGroupsHandler,
+  ListUserPermissionsHandler,
   ResolveUserAccessHandler,
   ListRoleGroupsHandler,
   GetRoleGroupHandler,
@@ -118,6 +149,8 @@ const EVENT_HANDLERS = [
   OnApiKeyPermissionsUpdatedHandler,
   OnUserRoleGrantedHandler,
   OnUserRoleRevokedHandler,
+  OnUserPermissionGrantedHandler,
+  OnUserPermissionRevokedHandler,
   OnUserRoleGroupGrantedHandler,
   OnUserRoleGroupRevokedHandler,
 ];
@@ -167,6 +200,10 @@ class AuthModuleValidator extends BaseModuleValidator {
     this.requirePort(
       IUserRoleGroupRepository,
       'Register IUserRoleGroupRepository in PersistenceModule and import PersistenceModule before AuthModule.',
+    );
+    this.requirePort(
+      IUserPermissionRepository,
+      'Register IUserPermissionRepository in PersistenceModule and import PersistenceModule before AuthModule.',
     );
     this.requirePort(
       ICACHE_PORT,

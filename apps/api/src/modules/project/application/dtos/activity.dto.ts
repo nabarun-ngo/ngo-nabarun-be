@@ -4,83 +4,83 @@ import { IsArray, IsDate, IsEnum, IsInt, IsNumber, IsOptional, IsString, Min } f
 import { ActivityPriority, ActivityScale, ActivityStatus, ActivityType } from '../../domain/enums/activity.enum';
 
 export class CreateActivityDto {
-  @IsString() @ApiProperty() name!: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() description?: string;
-  @IsEnum(ActivityScale) @ApiProperty({ enum: ActivityScale }) scale!: ActivityScale;
-  @IsEnum(ActivityType) @ApiProperty({ enum: ActivityType }) type!: ActivityType;
-  @IsEnum(ActivityPriority) @ApiProperty({ enum: ActivityPriority }) priority!: ActivityPriority;
-  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional() startDate?: Date;
-  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional() endDate?: Date;
-  @IsOptional() @IsString() @ApiPropertyOptional() location?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() venue?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() assignedTo?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() organizerId?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() parentActivityId?: string;
-  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() expectedParticipants?: number;
-  @IsOptional() @IsNumber() @Min(0.01) @ApiPropertyOptional() estimatedCost?: number;
-  @IsOptional() @IsString() @ApiPropertyOptional() currency?: string;
-  @IsOptional() @IsArray() @IsString({ each: true }) @ApiPropertyOptional({ type: [String] }) tags?: string[];
-  @IsOptional() @ApiPropertyOptional() metadata?: Record<string, unknown>;
+  @IsString() @ApiProperty({ example: 'Teacher training workshop' }) name!: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Two-day training for government primary school teachers on phonics-based reading' }) description?: string;
+  @IsEnum(ActivityScale) @ApiProperty({ enum: ActivityScale, example: ActivityScale.ACTIVITY }) scale!: ActivityScale;
+  @IsEnum(ActivityType) @ApiProperty({ enum: ActivityType, example: ActivityType.TRAINING }) type!: ActivityType;
+  @IsEnum(ActivityPriority) @ApiProperty({ enum: ActivityPriority, example: ActivityPriority.HIGH }) priority!: ActivityPriority;
+  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' }) startDate?: Date;
+  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional({ example: '2026-03-15T17:00:00.000Z' }) endDate?: Date;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Barasat, West Bengal' }) location?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Barasat Government Primary School' }) venue?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) assignedTo?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) organizerId?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) parentActivityId?: string;
+  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional({ example: 40 }) expectedParticipants?: number;
+  @IsOptional() @IsNumber() @Min(0.01) @ApiPropertyOptional({ example: 48500 }) estimatedCost?: number;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'INR' }) currency?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) @ApiPropertyOptional({ type: [String], example: ['education', 'rural'] }) tags?: string[];
+  @IsOptional() @ApiPropertyOptional({ example: { fundingSource: 'CSR grant' } }) metadata?: Record<string, unknown>;
 }
 
 export class UpdateActivityDto {
-  @IsOptional() @IsString() @ApiPropertyOptional() name?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() description?: string;
-  @IsOptional() @IsEnum(ActivityType) @ApiPropertyOptional({ enum: ActivityType }) type?: ActivityType;
-  @IsOptional() @IsEnum(ActivityStatus) @ApiPropertyOptional({ enum: ActivityStatus }) status?: ActivityStatus;
-  @IsOptional() @IsEnum(ActivityPriority) @ApiPropertyOptional({ enum: ActivityPriority }) priority?: ActivityPriority;
-  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional() startDate?: Date;
-  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional() endDate?: Date;
-  @IsOptional() @IsString() @ApiPropertyOptional() location?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() venue?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() assignedTo?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() organizerId?: string;
-  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() expectedParticipants?: number;
-  @IsOptional() @IsNumber() @Min(0.01) @ApiPropertyOptional() estimatedCost?: number;
-  @IsOptional() @IsArray() @IsString({ each: true }) @ApiPropertyOptional({ type: [String] }) tags?: string[];
-  @IsOptional() @ApiPropertyOptional() metadata?: Record<string, unknown>;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Teacher training workshop' }) name?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Two-day training for government primary school teachers on phonics-based reading' }) description?: string;
+  @IsOptional() @IsEnum(ActivityType) @ApiPropertyOptional({ enum: ActivityType, example: ActivityType.TRAINING }) type?: ActivityType;
+  @IsOptional() @IsEnum(ActivityStatus) @ApiPropertyOptional({ enum: ActivityStatus, example: ActivityStatus.IN_PROGRESS }) status?: ActivityStatus;
+  @IsOptional() @IsEnum(ActivityPriority) @ApiPropertyOptional({ enum: ActivityPriority, example: ActivityPriority.HIGH }) priority?: ActivityPriority;
+  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' }) startDate?: Date;
+  @IsOptional() @IsDate() @Type(() => Date) @ApiPropertyOptional({ example: '2026-03-15T17:00:00.000Z' }) endDate?: Date;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Barasat, West Bengal' }) location?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Barasat Government Primary School' }) venue?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) assignedTo?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) organizerId?: string;
+  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional({ example: 40 }) expectedParticipants?: number;
+  @IsOptional() @IsNumber() @Min(0.01) @ApiPropertyOptional({ example: 48500 }) estimatedCost?: number;
+  @IsOptional() @IsArray() @IsString({ each: true }) @ApiPropertyOptional({ type: [String], example: ['education', 'rural'] }) tags?: string[];
+  @IsOptional() @ApiPropertyOptional({ example: { fundingSource: 'CSR grant' } }) metadata?: Record<string, unknown>;
 }
 
 export class LinkExpenseToActivityDto {
-  @IsString() @ApiProperty() expenseId!: string;
+  @IsString() @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' }) expenseId!: string;
 }
 
 export class ActivityDetailDto {
-  @ApiProperty() id!: string;
-  @ApiProperty() projectId!: string;
-  @ApiProperty() name!: string;
-  @ApiPropertyOptional() description?: string;
-  @ApiProperty({ enum: ActivityScale }) scale!: ActivityScale;
-  @ApiProperty({ enum: ActivityType }) type!: ActivityType;
-  @ApiProperty({ enum: ActivityStatus }) status!: ActivityStatus;
-  @ApiProperty({ enum: ActivityPriority }) priority!: ActivityPriority;
-  @ApiPropertyOptional() startDate?: Date;
-  @ApiPropertyOptional() endDate?: Date;
-  @ApiPropertyOptional() actualStartDate?: Date;
-  @ApiPropertyOptional() actualEndDate?: Date;
-  @ApiPropertyOptional() location?: string;
-  @ApiPropertyOptional() venue?: string;
-  @ApiPropertyOptional() assignedTo?: string;
-  @ApiPropertyOptional() organizerId?: string;
-  @ApiPropertyOptional() parentActivityId?: string;
-  @ApiPropertyOptional() expectedParticipants?: number;
-  @ApiPropertyOptional() actualParticipants?: number;
-  @ApiPropertyOptional() estimatedCost?: number;
-  @ApiPropertyOptional() actualCost?: number;
-  @ApiPropertyOptional() currency?: string;
-  @ApiProperty({ type: [String] }) tags!: string[];
-  @ApiPropertyOptional() metadata?: Record<string, unknown>;
-  @ApiProperty() createdAt!: Date;
-  @ApiProperty() updatedAt!: Date;
-  @ApiProperty({ enum: ActivityStatus, isArray: true }) nextStatus!: ActivityStatus[];
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' }) id!: string;
+  @ApiProperty({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) projectId!: string;
+  @ApiProperty({ example: 'Teacher training workshop' }) name!: string;
+  @ApiPropertyOptional({ example: 'Two-day training for government primary school teachers on phonics-based reading' }) description?: string;
+  @ApiProperty({ enum: ActivityScale, example: ActivityScale.ACTIVITY }) scale!: ActivityScale;
+  @ApiProperty({ enum: ActivityType, example: ActivityType.TRAINING }) type!: ActivityType;
+  @ApiProperty({ enum: ActivityStatus, example: ActivityStatus.IN_PROGRESS }) status!: ActivityStatus;
+  @ApiProperty({ enum: ActivityPriority, example: ActivityPriority.HIGH }) priority!: ActivityPriority;
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' }) startDate?: Date;
+  @ApiPropertyOptional({ example: '2026-03-15T17:00:00.000Z' }) endDate?: Date;
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' }) actualStartDate?: Date;
+  @ApiPropertyOptional({ example: '2026-03-15T17:00:00.000Z' }) actualEndDate?: Date;
+  @ApiPropertyOptional({ example: 'Barasat, West Bengal' }) location?: string;
+  @ApiPropertyOptional({ example: 'Barasat Government Primary School' }) venue?: string;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) assignedTo?: string;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) organizerId?: string;
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) parentActivityId?: string;
+  @ApiPropertyOptional({ example: 40 }) expectedParticipants?: number;
+  @ApiPropertyOptional({ example: 36 }) actualParticipants?: number;
+  @ApiPropertyOptional({ example: 48500 }) estimatedCost?: number;
+  @ApiPropertyOptional({ example: 45200 }) actualCost?: number;
+  @ApiPropertyOptional({ example: 'INR' }) currency?: string;
+  @ApiProperty({ type: [String], example: ['education', 'rural'] }) tags!: string[];
+  @ApiPropertyOptional({ example: { fundingSource: 'CSR grant' } }) metadata?: Record<string, unknown>;
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' }) createdAt!: Date;
+  @ApiProperty({ example: '2026-06-01T12:00:00.000Z' }) updatedAt!: Date;
+  @ApiProperty({ enum: ActivityStatus, isArray: true, example: [ActivityStatus.COMPLETED, ActivityStatus.CANCELLED] }) nextStatus!: ActivityStatus[];
 }
 
 export class ActivityDetailFilterDto {
-  @IsOptional() @IsString() @ApiPropertyOptional() projectId?: string;
-  @IsOptional() @IsEnum(ActivityScale) @ApiPropertyOptional({ enum: ActivityScale }) scale?: ActivityScale;
-  @ApiPropertyOptional({ enum: ActivityStatus }) status?: ActivityStatus;
-  @ApiPropertyOptional({ enum: ActivityType }) type?: ActivityType;
-  @ApiPropertyOptional() assignedTo?: string;
-  @ApiPropertyOptional() organizerId?: string;
-  @ApiPropertyOptional() parentActivityId?: string;
+  @IsOptional() @IsString() @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) projectId?: string;
+  @IsOptional() @IsEnum(ActivityScale) @ApiPropertyOptional({ enum: ActivityScale, example: ActivityScale.ACTIVITY }) scale?: ActivityScale;
+  @ApiPropertyOptional({ enum: ActivityStatus, example: ActivityStatus.IN_PROGRESS }) status?: ActivityStatus;
+  @ApiPropertyOptional({ enum: ActivityType, example: ActivityType.TRAINING }) type?: ActivityType;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) assignedTo?: string;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) organizerId?: string;
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) parentActivityId?: string;
 }

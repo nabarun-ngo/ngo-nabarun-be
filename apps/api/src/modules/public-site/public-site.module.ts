@@ -2,10 +2,8 @@ import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { GetStaticContentHandler } from './application/queries/get-static-content/get-static-content.handler';
 import { GetDynamicContentHandler } from './application/queries/get-dynamic-content/get-dynamic-content.handler';
-import { SubmitPublicWorkflowFormHandler } from './application/commands/submit-public-workflow-form/submit-public-workflow-form.handler';
 import { SubmitDynamicPublicFormHandler } from './application/commands/submit-dynamic-public-form/submit-dynamic-public-form.handler';
 import { SubscribeNewsletterHandler } from './application/commands/subscribe-newsletter/subscribe-newsletter.handler';
-import { GetPublicWorkflowFormDefinitionHandler } from './application/queries/get-public-workflow-form-definition/get-public-workflow-form-definition.handler';
 import { GetDynamicPublicFormDefinitionHandler } from './application/queries/get-dynamic-public-form-definition/get-dynamic-public-form-definition.handler';
 import { NoOpNewsletterSubscriptionAdapter } from './infrastructure/adapters/noop-newsletter-subscription.adapter';
 import { NEWSLETTER_SUBSCRIPTION_PORT } from './domain/ports/newsletter-subscription.port';
@@ -21,12 +19,10 @@ import {
 const QUERY_HANDLERS = [
   GetStaticContentHandler,
   GetDynamicContentHandler,
-  GetPublicWorkflowFormDefinitionHandler,
   GetDynamicPublicFormDefinitionHandler,
 ];
 
 const COMMAND_HANDLERS = [
-  SubmitPublicWorkflowFormHandler,
   SubmitDynamicPublicFormHandler,
   SubscribeNewsletterHandler,
 ];
@@ -34,15 +30,10 @@ const COMMAND_HANDLERS = [
 @Module({})
 export class PublicSiteModule {
   static forRoot(
-    options: PublicSiteOptions & { imports?: ModuleMetadata['imports'] },
+    options: PublicSiteOptions & { imports?: ModuleMetadata['imports'] } = {},
   ): DynamicModule {
-    const {
-      imports,
-      submittedById,
-      publicWorkflows,
-    } = options;
+    const { imports, submittedById } = options;
     const runtimeOptions: PublicSiteOptions = {
-      publicWorkflows,
       submittedById: submittedById ?? PUBLIC_SITE_DEFAULT_SUBMITTED_BY_ID,
     };
 

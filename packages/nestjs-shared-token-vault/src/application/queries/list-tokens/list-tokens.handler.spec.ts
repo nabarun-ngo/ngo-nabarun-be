@@ -89,6 +89,22 @@ describe('ListTokensHandler', () => {
     );
   });
 
+  it('forwards account filter to the repository', async () => {
+    const repo = makeRepo();
+    const handler = new ListTokensHandler(repo as any);
+
+    await handler.execute(new ListTokensQuery({
+      provider: 'google',
+      account: 'user@example.com',
+      pageIndex: 0,
+      pageSize: 10,
+    }));
+
+    expect(repo.findPaged).toHaveBeenCalledWith(
+      expect.objectContaining({ props: expect.objectContaining({ account: 'user@example.com' }) }),
+    );
+  });
+
   it('scopes non-admin queries to the caller ownerSub', async () => {
     const repo = makeRepo();
     const handler = new ListTokensHandler(repo as any);

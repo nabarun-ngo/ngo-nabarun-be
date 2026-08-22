@@ -33,7 +33,7 @@ export const REQUIRE_PERMISSIONS_IN_SCOPE_KEY = 'requirePermissionsInScope';
  * // entityType is fixed, entityId comes from :projectId route param
  * @RequirePermissionsInScope(
  *   { from: 'params', entityIdKey: 'projectId', entityTypeValue: 'project' },
- *   'read:project',
+ *   'read:projects',
  * )
  */
 export const RequirePermissionsInScope = (

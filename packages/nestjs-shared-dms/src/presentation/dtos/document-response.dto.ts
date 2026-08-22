@@ -2,46 +2,46 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AccessGatedResponse } from '@nabarun-ngo/nestjs-shared-core';
 
 export class DocumentMappingDto {
-  @ApiProperty()
+  @ApiProperty({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'PROJECT' })
   entityType: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   entityId: string;
 }
 
 export class DocumentResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'vendor-invoice-2026-0117.pdf' })
   fileName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'application/pdf' })
   contentType: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 284736 })
   fileSize: number;
 
   /** DocumentVisibility value: 'PUBLIC' | 'PRIVATE' */
-  @ApiProperty()
+  @ApiProperty({ example: 'PRIVATE' })
   visibility: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   uploadedById?: string;
 
   @ApiProperty({ type: [DocumentMappingDto] })
   mappings: DocumentMappingDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   uploadedAt: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' })
   updatedAt?: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' })
   deletedAt?: Date;
 }
 

@@ -5,19 +5,25 @@ import {
   Get,
   Inject,
   Param,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
+  ApiPropertyOptional,
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
-  ApiParam,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 import {
   ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
+  ApiKeyParam,
+  ApiStringQuery,
+  ApiUuidParam,
+  ENVELOPE_EXAMPLES,
   Page,
   PaginatedQueryDto,
 } from '@nabarun-ngo/nestjs-shared-core';
@@ -31,10 +37,24 @@ import { CompleteOAuthCommand } from '../../application/commands/complete-oauth/
 import { RevokeTokenCommand } from '../../application/commands/revoke-token/revoke-token.command';
 import { ListTokensQuery } from '../../application/queries/list-tokens/list-tokens.query';
 import { ListAccountsQuery } from '../../application/queries/list-accounts/list-accounts.query';
+import { TestOAuthConnectionQuery } from '../../application/queries/test-oauth-connection/test-oauth-connection.query';
 import { AuthCallbackDto, AuthUrlResponseDto, OAuthAccountDto, OAuthTokenDto } from '../../application/dto/oauth-token.dto';
+import { OAuthCallbackResultDto } from '../../application/dto/oauth-callback-result.dto';
+import { OAuthConnectionTestResultDto } from '../../application/dto/oauth-connection-test-result.dto';
 import { ProviderNotConfiguredError } from '../../domain/errors/token-vault.errors';
 
 const OAUTH_ADMIN_PERMISSION = 'manage:oauth_token';
+
+class OAuthTokenListQueryDto extends PaginatedQueryDto {
+  @ApiPropertyOptional({
+    description: 'Filter by account id, email, or display name',
+    example: 'asha.verma@example.org',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  account?: string;
+}
 
 @ApiTags('OAuth2 Token Vault')
 @ApiBearerAuth('jwt')
@@ -56,9 +76,9 @@ export class OAuthController {
   @RequirePermissions('create:oauth_token')
   @StrictThrottle({ limit: 5 })
   @ApiOperation({ summary: 'Get OAuth authorization URL' })
-  @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
-  @ApiQuery({ name: 'scopes', required: false, description: 'Space-separated OAuth scopes (must be whitelisted)', type: String })
-  @ApiQuery({ name: 'state', required: false, description: 'Optional caller-provided state (secure state generated when omitted)', type: String })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
+  @ApiStringQuery('scopes', 'https://www.googleapis.com/auth/gmail.send', 'Space-separated OAuth scopes (must be whitelisted)')
+  @ApiStringQuery('state', 'a1b2c3', 'Optional caller-provided state (secure state generated when omitted)')
   @ApiAutoResponse(AuthUrlResponseDto, { description: 'OAuth URL and server-generated state token' })
   async getAuthUrl(
     @Param('provider') provider: string,
@@ -90,8 +110,8 @@ export class OAuthController {
     description:
       'Receives the authorization code and state from the provider, exchanges the code for tokens, and stores them encrypted. This endpoint is public.',
   })
-  @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
-  @ApiAutoResponse(Object, { description: 'Callback result with connected email' })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
+  @ApiAutoResponse(OAuthCallbackResultDto, { description: 'Callback result with connected email' })
   async handleCallback(
     @Param('provider') provider: string,
     @Query() query: AuthCallbackDto,
@@ -104,8 +124,17 @@ export class OAuthController {
 
   @Get(':provider/scopes')
   @ApiOperation({ summary: 'Get available OAuth scopes for provider' })
-  @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
   @ApiAutoResponse(String, { description: 'Supported OAuth scopes', isArray: true })
+  @ApiOkResponse({
+    example: {
+      ...ENVELOPE_EXAMPLES,
+      responsePayload: [
+        'https://www.googleapis.com/auth/gmail.send',
+        'https://www.googleapis.com/auth/gmail.readonly',
+      ],
+    },
+  })
   async getScopes(@Param('provider') provider: string): Promise<string[]> {
     const p = this.resolveProvider(provider);
     return p.getSupportedScopes();
@@ -114,25 +143,59 @@ export class OAuthController {
   @Get(':provider/tokens')
   @RequirePermissions('read:oauth_token')
   @ApiOperation({ summary: 'List stored OAuth tokens for provider' })
-  @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
   @ApiAutoPagedResponse(OAuthTokenDto, { description: 'OAuth tokens (raw token values never exposed)' })
   async listTokens(
     @Param('provider') provider: string,
-    @Query() query: PaginatedQueryDto,
+    @Query() query: OAuthTokenListQueryDto,
     @CurrentUser() caller?: AuthUser,
   ): Promise<Page<OAuthTokenDto>> {
     this.resolveProvider(provider);
     const isAdmin = (caller?.permissions ?? []).includes(OAUTH_ADMIN_PERMISSION);
     return this.queryBus.execute(
-      new ListTokensQuery({ provider, ownerSub: caller?.idpSub, isAdmin, pageIndex: query.pageIndex, pageSize: query.pageSize }),
+      new ListTokensQuery({
+        provider,
+        account: query.account?.trim() || undefined,
+        ownerSub: caller?.idpSub,
+        isAdmin,
+        pageIndex: query.pageIndex,
+        pageSize: query.pageSize,
+      }),
+    );
+  }
+
+  @Post(':provider/tokens/:id/test')
+  @RequirePermissions('read:oauth_token')
+  @ApiOperation({
+    summary: 'Test a stored OAuth connection',
+    description:
+      'Validates the credential (refreshing when near expiry) and probes the provider profile. Never returns the access token.',
+  })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
+  @ApiUuidParam('id', 'Token ID to test (UUID)')
+  @ApiAutoResponse(OAuthConnectionTestResultDto, { description: 'Connection probe result' })
+  async testConnection(
+    @Param('provider') provider: string,
+    @Param('id') id: string,
+    @CurrentUser() caller?: AuthUser,
+  ): Promise<OAuthConnectionTestResultDto> {
+    this.resolveProvider(provider);
+    const isAdmin = (caller?.permissions ?? []).includes(OAUTH_ADMIN_PERMISSION);
+    return this.queryBus.execute(
+      new TestOAuthConnectionQuery({
+        provider,
+        tokenId: id,
+        callerSub: caller?.idpSub,
+        isAdmin,
+      }),
     );
   }
 
   @Delete(':provider/tokens/:id')
   @RequirePermissions('delete:oauth_token')
   @ApiOperation({ summary: 'Revoke and delete a stored OAuth token' })
-  @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
-  @ApiParam({ name: 'id', description: 'Token ID to revoke', type: String })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
+  @ApiUuidParam('id', 'Token ID to revoke (UUID)')
   @ApiAutoVoidResponse({ status: 204 })
   async revokeToken(
     @Param('provider') provider: string,
@@ -149,7 +212,7 @@ export class OAuthController {
   @Get(':provider/accounts')
   @RequirePermissions('read:oauth_token')
   @ApiOperation({ summary: 'List connected OAuth accounts for provider' })
-  @ApiParam({ name: 'provider', description: 'OAuth provider (google, microsoft)', type: String })
+  @ApiKeyParam('provider', 'google', 'OAuth provider (google, microsoft)')
   @ApiAutoPagedResponse(OAuthAccountDto, { description: 'Connected OAuth accounts' })
   async listAccounts(
     @Param('provider') provider: string,
@@ -164,6 +227,7 @@ export class OAuthController {
   @Get('providers')
   @ApiOperation({ summary: 'List all configured OAuth providers' })
   @ApiAutoResponse(String, { description: 'Configured provider keys', isArray: true })
+  @ApiOkResponse({ example: { ...ENVELOPE_EXAMPLES, responsePayload: ['google', 'microsoft'] } })
   async getProviders(): Promise<string[]> {
     return Array.from(this.registry.entries())
       .filter(([, p]) => p.isConfigured)

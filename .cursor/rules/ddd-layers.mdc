@@ -1,0 +1,50 @@
+---
+description: Condensed DDD layer rules — domain, application, presentation, infrastructure.
+globs: src/**/domain/**/*.ts,src/**/application/**/*.ts,src/**/presentation/**/*.ts,src/**/infrastructure/**/*.ts,src/**/*.controller.ts
+alwaysApply: false
+---
+
+# DDD Layers
+
+## Domain — pure TypeScript only
+
+| Folder | Rules |
+|--------|--------|
+| `aggregates/` | `AggregateRoot<T>`, static `create`, private `#` fields, events on mutations |
+| `entities/` | `BaseDomain<T>`, live inside aggregate, **no repository** |
+| `value-objects/` | Immutable, no `id`, structural `equals()`, static factory |
+| `events/` | Past tense, extend `DomainEvent`, one per domain method |
+| `errors/` | Extend `BusinessError` + `errorCode`; no raw `Error` / `HttpException` |
+| `services/` | Pure class, no `@Injectable`, no repo calls |
+| `repositories/` | Interface + `Symbol` token = name; **roots only**; extends `IRepository` |
+| `ports/` | External contracts only; token = interface name |
+| `policies/` | Pure `isSatisfiedBy` / question methods; no I/O |
+| `enums/` | String enums only |
+
+`CorrespondenceRequestEvent` is application-layer only — never emit from domain models.
+
+## Application — orchestration only
+
+- Commands: load → domain method → `repo.save` → `eventBus.publishAll` → `clearEvents`
+- Queries: read-only, return **DTO** (never raw aggregate)
+- Event handlers: one side effect; mutate via new command, not in-handler
+- Inject same-module repo/ports by token; other modules via Facade / read ports
+- DTOs in `dtos/`; mappers are static domain → response DTO
+- `ICurrentUserPort` for role/permission checks; pass `userId` in command when it is business intent
+
+## Presentation — HTTP boundary
+
+- Controllers inject **only** `CommandBus` / `QueryBus` — never repos, handlers, or domain
+- Explicit `Promise<T>` return type + `@ApiAutoResponse*` on every method
+- Never construct `SuccessResponse` — global interceptor wraps
+- Auth/RBAC from `@lib/auth`; permissions = `action:resource` (e.g. `read:roles`)
+- Feature guards only for ownership etc.; never reimplement JWT/RBAC
+
+## Infrastructure — implements ports
+
+- Prisma repos extend `PrismaCrudRepositoryBase`; implement all five hooks:
+  `toDomain`, `toCreateInput`, `toUpdateInput`, `toUniqueWhere`, `toFilterWhere`
+- Override `supportsSoftDelete()` / `defaultOrderBy()` when needed
+- Adapters map transport errors → `BusinessError` before throwing
+- **No N+1** — batch with `findByIds` / `{ id: { in: ids } }`; early-exit on empty
+- Cache behind repo/adapter only; namespaced keys + TTL; invalidate on write

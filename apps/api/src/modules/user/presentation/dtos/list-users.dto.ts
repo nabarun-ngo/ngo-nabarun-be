@@ -7,38 +7,38 @@ import { UserStatus } from '../../domain/enums/user-status.enum';
 const USER_SORT_FIELDS = ['firstName', 'lastName', 'email', 'status', 'createdAt', 'updatedAt'] as const;
 
 export class ListUsersQueryDto extends PaginatedQueryDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Asha' })
   @IsOptional()
   @IsString()
   firstName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Verma' })
   @IsOptional()
   @IsString()
   lastName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'asha.verma@example.org' })
   @IsOptional()
   @IsString()
   email?: string;
 
-  @ApiPropertyOptional({ enum: UserStatus })
+  @ApiPropertyOptional({ enum: UserStatus, example: UserStatus.ACTIVE })
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '+919876543210' })
   @IsOptional()
   @IsString()
   phoneNumber?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
   isPublic?: boolean;
 
-  @ApiPropertyOptional({ enum: USER_SORT_FIELDS })
+  @ApiPropertyOptional({ enum: USER_SORT_FIELDS, example: 'createdAt' })
   @IsOptional()
   @IsIn(USER_SORT_FIELDS)
   declare sortBy?: string;

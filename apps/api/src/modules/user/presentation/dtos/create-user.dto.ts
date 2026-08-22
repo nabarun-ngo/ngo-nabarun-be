@@ -9,56 +9,52 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'asha.verma@example.org' })
   @IsEmail()
   email!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Asha' })
   @IsString()
   @IsNotEmpty()
   firstName!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Verma' })
   @IsString()
   @IsNotEmpty()
   lastName!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Ms' })
   @IsOptional()
   @IsString()
   title?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Rani' })
   @IsOptional()
   @IsString()
   middleName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '1994-03-14' })
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'FEMALE' })
   @IsOptional()
   @IsString()
   gender?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Volunteer coordinator for the Barasat education programme.' })
   @IsOptional()
   @IsString()
   about?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'https://cdn.nabarun.org/avatars/asha-verma.jpg' })
   @IsOptional()
   @IsString()
   picture?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   @IsOptional()
   @IsBoolean()
   isPublic?: boolean;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  adminPassword?: string;
 }

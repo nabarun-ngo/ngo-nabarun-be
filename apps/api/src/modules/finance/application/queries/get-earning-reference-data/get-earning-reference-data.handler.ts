@@ -10,8 +10,14 @@ export class GetEarningReferenceDataHandler implements IQueryHandler<GetEarningR
   constructor(@Optional() @Inject(IFinanceReferenceDataPort) private readonly port: IFinanceReferenceDataPort) {}
 
   async execute(): Promise<EarningRefDataDto> {
-    const data = this.port ? await this.port.getEarningReferenceData() : {};
-    return { earningStatuses: data.earningStatuses, earningCategories: data.earningCategories };
+    if (!this.port) {
+      return {};
+    }
+    const data = await this.port.getEarningReferenceData();
+    return {
+      earningStatuses: data.earningStatuses,
+      earningCategories: data.earningCategories,
+      earningStatusGroups: data.earningStatusGroups,
+    };
   }
 }
-

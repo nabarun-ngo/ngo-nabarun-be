@@ -4,7 +4,10 @@ import { NotificationResponseDto } from '../dtos/notification-response.dto';
 import { UserNotificationResponseDto } from '../dtos/user-notification-response.dto';
 
 export class NotificationMapper {
-  static toDto(notification: Notification): NotificationResponseDto {
+  static toDto(
+    notification: Notification,
+    status?: 'failed' | 'succeeded',
+  ): NotificationResponseDto {
     const dto = new NotificationResponseDto();
     dto.id = notification.id;
     dto.title = notification.title;
@@ -21,6 +24,7 @@ export class NotificationMapper {
     dto.expiresAt = notification.expiresAt;
     dto.createdAt = notification.createdAt;
     dto.updatedAt = notification.updatedAt;
+    dto.status = status;
     return dto;
   }
 
@@ -38,6 +42,7 @@ export class NotificationMapper {
     dto.archivedAt = userNotification.archivedAt;
     dto.isPushSent = userNotification.isPushSent;
     dto.pushDelivered = userNotification.pushDelivered;
+    dto.pushError = userNotification.pushError;
     dto.createdAt = userNotification.createdAt;
     dto.updatedAt = userNotification.updatedAt;
     if (notification) {

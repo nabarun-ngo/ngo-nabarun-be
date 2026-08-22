@@ -13,12 +13,20 @@ export type OnlyAccount = Prisma.AccountGetPayload<{
   }
 }>;
 
-export type AccountWithTransactions = Prisma.AccountGetPayload<{
+export type AccountWithRelations = Prisma.AccountGetPayload<{
   include: {
     accountHolder: true;
     transactions: true;
+    bankInvestDetail: true;
+    upiDetailRows: true;
   }
 }>;
+
+const ACCOUNT_RELATIONS = {
+  accountHolder: true,
+  bankInvestDetail: true,
+  upiDetailRows: true,
+} as const;
 
 @Injectable()
 export class AccountPrismaRepository implements IAccountRepository {
@@ -37,8 +45,8 @@ export class AccountPrismaRepository implements IAccountRepository {
         where,
         orderBy: { createdAt: 'desc' },
         include: {
-          accountHolder: true,
-          transactions: filter?.props?.includeBalance ? true : false
+          ...ACCOUNT_RELATIONS,
+          transactions: filter?.props?.includeBalance ? true : false,
         },
         skip: (filter?.pageIndex ?? 0) * (filter?.pageSize ?? 1000),
         take: filter?.pageSize ?? 1000,
@@ -59,8 +67,8 @@ export class AccountPrismaRepository implements IAccountRepository {
       where: this.whereQuery(filter),
       orderBy: { createdAt: 'desc' },
       include: {
-        accountHolder: true,
-        transactions: filter?.includeBalance ? true : false
+        ...ACCOUNT_RELATIONS,
+        transactions: filter?.includeBalance ? true : false,
       },
     });
 
@@ -70,9 +78,14 @@ export class AccountPrismaRepository implements IAccountRepository {
   private whereQuery(props?: AccountFilter): Prisma.AccountWhereInput {
     const where: Prisma.AccountWhereInput = {
       ...(props?.type && props.type.length > 0 ? { type: { in: [...props.type] } } : {}),
+      ...(props?.ownerType && props.ownerType.length > 0 ? { ownerType: { in: [...props.ownerType] } } : {}),
       ...(props?.status && props.status.length > 0 ? { status: { in: [...props.status] } } : {}),
-      ...(props?.accountHolderId ? { accountHolderId: props.accountHolderId } : {}),
+      ...(props?.accountHolderId === null ? { accountHolderId: null } :
+        props?.accountHolderId ? { accountHolderId: props.accountHolderId } : {}),
       ...(props?.id ? { id: props.id } : {}),
+      ...(props?.sourceAccountId
+        ? { bankInvestDetail: { is: { sourceAccountId: props.sourceAccountId } } }
+        : {}),
       deletedAt: null,
     };
     return where;
@@ -82,8 +95,8 @@ export class AccountPrismaRepository implements IAccountRepository {
     const account = await this.database.client.account.findUnique({
       where: { id },
       include: {
-        accountHolder: true,
-        transactions: true
+        ...ACCOUNT_RELATIONS,
+        transactions: true,
       },
     });
 
@@ -97,44 +110,44 @@ export class AccountPrismaRepository implements IAccountRepository {
         create: account.transactions.map(m => {
           const { accountId, ...createData } = TransactionPrismaMapper.toTransactionCreatePersistence(m);
           return createData;
-        })
-      }
+        }),
+      },
     };
 
     const created = await this.database.client.account.create({
       data: createData,
       include: {
-        accountHolder: true,
-        transactions: true
+        ...ACCOUNT_RELATIONS,
+        transactions: true,
       },
     });
 
     return AccountPrismaMapper.toAccountDomain(created)!;
   }
 
-  async update(id: string, account: Account): Promise<Account> {
+  async update(id: string, account: Account, options?: { replaceUpiDetails?: boolean }): Promise<Account> {
     const updateData: Prisma.AccountUncheckedUpdateInput = {
-      ...AccountPrismaMapper.toAccountUpdatePersistence(account),
+      ...AccountPrismaMapper.toAccountUpdatePersistence(account, {
+        replaceUpiDetails: options?.replaceUpiDetails,
+      }),
       transactions: {
         upsert: account.transactions.map(m => {
           const { accountId, ...createData } = TransactionPrismaMapper.toTransactionCreatePersistence(m);
           return {
             where: { id: m.id },
             create: { ...createData, transactionRef: m.transactionRef },
-            update: TransactionPrismaMapper.toTransactionUpdatePersistence(m)
+            update: TransactionPrismaMapper.toTransactionUpdatePersistence(m),
           };
-        })
-      }
+        }),
+      },
     };
-
-
 
     const updated = await this.database.client.account.update({
       where: { id },
       data: updateData,
       include: {
-        accountHolder: true,
-        transactions: true
+        ...ACCOUNT_RELATIONS,
+        transactions: true,
       },
     });
 
@@ -150,4 +163,3 @@ export class AccountPrismaRepository implements IAccountRepository {
     });
   }
 }
-

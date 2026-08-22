@@ -6,6 +6,7 @@ import { AUTH_OPTIONS } from '../auth-options.token';
 import { AuthModuleOptions } from '../../auth-options';
 import { IUserRoleRepository } from '../../domain/repositories/user-role.repository';
 import { IUserRoleGroupRepository } from '../../domain/repositories/user-role-group.repository';
+import { IUserPermissionRepository } from '../../domain/repositories/user-permission.repository';
 
 @Injectable()
 export class UserAccessAdapter implements IUserAccessPort {
@@ -13,6 +14,8 @@ export class UserAccessAdapter implements IUserAccessPort {
   constructor(
     @Inject(IUserRoleRepository) private readonly userRoleRepo: IUserRoleRepository,
     @Inject(IUserRoleGroupRepository) private readonly userRoleGroupRepo: IUserRoleGroupRepository,
+    @Inject(IUserPermissionRepository)
+    private readonly userPermissionRepo: IUserPermissionRepository,
     @Inject(AUTH_OPTIONS) private readonly options: AuthModuleOptions,
     @Inject(ICACHE_PORT) private readonly cache: ICachePort,
     @Optional() @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort | null,
@@ -31,10 +34,16 @@ export class UserAccessAdapter implements IUserAccessPort {
     await this.cache.del(this.cacheKey(idpSub));
   }
 
+  async invalidateMany(idpSubs: string[]): Promise<void> {
+    const unique = [...new Set(idpSubs.filter(Boolean))];
+    await Promise.all(unique.map((idpSub) => this.invalidate(idpSub)));
+  }
+
   private async resolveFromDb(idpSub: string): Promise<AuthUser> {
-    const [directRoles, groupMemberships] = await Promise.all([
+    const [directRoles, groupMemberships, directPermissions] = await Promise.all([
       this.userRoleRepo.resolveDirectPermissions(idpSub),
       this.userRoleGroupRepo.resolveGroupPermissions(idpSub),
+      this.userPermissionRepo.resolveDirectUserPermissions(idpSub),
     ]);
 
     if (!this.userLookup) {
@@ -82,6 +91,18 @@ export class UserAccessAdapter implements IUserAccessPort {
         groupSet.add(view.groupKey);
         view.roleKeys.forEach((k) => roleSet.add(k));
         view.permissionKeys.forEach((k) => permissionSet.add(k));
+      }
+    }
+
+    for (const view of directPermissions) {
+      if (view.entityId && view.entityType) {
+        const key = `${view.entityType}:${view.entityId}`;
+        scopedRoles[key] ??= { permissions: [], roles: [], roleGroups: [] };
+        if (!scopedRoles[key].permissions.includes(view.permissionKey)) {
+          scopedRoles[key].permissions.push(view.permissionKey);
+        }
+      } else {
+        permissionSet.add(view.permissionKey);
       }
     }
 

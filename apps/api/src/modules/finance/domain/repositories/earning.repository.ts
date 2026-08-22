@@ -7,6 +7,7 @@ export interface EarningFilter {
   category?: EarningCategory[];
   source?: string;
   referenceId?: string;
+  accountId?: string;
   startDate?: Date;
   endDate?: Date;
 }

@@ -28,8 +28,8 @@ export class Expense extends AggregateRoot<string> {
   #finalizedDate: Date | undefined;
   #settledBy: Partial<FinanceUserRef> | undefined;
   #settledDate: Date | undefined;
-  #rejectedBy: Partial<FinanceUserRef> | undefined;
-  #rejectedDate: Date | undefined;
+  #sendBackBy: Partial<FinanceUserRef> | undefined;
+  #sendBackDate: Date | undefined;
   #accountId: string | undefined;
   #transactionId: string | undefined;
   #expenseItems: ExpenseItem[];
@@ -51,7 +51,7 @@ export class Expense extends AggregateRoot<string> {
     submittedBy: Partial<FinanceUserRef> | undefined,
     finalizedBy: Partial<FinanceUserRef> | undefined,
     settledBy: Partial<FinanceUserRef> | undefined,
-    rejectedBy: Partial<FinanceUserRef> | undefined,
+    sendBackBy: Partial<FinanceUserRef> | undefined,
     paidBy: Partial<FinanceUserRef>,
     accountId: string | undefined,
     transactionId: string | undefined,
@@ -59,7 +59,7 @@ export class Expense extends AggregateRoot<string> {
     submittedDate: Date | undefined,
     finalizedDate: Date | undefined,
     settledDate: Date | undefined,
-    rejectedDate: Date | undefined,
+    sendBackDate: Date | undefined,
     expenseItems: ExpenseItem[],
     txnNumber: string | undefined,
     remarks: string | undefined,
@@ -80,7 +80,7 @@ export class Expense extends AggregateRoot<string> {
     this.#submittedBy = submittedBy;
     this.#finalizedBy = finalizedBy;
     this.#settledBy = settledBy;
-    this.#rejectedBy = rejectedBy;
+    this.#sendBackBy = sendBackBy;
     this.#paidBy = paidBy;
     this.#accountId = accountId;
     this.#transactionId = transactionId;
@@ -88,7 +88,7 @@ export class Expense extends AggregateRoot<string> {
     this.#submittedDate = submittedDate;
     this.#finalizedDate = finalizedDate;
     this.#settledDate = settledDate;
-    this.#rejectedDate = rejectedDate;
+    this.#sendBackDate = sendBackDate;
     this.#expenseItems = expenseItems;
     this.#txnNumber = txnNumber;
     this.#remarks = remarks;
@@ -142,7 +142,7 @@ export class Expense extends AggregateRoot<string> {
       undefined, // approvedBy
       undefined, // finalizedBy
       undefined, // settledBy
-      undefined, // rejectedBy
+      undefined, // sendBackBy
       props.paidBy,//paidBy
       undefined, // accountId
       undefined, // transactionId
@@ -150,7 +150,7 @@ export class Expense extends AggregateRoot<string> {
       undefined, // approvedDate
       undefined, // finalizedDate
       undefined, // settledDate
-      undefined, // rejectedDate
+      undefined, // sendBackDate
       expenseItems,
       undefined, // txnNumber
       undefined, // remarks
@@ -200,16 +200,16 @@ export class Expense extends AggregateRoot<string> {
   }
 
   /**
-   * Reject expense
-   * Business validation: Can only reject submitted expenses
+   * Send back expense for revision
+   * Business validation: Can only send back submitted or finalized expenses
    */
-  reject(rejectedBy: Partial<FinanceUserRef>, remarks?: string): void {
+  sendBack(sendBackBy: Partial<FinanceUserRef>, remarks?: string): void {
     if (this.#status !== ExpenseStatus.SUBMITTED && this.#status !== ExpenseStatus.FINALIZED) {
-      throw new BusinessException('Can only reject submitted or finalized expenses');
+      throw new BusinessException('Can only send back submitted or finalized expenses');
     }
-    this.#status = ExpenseStatus.REJECTED;
-    this.#rejectedBy = rejectedBy;
-    this.#rejectedDate = new Date();
+    this.#status = ExpenseStatus.SEND_BACK;
+    this.#sendBackBy = sendBackBy;
+    this.#sendBackDate = new Date();
     if (remarks) {
       this.#remarks = remarks;
     }
@@ -305,14 +305,14 @@ export class Expense extends AggregateRoot<string> {
   get submittedBy(): Partial<FinanceUserRef> | undefined { return this.#submittedBy; }
   get finalizedBy(): Partial<FinanceUserRef> | undefined { return this.#finalizedBy; }
   get settledBy(): Partial<FinanceUserRef> | undefined { return this.#settledBy; }
-  get rejectedBy(): Partial<FinanceUserRef> | undefined { return this.#rejectedBy; }
+  get sendBackBy(): Partial<FinanceUserRef> | undefined { return this.#sendBackBy; }
   get accountId(): string | undefined { return this.#accountId; }
   get transactionId(): string | undefined { return this.#transactionId; }
   get expenseDate(): Date { return this.#expenseDate; }
   get submittedDate(): Date | undefined { return this.#submittedDate; }
   get finalizedDate(): Date | undefined { return this.#finalizedDate; }
   get settledDate(): Date | undefined { return this.#settledDate; }
-  get rejectedDate(): Date | undefined { return this.#rejectedDate; }
+  get sendBackDate(): Date | undefined { return this.#sendBackDate; }
   get expenseItems(): ExpenseItem[] { return [...this.#expenseItems]; }
   get remarks(): string | undefined { return this.#remarks; }
   get isDelegated(): boolean { return this.#isDelegated; }

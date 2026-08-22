@@ -227,7 +227,12 @@ export function applyConfig(app: INestApplication, options: AppConfigOptions = {
         "applyConfig: CORS cannot use credentials with a wildcard origin ('*'). Provide explicit origins.",
       );
     }
-    app.enableCors({ origin: corsOrigins, credentials: corsCredentials });
+    // `x-trace-id` is exposed so browser clients can surface it in error UI.
+    app.enableCors({
+      origin: corsOrigins,
+      credentials: corsCredentials,
+      exposedHeaders: ['x-trace-id'],
+    });
   } else if (isProductionEnv) {
     logger.warn(
       'CORS is disabled (no `corsOrigins` provided). Cross-origin browser requests will be blocked.',

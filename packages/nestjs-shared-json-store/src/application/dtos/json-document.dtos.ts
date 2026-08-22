@@ -51,7 +51,7 @@ export class ListJsonDocumentsQueryDto {
 // ── Response DTO ─────────────────────────────────────────────────────────────
 
 export class JsonDocumentResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   id: string;
 
   @ApiProperty({ example: 'welcome-email' })
@@ -60,12 +60,12 @@ export class JsonDocumentResponseDto {
   @ApiProperty({ example: 'correspondence' })
   namespace: string;
 
-  @ApiProperty({ description: 'Stored JSON payload' })
+  @ApiProperty({ description: 'Stored JSON payload', example: { subject: 'Welcome!' } })
   payload: Record<string, unknown>;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   updatedAt: Date;
 }

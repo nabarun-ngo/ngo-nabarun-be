@@ -4,13 +4,13 @@ export const COMMENT_MODULE = CommentModule.forRoot({
     allowedEntityTypes: [
         {
             entityType: 'donation',
-            readPermissions: ['donations:read'],
-            writePermissions: ['donations:comment'],
+            readPermissions: ['read:donation_comments'],
+            writePermissions: ['create:donation_comments'],
         },
         {
             entityType: 'task',
-            readPermissions: ['tasks:read'],
-            writePermissions: ['tasks:write'],
+            readPermissions: ['read:task_comments'],
+            writePermissions: ['create:task_comments'],
         },
         {
             entityType: 'announcement',

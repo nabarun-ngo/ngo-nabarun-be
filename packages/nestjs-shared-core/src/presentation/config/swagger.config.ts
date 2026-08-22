@@ -11,7 +11,14 @@ export interface SwaggerOptions {
   extraModels?: any[];
 }
 
-export function configureSwagger(app: INestApplication, options: SwaggerOptions = {}) {
+/**
+ * Builds the OpenAPI document without binding it to an HTTP route.
+ *
+ * Kept separate from {@link configureSwagger} so offline generators (which boot
+ * the app in preview mode and never listen) produce a byte-identical document
+ * to the one served at runtime.
+ */
+export function buildSwaggerDocument(app: INestApplication, options: SwaggerOptions = {}) {
   const title = options.title ?? 'API Documentation';
   const config = new DocumentBuilder()
     .setTitle(title)
@@ -73,6 +80,12 @@ export function configureSwagger(app: INestApplication, options: SwaggerOptions 
       }
     });
   });
+
+  return document;
+}
+
+export function configureSwagger(app: INestApplication, options: SwaggerOptions = {}) {
+  const document = buildSwaggerDocument(app, options);
 
   SwaggerModule.setup('swagger-ui', app, document, {
     jsonDocumentUrl: 'api/docs',

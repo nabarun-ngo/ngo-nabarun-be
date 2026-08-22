@@ -48,17 +48,6 @@ export class MeetingPrismaRepository implements IMeetingRepository {
     return MeetingPrismaMapper.toDomain(row);
   }
 
-  async findByTimeRange(startGte: Date, startLte: Date, endGte: Date, endLte: Date): Promise<Meeting[]> {
-    const rows = await this.database.client.meeting.findMany({
-      where: {
-        deletedAt: null,
-        startTime: { gte: startGte, lte: startLte },
-        endTime: { gte: endGte, lte: endLte },
-      },
-    });
-    return rows.map((r) => MeetingPrismaMapper.toDomain(r)!);
-  }
-
   async create(entity: Meeting): Promise<Meeting> {
     const row = await this.database.client.meeting.create({ data: MeetingPrismaMapper.toCreate(entity) });
     return MeetingPrismaMapper.toDomain(row)!;

@@ -4,41 +4,41 @@ import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } f
 import { MeetingType } from '../../domain/enums/meeting-type.enum';
 
 export class MeetingParticipantDto {
-  @ApiPropertyOptional() @IsOptional() @IsString() id?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() name?: string;
-  @ApiProperty() @IsNotEmpty() @IsString() email!: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() attended?: string;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) @IsOptional() @IsString() id?: string;
+  @ApiPropertyOptional({ example: 'Asha Verma' }) @IsOptional() @IsString() name?: string;
+  @ApiProperty({ example: 'asha.verma@example.org' }) @IsNotEmpty() @IsString() email!: string;
+  @ApiPropertyOptional({ example: 'accepted' }) @IsOptional() @IsString() attended?: string;
 }
 
 export class MeetingAgendaItemDto {
-  @ApiProperty() @IsNotEmpty() @IsString() agenda!: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() outcomes?: string;
+  @ApiProperty({ example: 'Review volunteer enrolment progress' }) @IsNotEmpty() @IsString() agenda!: string;
+  @ApiPropertyOptional({ example: 'Team reviewed enrolment progress and agreed next steps.' }) @IsOptional() @IsString() outcomes?: string;
 }
 
 export class CreateMeetingDto {
-  @ApiProperty() @IsNotEmpty() @IsString() summary!: string;
-  @ApiProperty({ enum: MeetingType }) @IsNotEmpty() @IsEnum(MeetingType) type!: MeetingType;
-  @ApiPropertyOptional() @IsOptional() @IsString() description?: string;
+  @ApiProperty({ example: 'Monthly programme review' }) @IsNotEmpty() @IsString() summary!: string;
+  @ApiProperty({ enum: MeetingType, example: MeetingType.ONLINE }) @IsNotEmpty() @IsEnum(MeetingType) type!: MeetingType;
+  @ApiPropertyOptional({ example: 'Monthly review of programme delivery with the volunteer coordinators.' }) @IsOptional() @IsString() description?: string;
   @ApiPropertyOptional({ type: [MeetingAgendaItemDto] })
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => MeetingAgendaItemDto)
   agenda?: MeetingAgendaItemDto[];
 
-  @ApiProperty() @IsNotEmpty() @IsString() startTime!: string;
-  @ApiProperty() @IsNotEmpty() @IsString() endTime!: string;
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' }) @IsNotEmpty() @IsString() startTime!: string;
+  @ApiProperty({ example: '2026-03-14T10:15:00.000Z' }) @IsNotEmpty() @IsString() endTime!: string;
 
   @ApiProperty({ type: [MeetingParticipantDto] })
   @ValidateNested({ each: true })
   @Type(() => MeetingParticipantDto)
   attendees!: MeetingParticipantDto[];
 
-  @ApiPropertyOptional() @IsOptional() @IsString() location?: string;
+  @ApiPropertyOptional({ example: 'Nabarun office, 12 Gandhi Road, Barasat' }) @IsOptional() @IsString() location?: string;
 }
 
 export class UpdateMeetingDto {
-  @ApiPropertyOptional() @IsOptional() @IsString() summary?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() description?: string;
+  @ApiPropertyOptional({ example: 'Monthly programme review' }) @IsOptional() @IsString() summary?: string;
+  @ApiPropertyOptional({ example: 'Monthly review of programme delivery with the volunteer coordinators.' }) @IsOptional() @IsString() description?: string;
 
   @ApiPropertyOptional({ type: [MeetingAgendaItemDto] })
   @IsOptional()
@@ -46,9 +46,9 @@ export class UpdateMeetingDto {
   @Type(() => MeetingAgendaItemDto)
   agenda?: MeetingAgendaItemDto[];
 
-  @ApiPropertyOptional() @IsOptional() @IsString() outcomes?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() startTime?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() endTime?: string;
+  @ApiPropertyOptional({ example: 'Team reviewed enrolment progress and agreed next steps.' }) @IsOptional() @IsString() outcomes?: string;
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' }) @IsOptional() @IsString() startTime?: string;
+  @ApiPropertyOptional({ example: '2026-03-14T10:15:00.000Z' }) @IsOptional() @IsString() endTime?: string;
 
   @ApiPropertyOptional({ type: [MeetingParticipantDto] })
   @IsOptional()
@@ -56,46 +56,43 @@ export class UpdateMeetingDto {
   @Type(() => MeetingParticipantDto)
   attendees?: MeetingParticipantDto[];
 
-  @ApiPropertyOptional() @IsOptional() @IsString() location?: string;
+  @ApiPropertyOptional({ example: 'Nabarun office, 12 Gandhi Road, Barasat' }) @IsOptional() @IsString() location?: string;
 
-  @ApiPropertyOptional({ default: false })
+  @ApiPropertyOptional({ default: false, example: false })
   @IsOptional()
   @IsBoolean()
   cancelEvent?: boolean = false;
 }
 
 export class MeetingDetailDto {
-  @ApiProperty() id!: string;
-  @ApiProperty({ enum: MeetingType }) type!: MeetingType;
-  @ApiProperty() summary!: string;
-  @ApiPropertyOptional() description?: string;
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' }) id!: string;
+  @ApiProperty({ enum: MeetingType, example: MeetingType.ONLINE }) type!: MeetingType;
+  @ApiProperty({ example: 'Monthly programme review' }) summary!: string;
+  @ApiPropertyOptional({ example: 'Monthly review of programme delivery with the volunteer coordinators.' }) description?: string;
   @ApiPropertyOptional({ type: [MeetingAgendaItemDto] }) agenda?: MeetingAgendaItemDto[];
-  @ApiPropertyOptional() outcomes?: string;
-  @ApiPropertyOptional() location?: string;
-  @ApiProperty() startTime!: Date;
-  @ApiProperty() endTime!: Date;
+  @ApiPropertyOptional({ example: 'Team reviewed enrolment progress and agreed next steps.' }) outcomes?: string;
+  @ApiPropertyOptional({ example: 'Nabarun office, 12 Gandhi Road, Barasat' }) location?: string;
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' }) startTime!: Date;
+  @ApiProperty({ example: '2026-03-14T10:15:00.000Z' }) endTime!: Date;
   @ApiPropertyOptional({ type: [MeetingParticipantDto] }) attendees?: MeetingParticipantDto[];
-  @ApiPropertyOptional() meetLink?: string;
-  @ApiPropertyOptional() calendarLink?: string;
-  @ApiProperty() status!: string;
-  @ApiPropertyOptional() hostEmail?: string;
-  @ApiPropertyOptional() createdById?: string;
-  @ApiPropertyOptional() recordingUrl?: string;
-  @ApiPropertyOptional() meetingNotes?: string;
-  @ApiPropertyOptional() meetingActionItems?: string;
-  @ApiProperty() createdAt!: Date;
-  @ApiProperty() updatedAt!: Date;
+  @ApiPropertyOptional({ example: 'https://meet.google.com/abc-defg-hij' }) meetLink?: string;
+  @ApiPropertyOptional({ example: 'https://calendar.google.com/calendar/event?eid=3f8a1c925d47' }) calendarLink?: string;
+  @ApiProperty({ example: 'confirmed' }) status!: string;
+  @ApiPropertyOptional({ example: 'asha.verma@example.org' }) hostEmail?: string;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) createdById?: string;
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' }) createdAt!: Date;
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' }) updatedAt!: Date;
 }
 
 export class MeetingDetailFilterDto {
-  @ApiPropertyOptional() @IsOptional() @IsString() createdById?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() participantId?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() participantEmail?: string;
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) @IsOptional() @IsString() createdById?: string;
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) @IsOptional() @IsString() participantId?: string;
+  @ApiPropertyOptional({ example: 'asha.verma@example.org' }) @IsOptional() @IsString() participantEmail?: string;
 }
 
 export class MeetingListResponseDto {
   @ApiProperty({ type: [MeetingDetailDto] }) items!: MeetingDetailDto[];
-  @ApiProperty() total!: number;
-  @ApiProperty() pageIndex!: number;
-  @ApiProperty() pageSize!: number;
+  @ApiProperty({ example: 42 }) total!: number;
+  @ApiProperty({ example: 0 }) pageIndex!: number;
+  @ApiProperty({ example: 20 }) pageSize!: number;
 }

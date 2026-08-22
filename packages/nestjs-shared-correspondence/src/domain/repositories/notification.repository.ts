@@ -22,6 +22,16 @@ export interface INotificationRepository
 
   /** Delete notifications older than the given date */
   deleteExpiredBefore(date: Date): Promise<number>;
+
+  /**
+   * Aggregate delivery outcome per notification, derived from recipient push
+   * results. "failed" takes precedence when any recipient push was attempted
+   * but not delivered; otherwise "succeeded" when at least one was delivered.
+   * Notifications with no attempted push are omitted from the map.
+   */
+  getDeliveryStatuses(
+    notificationIds: string[],
+  ): Promise<Map<string, 'failed' | 'succeeded'>>;
 }
 
 export const INotificationRepository = Symbol('INotificationRepository');

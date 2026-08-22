@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PAGINATION_EXAMPLES } from './swagger-examples';
 
 /**
  * **PagedResponse — Presentation-layer pagination container**
@@ -17,13 +18,13 @@ export class PagedResponse<T> {
   })
   content: T[];
 
-  @ApiProperty({ description: 'Current page index (0-based)' })
+  @ApiProperty({ description: 'Current page index (0-based)', example: PAGINATION_EXAMPLES.pageIndex })
   pageIndex: number;
 
-  @ApiProperty({ description: 'Page size (number of items per page)' })
+  @ApiProperty({ description: 'Page size (number of items per page)', example: PAGINATION_EXAMPLES.pageSize })
   pageSize: number;
 
-  @ApiProperty({ description: 'Total number of items across all pages' })
+  @ApiProperty({ description: 'Total number of items across all pages', example: PAGINATION_EXAMPLES.totalSize })
   totalSize: number;
 
   constructor(content: T[], totalSize: number, pageIndex: number, pageSize: number) {

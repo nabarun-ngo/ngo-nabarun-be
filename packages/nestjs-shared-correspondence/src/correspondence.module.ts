@@ -1,7 +1,6 @@
 import { DynamicModule, Inject, Injectable, Module, ModuleMetadata, Optional, Provider } from '@nestjs/common';
 import { DiscoveryModule, ModuleRef } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
-import { z } from 'zod';
 import {
   BaseDynamicModule,
   BaseModuleValidator,
@@ -10,7 +9,7 @@ import {
   registerModuleValidator,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { IUserRolePort } from '@nabarun-ngo/nestjs-shared-auth';
-import { CorrespondenceOptionsSchema } from './correspondence.schema';
+import { CorrespondenceOptionsSchema, type CorrespondenceModuleOptions } from './correspondence.schema';
 import { CORRESPONDENCE_OPTIONS } from './correspondence-options.token';
 import { INotificationRepository } from './domain/repositories/notification.repository';
 import { IUserNotificationRepository } from './domain/repositories/user-notification.repository';
@@ -65,7 +64,7 @@ import { NotificationAdminController } from './presentation/controllers/notifica
 import { SubscriptionController } from './presentation/controllers/subscription.controller';
 import { EmailProviderController } from './presentation/controllers/email-provider.controller';
 
-export type CorrespondenceModuleOptions = z.infer<typeof CorrespondenceOptionsSchema>;
+export type { CorrespondenceModuleOptions } from './correspondence.schema';
 
 export interface CorrespondenceAsyncOptions
   extends DynamicModuleAsyncOptions<CorrespondenceModuleOptions> { }

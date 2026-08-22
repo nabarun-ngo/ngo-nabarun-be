@@ -1,17 +1,19 @@
 {
-  "subject": "Welcome — your account is ready",
+  "subject": "Welcome to NABARUN — Please set your password to access your account",
   "layout": "email",
   "htmlTemplateData": {
     "body": {
       "header": {
-        "heading": "Welcome!",
-        "subHeading": "Your account is ready"
+        "heading": "Welcome{{#if title}}, {{title}}{{/if}}",
+        "subHeading": "We are delighted to have you on board"
       },
       "content": {
-        "paragraph1_blue": "Your account has been created with the login address: {{email}}",
-        "paragraph3_blue": "You will receive a separate email with a link to set your password. Please check your inbox and follow that link to complete your first login."
+        "salutation": "Dear{{#if title}} {{title}}{{/if}},",
+        "paragraph1_blue": "It is our pleasure to have you on board. An account has been prepared for you, and you may sign in using the email address {{email}}.",
+        "paragraph2_blue": "To complete your registration, please set a personal password{{#if setPasswordUrl}} by following this secure link: {{setPasswordUrl}}. Completing this step will also verify your email address{{else}}. Kindly open the application, select \"Forgot password\", and enter {{email}} to receive a secure set-password link{{/if}}.",
+        "paragraph3_blue": "Once your password has been set, please open the application and sign in with {{email}} and the password you have chosen.",
+        "paragraph4_blue": "Should the link expire or prove inaccessible, you may use \"Forgot password\" on the sign-in page, or contact your administrator for assistance. We look forward to supporting you."
       }
     }
-  },
-  "textTemplate": "Welcome!\n\nYour account has been created with the login address: {{email}}\n\nYou will receive a separate email with a link to set your password. Please check your inbox and follow that link to complete your first login."
+  }
 }

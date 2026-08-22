@@ -1,5 +1,5 @@
 {
-  "_comment": "Policy links. linkType: INTERNAL | EXTERNAL. Served via GET /links/policies.",
+  "_comment": "Policy links. linkType: INTERNAL | EXTERNAL. Managed via JSON Store (links namespace).",
   "items": [
     {
       "key": "PRIVACY_POLICY",

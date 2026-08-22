@@ -24,6 +24,7 @@ apps/*/src/**/*.d.ts.map
 
 # Generated / synced code
 generated/
+apps/api/swagger.mock.json
 apps/api/src/persistence/prisma/
 **/database/generated/**
 **/prisma/models/shared/

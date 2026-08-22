@@ -304,6 +304,18 @@ describe('OAuthTokenPrismaRepository — mapping hooks', () => {
       const where = repo.publicToFilterWhere({ clientId: 'client-1' });
       expect(where.clientId).toBe('client-1');
     });
+
+    it('matches account filter against id, email, and display name', () => {
+      const repo = makeRepo();
+      const where = repo.publicToFilterWhere({ account: 'asha' });
+
+      expect(where.OR).toEqual(expect.arrayContaining([
+        { accountId: { equals: 'asha', mode: 'insensitive' } },
+        { email: { contains: 'asha', mode: 'insensitive' } },
+        { account: { is: { email: { contains: 'asha', mode: 'insensitive' } } } },
+        { account: { is: { name: { contains: 'asha', mode: 'insensitive' } } } },
+      ]));
+    });
   });
 
   describe('supportsSoftDelete()', () => {

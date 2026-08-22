@@ -1,8 +1,4 @@
-
-
 export interface PublicSiteOptions {
-  /** Public alias → workflow definition id (must exist in json-store workflow namespace). */
-  publicWorkflows: Record<string, { definitionId: string }>;
   submittedById?: string;
 }
 

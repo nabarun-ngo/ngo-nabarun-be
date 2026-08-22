@@ -18,8 +18,15 @@ export async function seedAuthData(prisma: PrismaClient, data: AuthSeedData): Pr
       console.log(`[auth-seeder]   role: ${r.key}`);
       await prisma.authRole.upsert({
         where: { key: r.key },
-        update: { description: r.description ?? null },
-        create: { key: r.key, description: r.description ?? null },
+        update: {
+          description: r.description ?? null,
+          isShadow: r.isShadow ?? false,
+        },
+        create: {
+          key: r.key,
+          description: r.description ?? null,
+          isShadow: r.isShadow ?? false,
+        },
       });
     }
 
@@ -64,8 +71,15 @@ export async function seedAuthData(prisma: PrismaClient, data: AuthSeedData): Pr
       console.log(`[auth-seeder]   group: ${g.key}`);
       await prisma.authRoleGroup.upsert({
         where: { key: g.key },
-        update: { description: g.description ?? null },
-        create: { key: g.key, description: g.description ?? null },
+        update: {
+          description: g.description ?? null,
+          isShadow: g.isShadow ?? false,
+        },
+        create: {
+          key: g.key,
+          description: g.description ?? null,
+          isShadow: g.isShadow ?? false,
+        },
       });
     }
 

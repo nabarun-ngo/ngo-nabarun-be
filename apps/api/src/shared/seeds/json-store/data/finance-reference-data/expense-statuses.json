@@ -5,6 +5,6 @@
     { "key": "SUBMITTED", "value": "Submitted" },
     { "key": "FINALIZED", "value": "Finalized" },
     { "key": "SETTLED", "value": "Settled" },
-    { "key": "REJECTED", "value": "Rejected" }
+    { "key": "SEND_BACK", "value": "Send Back" }
   ]
 }

@@ -10,117 +10,117 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class PhoneNumberInputDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '+91' })
   @IsString()
   phoneCode!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '9876543210' })
   @IsString()
   phoneNumber!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: false })
   @IsOptional()
   @IsBoolean()
   hidden?: boolean;
 }
 
 export class AddressInputDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '12 Gandhi Road' })
   @IsString()
   addressLine1!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Near Kali Temple' })
   @IsOptional()
   @IsString()
   addressLine2?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Ward 14' })
   @IsOptional()
   @IsString()
   addressLine3?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Barasat' })
   @IsString()
   hometown!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '700124' })
   @IsString()
   zipCode!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'West Bengal' })
   @IsString()
   state!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'North 24 Parganas' })
   @IsString()
   district!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'India' })
   @IsString()
   country!: string;
 }
 
 export class SocialLinkInputDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'LinkedIn' })
   @IsString()
   linkName!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'LINKEDIN' })
   @IsString()
   linkType!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'https://linkedin.com/in/ashaverma' })
   @IsString()
   linkValue!: string;
 }
 
 export class UpdateUserProfileDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Ms' })
   @IsOptional()
   @IsString()
   title?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Asha' })
   @IsOptional()
   @IsString()
   firstName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Rani' })
   @IsOptional()
   @IsString()
   middleName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Verma' })
   @IsOptional()
   @IsString()
   lastName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '1994-03-14' })
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'FEMALE' })
   @IsOptional()
   @IsString()
   gender?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Volunteer coordinator for the Barasat education programme.' })
   @IsOptional()
   @IsString()
   about?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'https://cdn.nabarun.org/avatars/asha-verma.jpg' })
   @IsOptional()
   @IsString()
   picture?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   @IsOptional()
   @IsBoolean()
   isPublic?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: false })
   @IsOptional()
   @IsBoolean()
   isSameAddress?: boolean;

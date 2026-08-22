@@ -10,11 +10,11 @@ import { KeyValueOption } from '../../application/ports/finance-reference-data.p
  * Expense Item Detail DTO
  */
 export class ExpenseItemDetailDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'Venue rent' })
   @IsString()
   itemName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 4500 })
   @IsNumber()
   @Min(1)
   amount: number;
@@ -24,25 +24,25 @@ export class ExpenseItemDetailDto {
  * Expense Detail DTO - matches legacy ExpenseDetail
  */
 export class ExpenseDetailDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Literacy drive venue expense' })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Venue rent for literacy drive' })
   description: string;
 
-  @ApiProperty({ type: String, format: 'date-time' })
+  @ApiProperty({ type: String, format: 'date-time', example: '2026-03-14T09:30:00.000Z' })
   expenseDate: Date;
 
   @ApiPropertyOptional()
   createdBy?: FinanceUserDto; // UserDetail reference
 
-  @ApiProperty({ type: String, format: 'date-time' })
+  @ApiProperty({ type: String, format: 'date-time', example: '2026-03-14T09:30:00.000Z' })
   createdOn: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   isDeligated?: boolean;
 
   @ApiPropertyOptional()
@@ -51,49 +51,49 @@ export class ExpenseDetailDto {
   @ApiPropertyOptional()
   finalizedBy?: FinanceUserDto; // UserDetail reference
 
-  @ApiProperty({ enum: ExpenseStatus })
+  @ApiProperty({ enum: ExpenseStatus, example: ExpenseStatus.SETTLED })
   status: ExpenseStatus;
 
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-16T11:45:00.000Z' })
   finalizedOn?: Date;
 
   @ApiPropertyOptional()
   settledBy?: FinanceUserDto; // UserDetail reference
 
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-18T14:20:00.000Z' })
   settledOn?: Date;
 
   @ApiPropertyOptional({ type: () => [ExpenseItemDetailDto] })
   expenseItems?: ExpenseItemDetailDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: 4500 })
   finalAmount: number;
 
-  @ApiPropertyOptional({ enum: ExpenseRefType })
+  @ApiPropertyOptional({ enum: ExpenseRefType, example: ExpenseRefType.EVENT })
   expenseRefType?: ExpenseRefType;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   expenseRefId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'TXN-2026-000482' })
   txnNumber?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Literacy Drive 2026' })
   activityName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   activityId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   settlementAccountId?: string;
 
   @ApiPropertyOptional()
-  rejectedBy?: FinanceUserDto; // UserDetail reference
+  sendBackBy?: FinanceUserDto; // UserDetail reference
 
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
-  rejectedOn?: Date;
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-17T10:15:00.000Z' })
+  sendBackOn?: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Settled via bank transfer' })
   remarks?: string;
 }
 
@@ -101,25 +101,25 @@ export class ExpenseDetailDto {
  * Expense Detail Filter DTO
  */
 export class ExpenseDetailFilterDto {
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-14T09:30:00.000Z' })
   @IsOptional()
   startDate?: Date;
 
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-31T23:59:59.000Z' })
   @IsOptional()
   endDate?: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   @IsOptional()
   @IsString()
   expenseRefId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   @IsOptional()
   @IsString()
   expenseId?: string;
 
-  @ApiPropertyOptional({ enum: ExpenseStatus, isArray: true })
+  @ApiPropertyOptional({ enum: ExpenseStatus, isArray: true, example: [ExpenseStatus.SETTLED, ExpenseStatus.FINALIZED] })
   @IsOptional()
   @IsArray()
   @IsEnum(ExpenseStatus, { each: true })
@@ -128,7 +128,7 @@ export class ExpenseDetailFilterDto {
   )
   expenseStatus?: ExpenseStatus[];
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   @IsOptional()
   @IsString()
   payerId?: string;
@@ -138,31 +138,31 @@ export class ExpenseDetailFilterDto {
  * Create Expense DTO
  */
 export class CreateExpenseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'Literacy drive venue expense' })
   @IsString()
   name: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Venue rent for literacy drive' })
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'INR' })
   @IsOptional()
   @IsString()
   currency?: string;
 
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-14T09:30:00.000Z' })
   @IsOptional()
   @IsDate()
   @Type(() => Date)
   expenseDate?: Date;
 
-  @ApiProperty({ enum: ExpenseRefType })
+  @ApiProperty({ enum: ExpenseRefType, example: ExpenseRefType.EVENT })
   @IsEnum(ExpenseRefType)
   expenseRefType: ExpenseRefType;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   @IsOptional()
   @IsString()
   expenseRefId?: string;
@@ -174,7 +174,7 @@ export class CreateExpenseDto {
   @Type(() => ExpenseItemDetailDto)
   expenseItems?: ExpenseItemDetailDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   @IsString()
   payerId: string;
 }
@@ -183,33 +183,33 @@ export class CreateExpenseDto {
  * Update Expense DTO
  */
 export class UpdateExpenseDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Literacy drive venue expense' })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: ExpenseRefType.EVENT })
   @IsOptional()
   @IsEnum(ExpenseRefType)
   expenseRefType?: ExpenseRefType;
 
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   @IsOptional()
   @IsString()
   expenseRefId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Venue rent for literacy drive' })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: ExpenseStatus.SETTLED })
   @IsOptional()
   @IsEnum(ExpenseStatus)
   status?: ExpenseStatus;
 
-  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-14T09:30:00.000Z' })
   @IsOptional()
   @IsDate()
   @Type(() => Date)
@@ -222,22 +222,36 @@ export class UpdateExpenseDto {
   @Type(() => ExpenseItemDetailDto)
   expenseItems?: ExpenseItemDetailDto[];
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Settled via bank transfer' })
   @IsOptional()
   @IsString()
   remarks?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   @IsOptional()
   @IsString()
   payerId?: string;
 }
 
+export class ExpenseStatusGroupsDto {
+  @ApiProperty({ type: [String], example: ['DRAFT', 'SUBMITTED', 'FINALIZED', 'SEND_BACK'] })
+  outstanding: string[];
+
+  @ApiProperty({ type: [String], example: ['SETTLED'] })
+  closed: string[];
+
+  @ApiProperty({ type: [String], example: [] })
+  excluded: string[];
+}
+
 export class ExpenseRefDataDto {
-  @ApiProperty()
+  @ApiProperty({ example: [{ key: 'SETTLED', value: 'Settled' }, { key: 'FINALIZED', value: 'Finalized' }] })
   expenseStatuses?: KeyValueOption[];
 
-  @ApiProperty()
+  @ApiProperty({ example: [{ key: 'EVENT', value: 'Event' }, { key: 'OPERATIONAL', value: 'Operational' }] })
   expenseRefTypes?: KeyValueOption[];
+
+  @ApiPropertyOptional({ type: () => ExpenseStatusGroupsDto })
+  expenseStatusGroups?: ExpenseStatusGroupsDto;
 }
 

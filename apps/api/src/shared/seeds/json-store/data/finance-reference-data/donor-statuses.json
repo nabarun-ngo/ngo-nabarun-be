@@ -1,0 +1,9 @@
+{
+  "_comment": "Donor status options.",
+  "items": [
+    { "key": "ACTIVE", "value": "Active" },
+    { "key": "PAUSED", "value": "Paused" },
+    { "key": "WAIVED", "value": "Waived" },
+    { "key": "DELETED", "value": "Deleted" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "_comment": "Transaction reference type options (domain TransactionRefType).",
+  "items": [
+    { "key": "DONATION", "value": "Donation" },
+    { "key": "EXPENSE", "value": "Expense" },
+    { "key": "EARNING", "value": "Earning" },
+    { "key": "NONE", "value": "None" },
+    { "key": "TXN_REVERSE", "value": "Reversal" }
+  ]
+}

@@ -8,8 +8,9 @@ import { UserCreatedEvent } from '../../domain/events/user-created.event';
 import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 /**
- * Pure resolver: sends a welcome email only for the system-generated-password
- * flow. The event already carries everything needed — no repository lookup.
+ * Welcome email on every successful user create.
+ * Includes title, the Auth0 password-change ticket URL, and login instructions.
+ * Does not include any generated password.
  */
 @Injectable()
 @CorrespondenceEventResolver()
@@ -18,14 +19,17 @@ export class UserCreatedCorrespondenceResolver
   readonly eventType = UserCreatedEvent;
 
   resolve(event: UserCreatedEvent): NotificationSpec[] | null {
-    if (!event.systemGeneratedPassword) return null;
     return [
       {
         recipients: { mode: 'users', userIds: [event.userId] },
         channels: {
           email: {
             templateKey: EmailTemplateKey.UserWelcome,
-            templateData: { email: event.email },
+            templateData: {
+              email: event.email,
+              title: event.title ?? '',
+              setPasswordUrl: event.setPasswordUrl ?? '',
+            },
           },
         },
       },

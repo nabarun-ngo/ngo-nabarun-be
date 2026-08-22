@@ -18,8 +18,8 @@ export class UpdateExpenseHandler implements ICommandHandler<UpdateExpenseComman
 
     if (request.status === ExpenseStatus.SUBMITTED) {
       expense.submit({ id: request.updatedById });
-    } else if (request.status === ExpenseStatus.REJECTED) {
-      expense.reject({ id: request.updatedById }, request.remarks);
+    } else if (request.status === ExpenseStatus.SEND_BACK) {
+      expense.sendBack({ id: request.updatedById }, request.remarks);
     } else {
       const expenseItems = request.expenseItems?.map(
         (item) => new ExpenseItem(item.itemName, undefined, item.amount),

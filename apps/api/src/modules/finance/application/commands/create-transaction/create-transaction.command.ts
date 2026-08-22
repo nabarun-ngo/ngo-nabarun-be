@@ -6,6 +6,7 @@ export class CreateTransactionCommand {
       currency: string;
       accountId: string;
       transferToAccountId?: string;
+      transferReference?: 'ADHOC' | 'ADVANCE_EV';
       txnDescription: string;
       txnRefId?: string;
       txnRefType?: string;

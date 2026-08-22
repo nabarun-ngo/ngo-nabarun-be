@@ -1,0 +1,37 @@
+---
+description: Handler layout, barrel exports, and pagination/sorting conventions.
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# Code Conventions
+
+## Application handlers
+
+```
+application/
+├── commands/{use-case}/{use-case}.handler.ts   ← @CommandHandler
+├── queries/{use-case}/{use-case}.handler.ts    ← @QueryHandler
+└── handlers/
+    ├── events/on-{event}/on-{event}.handler.ts ← @EventsHandler (subfolder per event)
+    ├── workflow/{task}.handler.ts              ← @WorkflowTaskHandler
+    └── queue/{job}.handler.ts                  ← @QueueHandler (+ {job}.job.ts)
+```
+
+- Register all handlers in the owning `*.module.ts` `providers` — no auto-discovery.
+- Host cross-module glue: `apps/api/src/shared/integrations/{domain}/handlers/...`
+- Shared packages: BullMQ processors in `infrastructure/queue/`; job classes in `application/jobs/`.
+
+## Barrel exports
+
+- **One** `index.ts` per module root — no nested barrels in subdirectories.
+- Intra-module imports use **direct file paths**, never directory barrels.
+- Module `index.ts`: explicit named exports only (no `export *`); export only the public consumer API.
+
+## Pagination & sorting
+
+- List endpoints: `@Query() query: PaginatedQueryDto` — never raw `pageIndex`/`pageSize` params.
+- Pass into domain: `new BaseFilter(props?, pageIndex?, pageSize?, sortBy?, sortDir?)`.
+- Extra filters: **extend** `PaginatedQueryDto`; constrain `sortBy` with `@IsIn([...])`.
+- `SortOrder` / `BaseFilter` = domain (`@lib/core`); `PaginatedQueryDto` = presentation.
+- Do **not** migrate the queue module — it uses BullMQ ranges, not `BaseFilter`.

@@ -1,7 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiAutoResponse,
+  ApiAutoVoidResponse,
+  ApiStringQuery,
+  ApiUuidParam,
+} from '@nabarun-ngo/nestjs-shared-core';
 import {
   UnifiedAuthGuard,
   PermissionsGuard,
@@ -30,6 +35,8 @@ export class SubscriptionController {
   @Get('me')
   @RequirePermissions('read:subscriptions')
   @ApiOperation({ summary: 'List subscriptions for the current user' })
+  @ApiStringQuery('resourceType', 'project', 'Filter by resource type')
+  @ApiStringQuery('resourceId', '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68', 'Filter by resource id')
   @ApiAutoResponse(SubscriptionResponseDto, { isArray: true })
   async listMine(
     @CurrentUser() user: AuthUser,
@@ -60,6 +67,7 @@ export class SubscriptionController {
   @Delete(':id')
   @RequirePermissions('delete:subscriptions')
   @ApiOperation({ summary: 'Unsubscribe current user from a resource' })
+  @ApiUuidParam('id', 'Identifier of the subscription')
   @ApiAutoVoidResponse()
   async unsubscribe(@Param('id') subscriptionId: string, @CurrentUser() user: AuthUser): Promise<void> {
     return this.commandBus.execute(
@@ -70,6 +78,7 @@ export class SubscriptionController {
   @Patch(':id/channels')
   @RequirePermissions('update:subscriptions')
   @ApiOperation({ summary: 'Update channel config for a subscription' })
+  @ApiUuidParam('id', 'Identifier of the subscription')
   @ApiAutoVoidResponse()
   async updateChannel(
     @Param('id') subscriptionId: string,
@@ -90,6 +99,14 @@ export class SubscriptionController {
   @Get('resource')
   @RequirePermissions('read:subscriptions')
   @ApiOperation({ summary: 'List all subscribers for a resource (admin)' })
+  @ApiQuery({
+    name: 'resourceType',
+    type: String,
+    required: true,
+    example: 'project',
+    description: 'Type of the resource whose subscribers are listed',
+  })
+  @ApiStringQuery('resourceId', '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68', 'Identifier of the resource')
   @ApiAutoResponse(SubscriptionResponseDto, { isArray: true })
   async getResourceSubscribers(
     @Query('resourceType') resourceType: string,

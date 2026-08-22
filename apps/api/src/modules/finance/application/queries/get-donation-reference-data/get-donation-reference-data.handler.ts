@@ -10,13 +10,16 @@ export class GetDonationReferenceDataHandler implements IQueryHandler<GetDonatio
   constructor(@Optional() @Inject(IFinanceReferenceDataPort) private readonly port: IFinanceReferenceDataPort) {}
 
   async execute(): Promise<DonationRefDataDto> {
-    const data = this.port ? await this.port.getDonationReferenceData() : {};
+    if (!this.port) {
+      return {};
+    }
+    const data = await this.port.getDonationReferenceData();
     return {
       donationStatuses: data.donationStatuses,
       donationTypes: data.donationTypes,
       paymentMethods: data.paymentMethods,
       upiOptions: data.upiOptions,
+      donationStatusGroups: data.donationStatusGroups,
     };
   }
 }
-

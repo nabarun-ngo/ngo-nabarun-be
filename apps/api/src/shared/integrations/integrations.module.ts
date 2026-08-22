@@ -13,14 +13,9 @@ import { DISPATCH_QUEUE_PORT_PROVIDER } from './correspondence/queue-dispatch.ad
 import { TEMPLATE_PORT_PROVIDER } from './correspondence/json-store-template.adapter';
 import { CommentNotificationAdapter } from './correspondence/comment-notification.adapter';
 import { ZodJsonDocumentPayloadValidatorAdapter } from './json-store/json-document-payload-validator.adapter';
+import { JsonStoreSchemaController } from './json-store/json-store-schema.controller';
+import { JsonStoreSchemaService } from './json-store/json-store-schema.service';
 import { OAUTH_ACCESS_TOKEN_PROVIDER } from './oauth/token-vault-oauth-access-token.adapter';
-import { WORKFLOW_DEFINITION_PROVIDER } from './workflow/json-store-workflow-definition.adapter';
-import { WORKFLOW_QUEUE_PROVIDER } from './workflow/queue-workflow-job.adapter';
-import { WORKFLOW_FORM_DATA_PROVIDER } from './workflow/workflow-form-data.adapter';
-import { WORKFLOW_USER_RESOLUTION_PROVIDER } from './workflow/workflow-user-resolution.adapter';
-import { ValidateInputsHandler } from './workflow/handlers/workflow/validate-inputs.handler';
-import { OnUserDeletedWorkflowHandler } from './workflow/handlers/events/on-user-deleted-workflow.handler';
-import { StartWorkflowCronHandler } from './workflow/handlers/queue/start-workflow-cron.handler';
 import { IUserReferenceDataPort } from '../../modules/user/application/ports/user-reference-data.port';
 import { UserReferenceDataAdapter } from '../../modules/user/infrastructure/adapters/user-reference-data.adapter';
 import { IFinanceReferenceDataPort } from '../../modules/finance/application/ports/finance-reference-data.port';
@@ -41,10 +36,6 @@ const PORT_PROVIDERS = [
   TEMPLATE_PORT_PROVIDER,
   DISPATCH_QUEUE_PORT_PROVIDER,
   OAUTH_ACCESS_TOKEN_PROVIDER,
-  WORKFLOW_DEFINITION_PROVIDER,
-  WORKFLOW_QUEUE_PROVIDER,
-  WORKFLOW_FORM_DATA_PROVIDER,
-  WORKFLOW_USER_RESOLUTION_PROVIDER,
   { provide: IUserReferenceDataPort, useClass: UserReferenceDataAdapter },
   { provide: IFinanceReferenceDataPort, useClass: FinanceReferenceDataAdapter },
   { provide: IProjectReferenceDataPort, useClass: ProjectReferenceDataAdapter },
@@ -54,12 +45,6 @@ const PORT_PROVIDERS = [
   { provide: COMMENT_NOTIFICATION_PORT, useClass: CommentNotificationAdapter },
   { provide: IPublicSiteStaticContentPort, useClass: PublicSiteStaticContentAdapter },
   { provide: IPublicSiteDynamicContentPort, useClass: PublicSiteDynamicContentAdapter },
-];
-
-const WORKFLOW_HANDLERS = [
-  ValidateInputsHandler,
-  OnUserDeletedWorkflowHandler,
-  StartWorkflowCronHandler,
 ];
 
 const PORT_EXPORTS = PORT_PROVIDERS.map((p) => p.provide);
@@ -111,7 +96,11 @@ export class IntegrationsModule {
           }),
         }),
       ],
-      providers: [...PORT_PROVIDERS, ...WORKFLOW_HANDLERS],
+      controllers: [JsonStoreSchemaController],
+      providers: [
+        ...PORT_PROVIDERS,
+        JsonStoreSchemaService,
+      ],
       exports: [...PORT_EXPORTS, jsonStoreModule],
     };
   }

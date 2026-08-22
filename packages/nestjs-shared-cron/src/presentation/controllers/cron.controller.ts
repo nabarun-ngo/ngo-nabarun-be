@@ -11,12 +11,20 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiHeader,
+  ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  ApiAutoPrimitiveResponse,
+  ApiAutoResponse,
+  ApiAutoVoidResponse,
+  ApiKeyParam,
+  ENVELOPE_EXAMPLES,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { RequirePermissions, UseApiKey } from '@nabarun-ngo/nestjs-shared-auth';
 import { TriggerCronJobsCommand } from '../../application/commands/trigger-cron-jobs/trigger-cron-jobs.command';
 import { CreateCronJobCommand } from '../../application/commands/create-cron-job/create-cron-job.command';
@@ -48,6 +56,12 @@ export class CronController {
   @UseApiKey()
   @RequirePermissions('update:cron')
   @ApiOperation({ summary: 'Evaluate schedules and enqueue due jobs (called by cloud scheduler)' })
+  @ApiHeader({
+    name: 'x-cloudscheduler-scheduletime',
+    required: false,
+    description: 'Scheduled fire time sent by the cloud scheduler',
+    example: '2026-03-14T09:30:00.000Z',
+  })
   @ApiAutoResponse(TriggerResultDto, { wrapInSuccessResponse: true })
   async trigger(
     @Headers('x-cloudscheduler-scheduletime') scheduleTime?: string,
@@ -83,6 +97,7 @@ export class CronController {
   @Put('jobs/:name')
   @RequirePermissions('update:cron')
   @ApiOperation({ summary: 'Update a cron job definition' })
+  @ApiKeyParam('name', 'daily-donation-digest', 'Unique cron job name')
   @ApiAutoResponse(CronJobDto, { wrapInSuccessResponse: true })
   async updateJob(
     @Param('name') name: string,
@@ -94,6 +109,7 @@ export class CronController {
   @Delete('jobs/:name')
   @RequirePermissions('update:cron')
   @ApiOperation({ summary: 'Delete a cron job definition' })
+  @ApiKeyParam('name', 'daily-donation-digest', 'Unique cron job name')
   @ApiAutoVoidResponse()
   async deleteJob(@Param('name') name: string): Promise<void> {
     await this.commandBus.execute(new DeleteCronJobCommand(name));
@@ -106,8 +122,20 @@ export class CronController {
   @Post('run/:name')
   @RequirePermissions('update:cron')
   @ApiOperation({ summary: 'Manually enqueue a specific job immediately' })
-  @ApiAutoResponse(String, { wrapInSuccessResponse: true })
-  @ApiBody({ type: Object, required: false })
+  @ApiKeyParam('name', 'daily-donation-digest', 'Unique cron job name')
+  @ApiBody({
+    required: false,
+    description: "Payload forwarded to the job handler, replacing the job's stored inputData",
+    schema: {
+      type: 'object',
+      additionalProperties: true,
+      example: { timezone: 'Asia/Kolkata', recipientRole: 'FINANCE_ADMIN' },
+    },
+  })
+  @ApiAutoPrimitiveResponse('string', { description: 'Queue job id of the enqueued run' })
+  @ApiOkResponse({
+    example: { ...ENVELOPE_EXAMPLES, responsePayload: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' },
+  })
   async runJob(
     @Param('name') name: string,
     @Body() body: Record<string, any>,

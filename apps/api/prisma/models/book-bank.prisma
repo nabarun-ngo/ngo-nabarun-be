@@ -1,0 +1,53 @@
+// Book bank register — library copies at distributed places, lend / donate-out.
+
+model Book {
+  id                String    @id @default(uuid())
+  title             String    @db.VarChar(255)
+  author            String    @db.VarChar(255)
+  category          String    @db.VarChar(50)
+  subject           String    @db.VarChar(50)
+  classLevel        String    @db.VarChar(50)
+  isbn              String?   @db.VarChar(32)
+  location          String?   @db.VarChar(255)
+  status            String    @db.VarChar(20)
+  acquisitionType   String    @db.VarChar(30)
+  acquisitionNotes  String?   @db.Text
+
+  holderUserId      String?   @db.VarChar(255)
+  holderGuestName   String?   @db.VarChar(255)
+
+  createdById       String?   @db.VarChar(255)
+  updatedById       String?   @db.VarChar(255)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(0)
+  deletedAt         DateTime?
+
+  loanHistory       BookLoanRecord[]
+
+  @@index([status])
+  @@index([category])
+  @@index([subject])
+  @@index([classLevel])
+  @@index([author])
+  @@index([holderUserId])
+  @@index([deletedAt])
+  @@map("ops_books")
+}
+
+model BookLoanRecord {
+  id              String    @id @default(uuid())
+  bookId          String    @db.VarChar(255)
+  borrowerUserId  String?   @db.VarChar(255)
+  guestName       String?   @db.VarChar(255)
+  loanedAt        DateTime  @default(now())
+  dueDate         DateTime?
+  returnedAt      DateTime?
+  returnedById    String?   @db.VarChar(255)
+  notes           String?   @db.Text
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, loanedAt])
+  @@map("ops_book_loan_records")
+}

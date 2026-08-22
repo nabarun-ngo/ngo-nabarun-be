@@ -28,6 +28,7 @@ export type AuthRoleMinAggregateOutputType = {
   id: string | null
   key: string | null
   description: string | null
+  isShadow: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -37,6 +38,7 @@ export type AuthRoleMaxAggregateOutputType = {
   id: string | null
   key: string | null
   description: string | null
+  isShadow: boolean | null
   deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -46,6 +48,7 @@ export type AuthRoleCountAggregateOutputType = {
   id: number
   key: number
   description: number
+  isShadow: number
   deletedAt: number
   createdAt: number
   updatedAt: number
@@ -57,6 +60,7 @@ export type AuthRoleMinAggregateInputType = {
   id?: true
   key?: true
   description?: true
+  isShadow?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -66,6 +70,7 @@ export type AuthRoleMaxAggregateInputType = {
   id?: true
   key?: true
   description?: true
+  isShadow?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -75,6 +80,7 @@ export type AuthRoleCountAggregateInputType = {
   id?: true
   key?: true
   description?: true
+  isShadow?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -157,6 +163,7 @@ export type AuthRoleGroupByOutputType = {
   id: string
   key: string
   description: string | null
+  isShadow: boolean
   deletedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -187,6 +194,7 @@ export type AuthRoleWhereInput = {
   id?: Prisma.StringFilter<"AuthRole"> | string
   key?: Prisma.StringFilter<"AuthRole"> | string
   description?: Prisma.StringNullableFilter<"AuthRole"> | string | null
+  isShadow?: Prisma.BoolFilter<"AuthRole"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"AuthRole"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AuthRole"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AuthRole"> | Date | string
@@ -199,6 +207,7 @@ export type AuthRoleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  isShadow?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -214,6 +223,7 @@ export type AuthRoleWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AuthRoleWhereInput[]
   NOT?: Prisma.AuthRoleWhereInput | Prisma.AuthRoleWhereInput[]
   description?: Prisma.StringNullableFilter<"AuthRole"> | string | null
+  isShadow?: Prisma.BoolFilter<"AuthRole"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"AuthRole"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AuthRole"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AuthRole"> | Date | string
@@ -226,6 +236,7 @@ export type AuthRoleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  isShadow?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -241,6 +252,7 @@ export type AuthRoleScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"AuthRole"> | string
   key?: Prisma.StringWithAggregatesFilter<"AuthRole"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"AuthRole"> | string | null
+  isShadow?: Prisma.BoolWithAggregatesFilter<"AuthRole"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AuthRole"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AuthRole"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AuthRole"> | Date | string
@@ -250,6 +262,7 @@ export type AuthRoleCreateInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -262,6 +275,7 @@ export type AuthRoleUncheckedCreateInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -274,6 +288,7 @@ export type AuthRoleUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -286,6 +301,7 @@ export type AuthRoleUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -298,6 +314,7 @@ export type AuthRoleCreateManyInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -307,6 +324,7 @@ export type AuthRoleUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -316,6 +334,7 @@ export type AuthRoleUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -325,6 +344,7 @@ export type AuthRoleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isShadow?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -334,6 +354,7 @@ export type AuthRoleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isShadow?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -343,6 +364,7 @@ export type AuthRoleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isShadow?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -351,6 +373,10 @@ export type AuthRoleMinOrderByAggregateInput = {
 export type AuthRoleScalarRelationFilter = {
   is?: Prisma.AuthRoleWhereInput
   isNot?: Prisma.AuthRoleWhereInput
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type AuthRoleCreateNestedOneWithoutPermissionsInput = {
@@ -399,6 +425,7 @@ export type AuthRoleCreateWithoutPermissionsInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -410,6 +437,7 @@ export type AuthRoleUncheckedCreateWithoutPermissionsInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -437,6 +465,7 @@ export type AuthRoleUpdateWithoutPermissionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -448,6 +477,7 @@ export type AuthRoleUncheckedUpdateWithoutPermissionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -459,6 +489,7 @@ export type AuthRoleCreateWithoutRoleGroupRolesInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -470,6 +501,7 @@ export type AuthRoleUncheckedCreateWithoutRoleGroupRolesInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -497,6 +529,7 @@ export type AuthRoleUpdateWithoutRoleGroupRolesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -508,6 +541,7 @@ export type AuthRoleUncheckedUpdateWithoutRoleGroupRolesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -519,6 +553,7 @@ export type AuthRoleCreateWithoutUserRolesInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -530,6 +565,7 @@ export type AuthRoleUncheckedCreateWithoutUserRolesInput = {
   id?: string
   key: string
   description?: string | null
+  isShadow?: boolean
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -557,6 +593,7 @@ export type AuthRoleUpdateWithoutUserRolesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,6 +605,7 @@ export type AuthRoleUncheckedUpdateWithoutUserRolesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isShadow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -628,6 +666,7 @@ export type AuthRoleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   key?: boolean
   description?: boolean
+  isShadow?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -641,6 +680,7 @@ export type AuthRoleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   key?: boolean
   description?: boolean
+  isShadow?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -650,6 +690,7 @@ export type AuthRoleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   key?: boolean
   description?: boolean
+  isShadow?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -659,12 +700,13 @@ export type AuthRoleSelectScalar = {
   id?: boolean
   key?: boolean
   description?: boolean
+  isShadow?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AuthRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "description" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["authRole"]>
+export type AuthRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "description" | "isShadow" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["authRole"]>
 export type AuthRoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   permissions?: boolean | Prisma.AuthRole$permissionsArgs<ExtArgs>
   userRoles?: boolean | Prisma.AuthRole$userRolesArgs<ExtArgs>
@@ -685,6 +727,7 @@ export type $AuthRolePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     key: string
     description: string | null
+    isShadow: boolean
     deletedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1117,6 +1160,7 @@ export interface AuthRoleFieldRefs {
   readonly id: Prisma.FieldRef<"AuthRole", 'String'>
   readonly key: Prisma.FieldRef<"AuthRole", 'String'>
   readonly description: Prisma.FieldRef<"AuthRole", 'String'>
+  readonly isShadow: Prisma.FieldRef<"AuthRole", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"AuthRole", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AuthRole", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AuthRole", 'DateTime'>

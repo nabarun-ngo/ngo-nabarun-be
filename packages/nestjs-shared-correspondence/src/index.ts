@@ -6,6 +6,7 @@ export type {
   CorrespondenceModuleOverrides,
 } from './correspondence.module';
 export { CORRESPONDENCE_OPTIONS } from './correspondence-options.token';
+export type { ResourceTypeConfig } from './correspondence.schema';
 
 // ── Shared correspondence vocabulary (recipient + channel types) ─────────────
 export {

@@ -1,0 +1,38 @@
+{
+  "slug": "create-a-meeting",
+  "title": "Create a meeting and invite",
+  "categoryKey": "meetings",
+  "summary": "Set date, agenda, attendees, and save a meeting.",
+  "updatedAt": "2026-08-15",
+  "relatedSlugs": ["getting-started"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Open Events & Meetings"
+    },
+    {
+      "type": "paragraph",
+      "text": "From the main navigation, open Events & Meetings. Use Create to schedule a new meeting."
+    },
+    {
+      "type": "steps",
+      "items": [
+        "Enter title, date, and time",
+        "Add agenda items",
+        "Invite attendees",
+        "Save the meeting"
+      ]
+    },
+    {
+      "type": "callout",
+      "tone": "tip",
+      "text": "After the meeting ends you can share minutes; before it ends you can share the invite."
+    },
+    {
+      "type": "video",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "title": "Create a meeting walkthrough"
+    }
+  ]
+}

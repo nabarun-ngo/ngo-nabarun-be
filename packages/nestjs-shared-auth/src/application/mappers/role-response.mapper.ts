@@ -7,6 +7,7 @@ export class RoleResponseMapper {
     dto.id = role.id;
     dto.key = role.key;
     dto.description = role.description;
+    dto.isShadow = role.isShadow;
     dto.permissionKeys = role.permissionKeys;
     dto.createdAt = role.createdAt;
     return dto;

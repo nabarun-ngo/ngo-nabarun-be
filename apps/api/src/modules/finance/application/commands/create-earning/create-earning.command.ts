@@ -9,6 +9,7 @@ export class CreateEarningCommand {
       currency: string;
       source: string;
       description?: string;
+      accountId?: string;
     },
   ) {}
 }

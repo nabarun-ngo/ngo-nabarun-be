@@ -69,21 +69,21 @@ export class FieldValidationRulesInputDto extends FieldValidationRulesDto {
 const FIELD_TYPES = Object.values(CustomFieldType);
 
 export class AddFormFieldDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'emergency_contact' })
   @IsString()
   @IsNotEmpty()
   key: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Emergency contact number' })
   @IsString()
   @IsNotEmpty()
   label: string;
 
-  @ApiProperty({ enum: FIELD_TYPES })
+  @ApiProperty({ enum: FIELD_TYPES, example: CustomFieldType.Phone })
   @IsIn(FIELD_TYPES)
   fieldType: CustomFieldType;
 
-  @ApiPropertyOptional({ default: false })
+  @ApiPropertyOptional({ default: false, example: true })
   @IsBoolean()
   @IsOptional()
   mandatory?: boolean;
@@ -95,28 +95,28 @@ export class AddFormFieldDto {
   @IsOptional()
   fieldOptions?: FieldOptionInputDto[];
 
-  @ApiPropertyOptional({ default: false })
+  @ApiPropertyOptional({ default: false, example: false })
   @IsBoolean()
   @IsOptional()
   isHidden?: boolean;
 
-  @ApiPropertyOptional({ default: false })
+  @ApiPropertyOptional({ default: false, example: true })
   @IsBoolean()
   @IsOptional()
   isEncrypted?: boolean;
 
-  @ApiPropertyOptional({ default: 0 })
+  @ApiPropertyOptional({ default: 0, example: 1 })
   @IsInt()
   @Min(0)
   @IsOptional()
   sortOrder?: number;
 
-  @ApiPropertyOptional({ description: 'Wizard step identifier for multi-step forms' })
+  @ApiPropertyOptional({ description: 'Wizard step identifier for multi-step forms', example: 'contact-details' })
   @IsString()
   @IsOptional()
   stepId?: string;
 
-  @ApiPropertyOptional({ description: 'Display label for the wizard step' })
+  @ApiPropertyOptional({ description: 'Display label for the wizard step', example: 'Contact details' })
   @IsString()
   @IsOptional()
   stepName?: string;
@@ -139,7 +139,7 @@ export class AddFormFieldDto {
   @IsOptional()
   validationRules?: FieldValidationRulesInputDto;
 
-  @ApiPropertyOptional({ type: [String] })
+  @ApiPropertyOptional({ type: [String], example: ['read:custom_forms', 'admin:custom_forms'] })
   @IsArray()
   @IsString({ each: true })
   @ArrayUnique()
@@ -148,17 +148,17 @@ export class AddFormFieldDto {
 }
 
 export class UpdateFormFieldDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Emergency contact number' })
   @IsString()
   @IsOptional()
   label?: string;
 
-  @ApiPropertyOptional({ enum: FIELD_TYPES })
+  @ApiPropertyOptional({ enum: FIELD_TYPES, example: CustomFieldType.Phone })
   @IsIn(FIELD_TYPES)
   @IsOptional()
   fieldType?: CustomFieldType;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   @IsBoolean()
   @IsOptional()
   mandatory?: boolean;
@@ -170,28 +170,28 @@ export class UpdateFormFieldDto {
   @IsOptional()
   fieldOptions?: FieldOptionInputDto[];
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: false })
   @IsBoolean()
   @IsOptional()
   isHidden?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   @IsBoolean()
   @IsOptional()
   isEncrypted?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 1 })
   @IsInt()
   @Min(0)
   @IsOptional()
   sortOrder?: number;
 
-  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms' })
+  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms', example: 'contact-details' })
   @IsString()
   @IsOptional()
   stepId?: string | null;
 
-  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step' })
+  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step', example: 'Contact details' })
   @IsString()
   @IsOptional()
   stepName?: string | null;
@@ -214,7 +214,7 @@ export class UpdateFormFieldDto {
   @IsOptional()
   validationRules?: FieldValidationRulesInputDto | null;
 
-  @ApiPropertyOptional({ type: [String] })
+  @ApiPropertyOptional({ type: [String], example: ['read:custom_forms', 'admin:custom_forms'] })
   @IsArray()
   @IsString({ each: true })
   @ArrayUnique()
@@ -223,12 +223,12 @@ export class UpdateFormFieldDto {
 }
 
 export class FieldSortOrderItemDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   @IsString()
   @IsNotEmpty()
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   @IsInt()
   @Min(0)
   sortOrder: number;

@@ -6,6 +6,8 @@ export interface AuthPermissionSeed {
 export interface AuthRoleSeed {
   key: string;
   description?: string;
+  /** When true, role is platform/break-glass and hidden from member pickers by default. */
+  isShadow?: boolean;
   permissionKeys: string[];
   seedUsers?: string[];
 }
@@ -13,6 +15,8 @@ export interface AuthRoleSeed {
 export interface AuthRoleGroupSeed {
   key: string;
   description?: string;
+  /** When true, group is platform/break-glass and hidden from member pickers by default. */
+  isShadow?: boolean;
   roleKeys: string[];
   seedUsers?: string[];
 }

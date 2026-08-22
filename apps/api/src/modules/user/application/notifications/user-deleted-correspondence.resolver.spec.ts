@@ -1,6 +1,6 @@
 import { UserDeletedCorrespondenceResolver } from './user-deleted-correspondence.resolver';
 import { UserDeletedEvent } from '../../domain/events/user-deleted.event';
-import { EmailTemplateKey } from '../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 describe('UserDeletedCorrespondenceResolver', () => {
   const resolver = new UserDeletedCorrespondenceResolver();

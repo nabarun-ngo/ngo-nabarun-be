@@ -3,6 +3,7 @@ import { z } from 'zod';
 const KeyValueOptionSchema = z.object({
   key: z.string().min(1),
   value: z.string().min(1),
+  description: z.string().optional(),
   countryCode: z.string().optional(),
   stateCode: z.string().optional(),
 });

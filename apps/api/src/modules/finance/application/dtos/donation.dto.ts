@@ -49,4 +49,9 @@ export class DonationRefDataDto {
   donationTypes?: KeyValueOption[];
   paymentMethods?: KeyValueOption[];
   upiOptions?: KeyValueOption[];
+  donationStatusGroups?: {
+    outstanding: string[];
+    closed: string[];
+    excluded: string[];
+  };
 }

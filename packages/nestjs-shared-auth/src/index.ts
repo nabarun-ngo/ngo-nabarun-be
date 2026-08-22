@@ -45,4 +45,5 @@ export { IRoleGroupRepository } from './domain/repositories/role-group.repositor
 export { IPermissionRepository } from './domain/repositories/permission.repository';
 export { IUserRoleRepository } from './domain/repositories/user-role.repository';
 export { IUserRoleGroupRepository } from './domain/repositories/user-role-group.repository';
+export { IUserPermissionRepository } from './domain/repositories/user-permission.repository';
 export { IApiKeyRepository } from './domain/repositories/api-key.repository';

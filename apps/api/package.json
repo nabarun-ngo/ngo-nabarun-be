@@ -5,16 +5,19 @@
   "private": true,
   "scripts": {
     "generate:db": "npx prisma generate",
+    "start:redis": "powershell -ExecutionPolicy Bypass -File \"./scripts/Start-Redis.ps1\"",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:deploy": "npx prisma migrate deploy",
-    "prebuild": "npm run clean && npm run generate:db",
     "clean": "rimraf dist && rimraf .turbo && rimraf src/shared/persistence/prisma",
-    "build": "nest build",
-    "build:watch": "nest build --watch",
+    "build": "npm run clean && npm run generate:db && nest build",
+    "build:watch": "npm run clean && npm run generate:db && nest build --watch",
+    "generate:swagger": "node dist/swagger-gen.js",
     "start": "node dist/main",
-    "start:watch": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "seed": "node ../../scripts/copy-assets.mjs --config=copy-seed-assets.config.json && node dist/seed",
+    "dev": "npm run start:redis && nest start --watch",
+    "dev:debug": "nest start --debug --watch",
+    "mock:spec": "node scripts/build-mock-spec.mjs",
+    "mock": "npm run mock:spec && prism mock swagger.mock.json --port 8080",
+    "seed": "node ../../scripts/copy-assets.mjs --config=seed-assets.json && node dist/seed",
     "type-check": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -74,6 +77,7 @@
     "@nabarun-ngo/nestjs-shared-core": "*",
     "@nabarun-ngo/nestjs-shared-persistence": "*",
     "@nabarun-ngo/nestjs-shared-auth": "*",
+    "@nabarun-ngo/nestjs-shared-health": "*",
     "@nabarun-ngo/nestjs-shared-observability": "*",
     "@nabarun-ngo/nestjs-shared-queue": "*",
     "@nabarun-ngo/nestjs-shared-json-store": "*",
@@ -83,13 +87,13 @@
     "@nabarun-ngo/nestjs-shared-comment": "*",
     "@nabarun-ngo/nestjs-shared-custom-forms": "*",
     "@nabarun-ngo/nestjs-shared-cron": "*",
-    "@nabarun-ngo/nestjs-shared-correspondence": "*",
-    "@nabarun-ngo/nestjs-shared-workflow": "*"
+    "@nabarun-ngo/nestjs-shared-correspondence": "*"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@stoplight/prism-cli": "5.14.2",
     "@types/bcrypt": "^6.0.0",
     "@types/body-parser": "^1.19.0",
     "@types/compression": "^1.7.0",
@@ -134,6 +138,9 @@
     "testEnvironment": "node",
     "setupFiles": [
       "reflect-metadata"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@nabarun-ngo/nestjs-shared-core$": "<rootDir>/../../packages/nestjs-shared-core/dist/index.js"
+    }
   }
 }

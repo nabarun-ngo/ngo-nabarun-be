@@ -179,6 +179,21 @@ export class UserRoleGroupPrismaRepository
     return rows.map((r) => r.idpSub);
   }
 
+  async findActiveByGroupId(groupId: string): Promise<UserRoleGroup[]> {
+    const rows = await this.delegate.findMany({
+      where: { groupId, revokedAt: null },
+    });
+    return (rows as UserRoleGroupRow[]).map((r) => this.toDomain(r));
+  }
+
+  async findIdPSubsByGroupId(groupId: string): Promise<string[]> {
+    const rows = await this.delegate.findMany({
+      where: { groupId, revokedAt: null },
+      select: { idpSub: true },
+    });
+    return (rows as Array<{ idpSub: string }>).map((r) => r.idpSub);
+  }
+
   async createMembershipWithRoles(membership: UserRoleGroup, userRoles: UserRole[]): Promise<void> {
     await this.$transaction(async (tx) => {
       await (tx).authUserRoleGroup.create({ data: this.toCreateInput(membership) });

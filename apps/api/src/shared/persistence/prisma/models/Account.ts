@@ -40,6 +40,7 @@ export type AccountMinAggregateOutputType = {
   id: string | null
   name: string | null
   type: string | null
+  ownerType: string | null
   currency: string | null
   status: string | null
   description: string | null
@@ -47,8 +48,6 @@ export type AccountMinAggregateOutputType = {
   accountHolderName: string | null
   accountHolderId: string | null
   activatedOn: Date | null
-  bankDetail: string | null
-  upiDetail: string | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -60,6 +59,7 @@ export type AccountMaxAggregateOutputType = {
   id: string | null
   name: string | null
   type: string | null
+  ownerType: string | null
   currency: string | null
   status: string | null
   description: string | null
@@ -67,8 +67,6 @@ export type AccountMaxAggregateOutputType = {
   accountHolderName: string | null
   accountHolderId: string | null
   activatedOn: Date | null
-  bankDetail: string | null
-  upiDetail: string | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -80,15 +78,15 @@ export type AccountCountAggregateOutputType = {
   id: number
   name: number
   type: number
+  ownerType: number
   currency: number
   status: number
   description: number
   balance: number
   accountHolderName: number
   accountHolderId: number
+  custodianUserIds: number
   activatedOn: number
-  bankDetail: number
-  upiDetail: number
   createdById: number
   createdAt: number
   updatedAt: number
@@ -112,6 +110,7 @@ export type AccountMinAggregateInputType = {
   id?: true
   name?: true
   type?: true
+  ownerType?: true
   currency?: true
   status?: true
   description?: true
@@ -119,8 +118,6 @@ export type AccountMinAggregateInputType = {
   accountHolderName?: true
   accountHolderId?: true
   activatedOn?: true
-  bankDetail?: true
-  upiDetail?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -132,6 +129,7 @@ export type AccountMaxAggregateInputType = {
   id?: true
   name?: true
   type?: true
+  ownerType?: true
   currency?: true
   status?: true
   description?: true
@@ -139,8 +137,6 @@ export type AccountMaxAggregateInputType = {
   accountHolderName?: true
   accountHolderId?: true
   activatedOn?: true
-  bankDetail?: true
-  upiDetail?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -152,15 +148,15 @@ export type AccountCountAggregateInputType = {
   id?: true
   name?: true
   type?: true
+  ownerType?: true
   currency?: true
   status?: true
   description?: true
   balance?: true
   accountHolderName?: true
   accountHolderId?: true
+  custodianUserIds?: true
   activatedOn?: true
-  bankDetail?: true
-  upiDetail?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -259,15 +255,15 @@ export type AccountGroupByOutputType = {
   id: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description: string | null
   balance: runtime.Decimal
   accountHolderName: string | null
   accountHolderId: string | null
+  custodianUserIds: string[]
   activatedOn: Date | null
-  bankDetail: string | null
-  upiDetail: string | null
   createdById: string | null
   createdAt: Date
   updatedAt: Date
@@ -302,20 +298,23 @@ export type AccountWhereInput = {
   id?: Prisma.StringFilter<"Account"> | string
   name?: Prisma.StringFilter<"Account"> | string
   type?: Prisma.StringFilter<"Account"> | string
+  ownerType?: Prisma.StringFilter<"Account"> | string
   currency?: Prisma.StringFilter<"Account"> | string
   status?: Prisma.StringFilter<"Account"> | string
   description?: Prisma.StringNullableFilter<"Account"> | string | null
   balance?: Prisma.DecimalFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.StringNullableFilter<"Account"> | string | null
   accountHolderId?: Prisma.StringNullableFilter<"Account"> | string | null
+  custodianUserIds?: Prisma.StringNullableListFilter<"Account">
   activatedOn?: Prisma.DateTimeNullableFilter<"Account"> | Date | string | null
-  bankDetail?: Prisma.StringNullableFilter<"Account"> | string | null
-  upiDetail?: Prisma.StringNullableFilter<"Account"> | string | null
   createdById?: Prisma.StringNullableFilter<"Account"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   version?: Prisma.IntFilter<"Account"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"Account"> | Date | string | null
+  bankInvestDetail?: Prisma.XOR<Prisma.AccountBankInvestDetailNullableScalarRelationFilter, Prisma.AccountBankInvestDetailWhereInput> | null
+  upiDetailRows?: Prisma.AccountUpiDetailListRelationFilter
+  fundedInvestments?: Prisma.AccountBankInvestDetailListRelationFilter
   donations?: Prisma.DonationListRelationFilter
   accountHolder?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
@@ -328,20 +327,23 @@ export type AccountOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  ownerType?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   balance?: Prisma.SortOrder
   accountHolderName?: Prisma.SortOrderInput | Prisma.SortOrder
   accountHolderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  custodianUserIds?: Prisma.SortOrder
   activatedOn?: Prisma.SortOrderInput | Prisma.SortOrder
-  bankDetail?: Prisma.SortOrderInput | Prisma.SortOrder
-  upiDetail?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankInvestDetail?: Prisma.AccountBankInvestDetailOrderByWithRelationInput
+  upiDetailRows?: Prisma.AccountUpiDetailOrderByRelationAggregateInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailOrderByRelationAggregateInput
   donations?: Prisma.DonationOrderByRelationAggregateInput
   accountHolder?: Prisma.UserProfileOrderByWithRelationInput
   createdBy?: Prisma.UserProfileOrderByWithRelationInput
@@ -357,20 +359,23 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
   name?: Prisma.StringFilter<"Account"> | string
   type?: Prisma.StringFilter<"Account"> | string
+  ownerType?: Prisma.StringFilter<"Account"> | string
   currency?: Prisma.StringFilter<"Account"> | string
   status?: Prisma.StringFilter<"Account"> | string
   description?: Prisma.StringNullableFilter<"Account"> | string | null
   balance?: Prisma.DecimalFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.StringNullableFilter<"Account"> | string | null
   accountHolderId?: Prisma.StringNullableFilter<"Account"> | string | null
+  custodianUserIds?: Prisma.StringNullableListFilter<"Account">
   activatedOn?: Prisma.DateTimeNullableFilter<"Account"> | Date | string | null
-  bankDetail?: Prisma.StringNullableFilter<"Account"> | string | null
-  upiDetail?: Prisma.StringNullableFilter<"Account"> | string | null
   createdById?: Prisma.StringNullableFilter<"Account"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   version?: Prisma.IntFilter<"Account"> | number
   deletedAt?: Prisma.DateTimeNullableFilter<"Account"> | Date | string | null
+  bankInvestDetail?: Prisma.XOR<Prisma.AccountBankInvestDetailNullableScalarRelationFilter, Prisma.AccountBankInvestDetailWhereInput> | null
+  upiDetailRows?: Prisma.AccountUpiDetailListRelationFilter
+  fundedInvestments?: Prisma.AccountBankInvestDetailListRelationFilter
   donations?: Prisma.DonationListRelationFilter
   accountHolder?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
@@ -383,15 +388,15 @@ export type AccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  ownerType?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   balance?: Prisma.SortOrder
   accountHolderName?: Prisma.SortOrderInput | Prisma.SortOrder
   accountHolderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  custodianUserIds?: Prisma.SortOrder
   activatedOn?: Prisma.SortOrderInput | Prisma.SortOrder
-  bankDetail?: Prisma.SortOrderInput | Prisma.SortOrder
-  upiDetail?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -411,15 +416,15 @@ export type AccountScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Account"> | string
   name?: Prisma.StringWithAggregatesFilter<"Account"> | string
   type?: Prisma.StringWithAggregatesFilter<"Account"> | string
+  ownerType?: Prisma.StringWithAggregatesFilter<"Account"> | string
   currency?: Prisma.StringWithAggregatesFilter<"Account"> | string
   status?: Prisma.StringWithAggregatesFilter<"Account"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   balance?: Prisma.DecimalWithAggregatesFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   accountHolderId?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
+  custodianUserIds?: Prisma.StringNullableListFilter<"Account">
   activatedOn?: Prisma.DateTimeNullableWithAggregatesFilter<"Account"> | Date | string | null
-  bankDetail?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
-  upiDetail?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   createdById?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
@@ -431,18 +436,21 @@ export type AccountCreateInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
   accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
   createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
@@ -455,20 +463,23 @@ export type AccountUncheckedCreateInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
   earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
@@ -479,18 +490,21 @@ export type AccountUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
   accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
   createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
@@ -503,20 +517,23 @@ export type AccountUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
   earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
@@ -527,15 +544,15 @@ export type AccountCreateManyInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -547,14 +564,14 @@ export type AccountUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -565,15 +582,15 @@ export type AccountUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -585,15 +602,15 @@ export type AccountCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  ownerType?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   accountHolderName?: Prisma.SortOrder
   accountHolderId?: Prisma.SortOrder
+  custodianUserIds?: Prisma.SortOrder
   activatedOn?: Prisma.SortOrder
-  bankDetail?: Prisma.SortOrder
-  upiDetail?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -610,6 +627,7 @@ export type AccountMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  ownerType?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -617,8 +635,6 @@ export type AccountMaxOrderByAggregateInput = {
   accountHolderName?: Prisma.SortOrder
   accountHolderId?: Prisma.SortOrder
   activatedOn?: Prisma.SortOrder
-  bankDetail?: Prisma.SortOrder
-  upiDetail?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -630,6 +646,7 @@ export type AccountMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  ownerType?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -637,8 +654,6 @@ export type AccountMinOrderByAggregateInput = {
   accountHolderName?: Prisma.SortOrder
   accountHolderId?: Prisma.SortOrder
   activatedOn?: Prisma.SortOrder
-  bankDetail?: Prisma.SortOrder
-  upiDetail?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -649,6 +664,11 @@ export type AccountMinOrderByAggregateInput = {
 export type AccountSumOrderByAggregateInput = {
   balance?: Prisma.SortOrder
   version?: Prisma.SortOrder
+}
+
+export type AccountScalarRelationFilter = {
+  is?: Prisma.AccountWhereInput
+  isNot?: Prisma.AccountWhereInput
 }
 
 export type AccountNullableScalarRelationFilter = {
@@ -666,12 +686,65 @@ export type AccountOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type AccountCreatecustodianUserIdsInput = {
+  set: string[]
+}
+
 export type DecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type AccountUpdatecustodianUserIdsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type AccountCreateNestedOneWithoutBankInvestDetailInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutBankInvestDetailInput, Prisma.AccountUncheckedCreateWithoutBankInvestDetailInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutBankInvestDetailInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountCreateNestedOneWithoutFundedInvestmentsInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutFundedInvestmentsInput, Prisma.AccountUncheckedCreateWithoutFundedInvestmentsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutFundedInvestmentsInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountUpdateOneRequiredWithoutBankInvestDetailNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutBankInvestDetailInput, Prisma.AccountUncheckedCreateWithoutBankInvestDetailInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutBankInvestDetailInput
+  upsert?: Prisma.AccountUpsertWithoutBankInvestDetailInput
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutBankInvestDetailInput, Prisma.AccountUpdateWithoutBankInvestDetailInput>, Prisma.AccountUncheckedUpdateWithoutBankInvestDetailInput>
+}
+
+export type AccountUpdateOneWithoutFundedInvestmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutFundedInvestmentsInput, Prisma.AccountUncheckedCreateWithoutFundedInvestmentsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutFundedInvestmentsInput
+  upsert?: Prisma.AccountUpsertWithoutFundedInvestmentsInput
+  disconnect?: Prisma.AccountWhereInput | boolean
+  delete?: Prisma.AccountWhereInput | boolean
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutFundedInvestmentsInput, Prisma.AccountUpdateWithoutFundedInvestmentsInput>, Prisma.AccountUncheckedUpdateWithoutFundedInvestmentsInput>
+}
+
+export type AccountCreateNestedOneWithoutUpiDetailRowsInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutUpiDetailRowsInput, Prisma.AccountUncheckedCreateWithoutUpiDetailRowsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutUpiDetailRowsInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountUpdateOneRequiredWithoutUpiDetailRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutUpiDetailRowsInput, Prisma.AccountUncheckedCreateWithoutUpiDetailRowsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutUpiDetailRowsInput
+  upsert?: Prisma.AccountUpsertWithoutUpiDetailRowsInput
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutUpiDetailRowsInput, Prisma.AccountUpdateWithoutUpiDetailRowsInput>, Prisma.AccountUncheckedUpdateWithoutUpiDetailRowsInput>
 }
 
 export type AccountCreateNestedOneWithoutDonationsInput = {
@@ -822,22 +895,385 @@ export type AccountUncheckedUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.AccountScalarWhereInput | Prisma.AccountScalarWhereInput[]
 }
 
-export type AccountCreateWithoutDonationsInput = {
+export type AccountCreateWithoutBankInvestDetailInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
+  donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
+  accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
+  createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutAccountInput
+  earnings?: Prisma.EarningCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+}
+
+export type AccountUncheckedCreateWithoutBankInvestDetailInput = {
+  id?: string
+  name: string
+  type: string
+  ownerType: string
+  currency: string
+  status: string
+  description?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: string | null
+  accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
+  activatedOn?: Date | string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
+  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
+  earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type AccountCreateOrConnectWithoutBankInvestDetailInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutBankInvestDetailInput, Prisma.AccountUncheckedCreateWithoutBankInvestDetailInput>
+}
+
+export type AccountCreateWithoutFundedInvestmentsInput = {
+  id?: string
+  name: string
+  type: string
+  ownerType: string
+  currency: string
+  status: string
+  description?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
+  activatedOn?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
+  accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
+  createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutAccountInput
+  earnings?: Prisma.EarningCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+}
+
+export type AccountUncheckedCreateWithoutFundedInvestmentsInput = {
+  id?: string
+  name: string
+  type: string
+  ownerType: string
+  currency: string
+  status: string
+  description?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: string | null
+  accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
+  activatedOn?: Date | string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
+  earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type AccountCreateOrConnectWithoutFundedInvestmentsInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutFundedInvestmentsInput, Prisma.AccountUncheckedCreateWithoutFundedInvestmentsInput>
+}
+
+export type AccountUpsertWithoutBankInvestDetailInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutBankInvestDetailInput, Prisma.AccountUncheckedUpdateWithoutBankInvestDetailInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutBankInvestDetailInput, Prisma.AccountUncheckedCreateWithoutBankInvestDetailInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutBankInvestDetailInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutBankInvestDetailInput, Prisma.AccountUncheckedUpdateWithoutBankInvestDetailInput>
+}
+
+export type AccountUpdateWithoutBankInvestDetailInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
+  activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
+  donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
+  accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
+  createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutAccountNestedInput
+  earnings?: Prisma.EarningUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutBankInvestDetailInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
+  activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
+  donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
+  earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUpsertWithoutFundedInvestmentsInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutFundedInvestmentsInput, Prisma.AccountUncheckedUpdateWithoutFundedInvestmentsInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutFundedInvestmentsInput, Prisma.AccountUncheckedCreateWithoutFundedInvestmentsInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutFundedInvestmentsInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutFundedInvestmentsInput, Prisma.AccountUncheckedUpdateWithoutFundedInvestmentsInput>
+}
+
+export type AccountUpdateWithoutFundedInvestmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
+  activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
+  accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
+  createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutAccountNestedInput
+  earnings?: Prisma.EarningUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutFundedInvestmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
+  activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
+  earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountCreateWithoutUpiDetailRowsInput = {
+  id?: string
+  name: string
+  type: string
+  ownerType: string
+  currency: string
+  status: string
+  description?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
+  activatedOn?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
+  donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
+  accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
+  createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutAccountInput
+  earnings?: Prisma.EarningCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+}
+
+export type AccountUncheckedCreateWithoutUpiDetailRowsInput = {
+  id?: string
+  name: string
+  type: string
+  ownerType: string
+  currency: string
+  status: string
+  description?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: string | null
+  accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
+  activatedOn?: Date | string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
+  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
+  earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type AccountCreateOrConnectWithoutUpiDetailRowsInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutUpiDetailRowsInput, Prisma.AccountUncheckedCreateWithoutUpiDetailRowsInput>
+}
+
+export type AccountUpsertWithoutUpiDetailRowsInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutUpiDetailRowsInput, Prisma.AccountUncheckedUpdateWithoutUpiDetailRowsInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutUpiDetailRowsInput, Prisma.AccountUncheckedCreateWithoutUpiDetailRowsInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutUpiDetailRowsInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutUpiDetailRowsInput, Prisma.AccountUncheckedUpdateWithoutUpiDetailRowsInput>
+}
+
+export type AccountUpdateWithoutUpiDetailRowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
+  activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
+  donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
+  accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
+  createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutAccountNestedInput
+  earnings?: Prisma.EarningUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutUpiDetailRowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
+  activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
+  donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
+  earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountCreateWithoutDonationsInput = {
+  id?: string
+  name: string
+  type: string
+  ownerType: string
+  currency: string
+  status: string
+  description?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
+  activatedOn?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
   createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutAccountInput
@@ -849,20 +1285,23 @@ export type AccountUncheckedCreateWithoutDonationsInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
   earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
@@ -888,18 +1327,21 @@ export type AccountUpdateWithoutDonationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
   createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutAccountNestedInput
@@ -911,20 +1353,23 @@ export type AccountUncheckedUpdateWithoutDonationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
   earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
@@ -934,18 +1379,21 @@ export type AccountCreateWithoutTransactionsInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
   accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
   createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
@@ -957,20 +1405,23 @@ export type AccountUncheckedCreateWithoutTransactionsInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
   earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
@@ -996,18 +1447,21 @@ export type AccountUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
   accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
   createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
@@ -1019,20 +1473,23 @@ export type AccountUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
   earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
@@ -1042,18 +1499,21 @@ export type AccountCreateWithoutExpensesInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
   accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
   createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
@@ -1065,20 +1525,23 @@ export type AccountUncheckedCreateWithoutExpensesInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
   earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
@@ -1104,18 +1567,21 @@ export type AccountUpdateWithoutExpensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
   accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
   createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
@@ -1127,20 +1593,23 @@ export type AccountUncheckedUpdateWithoutExpensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
   earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
@@ -1150,18 +1619,21 @@ export type AccountCreateWithoutEarningsInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
   accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
   createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
@@ -1173,20 +1645,23 @@ export type AccountUncheckedCreateWithoutEarningsInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
@@ -1212,18 +1687,21 @@ export type AccountUpdateWithoutEarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
   accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
   createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
@@ -1235,20 +1713,23 @@ export type AccountUncheckedUpdateWithoutEarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
@@ -1258,18 +1739,21 @@ export type AccountCreateWithoutAccountHolderInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
   createdBy?: Prisma.UserProfileCreateNestedOneWithoutAccountCreatorInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutAccountInput
@@ -1281,19 +1765,22 @@ export type AccountUncheckedCreateWithoutAccountHolderInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
   earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
@@ -1314,18 +1801,21 @@ export type AccountCreateWithoutCreatedByInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationCreateNestedManyWithoutPaidToAccountInput
   accountHolder?: Prisma.UserProfileCreateNestedOneWithoutAccountsInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutAccountInput
@@ -1337,19 +1827,22 @@ export type AccountUncheckedCreateWithoutCreatedByInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
   deletedAt?: Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedCreateNestedOneWithoutAccountInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedCreateNestedManyWithoutAccountInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedCreateNestedManyWithoutSourceAccountInput
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutPaidToAccountInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAccountInput
   earnings?: Prisma.EarningUncheckedCreateNestedManyWithoutAccountInput
@@ -1389,15 +1882,15 @@ export type AccountScalarWhereInput = {
   id?: Prisma.StringFilter<"Account"> | string
   name?: Prisma.StringFilter<"Account"> | string
   type?: Prisma.StringFilter<"Account"> | string
+  ownerType?: Prisma.StringFilter<"Account"> | string
   currency?: Prisma.StringFilter<"Account"> | string
   status?: Prisma.StringFilter<"Account"> | string
   description?: Prisma.StringNullableFilter<"Account"> | string | null
   balance?: Prisma.DecimalFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.StringNullableFilter<"Account"> | string | null
   accountHolderId?: Prisma.StringNullableFilter<"Account"> | string | null
+  custodianUserIds?: Prisma.StringNullableListFilter<"Account">
   activatedOn?: Prisma.DateTimeNullableFilter<"Account"> | Date | string | null
-  bankDetail?: Prisma.StringNullableFilter<"Account"> | string | null
-  upiDetail?: Prisma.StringNullableFilter<"Account"> | string | null
   createdById?: Prisma.StringNullableFilter<"Account"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
@@ -1425,14 +1918,14 @@ export type AccountCreateManyAccountHolderInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1444,15 +1937,15 @@ export type AccountCreateManyCreatedByInput = {
   id?: string
   name: string
   type: string
+  ownerType: string
   currency: string
   status: string
   description?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: string | null
   accountHolderId?: string | null
+  custodianUserIds?: Prisma.AccountCreatecustodianUserIdsInput | string[]
   activatedOn?: Date | string | null
-  bankDetail?: string | null
-  upiDetail?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   version?: number
@@ -1463,18 +1956,21 @@ export type AccountUpdateWithoutAccountHolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
   createdBy?: Prisma.UserProfileUpdateOneWithoutAccountCreatorNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutAccountNestedInput
@@ -1486,19 +1982,22 @@ export type AccountUncheckedUpdateWithoutAccountHolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
   earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
@@ -1509,14 +2008,14 @@ export type AccountUncheckedUpdateManyWithoutAccountHolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1528,18 +2027,21 @@ export type AccountUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUpdateManyWithoutPaidToAccountNestedInput
   accountHolder?: Prisma.UserProfileUpdateOneWithoutAccountsNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutAccountNestedInput
@@ -1551,19 +2053,22 @@ export type AccountUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankInvestDetail?: Prisma.AccountBankInvestDetailUncheckedUpdateOneWithoutAccountNestedInput
+  upiDetailRows?: Prisma.AccountUpiDetailUncheckedUpdateManyWithoutAccountNestedInput
+  fundedInvestments?: Prisma.AccountBankInvestDetailUncheckedUpdateManyWithoutSourceAccountNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutPaidToAccountNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutAccountNestedInput
   earnings?: Prisma.EarningUncheckedUpdateManyWithoutAccountNestedInput
@@ -1574,15 +2079,15 @@ export type AccountUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerType?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   accountHolderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountHolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  custodianUserIds?: Prisma.AccountUpdatecustodianUserIdsInput | string[]
   activatedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  bankDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  upiDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1595,6 +2100,8 @@ export type AccountUncheckedUpdateManyWithoutCreatedByInput = {
  */
 
 export type AccountCountOutputType = {
+  upiDetailRows: number
+  fundedInvestments: number
   donations: number
   expenses: number
   earnings: number
@@ -1602,6 +2109,8 @@ export type AccountCountOutputType = {
 }
 
 export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  upiDetailRows?: boolean | AccountCountOutputTypeCountUpiDetailRowsArgs
+  fundedInvestments?: boolean | AccountCountOutputTypeCountFundedInvestmentsArgs
   donations?: boolean | AccountCountOutputTypeCountDonationsArgs
   expenses?: boolean | AccountCountOutputTypeCountExpensesArgs
   earnings?: boolean | AccountCountOutputTypeCountEarningsArgs
@@ -1616,6 +2125,20 @@ export type AccountCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Select specific fields to fetch from the AccountCountOutputType
    */
   select?: Prisma.AccountCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountUpiDetailRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AccountUpiDetailWhereInput
+}
+
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountFundedInvestmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AccountBankInvestDetailWhereInput
 }
 
 /**
@@ -1651,20 +2174,23 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   name?: boolean
   type?: boolean
+  ownerType?: boolean
   currency?: boolean
   status?: boolean
   description?: boolean
   balance?: boolean
   accountHolderName?: boolean
   accountHolderId?: boolean
+  custodianUserIds?: boolean
   activatedOn?: boolean
-  bankDetail?: boolean
-  upiDetail?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean
   deletedAt?: boolean
+  bankInvestDetail?: boolean | Prisma.Account$bankInvestDetailArgs<ExtArgs>
+  upiDetailRows?: boolean | Prisma.Account$upiDetailRowsArgs<ExtArgs>
+  fundedInvestments?: boolean | Prisma.Account$fundedInvestmentsArgs<ExtArgs>
   donations?: boolean | Prisma.Account$donationsArgs<ExtArgs>
   accountHolder?: boolean | Prisma.Account$accountHolderArgs<ExtArgs>
   createdBy?: boolean | Prisma.Account$createdByArgs<ExtArgs>
@@ -1678,15 +2204,15 @@ export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   type?: boolean
+  ownerType?: boolean
   currency?: boolean
   status?: boolean
   description?: boolean
   balance?: boolean
   accountHolderName?: boolean
   accountHolderId?: boolean
+  custodianUserIds?: boolean
   activatedOn?: boolean
-  bankDetail?: boolean
-  upiDetail?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1700,15 +2226,15 @@ export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   type?: boolean
+  ownerType?: boolean
   currency?: boolean
   status?: boolean
   description?: boolean
   balance?: boolean
   accountHolderName?: boolean
   accountHolderId?: boolean
+  custodianUserIds?: boolean
   activatedOn?: boolean
-  bankDetail?: boolean
-  upiDetail?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1722,15 +2248,15 @@ export type AccountSelectScalar = {
   id?: boolean
   name?: boolean
   type?: boolean
+  ownerType?: boolean
   currency?: boolean
   status?: boolean
   description?: boolean
   balance?: boolean
   accountHolderName?: boolean
   accountHolderId?: boolean
+  custodianUserIds?: boolean
   activatedOn?: boolean
-  bankDetail?: boolean
-  upiDetail?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1738,8 +2264,11 @@ export type AccountSelectScalar = {
   deletedAt?: boolean
 }
 
-export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "currency" | "status" | "description" | "balance" | "accountHolderName" | "accountHolderId" | "activatedOn" | "bankDetail" | "upiDetail" | "createdById" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["account"]>
+export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "ownerType" | "currency" | "status" | "description" | "balance" | "accountHolderName" | "accountHolderId" | "custodianUserIds" | "activatedOn" | "createdById" | "createdAt" | "updatedAt" | "version" | "deletedAt", ExtArgs["result"]["account"]>
 export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  bankInvestDetail?: boolean | Prisma.Account$bankInvestDetailArgs<ExtArgs>
+  upiDetailRows?: boolean | Prisma.Account$upiDetailRowsArgs<ExtArgs>
+  fundedInvestments?: boolean | Prisma.Account$fundedInvestmentsArgs<ExtArgs>
   donations?: boolean | Prisma.Account$donationsArgs<ExtArgs>
   accountHolder?: boolean | Prisma.Account$accountHolderArgs<ExtArgs>
   createdBy?: boolean | Prisma.Account$createdByArgs<ExtArgs>
@@ -1760,6 +2289,9 @@ export type AccountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Account"
   objects: {
+    bankInvestDetail: Prisma.$AccountBankInvestDetailPayload<ExtArgs> | null
+    upiDetailRows: Prisma.$AccountUpiDetailPayload<ExtArgs>[]
+    fundedInvestments: Prisma.$AccountBankInvestDetailPayload<ExtArgs>[]
     donations: Prisma.$DonationPayload<ExtArgs>[]
     accountHolder: Prisma.$UserProfilePayload<ExtArgs> | null
     createdBy: Prisma.$UserProfilePayload<ExtArgs> | null
@@ -1771,15 +2303,15 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     name: string
     type: string
+    ownerType: string
     currency: string
     status: string
     description: string | null
     balance: runtime.Decimal
     accountHolderName: string | null
     accountHolderId: string | null
+    custodianUserIds: string[]
     activatedOn: Date | null
-    bankDetail: string | null
-    upiDetail: string | null
     createdById: string | null
     createdAt: Date
     updatedAt: Date
@@ -2179,6 +2711,9 @@ readonly fields: AccountFieldRefs;
  */
 export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  bankInvestDetail<T extends Prisma.Account$bankInvestDetailArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$bankInvestDetailArgs<ExtArgs>>): Prisma.Prisma__AccountBankInvestDetailClient<runtime.Types.Result.GetResult<Prisma.$AccountBankInvestDetailPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  upiDetailRows<T extends Prisma.Account$upiDetailRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$upiDetailRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountUpiDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  fundedInvestments<T extends Prisma.Account$fundedInvestmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$fundedInvestmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountBankInvestDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   donations<T extends Prisma.Account$donationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$donationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DonationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accountHolder<T extends Prisma.Account$accountHolderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$accountHolderArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.Account$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$createdByArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2217,15 +2752,15 @@ export interface AccountFieldRefs {
   readonly id: Prisma.FieldRef<"Account", 'String'>
   readonly name: Prisma.FieldRef<"Account", 'String'>
   readonly type: Prisma.FieldRef<"Account", 'String'>
+  readonly ownerType: Prisma.FieldRef<"Account", 'String'>
   readonly currency: Prisma.FieldRef<"Account", 'String'>
   readonly status: Prisma.FieldRef<"Account", 'String'>
   readonly description: Prisma.FieldRef<"Account", 'String'>
   readonly balance: Prisma.FieldRef<"Account", 'Decimal'>
   readonly accountHolderName: Prisma.FieldRef<"Account", 'String'>
   readonly accountHolderId: Prisma.FieldRef<"Account", 'String'>
+  readonly custodianUserIds: Prisma.FieldRef<"Account", 'String[]'>
   readonly activatedOn: Prisma.FieldRef<"Account", 'DateTime'>
-  readonly bankDetail: Prisma.FieldRef<"Account", 'String'>
-  readonly upiDetail: Prisma.FieldRef<"Account", 'String'>
   readonly createdById: Prisma.FieldRef<"Account", 'String'>
   readonly createdAt: Prisma.FieldRef<"Account", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Account", 'DateTime'>
@@ -2629,6 +3164,73 @@ export type AccountDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Accounts to delete.
    */
   limit?: number
+}
+
+/**
+ * Account.bankInvestDetail
+ */
+export type Account$bankInvestDetailArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AccountBankInvestDetail
+   */
+  select?: Prisma.AccountBankInvestDetailSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AccountBankInvestDetail
+   */
+  omit?: Prisma.AccountBankInvestDetailOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AccountBankInvestDetailInclude<ExtArgs> | null
+  where?: Prisma.AccountBankInvestDetailWhereInput
+}
+
+/**
+ * Account.upiDetailRows
+ */
+export type Account$upiDetailRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AccountUpiDetail
+   */
+  select?: Prisma.AccountUpiDetailSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AccountUpiDetail
+   */
+  omit?: Prisma.AccountUpiDetailOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AccountUpiDetailInclude<ExtArgs> | null
+  where?: Prisma.AccountUpiDetailWhereInput
+  orderBy?: Prisma.AccountUpiDetailOrderByWithRelationInput | Prisma.AccountUpiDetailOrderByWithRelationInput[]
+  cursor?: Prisma.AccountUpiDetailWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AccountUpiDetailScalarFieldEnum | Prisma.AccountUpiDetailScalarFieldEnum[]
+}
+
+/**
+ * Account.fundedInvestments
+ */
+export type Account$fundedInvestmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AccountBankInvestDetail
+   */
+  select?: Prisma.AccountBankInvestDetailSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AccountBankInvestDetail
+   */
+  omit?: Prisma.AccountBankInvestDetailOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AccountBankInvestDetailInclude<ExtArgs> | null
+  where?: Prisma.AccountBankInvestDetailWhereInput
+  orderBy?: Prisma.AccountBankInvestDetailOrderByWithRelationInput | Prisma.AccountBankInvestDetailOrderByWithRelationInput[]
+  cursor?: Prisma.AccountBankInvestDetailWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AccountBankInvestDetailScalarFieldEnum | Prisma.AccountBankInvestDetailScalarFieldEnum[]
 }
 
 /**

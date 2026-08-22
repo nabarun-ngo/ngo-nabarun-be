@@ -67,6 +67,7 @@ export {
   AuthUrlResponseDto,
   AuthCallbackDto,
 } from './application/dto/oauth-token.dto';
+export { OAuthCallbackResultDto } from './application/dto/oauth-callback-result.dto';
 
 // ── Scopes ────────────────────────────────────────────────────────────────────
 export { GOOGLE_SCOPES, MICROSOFT_SCOPES } from './scopes';

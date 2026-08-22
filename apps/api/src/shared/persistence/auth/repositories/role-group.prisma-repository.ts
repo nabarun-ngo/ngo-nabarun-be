@@ -20,6 +20,7 @@ type RoleGroupRow = {
   id: string;
   key: string;
   description: string | null;
+  isShadow: boolean;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -51,6 +52,7 @@ export class RoleGroupPrismaRepository
       id: row.id,
       key: row.key,
       description: row.description ?? undefined,
+      isShadow: row.isShadow,
       deletedAt: row.deletedAt ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -64,7 +66,12 @@ export class RoleGroupPrismaRepository
   protected toCreateInput(
     entity: RoleGroup,
   ): ({} & AuthRoleGroupUncheckedCreateInput) | ({} & AuthRoleGroupCreateInput) {
-    return { id: entity.id, key: entity.key, description: entity.description ?? null };
+    return {
+      id: entity.id,
+      key: entity.key,
+      description: entity.description ?? null,
+      isShadow: entity.isShadow,
+    };
   }
 
   protected toUpdateInput(
@@ -73,6 +80,7 @@ export class RoleGroupPrismaRepository
   ): ({} & AuthRoleGroupUncheckedUpdateInput) | ({} & AuthRoleGroupUpdateInput) {
     return {
       description: entity.description ?? null,
+      isShadow: entity.isShadow,
       deletedAt: entity.deletedAt ?? null,
       updatedAt: entity.updatedAt,
     };
@@ -86,6 +94,7 @@ export class RoleGroupPrismaRepository
     return {
       ...(filter?.key ? { key: { contains: filter.key, mode: 'insensitive' } } : {}),
       ...(filter?.isActive === true ? { deletedAt: null } : {}),
+      ...(filter?.isShadow !== undefined ? { isShadow: filter.isShadow } : {}),
     };
   }
 
@@ -95,6 +104,10 @@ export class RoleGroupPrismaRepository
 
   protected supportsSoftDelete(): boolean {
     return true;
+  }
+
+  protected toInclude() {
+    return { roles: { include: { role: true } } } as any;
   }
 
   async findByKey(key: string): Promise<RoleGroup | null> {
@@ -125,5 +138,14 @@ export class RoleGroupPrismaRepository
         data: roleIds.map((roleId) => ({ groupId, roleId })),
       }),
     ]);
+  }
+
+  async countActiveByRoleId(roleId: string): Promise<number> {
+    return (this.client).authRoleGroupRole.count({
+      where: {
+        roleId,
+        group: { deletedAt: null },
+      },
+    });
   }
 }

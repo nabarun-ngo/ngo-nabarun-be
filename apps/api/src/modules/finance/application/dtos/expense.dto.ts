@@ -29,12 +29,17 @@ export class ExpenseDetailDto {
   activityName?: string;
   activityId?: string;
   settlementAccountId?: string;
-  rejectedBy?: FinanceUserDto;
-  rejectedOn?: Date;
+  sendBackBy?: FinanceUserDto;
+  sendBackOn?: Date;
   remarks?: string;
 }
 
 export class ExpenseRefDataDto {
   expenseStatuses?: KeyValueOption[];
   expenseRefTypes?: KeyValueOption[];
+  expenseStatusGroups?: {
+    outstanding: string[];
+    closed: string[];
+    excluded: string[];
+  };
 }

@@ -1,0 +1,61 @@
+---
+description: DDD architecture, cross-module facades, and user identity — always in context.
+alwaysApply: true
+---
+
+# DDD Architecture & Boundaries
+
+## Layers (one folder per bounded context)
+
+```
+src/<module>/
+  domain/          ← pure TS — zero @nestjs/*, Prisma, HTTP
+  application/     ← CQRS orchestration — no Prisma, no HTTP types
+  infrastructure/  ← Prisma, HTTP clients, messaging, cache adapters
+  presentation/    ← controllers, guards — HTTP edge only
+```
+
+**Dependency direction:** Presentation → Application → Domain. Infrastructure → Domain.
+Application may inject Infrastructure **via interface tokens only** (same module).
+Domain never imports Application, Infrastructure, or Presentation.
+
+## New feature checklist
+
+- Aggregate extends `AggregateRoot<T>`, `#` private fields, static `create(...)`
+- Mutating methods: guard → mutate → `touch()` → `addDomainEvent(...)`
+- Invariants throw typed errors extending `BusinessError`
+- Child entities extend `BaseDomain<T>` — no repository, no events
+- Value objects immutable, equality by value; repos/ports are interfaces only
+- Handlers inject via token; Prisma repo implements domain interface + five mapping hooks
+
+## Cross-module access
+
+| Operation | Use | Never |
+|-----------|-----|--------|
+| **Read** | Provider **read-only port** or Facade query | Foreign repo / command / query |
+| **Write** | Owning context **Facade** → bus → handler | Repo, write port, foreign command |
+
+- Module imports must stay a **DAG** (no cycles).
+- Repository tokens from packages are for **host persistence wiring only**.
+- Workflow: external callers use `WorkflowFacade` only.
+- Correspondence: `CorrespondenceRequestEvent` or exported commands/queries — never its repos.
+
+## User identity
+
+| Field | Who may use |
+|-------|-------------|
+| `idpSub` | Auth guards/adapters/token-vault only |
+| `userId` | All domain modules (audit, access control) |
+
+- Reads anywhere → `IUserLookupPort`. Writes in apps → `UserFacade`. Packages never inject `UserFacade`.
+- Never pass raw `idpSub` to non-auth modules. Audit: `caller.userId ?? caller.idpSub`.
+
+## Post-implementation (mandatory)
+
+```powershell
+npx tsc --noEmit
+npm run build
+npm test
+```
+
+If Prisma models changed: `npm run generate:db` first. Task is done only when all three exit `0`.

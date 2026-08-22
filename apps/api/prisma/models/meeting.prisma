@@ -1,4 +1,4 @@
-// Meeting bounded context — internal meetings + Google Calendar sync + Fathom notes.
+// Meeting bounded context — internal meetings + Google Calendar sync.
 
 model Meeting {
   id           String  @id @default(uuid())
@@ -17,12 +17,6 @@ model Meeting {
 
   meetLink     String? @db.VarChar(1000) // Google Meet video link
   calendarLink String? @db.VarChar(1000) // Google Calendar event link
-
-  // Fathom meeting-notes webhook payload (matched post-hoc by time range + title)
-  recordingUrl       String? @db.VarChar(1000)
-  meetingNotes       String? @db.Text
-  meetingTranscript  String? @db.Text
-  meetingActionItems String? @db.Text
 
   createdById String?      @db.VarChar(255)
   createdBy   UserProfile? @relation("MeetingCreator", fields: [createdById], references: [id])

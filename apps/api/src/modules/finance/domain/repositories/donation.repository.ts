@@ -6,10 +6,9 @@ import { DonationType } from '../enums/donation-type.enum';
 export interface DonationFilter {
   donationId?: string;
   donorId?: string;
-  donorName?: string;
+  donorType?: string;
   status?: DonationStatus[];
   type?: DonationType[];
-  isGuest?: boolean;
   startDate_raisedOn?: Date;
   endDate_raisedOn?: Date;
   startDate_paidOn?: Date;

@@ -11,8 +11,6 @@ export class CreateUserCommand {
       about?: string;
       picture?: string;
       isPublic?: boolean;
-      /** Optional admin-supplied password; if omitted a system password is generated. */
-      adminPassword?: string;
       /** App profile UUID of the admin performing the create. Never idpSub. */
       createdById: string;
     },

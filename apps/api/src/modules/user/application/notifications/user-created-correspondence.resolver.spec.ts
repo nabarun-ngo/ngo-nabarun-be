@@ -1,6 +1,6 @@
 import { UserCreatedCorrespondenceResolver } from './user-created-correspondence.resolver';
 import { UserCreatedEvent } from '../../domain/events/user-created.event';
-import { EmailTemplateKey } from '../../../../shared/email-template-key';
+import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 
 describe('UserCreatedCorrespondenceResolver', () => {
   const resolver = new UserCreatedCorrespondenceResolver();
@@ -9,9 +9,15 @@ describe('UserCreatedCorrespondenceResolver', () => {
     expect(resolver.eventType).toBe(UserCreatedEvent);
   });
 
-  it('builds a welcome email spec when the password was system-generated', () => {
+  it('always builds a welcome email spec with title and set-password URL', () => {
     const specs = resolver.resolve(
-      new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', true),
+      new UserCreatedEvent(
+        'user-1',
+        'a@b.com',
+        'auth0|sub',
+        'Ms',
+        'https://tenant.auth0.com/lo/reset?ticket=abc',
+      ),
     );
     expect(specs).toEqual([
       {
@@ -19,17 +25,14 @@ describe('UserCreatedCorrespondenceResolver', () => {
         channels: {
           email: {
             templateKey: EmailTemplateKey.UserWelcome,
-            templateData: { email: 'a@b.com' },
+            templateData: {
+              email: 'a@b.com',
+              title: 'Ms',
+              setPasswordUrl: 'https://tenant.auth0.com/lo/reset?ticket=abc',
+            },
           },
         },
       },
     ]);
-  });
-
-  it('returns null when the password was not system-generated', () => {
-    const specs = resolver.resolve(
-      new UserCreatedEvent('user-1', 'a@b.com', 'auth0|sub', false),
-    );
-    expect(specs).toBeNull();
   });
 });

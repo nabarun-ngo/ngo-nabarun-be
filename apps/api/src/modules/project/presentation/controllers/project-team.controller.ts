@@ -1,7 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
-import { TeamMemberRole } from '../../domain/enums/team-member.enum';
+import { ApiAutoResponse, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  AddTeamMemberDto,
+  TeamMemberDetailDto,
+  TeamMemberListResponseDto,
+  UpdateTeamMemberDto,
+} from '../../application/dtos/team-member.dto';
 import { ProjectFacade } from '../../application/services/project.facade';
 
 @ApiTags('ProjectTeam')
@@ -13,33 +19,42 @@ export class ProjectTeamController {
   constructor(private readonly projectFacade: ProjectFacade) {}
 
   @Get()
-  @RequirePermissions('read:project_team')
-  list(@Param('projectId') projectId: string) {
+  @RequirePermissions('read:project_teams')
+  @ApiUuidParam('projectId', 'Identifier of the parent project')
+  @ApiAutoResponse(TeamMemberListResponseDto)
+  list(@Param('projectId') projectId: string): Promise<TeamMemberListResponseDto> {
     return this.projectFacade.listTeamMembers(projectId);
   }
 
   @Post('add')
-  @HttpCode(HttpStatus.CREATED)
   @RequirePermissions('create:project_team')
+  @ApiUuidParam('projectId', 'Identifier of the parent project')
+  @ApiAutoResponse(TeamMemberDetailDto, { status: HttpStatus.CREATED })
   add(
     @Param('projectId') projectId: string,
-    @Body() dto: { userId: string; role: TeamMemberRole; startDate: Date; responsibilities?: string; hoursAllocated?: number },
-  ) {
+    @Body() dto: AddTeamMemberDto,
+  ): Promise<TeamMemberDetailDto> {
     return this.projectFacade.addTeamMember(projectId, dto);
   }
 
   @Put(':id/update')
   @RequirePermissions('update:project_team')
+  @ApiUuidParam('projectId', 'Identifier of the parent project')
+  @ApiUuidParam('id', 'Identifier of the team membership')
+  @ApiAutoResponse(TeamMemberDetailDto)
   update(
     @Param('id') id: string,
-    @Body() dto: { role?: TeamMemberRole; responsibilities?: string; hoursAllocated?: number },
-  ) {
+    @Body() dto: UpdateTeamMemberDto,
+  ): Promise<TeamMemberDetailDto> {
     return this.projectFacade.updateTeamMember(id, dto);
   }
 
   @Patch(':id/deactivate')
   @RequirePermissions('update:project_team')
-  deactivate(@Param('id') id: string) {
+  @ApiUuidParam('projectId', 'Identifier of the parent project')
+  @ApiUuidParam('id', 'Identifier of the team membership')
+  @ApiAutoResponse(TeamMemberDetailDto)
+  deactivate(@Param('id') id: string): Promise<TeamMemberDetailDto> {
     return this.projectFacade.deactivateTeamMember(id);
   }
 }

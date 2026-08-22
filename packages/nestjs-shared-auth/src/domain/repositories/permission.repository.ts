@@ -5,4 +5,5 @@ export const IPermissionRepository = Symbol('IPermissionRepository');
 
 export interface IPermissionRepository extends IRepository<Permission, string, PermissionFilter> {
   findByKey(key: string): Promise<Permission | null>;
+  findByKeys(keys: string[]): Promise<Permission[]>;
 }

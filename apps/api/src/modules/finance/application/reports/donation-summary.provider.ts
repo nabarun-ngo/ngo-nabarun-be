@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { formatDate } from '@nabarun-ngo/nestjs-shared-core';
+import { formatDate, IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 import ExcelJS from 'exceljs';
 import { DateTime } from 'luxon';
 import {
@@ -10,7 +10,10 @@ import {
 } from '../../../reporting/domain/reporting.interface';
 import { Donation } from '../../domain/aggregates/donation/donation.aggregate';
 import { DonationStatus } from '../../domain/enums/donation-status.enum';
+import { DonorType } from '../../domain/enums/donor-type.enum';
 import { IDonationRepository } from '../../domain/repositories/donation.repository';
+import { IDonorRepository } from '../../domain/repositories/donor.repository';
+import { displayForDonation, enrichDonationsForReport } from './donation-report-enrichment.helper';
 
 @Injectable()
 @ReportProvider()
@@ -22,7 +25,11 @@ export class DonationSummaryReportProvider implements IReportProvider<{ startDat
     { key: 'endDate', defKey: 'INPUT_DATE_FIELD', label: 'End Date', mandatory: true },
   ];
 
-  constructor(@Inject(IDonationRepository) private readonly donationRepository: IDonationRepository) { }
+  constructor(
+    @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
+    @Inject(IDonorRepository) private readonly donorRepository: IDonorRepository,
+    @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort,
+  ) { }
 
   async generate(params: { startDate: Date; endDate: Date }): Promise<ReportGeneratedData> {
     const startDt = this.toDateTime(params.startDate).setZone('Asia/Kolkata');
@@ -57,29 +64,36 @@ export class DonationSummaryReportProvider implements IReportProvider<{ startDat
       this.donationRepository.findAll({
         status: Donation.outstandingStatus,
         startDate_lte: endDate,
+        donorType: DonorType.MEMBER,
       }),
     ]);
 
-    const memberPending = pendingDonations.filter((d) => !d.isGuest);
-    const workbook = new ExcelJS.Workbook();
+    const allDonations = [...paidDonations, ...pendingDonations];
+    const displays = await enrichDonationsForReport(allDonations, this.donorRepository, this.userLookup);
 
-    this.addPaidSheet(workbook, paidDonations);
-    this.addPendingSheet(workbook, memberPending);
+    const workbook = new ExcelJS.Workbook();
+    this.addPaidSheet(workbook, paidDonations, displays);
+    this.addPendingSheet(workbook, pendingDonations, displays);
     this.addAccountBreakdownSheet(workbook, paidDonations);
-    this.addDonorBreakdownSheet(workbook, paidDonations);
+    this.addDonorBreakdownSheet(workbook, paidDonations, displays);
 
     const raw = await workbook.xlsx.writeBuffer();
     return Buffer.from(raw);
   }
 
-  private addPaidSheet(workbook: ExcelJS.Workbook, donations: Donation[]): void {
+  private addPaidSheet(
+    workbook: ExcelJS.Workbook,
+    donations: Donation[],
+    displays: Awaited<ReturnType<typeof enrichDonationsForReport>>,
+  ): void {
     const sheet = workbook.addWorksheet('Paid Donations');
     sheet.addRow(['ID', 'Donor', 'Email', 'Amount', 'Paid On', 'Account', 'Payment Method']);
     for (const d of donations) {
+      const display = displayForDonation(d, displays);
       sheet.addRow([
         d.id,
-        d.donorName ?? '',
-        d.donorEmail ?? '',
+        display.donorName,
+        display.donorEmail ?? '',
         d.amount,
         d.paidOn ? formatDate(d.paidOn) : '',
         d.paidToAccount?.name ?? d.paidToAccount?.id ?? '',
@@ -88,13 +102,18 @@ export class DonationSummaryReportProvider implements IReportProvider<{ startDat
     }
   }
 
-  private addPendingSheet(workbook: ExcelJS.Workbook, donations: Donation[]): void {
+  private addPendingSheet(
+    workbook: ExcelJS.Workbook,
+    donations: Donation[],
+    displays: Awaited<ReturnType<typeof enrichDonationsForReport>>,
+  ): void {
     const sheet = workbook.addWorksheet('Pending Donations');
     sheet.addRow(['ID', 'Donor', 'Amount', 'Period', 'Status']);
     for (const d of donations) {
+      const display = displayForDonation(d, displays);
       sheet.addRow([
         d.id,
-        d.donorName ?? '',
+        display.donorName,
         d.amount,
         d.startDate && d.endDate ? `${formatDate(d.startDate)} - ${formatDate(d.endDate)}` : '',
         d.status,
@@ -119,14 +138,18 @@ export class DonationSummaryReportProvider implements IReportProvider<{ startDat
     }
   }
 
-  private addDonorBreakdownSheet(workbook: ExcelJS.Workbook, donations: Donation[]): void {
+  private addDonorBreakdownSheet(
+    workbook: ExcelJS.Workbook,
+    donations: Donation[],
+    displays: Awaited<ReturnType<typeof enrichDonationsForReport>>,
+  ): void {
     const sheet = workbook.addWorksheet('By Donor');
     sheet.addRow(['Donor', 'Total Amount', 'Count']);
     const byDonor = new Map<string, { name: string; total: number; count: number }>();
     for (const d of donations) {
-      const key = d.donorId ?? d.donorEmail ?? d.donorName ?? 'guest';
-      const name = d.donorName ?? d.donorEmail ?? 'Guest';
-      const entry = byDonor.get(key) ?? { name, total: 0, count: 0 };
+      const display = displayForDonation(d, displays);
+      const key = d.donorId ?? display.donorEmail ?? display.donorName;
+      const entry = byDonor.get(key) ?? { name: display.donorName, total: 0, count: 0 };
       entry.total += d.amount;
       entry.count += 1;
       byDonor.set(key, entry);

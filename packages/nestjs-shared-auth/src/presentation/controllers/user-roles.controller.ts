@@ -15,17 +15,30 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  ApiAutoResponse,
+  ApiIdpSubParam,
+  ApiStringQuery,
+  ApiUuidParam,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { GrantUserRoleCommand } from '../../application/commands/grant-user-role/grant-user-role.command';
 import { RevokeUserRoleCommand } from '../../application/commands/revoke-user-role/revoke-user-role.command';
+import { GrantUserPermissionCommand } from '../../application/commands/grant-user-permission/grant-user-permission.command';
+import { RevokeUserPermissionCommand } from '../../application/commands/revoke-user-permission/revoke-user-permission.command';
 import { AddUserToGroupCommand } from '../../application/commands/add-user-to-group/add-user-to-group.command';
 import { RemoveUserFromGroupCommand } from '../../application/commands/remove-user-from-group/remove-user-from-group.command';
 import { ListUserRolesQuery } from '../../application/queries/list-user-roles/list-user-roles.query';
 import { ListUserGroupsQuery } from '../../application/queries/list-user-groups/list-user-groups.query';
+import { ListUserPermissionsQuery } from '../../application/queries/list-user-permissions/list-user-permissions.query';
 import { ResolveUserAccessQuery } from '../../application/queries/resolve-user-access/resolve-user-access.query';
-import { GrantRoleRequestDto, AddToGroupRequestDto } from '../../application/dtos/request/auth-request.dtos';
+import {
+  GrantRoleRequestDto,
+  GrantPermissionRequestDto,
+  AddToGroupRequestDto,
+} from '../../application/dtos/request/auth-request.dtos';
 import {
   RbacResponseDto,
+  UserPermissionResponseDto,
   UserRoleGroupResponseDto,
   UserRoleResponseDto,
 } from '../../application/dtos/response/auth-response.dtos';
@@ -52,6 +65,8 @@ export class UserRolesController {
   @Get('roles')
   @RequirePermissions('read:user_roles')
   @ApiOperation({ summary: 'List active roles for a user' })
+  @ApiIdpSubParam()
+  @ApiStringQuery('all', 'true', 'Set to "true" to include revoked grants')
   @ApiAutoResponse(UserRoleResponseDto, { isArray: true })
   listUserRoles(
     @Param('idpSub') idpSub: string,
@@ -63,6 +78,7 @@ export class UserRolesController {
   @Post('roles')
   @RequirePermissions('create:user_roles')
   @ApiOperation({ summary: 'Grant a role to a user' })
+  @ApiIdpSubParam()
   @ApiBody({ type: GrantRoleRequestDto })
   @ApiAutoResponse(UserRoleResponseDto, { status: 201 })
   grantRole(
@@ -78,6 +94,8 @@ export class UserRolesController {
   @Delete('roles/:roleId')
   @RequirePermissions('delete:user_roles')
   @ApiOperation({ summary: 'Revoke a role from a user' })
+  @ApiIdpSubParam()
+  @ApiUuidParam('roleId', 'Identifier of the role grant to revoke (UUID)')
   @ApiAutoResponse(UserRoleResponseDto)
   revokeRole(
     @Param('idpSub') idpSub: string,
@@ -87,9 +105,64 @@ export class UserRolesController {
     return this.commandBus.execute(new RevokeUserRoleCommand(idpSub, roleId, this.auditId(caller)));
   }
 
+  @Get('direct-permissions')
+  @RequirePermissions('read:user_permissions')
+  @ApiOperation({ summary: 'List direct permission grants for a user (not role-derived)' })
+  @ApiIdpSubParam()
+  @ApiStringQuery('all', 'true', 'Set to "true" to include revoked grants')
+  @ApiAutoResponse(UserPermissionResponseDto, { isArray: true })
+  listUserPermissions(
+    @Param('idpSub') idpSub: string,
+    @Query('all') all?: string,
+  ): Promise<UserPermissionResponseDto[]> {
+    return this.queryBus.execute(new ListUserPermissionsQuery(idpSub, all !== 'true'));
+  }
+
+  @Post('direct-permissions')
+  @RequirePermissions('create:user_permissions')
+  @ApiOperation({ summary: 'Grant a permission directly to a user' })
+  @ApiIdpSubParam()
+  @ApiBody({ type: GrantPermissionRequestDto })
+  @ApiAutoResponse(UserPermissionResponseDto, { status: 201 })
+  grantPermission(
+    @Param('idpSub') idpSub: string,
+    @Body() dto: GrantPermissionRequestDto,
+    @CurrentUser() caller: AuthUser,
+  ): Promise<UserPermissionResponseDto> {
+    return this.commandBus.execute(
+      new GrantUserPermissionCommand(
+        idpSub,
+        dto.permissionKey,
+        dto.ownerId,
+        this.auditId(caller),
+        dto.note,
+        dto.entityId,
+        dto.entityType,
+      ),
+    );
+  }
+
+  @Delete('direct-permissions/:grantId')
+  @RequirePermissions('delete:user_permissions')
+  @ApiOperation({ summary: 'Revoke a direct permission grant from a user' })
+  @ApiIdpSubParam()
+  @ApiUuidParam('grantId', 'Identifier of the permission grant to revoke (UUID)')
+  @ApiAutoResponse(UserPermissionResponseDto)
+  revokePermission(
+    @Param('idpSub') idpSub: string,
+    @Param('grantId') grantId: string,
+    @CurrentUser() caller: AuthUser,
+  ): Promise<UserPermissionResponseDto> {
+    return this.commandBus.execute(
+      new RevokeUserPermissionCommand(idpSub, grantId, this.auditId(caller)),
+    );
+  }
+
   @Get('groups')
   @RequirePermissions('read:user_roles')
   @ApiOperation({ summary: 'List group memberships for a user' })
+  @ApiIdpSubParam()
+  @ApiStringQuery('all', 'true', 'Set to "true" to include revoked memberships')
   @ApiAutoResponse(UserRoleGroupResponseDto, { isArray: true })
   listUserGroups(
     @Param('idpSub') idpSub: string,
@@ -101,6 +174,7 @@ export class UserRolesController {
   @Post('groups')
   @RequirePermissions('create:user_roles')
   @ApiOperation({ summary: 'Add a user to a role group' })
+  @ApiIdpSubParam()
   @ApiBody({ type: AddToGroupRequestDto })
   @ApiAutoResponse(UserRoleGroupResponseDto, { status: 201 })
   addToGroup(
@@ -116,6 +190,8 @@ export class UserRolesController {
   @Delete('groups/:membershipId')
   @RequirePermissions('delete:user_roles')
   @ApiOperation({ summary: 'Remove a user from a role group' })
+  @ApiIdpSubParam()
+  @ApiUuidParam('membershipId', 'Identifier of the group membership to remove (UUID)')
   @ApiAutoResponse(UserRoleGroupResponseDto)
   removeFromGroup(
     @Param('idpSub') idpSub: string,
@@ -130,6 +206,7 @@ export class UserRolesController {
   @Get('permissions')
   @RequirePermissions('read:user_roles')
   @ApiOperation({ summary: 'Resolve full RBAC access for a user' })
+  @ApiIdpSubParam()
   @ApiAutoResponse(RbacResponseDto)
   resolveAccess(@Param('idpSub') idpSub: string): Promise<RbacResponseDto> {
     return this.queryBus.execute(new ResolveUserAccessQuery(idpSub));

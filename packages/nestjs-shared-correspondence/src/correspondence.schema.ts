@@ -1,8 +1,26 @@
 import { z } from 'zod';
 
+/**
+ * Host-registered resource type that users may follow (resource subscription).
+ * Requests for unlisted types are rejected when the allowlist is non-empty.
+ */
+export interface ResourceTypeConfig {
+  resourceType: string;
+  /**
+   * Optional: user needs at least one of these to subscribe to this type.
+   * When omitted, only the global `create:subscriptions` permission applies.
+   */
+  subscribePermissions?: string[];
+}
+
 export const CorrespondenceOptionsSchema = z.object({
   appName: z.string().optional(),
   environment: z.string(),
+  /**
+   * Resource types that may be followed via correspondence subscriptions.
+   * Omit or pass `[]` to allow any resource type (open mode).
+   */
+  allowedResourceTypes: z.array(z.custom<ResourceTypeConfig>()).optional(),
   email: z
     .object({
       fromName: z.string().optional(),
@@ -40,3 +58,5 @@ export const CorrespondenceOptionsSchema = z.object({
     })
     .optional(),
 });
+
+export type CorrespondenceModuleOptions = z.infer<typeof CorrespondenceOptionsSchema>;

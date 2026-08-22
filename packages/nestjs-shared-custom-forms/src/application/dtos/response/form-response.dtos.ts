@@ -12,7 +12,10 @@ export class FieldOptionResponseDto extends FieldOptionDto {}
 export class FieldConditionResponseDto extends FieldConditionDto {}
 
 export class DependentOptionsResponseDto extends DependentOptionsDto {
-  @ApiProperty({ description: 'parentValue → available FieldOptions' })
+  @ApiProperty({
+    description: 'parentValue → available FieldOptions',
+    example: { india: [{ key: 'west-bengal', label: 'West Bengal' }] },
+  })
   declare optionMap: Record<string, FieldOptionResponseDto[]>;
 }
 
@@ -27,43 +30,43 @@ export class FieldValidationRulesResponseDto extends FieldValidationRulesDto {
 }
 
 export class FormFieldDefinitionResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   formId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'emergency_contact' })
   key: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Emergency contact number' })
   label: string;
 
-  @ApiProperty({ enum: Object.values(CustomFieldType) })
+  @ApiProperty({ enum: Object.values(CustomFieldType), example: CustomFieldType.Phone })
   fieldType: CustomFieldType;
 
-  @ApiProperty()
+  @ApiProperty({ example: true })
   mandatory: boolean;
 
   @ApiProperty({ type: [FieldOptionResponseDto] })
   fieldOptions: FieldOptionResponseDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: false })
   isHidden: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ example: true })
   isEncrypted: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ example: true })
   enabled: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   sortOrder: number;
 
-  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms' })
+  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms', example: 'contact-details' })
   stepId: string | null;
 
-  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step' })
+  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step', example: 'Contact details' })
   stepName: string | null;
 
   @ApiPropertyOptional({ type: FieldConditionResponseDto, nullable: true })
@@ -75,77 +78,77 @@ export class FormFieldDefinitionResponseDto {
   @ApiPropertyOptional({ type: FieldValidationRulesResponseDto, nullable: true })
   validationRules: FieldValidationRulesResponseDto | null;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: [String], example: ['read:custom_forms', 'admin:custom_forms'] })
   viewPermissions: string[];
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   createdAt: Date;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, example: '2026-03-14T09:30:00.000Z' })
   updatedAt: Date | null;
 }
 
 export class FormResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'PROJECT' })
   entityType: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'volunteer-intake' })
   key: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Volunteer Intake Form' })
   label: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, example: 'Collects availability and emergency contact details from new volunteers' })
   description: string | null;
 
-  @ApiProperty({ enum: Object.values(FormStatus) })
+  @ApiProperty({ enum: Object.values(FormStatus), example: FormStatus.Published })
   status: FormStatus;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: [String], example: ['admin:custom_forms'] })
   managePermissions: string[];
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: [String], example: ['read:custom_forms'] })
   readPermissions: string[];
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: [String], example: ['write:custom_forms'] })
   writePermissions: string[];
 
   @ApiPropertyOptional({ type: [FormFieldDefinitionResponseDto] })
   fields?: FormFieldDefinitionResponseDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   createdAt: Date;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, example: '2026-03-14T09:30:00.000Z' })
   updatedAt: Date | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   createdBy?: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   publishedBy?: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   disabledBy?: string;
 }
 
 export class ResolvedFormFieldValueResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   fieldDefId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'emergency_contact' })
   key: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Emergency contact number' })
   label: string;
 
-  @ApiProperty({ enum: Object.values(CustomFieldType) })
+  @ApiProperty({ enum: Object.values(CustomFieldType), example: CustomFieldType.Phone })
   fieldType: CustomFieldType;
 
-  @ApiPropertyOptional({ type: Object, nullable: true })
+  @ApiPropertyOptional({ type: Object, nullable: true, example: '+919876543210' })
   value: unknown;
 
   @ApiProperty({ type: [FieldOptionResponseDto] })
@@ -154,16 +157,16 @@ export class ResolvedFormFieldValueResponseDto {
   @ApiPropertyOptional({ type: DependentOptionsResponseDto, nullable: true })
   dependentOptions: DependentOptionsResponseDto | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: true })
   mandatory: boolean;
 
   @ApiPropertyOptional({ type: FieldValidationRulesResponseDto, nullable: true })
   validationRules: FieldValidationRulesResponseDto | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: true })
   isEncrypted: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ example: false })
   isHidden: boolean;
 
   @ApiPropertyOptional({ type: FieldConditionResponseDto, nullable: true })
@@ -171,33 +174,33 @@ export class ResolvedFormFieldValueResponseDto {
 }
 
 export class FormFieldValueHistoryEntryResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   fieldDefId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'emergency_contact' })
   fieldKey: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   formId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'PROJECT' })
   entityType: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   entityId: string;
 
-  @ApiPropertyOptional({ type: Object, nullable: true })
+  @ApiPropertyOptional({ type: Object, nullable: true, example: '+919812345678' })
   oldValue: unknown;
 
-  @ApiPropertyOptional({ type: Object, nullable: true })
+  @ApiPropertyOptional({ type: Object, nullable: true, example: '+919876543210' })
   newValue: unknown;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   changedBy: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   changedAt: Date;
 }

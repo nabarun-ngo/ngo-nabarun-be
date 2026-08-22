@@ -5,6 +5,9 @@ import { SubscribeUserCommand } from './subscribe-user.command';
 import { IResourceSubscriptionRepository } from '../../../domain/repositories/resource-subscription.repository';
 import { ResourceSubscription } from '../../../domain/aggregates/resource-subscription.aggregate';
 import { SubscriptionChannel } from '../../../domain/entities/subscription-channel.entity';
+import { CORRESPONDENCE_OPTIONS } from '../../../correspondence-options.token';
+import type { CorrespondenceModuleOptions } from '../../../correspondence.schema';
+import { assertResourceTypeAllowed } from '../../utilities/resource-type-access.util';
 
 @CommandHandler(SubscribeUserCommand)
 export class SubscribeUserHandler implements ICommandHandler<SubscribeUserCommand> {
@@ -12,9 +15,13 @@ export class SubscribeUserHandler implements ICommandHandler<SubscribeUserComman
     @Inject(IResourceSubscriptionRepository)
     private readonly subscriptionRepo: IResourceSubscriptionRepository,
     private readonly eventBus: EventBus,
+    @Inject(CORRESPONDENCE_OPTIONS)
+    private readonly options: CorrespondenceModuleOptions,
   ) {}
 
   async execute(command: SubscribeUserCommand): Promise<void> {
+    assertResourceTypeAllowed(command.resourceType, this.options.allowedResourceTypes);
+
     const existing = await this.subscriptionRepo.findByUserAndResource(
       command.userId,
       command.resourceType,

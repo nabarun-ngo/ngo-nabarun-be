@@ -68,7 +68,7 @@ export {
 
 // ── Presentation layer ────────────────────────────────────────────────────────
 export type { SwaggerOptions } from './presentation/config/swagger.config';
-export { configureSwagger } from './presentation/config/swagger.config';
+export { buildSwaggerDocument, configureSwagger } from './presentation/config/swagger.config';
 export { BusinessException } from './presentation/exceptions/business-exception';
 export type { ApiAutoResponseOptions } from './presentation/decorators/api-auto-response.decorator';
 export {
@@ -78,6 +78,13 @@ export {
   ApiAutoVoidResponse,
   ApiAutoPagedResponse,
 } from './presentation/decorators/api-auto-response.decorator';
+export {
+  ApiIdpSubParam,
+  ApiKeyParam,
+  ApiPaginationQuery,
+  ApiStringQuery,
+  ApiUuidParam,
+} from './presentation/decorators/api-param.decorator';
 export { BypassSuccessEnvelope } from './presentation/decorators/bypass-success-envelope.decorator';
 export { GlobalExceptionFilter } from './presentation/filters/global-exception.filter';
 export { SuccessResponseInterceptor } from './presentation/interceptors/success-response.interceptor';
@@ -86,6 +93,19 @@ export { AccessGatedResponse } from './presentation/models/access-gated-response
 export { PagedResponse } from './presentation/models/paged-response';
 export { PaginatedQueryDto } from './presentation/models/paginated-query.dto';
 export { SuccessResponse, ErrorResponse } from './presentation/models/response-model';
+export {
+  ENVELOPE_EXAMPLES,
+  EXAMPLE_DATE,
+  EXAMPLE_DATE_TIME,
+  EXAMPLE_EMAIL,
+  EXAMPLE_IDP_SUB,
+  EXAMPLE_PHONE,
+  EXAMPLE_TRACE_ID,
+  EXAMPLE_USER_ID,
+  EXAMPLE_UUID,
+  EXAMPLE_UUID_ALT,
+  PAGINATION_EXAMPLES,
+} from './presentation/models/swagger-examples';
 export {
   createSuccessResponseType,
   createPageType,

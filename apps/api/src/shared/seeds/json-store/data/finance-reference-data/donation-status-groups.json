@@ -1,0 +1,6 @@
+{
+  "_comment": "Donation status buckets for list chips and edit eligibility.",
+  "outstanding": ["RAISED", "PENDING", "PAY_LATER"],
+  "closed": ["PAID"],
+  "excluded": ["CANCELLED", "PAYMENT_FAILED", "UPDATE_MISTAKE"]
+}

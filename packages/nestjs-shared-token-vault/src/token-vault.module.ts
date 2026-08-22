@@ -22,6 +22,7 @@ import { RefreshTokenHandler } from './application/commands/refresh-token/refres
 import { GetValidTokenHandler } from './application/queries/get-valid-token/get-valid-token.handler';
 import { ListTokensHandler } from './application/queries/list-tokens/list-tokens.handler';
 import { ListAccountsHandler } from './application/queries/list-accounts/list-accounts.handler';
+import { TestOAuthConnectionHandler } from './application/queries/test-oauth-connection/test-oauth-connection.handler';
 
 // Application event handlers
 import { OnTokenRevokedHandler } from './application/handlers/events/on-token-revoked/on-token-revoked.handler';
@@ -61,6 +62,7 @@ const QUERY_HANDLERS = [
   GetValidTokenHandler,
   ListTokensHandler,
   ListAccountsHandler,
+  TestOAuthConnectionHandler,
 ];
 
 const EVENT_HANDLERS = [

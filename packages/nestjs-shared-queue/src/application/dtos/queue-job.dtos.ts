@@ -3,44 +3,44 @@ import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { JobStatus } from '../../domain/enums/job-status.enum';
 
 export class QueueJobSearchResultDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'job_10482' })
   @IsString()
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'send-email' })
   @IsString()
   jobName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'correspondence' })
   @IsString()
   queueName: string;
 
-  @ApiProperty({ enum: JobStatus })
+  @ApiProperty({ enum: JobStatus, example: JobStatus.Completed })
   @IsString()
   status: JobStatus;
 
-  @ApiProperty()
+  @ApiProperty({ example: { userId: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' } })
   payload: Record<string, any>;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'SMTP connection timed out' })
   @IsOptional()
   @IsString()
   failedReason?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   @IsNumber()
   attemptsMade: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2026-03-14T09:30:00.000Z' })
   @IsDate()
   enqueuedAt: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' })
   @IsOptional()
   @IsDate()
   startedAt?: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' })
   @IsOptional()
   @IsDate()
   finishedAt?: Date;

@@ -24,4 +24,9 @@ export class EarningDetailDto {
 export class EarningRefDataDto {
   earningStatuses?: KeyValueOption[];
   earningCategories?: KeyValueOption[];
+  earningStatusGroups?: {
+    outstanding: string[];
+    closed: string[];
+    excluded: string[];
+  };
 }

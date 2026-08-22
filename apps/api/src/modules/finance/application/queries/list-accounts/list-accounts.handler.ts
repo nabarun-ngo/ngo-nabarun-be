@@ -21,6 +21,7 @@ export class ListAccountsHandler implements IQueryHandler<ListAccountsQuery, Acc
         id: filter.props?.accountId,
         status: filter.props?.status,
         type: filter.props?.type,
+        ownerType: filter.props?.ownerType,
         includeBalance: filter.props?.includeBalance === 'Y',
       },
     });

@@ -13,9 +13,13 @@ export class ListRoleGroupsHandler
   constructor(@Inject(IRoleGroupRepository) private readonly repo: IRoleGroupRepository) { }
 
   async execute(query: ListRoleGroupsQuery): Promise<PagedResponse<RoleGroupResponseDto>> {
+    const props = query.filter?.props ?? {};
     const activeFilter = {
       ...query.filter,
-      props: { ...query.filter?.props, isActive: query.filter?.props?.isActive ?? true },
+      props: {
+        ...props,
+        isActive: props.isActive ?? true,
+      },
     };
     const paged = await this.repo.findPaged(activeFilter);
     return new PagedResponse(

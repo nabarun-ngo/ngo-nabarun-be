@@ -1,0 +1,19 @@
+{
+  "id": "CONTACT_REQUEST",
+  "version": 1,
+  "name": "Contact & Support",
+  "description": "Handle contact and support requests",
+  "formKey": "CONTACT_REQUEST:request",
+  "executorInstructions": "Review the submitted form, contact the member on their preferred channel, resolve the ask, and record the outcome.",
+  "needApproval": false,
+  "approvers": {
+    "roles": [],
+    "permissions": [],
+    "groups": []
+  },
+  "executors": {
+    "roles": ["SECRETARY", "ASSISTANT_SECRETARY"],
+    "permissions": [],
+    "groups": []
+  }
+}

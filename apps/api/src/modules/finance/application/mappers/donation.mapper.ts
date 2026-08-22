@@ -3,9 +3,10 @@ import { Account } from '../../domain/aggregates/account/account.aggregate';
 import { DonationDto } from '../dtos/donation.dto';
 import { AccountMapper } from './account.mapper';
 import { FinanceUserMapper } from './finance-user.mapper';
+import { DonationDonorEnrichment } from './donation-donor-display.helper';
 
 export class DonationMapper {
-  static toDto(donation: Donation): DonationDto {
+  static toDto(donation: Donation, enrichment?: DonationDonorEnrichment): DonationDto {
     return {
       id: donation.id,
       type: donation.type,
@@ -13,10 +14,10 @@ export class DonationMapper {
       currency: donation.currency,
       status: donation.status,
       donorId: donation.donorId!,
-      donorName: donation.donorName,
-      donorEmail: donation.donorEmail,
-      donorNumber: donation.donorNumber,
-      isGuest: donation.isGuest,
+      donorName: enrichment?.donorName ?? '',
+      donorEmail: enrichment?.donorEmail,
+      donorNumber: enrichment?.donorNumber,
+      isGuest: enrichment?.isGuest ?? false,
       startDate: donation.startDate,
       endDate: donation.endDate,
       raisedOn: donation.raisedOn,
@@ -40,4 +41,3 @@ export class DonationMapper {
     };
   }
 }
-

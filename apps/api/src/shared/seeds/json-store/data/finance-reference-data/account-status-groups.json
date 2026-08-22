@@ -1,0 +1,6 @@
+{
+  "_comment": "Account status buckets for list chips (Mine / All Open use outstanding; All Closed uses closed).",
+  "outstanding": ["ACTIVE"],
+  "closed": ["CLOSED"],
+  "excluded": []
+}

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BusinessException, formatDate } from '@nabarun-ngo/nestjs-shared-core';
+import { BusinessException, formatDate, IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 import {
   DocumentGeneratorService,
   ExcelStyles,
@@ -17,11 +17,13 @@ import { ExpenseStatus } from '../../domain/enums/expense.enum';
 import { EarningStatus } from '../../domain/enums/earning.enum';
 import { AccountStatus } from '../../domain/enums/account-status.enum';
 import { IDonationRepository } from '../../domain/repositories/donation.repository';
+import { IDonorRepository } from '../../domain/repositories/donor.repository';
 import { IExpenseRepository } from '../../domain/repositories/expense.repository';
 import { IEarningRepository } from '../../domain/repositories/earning.repository';
 import { IAccountRepository } from '../../domain/repositories/account.repository';
 import { financeUserFullName } from '../../domain/types/finance-user-ref';
 import { FinanceReportReferenceDataService } from './finance-report-reference-data.service';
+import { displayForDonation, enrichDonationsForReport } from './donation-report-enrichment.helper';
 
 @Injectable()
 @ReportProvider()
@@ -30,6 +32,8 @@ export class AnnualAuditReportProvider implements IReportProvider<{ financialYea
 
   constructor(
     @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
+    @Inject(IDonorRepository) private readonly donorRepository: IDonorRepository,
+    @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort,
     @Inject(IExpenseRepository) private readonly expenseRepository: IExpenseRepository,
     @Inject(IEarningRepository) private readonly earningRepository: IEarningRepository,
     @Inject(IAccountRepository) private readonly accountRepository: IAccountRepository,
@@ -87,15 +91,20 @@ export class AnnualAuditReportProvider implements IReportProvider<{ financialYea
     ]);
 
     const refData = await this.referenceDataService.getReferenceData();
+    const donationDisplays = await enrichDonationsForReport(donations, this.donorRepository, this.userLookup);
     const incomeMap: { label: string; value: number }[] = [];
     const paidDons = donations.filter((d) => d.status === DonationStatus.PAID);
     incomeMap.push({
       label: 'Member Donations (Regular + One Time)',
-      value: paidDons.filter((f) => !f.isGuest).reduce((sum, d) => sum + d.amount, 0),
+      value: paidDons
+        .filter((f) => !displayForDonation(f, donationDisplays).isGuest)
+        .reduce((sum, d) => sum + d.amount, 0),
     });
     incomeMap.push({
       label: 'Guest Donations',
-      value: paidDons.filter((f) => f.isGuest).reduce((sum, d) => sum + d.amount, 0),
+      value: paidDons
+        .filter((f) => displayForDonation(f, donationDisplays).isGuest)
+        .reduce((sum, d) => sum + d.amount, 0),
     });
 
     const receivedEarnings = earnings.filter((e) => e.status === EarningStatus.RECEIVED);
@@ -270,12 +279,14 @@ export class AnnualAuditReportProvider implements IReportProvider<{ financialYea
     const paymentMethodMap = new Map(refData.paymentMethod.map((item) => [item.key, item.value]));
     const upiTypeMap = new Map(refData.upiOption.map((item) => [item.key, item.value]));
 
-    const donationRows = donations.map((d) => ({
+    const donationRows = donations.map((d) => {
+      const display = displayForDonation(d, donationDisplays);
+      return {
       donationId: d.id,
-      donationType: `${donationTypeMap.get(d.type) || d.type}${d.isGuest ? ' (Guest)' : ''}`,
-      donorName: d.donorName,
-      donorEmail: d.donorEmail || '-',
-      donorPhone: d.donorNumber || '-',
+      donationType: `${donationTypeMap.get(d.type) || d.type}${display.isGuest ? ' (Guest)' : ''}`,
+      donorName: display.donorName,
+      donorEmail: display.donorEmail || '-',
+      donorPhone: display.donorPhone || '-',
       amount: d.amount,
       period: d.type === DonationType.REGULAR ? `${safeFormatDate(d.startDate)} - ${safeFormatDate(d.endDate)}` : '',
       currency: d.currency || 'INR',
@@ -289,7 +300,8 @@ export class AnnualAuditReportProvider implements IReportProvider<{ financialYea
       confirmedBy: financeUserFullName(d.confirmedBy) || '-',
       confirmedOn: safeFormatDate(d.confirmedOn),
       remarks: d.remarks || '-',
-    }));
+    };
+    });
 
     excelBuilder
       .addSheet({

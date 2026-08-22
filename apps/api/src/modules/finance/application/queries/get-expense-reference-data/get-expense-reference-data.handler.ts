@@ -10,8 +10,14 @@ export class GetExpenseReferenceDataHandler implements IQueryHandler<GetExpenseR
   constructor(@Optional() @Inject(IFinanceReferenceDataPort) private readonly port: IFinanceReferenceDataPort) {}
 
   async execute(): Promise<ExpenseRefDataDto> {
-    const data = this.port ? await this.port.getExpenseReferenceData() : {};
-    return { expenseStatuses: data.expenseStatuses, expenseRefTypes: data.expenseRefTypes };
+    if (!this.port) {
+      return {};
+    }
+    const data = await this.port.getExpenseReferenceData();
+    return {
+      expenseStatuses: data.expenseStatuses,
+      expenseRefTypes: data.expenseRefTypes,
+      expenseStatusGroups: data.expenseStatusGroups,
+    };
   }
 }
-

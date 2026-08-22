@@ -15,7 +15,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { FormStatus } from '../../domain/enums/form-status.enum';
 import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoResponse, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateFormCommand } from '../../application/commands/create-form/create-form.command';
 import { UpdateFormCommand } from '../../application/commands/update-form/update-form.command';
 import { PublishFormCommand } from '../../application/commands/publish-form/publish-form.command';
@@ -29,12 +29,12 @@ import {
 } from '../../application/dtos/request/form-request.dtos';
 
 class ListFormsRequestDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'PROJECT' })
   @IsString()
   @IsNotEmpty()
   entityType: string;
 
-  @ApiPropertyOptional({ enum: FormStatus })
+  @ApiPropertyOptional({ enum: FormStatus, example: FormStatus.Published })
   @IsEnum(FormStatus)
   @IsOptional()
   status?: FormStatus;
@@ -88,6 +88,7 @@ export class FormController {
 
   @Get(':formId')
   @RequirePermissions('read:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormResponseDto)
   getFormWithFields(
     @Param('formId') formId: string,
@@ -100,6 +101,7 @@ export class FormController {
 
   @Patch(':formId')
   @RequirePermissions('update:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormResponseDto)
   updateForm(
     @Param('formId') formId: string,
@@ -122,6 +124,7 @@ export class FormController {
 
   @Post(':formId/publish')
   @RequirePermissions('update:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormResponseDto)
   publishForm(
     @Param('formId') formId: string,
@@ -134,6 +137,7 @@ export class FormController {
 
   @Post(':formId/disable')
   @RequirePermissions('disable:custom_forms')
+  @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormResponseDto)
   disableForm(
     @Param('formId') formId: string,

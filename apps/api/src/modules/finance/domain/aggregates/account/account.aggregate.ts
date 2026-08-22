@@ -1,7 +1,9 @@
 import { AccountType } from '../../enums/account-type.enum';
+import { AccountOwnerType } from '../../enums/account-owner-type.enum';
 import { AccountStatus } from '../../enums/account-status.enum';
 import { BankDetail } from '../../value-objects/bank-detail.vo';
-import { UPIDetail } from '../../value-objects/upi-detail.vo';
+import { UPIDetail, getPrimaryUpiDetail, normalizeUpiDetails } from '../../value-objects/upi-detail.vo';
+import { ACCOUNT_TYPE_CONFIG } from '../../config/account-type.config';
 import { AggregateRoot, BusinessException, generateUniqueNDigitNumber } from '@nabarun-ngo/nestjs-shared-core';
 import { AccountCreatedEvent } from '../../events/account-created.event';
 import { Transaction } from '../../entities/transaction.entity';
@@ -23,63 +25,66 @@ class TxnDetail {
  * All business logic and validations are in this domain model
  */
 export class Account extends AggregateRoot<string> {
-  // Private fields for encapsulation
   #name: string;
   #type: AccountType;
+  #ownerType: AccountOwnerType;
   #currency: string;
   #status: AccountStatus;
   #description: string | undefined;
   #accountHolderName: string | undefined;
   #accountHolderId: string | undefined;
+  #custodianUserIds: string[];
   #activatedOn: Date | undefined;
   #bankDetail: BankDetail | undefined;
-  #upiDetail: UPIDetail | undefined;
+  #upiDetails: UPIDetail[] | undefined;
   #transactions: Transaction[] = [];
 
   constructor(
     id: string,
     name: string,
     type: AccountType,
+    ownerType: AccountOwnerType,
     currency: string,
     status: AccountStatus,
     description: string | undefined,
     transactions: Transaction[] = [],
     accountHolderName?: string,
     accountHolderId?: string,
+    custodianUserIds: string[] = [],
     activatedOn?: Date,
     bankDetail?: BankDetail,
-    upiDetail?: UPIDetail,
+    upiDetails?: UPIDetail[],
     createdAt?: Date,
     updatedAt?: Date,
   ) {
     super(id, createdAt, updatedAt);
     this.#name = name;
     this.#type = type;
+    this.#ownerType = ownerType;
     this.#currency = currency;
     this.#status = status;
     this.#description = description;
     this.#accountHolderName = accountHolderName;
     this.#accountHolderId = accountHolderId;
+    this.#custodianUserIds = custodianUserIds.length ? [...new Set(custodianUserIds)] : [];
     this.#activatedOn = activatedOn;
     this.#bankDetail = bankDetail;
-    this.#upiDetail = upiDetail;
+    this.#upiDetails = upiDetails;
     this.#transactions = transactions;
   }
 
-  /**
-   * Factory method to create a new Account
-   * Business validation: name and currency required, initialBalance must be non-negative
-   */
   static create(props: {
     name: string;
     type: AccountType;
+    ownerType: AccountOwnerType;
     currency: string;
     initialBalance?: number;
     description?: string;
     accountHolderId?: string;
     accountHolderName?: string;
+    custodianUserIds?: string[];
     bankDetail?: BankDetail;
-    upiDetail?: UPIDetail;
+    upiDetails?: UPIDetail[];
   }): Account {
     if (!props.name || props.name.trim().length === 0) {
       throw new BusinessException('Account name is required');
@@ -90,24 +95,40 @@ export class Account extends AggregateRoot<string> {
     if (props.initialBalance !== undefined && props.initialBalance < 0) {
       throw new BusinessException('Initial balance cannot be negative');
     }
+    if (!ACCOUNT_TYPE_CONFIG[props.type]) {
+      throw new BusinessException('Invalid account type');
+    }
+    if (!ACCOUNT_TYPE_CONFIG[props.type].allowedOwnerTypes.includes(props.ownerType)) {
+      throw new BusinessException('Owner type is not allowed for this account type');
+    }
+    if (props.ownerType === AccountOwnerType.ORG) {
+      if (props.accountHolderId) {
+        throw new BusinessException('Org accounts cannot have an account holder');
+      }
+    } else if (!props.accountHolderId) {
+      throw new BusinessException('Individual accounts require an account holder');
+    }
 
     const now = new Date();
     const account = new Account(
       `NACC${generateUniqueNDigitNumber(8)}`,
       props.name,
       props.type,
+      props.ownerType,
       props.currency,
       AccountStatus.ACTIVE,
       props.description,
       [],
       props.accountHolderName,
-      props.accountHolderId,
-      now, // activatedOn
+      props.ownerType === AccountOwnerType.ORG ? undefined : props.accountHolderId,
+      props.custodianUserIds ?? [],
+      now,
       props.bankDetail,
-      props.upiDetail,
+      normalizeUpiDetails(props.upiDetails),
       now,
       now,
     );
+    account.validateTypeDetails();
     if (props.initialBalance) {
       account.credit(props.initialBalance, {
         transactionRef: `TXR${generateUniqueNDigitNumber(10)}`,
@@ -119,10 +140,6 @@ export class Account extends AggregateRoot<string> {
     return account;
   }
 
-  /**
-   * Credit amount to account (add money)
-   * Business validation: amount must be positive, account must be active
-   */
   credit(amount: number, txnDetail: TxnDetail): void {
     if (amount <= 0) {
       throw new BusinessException('Credit amount must be positive');
@@ -156,10 +173,6 @@ export class Account extends AggregateRoot<string> {
     this.touch();
   }
 
-  /**
-   * Debit amount from account (remove money)
-   * Business validation: amount must be positive, account must be active, sufficient balance
-   */
   debit(amount: number, txnDetail: TxnDetail): void {
     if (amount <= 0) {
       throw new BusinessException('Debit amount must be positive');
@@ -197,10 +210,6 @@ export class Account extends AggregateRoot<string> {
     this.touch();
   }
 
-  /**
-   * Close account
-   * Business validation: Cannot close closed account
-   */
   close(): void {
     if (this.#status === AccountStatus.CLOSED) {
       throw new BusinessException('Cannot close a already closed account');
@@ -212,10 +221,6 @@ export class Account extends AggregateRoot<string> {
     this.touch();
   }
 
-  /**
-   * Activate account
-   * Business validation: Cannot activate blocked account
-   */
   activate(): void {
     if (this.#status === AccountStatus.CLOSED) {
       throw new BusinessException('Cannot activate a closed account');
@@ -227,16 +232,13 @@ export class Account extends AggregateRoot<string> {
     this.touch();
   }
 
-  /**
-   * Update account details
-   * Business validation: Cannot change type, can update name, description, bank/UPI details
-   */
   update(props: {
     name?: string;
     description?: string;
     bankDetail?: BankDetail;
-    upiDetail?: UPIDetail;
+    upiDetails?: UPIDetail[];
     accountHolderName?: string;
+    custodianUserIds?: string[];
   }): void {
     if (props.name !== undefined) {
       if (!props.name || props.name.trim().length === 0) {
@@ -250,18 +252,48 @@ export class Account extends AggregateRoot<string> {
     if (props.bankDetail !== undefined) {
       this.#bankDetail = props.bankDetail;
     }
-    if (props.upiDetail !== undefined) {
-      this.#upiDetail = props.upiDetail;
+    if (props.upiDetails !== undefined) {
+      this.#upiDetails = normalizeUpiDetails(props.upiDetails);
     }
     if (props.accountHolderName !== undefined) {
       this.#accountHolderName = props.accountHolderName;
     }
+    if (props.custodianUserIds !== undefined) {
+      this.#custodianUserIds = props.custodianUserIds.length
+        ? [...new Set(props.custodianUserIds)]
+        : [];
+    }
+    this.validateTypeDetails();
     this.touch();
   }
 
-  // Getters
+  private validateTypeDetails(): void {
+    const config = ACCOUNT_TYPE_CONFIG[this.#type];
+
+    if (config.requiredDetails.includes('bankDetail') && !this.#bankDetail) {
+      throw new BusinessException('Bank detail is required for this account type');
+    }
+
+    if (this.#type === AccountType.BANK && this.#bankDetail && !this.#bankDetail.IFSCNumber?.trim()) {
+      throw new BusinessException('IFSC is required for bank accounts');
+    }
+
+    if (this.#type === AccountType.INVESTMENT && !this.#description?.trim()) {
+      throw new BusinessException('Description is required for investment accounts');
+    }
+
+    if (this.#upiDetails?.length && this.#type !== AccountType.BANK && this.#type !== AccountType.WALLET) {
+      throw new BusinessException('UPI details are only allowed on bank and wallet accounts');
+    }
+
+    if (this.#custodianUserIds.length && this.#ownerType !== AccountOwnerType.ORG) {
+      throw new BusinessException('Custodians are only allowed on organization accounts');
+    }
+  }
+
   get name(): string { return this.#name; }
   get type(): AccountType { return this.#type; }
+  get ownerType(): AccountOwnerType { return this.#ownerType; }
   get balance(): number {
     return this.#transactions.reduce((acc, txn) => {
       if (txn.type === TransactionType.IN) {
@@ -276,21 +308,20 @@ export class Account extends AggregateRoot<string> {
   get description(): string | undefined { return this.#description; }
   get accountHolderName(): string | undefined { return this.#accountHolderName; }
   get accountHolderId(): string | undefined { return this.#accountHolderId; }
+  get custodianUserIds(): string[] { return this.#custodianUserIds; }
+  /** @deprecated Use custodianUserIds */
+  get custodianUserId(): string | undefined { return this.#custodianUserIds[0]; }
   get activatedOn(): Date | undefined { return this.#activatedOn; }
   get bankDetail(): BankDetail | undefined { return this.#bankDetail; }
-  get upiDetail(): UPIDetail | undefined { return this.#upiDetail; }
+  get upiDetails(): UPIDetail[] | undefined { return this.#upiDetails; }
+  /** @deprecated Use upiDetails; returns primary UPI for backward compatibility */
+  get upiDetail(): UPIDetail | undefined { return getPrimaryUpiDetail(this.#upiDetails); }
   get transactions(): ReadonlyArray<Transaction> { return this.#transactions; }
 
-  /**
-   * Check if account has sufficient funds
-   */
   hasSufficientFunds(amount: number): boolean {
     return this.balance >= amount;
   }
 
-  /**
-   * Check if account is active
-   */
   isActive(): boolean {
     return this.#status === AccountStatus.ACTIVE;
   }

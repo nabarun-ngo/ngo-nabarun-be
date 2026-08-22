@@ -29,10 +29,6 @@ export class MeetingPrismaMapper {
       MapperUtils.nullToUndefined(row.extMeetingId),
       MapperUtils.nullToUndefined(row.meetLink),
       MapperUtils.nullToUndefined(row.calendarLink),
-      MapperUtils.nullToUndefined(row.recordingUrl),
-      MapperUtils.nullToUndefined(row.meetingNotes),
-      MapperUtils.nullToUndefined(row.meetingTranscript),
-      MapperUtils.nullToUndefined(row.meetingActionItems),
       row.createdAt,
       row.updatedAt,
     );
@@ -55,10 +51,6 @@ export class MeetingPrismaMapper {
       hostEmail: MapperUtils.undefinedToNull(domain.hostEmail),
       meetLink: MapperUtils.undefinedToNull(domain.meetLink),
       calendarLink: MapperUtils.undefinedToNull(domain.calendarLink),
-      recordingUrl: MapperUtils.undefinedToNull(domain.recordingUrl),
-      meetingNotes: MapperUtils.undefinedToNull(domain.meetingNotes),
-      meetingTranscript: MapperUtils.undefinedToNull(domain.meetingTranscript),
-      meetingActionItems: MapperUtils.undefinedToNull(domain.meetingActionItems),
       createdById: MapperUtils.undefinedToNull(domain.createdById),
       version: 0,
     };
@@ -77,10 +69,6 @@ export class MeetingPrismaMapper {
       attendees: JSON.stringify(domain.attendees),
       meetLink: MapperUtils.undefinedToNull(domain.meetLink),
       calendarLink: MapperUtils.undefinedToNull(domain.calendarLink),
-      recordingUrl: MapperUtils.undefinedToNull(domain.recordingUrl),
-      meetingNotes: MapperUtils.undefinedToNull(domain.meetingNotes),
-      meetingTranscript: MapperUtils.undefinedToNull(domain.meetingTranscript),
-      meetingActionItems: MapperUtils.undefinedToNull(domain.meetingActionItems),
       extMeetingId: MapperUtils.undefinedToNull(domain.extMeetingId),
       updatedAt: new Date(),
     };

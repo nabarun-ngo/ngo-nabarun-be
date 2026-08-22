@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoResponse, ApiPaginationQuery, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateEarningCommand } from '../../application/commands/create-earning/create-earning.command';
 import { UpdateEarningCommand } from '../../application/commands/update-earning/update-earning.command';
 import { ListEarningsQuery } from '../../application/queries/list-earnings/list-earnings.query';
@@ -21,6 +22,7 @@ export class EarningController {
   constructor(private readonly commandBus: CommandBus, private readonly queryBus: QueryBus) { }
 
   @Get('static/referenceData')
+  @ApiAutoResponse(EarningRefDataDto)
   getEarningReferenceData(): Promise<EarningRefDataDto> {
     return this.queryBus.execute(new GetEarningReferenceDataQuery());
   }
@@ -28,6 +30,7 @@ export class EarningController {
   @Post('create')
   @HttpCode(HttpStatus.OK)
   @RequirePermissions('create:earning')
+  @ApiAutoResponse(EarningDetailDto)
   async createEarning(@Body() dto: CreateEarningDto, @CurrentUser() user: AuthUser): Promise<EarningDetailDto> {
     const earning = await this.commandBus.execute(
       new CreateEarningCommand({
@@ -37,6 +40,7 @@ export class EarningController {
         currency: dto.currency,
         source: dto.source,
         description: dto.description,
+        accountId: dto.accountId,
       }),
     );
     return EarningMapper.toDto(earning);
@@ -44,6 +48,8 @@ export class EarningController {
 
   @Put(':id/update')
   @RequirePermissions('update:earning')
+  @ApiUuidParam('id', 'Identifier of the earning')
+  @ApiAutoResponse(EarningDetailDto)
   async updateEarning(@Param('id') id: string, @Body() dto: UpdateEarningDto, @CurrentUser() user: AuthUser): Promise<EarningDetailDto> {
     const earning = await this.commandBus.execute(
       new UpdateEarningCommand({
@@ -62,7 +68,9 @@ export class EarningController {
   }
 
   @Get('list')
-  @RequirePermissions('read:earning')
+  @RequirePermissions('read:earnings')
+  @ApiPaginationQuery()
+  @ApiAutoResponse(EarningListResponseDto)
   listEarnings(
     @Query('pageIndex') pageIndex?: number,
     @Query('pageSize') pageSize?: number,
@@ -72,7 +80,9 @@ export class EarningController {
   }
 
   @Get(':id')
-  @RequirePermissions('read:earning')
+  @RequirePermissions('read:earnings')
+  @ApiUuidParam('id', 'Identifier of the earning')
+  @ApiAutoResponse(EarningDetailDto)
   getEarningById(@Param('id') id: string): Promise<EarningDetailDto> {
     return this.queryBus.execute(new GetEarningByIdQuery(id));
   }

@@ -1,4 +1,8 @@
 export class GetDonationSummaryQuery {
-  constructor(public readonly donorId: string) {}
+  constructor(
+    public readonly params: {
+      donorId?: string;
+      userProfileId?: string;
+    },
+  ) {}
 }
-

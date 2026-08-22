@@ -8,6 +8,7 @@ const validOptions = {
     $connect: jest.fn(),
     $disconnect: jest.fn(),
     $extends: jest.fn().mockReturnThis(),
+    $queryRaw: jest.fn(),
     $transaction: jest.fn(),
   }),
 };

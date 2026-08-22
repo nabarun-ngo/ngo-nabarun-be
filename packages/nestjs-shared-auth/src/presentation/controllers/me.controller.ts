@@ -1,13 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthUser } from '../../application/models/auth-user';
+import { CurrentUserResponseDto } from '../../application/dtos/response/auth-response.dtos';
 
 @ApiBearerAuth('jwt')
 @ApiSecurity('api-key')
@@ -16,19 +17,8 @@ import { AuthUser } from '../../application/models/auth-user';
 export class MeController {
   @Get()
   @ApiOperation({ summary: 'Get current user profile and permissions' })
-  @ApiOkResponse({
+  @ApiAutoResponse(CurrentUserResponseDto, {
     description: 'Current user profile and permissions',
-    schema: {
-      properties: {
-        info: { type: 'string', example: 'Success' },
-        timestamp: { type: 'string', format: 'date-time' },
-        traceId: { type: 'string' },
-        responsePayload: {
-          type: 'object',
-          description: 'AuthUser — type, sub, permissions, userRoles, roleGroups',
-        },
-      },
-    },
   })
   getMe(@CurrentUser() user: AuthUser): AuthUser {
     return user;

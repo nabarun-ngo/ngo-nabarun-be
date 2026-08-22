@@ -11,6 +11,17 @@ export interface UserFilter {
 }
 
 /**
+ * Dashboard overview aggregates from one SQL round-trip (four scalar subselects):
+ * finance SUMs + request inbox COUNT.
+ */
+export interface UserOverviewAggregates {
+  pendingDonations: number;
+  walletBalance: number;
+  unsettledExpense: number;
+  pendingTask: number;
+}
+
+/**
  * Token naming rule: Symbol name = interface name (DDD rule).
  * One import serves as both @Inject() token and TypeScript type.
  */
@@ -28,4 +39,21 @@ export interface IUserRepository extends IRepository<User, string, UserFilter> {
 
   /** Batch fetch by IdP subjects — single query, avoids N+1. */
   findByIdPSubs(subs: string[]): Promise<User[]>;
+
+  /**
+   * One raw SQL round-trip: pending donations (via linked donor), wallet balance,
+   * unsettled expenses, and request inbox count (role/group/permission eligibility).
+   */
+  getMyOverviewAggregates(
+    userId: string,
+    actorRoles: string[],
+    actorGroups: string[],
+    actorPermissions: string[],
+  ): Promise<UserOverviewAggregates>;
+
+  /**
+   * Projection update: set denormalized roleKeys without bumping optimistic version.
+   * No-ops when no active profile exists for the IdP subject.
+   */
+  updateRoleKeysByIdPSub(idpSub: string, roleKeys: string[]): Promise<void>;
 }

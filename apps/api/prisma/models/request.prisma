@@ -1,0 +1,55 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Simple Request Inbox — definition-driven requests (not BPM workflow instances)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Request {
+  id                 String    @id @default(cuid()) @db.VarChar(100)
+  type               String    @db.VarChar(50)
+  name               String    @db.VarChar(255)
+  formKey            String    @db.VarChar(200)
+  formSubmissionId   String?   @db.VarChar(100)
+  status             String    @db.VarChar(30)
+  initiatedById      String?   @db.VarChar(100)
+  initiatedForId     String?   @db.VarChar(100)
+  assigneeId         String?   @db.VarChar(100)
+  claimedById        String?   @db.VarChar(100)
+  claimedAt          DateTime?
+  executorRoles      Json      @default("[]")
+  executorGroups     Json      @default("[]")
+  executorPermissions Json     @default("[]")
+  approverRoles      Json      @default("[]")
+  approverGroups     Json      @default("[]")
+  approverPermissions Json     @default("[]")
+  needApproval       Boolean   @default(false)
+  completedAt        DateTime?
+  decisionNote       String?   @db.Text
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  initiatedBy  UserProfile?  @relation("RequestInitiatedBy", fields: [initiatedById], references: [id])
+  initiatedFor UserProfile?  @relation("RequestInitiatedFor", fields: [initiatedForId], references: [id])
+  assignee     UserProfile?  @relation("RequestAssignee", fields: [assigneeId], references: [id])
+  claimedBy    UserProfile?  @relation("RequestClaimedBy", fields: [claimedById], references: [id])
+  events       RequestEvent[]
+
+  @@index([type, status])
+  @@index([status])
+  @@index([initiatedById, createdAt])
+  @@index([initiatedForId])
+  @@index([assigneeId, status])
+  @@index([claimedById, status])
+  @@map("requests")
+}
+
+model RequestEvent {
+  id         String   @id @default(cuid())
+  requestId  String   @db.VarChar(100)
+  request    Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  type       String   @db.VarChar(50)
+  actorId    String?  @db.VarChar(100)
+  payload    Json     @default("{}")
+  occurredAt DateTime @default(now())
+
+  @@index([requestId, occurredAt])
+  @@map("request_events")
+}

@@ -38,14 +38,21 @@ This monorepo uses [Changesets](https://github.com/changesets/changesets) for in
 
 ## Registry
 
-GitHub Packages is configured in the root [`.npmrc`](../.npmrc). Set `NPM_TOKEN` before publishing locally or in CI.
+Packages publish as **public** to the npmjs registry (`registry.npmjs.org`). Anyone can install without a token:
 
-```powershell
-$env:NPM_TOKEN = "<automation-token>"
-npm whoami --registry=https://npm.pkg.github.com
+```bash
+npm install @nabarun-ngo/nestjs-shared-core
 ```
 
-For Azure Artifacts, uncomment the alternate registry block in `.npmrc`.
+Before the first publish, create/claim the `@nabarun-ngo` org on [npmjs.com](https://www.npmjs.com/) and log in:
+
+```powershell
+npm login
+npm whoami
+npm run release
+```
+
+In CI, set `NPM_TOKEN` to an npm automation token with publish rights for that org.
 
 ## Notes
 

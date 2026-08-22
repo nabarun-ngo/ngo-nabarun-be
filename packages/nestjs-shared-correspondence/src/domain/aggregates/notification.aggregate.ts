@@ -20,6 +20,8 @@ export interface NotificationFilter {
   dispatchId?: string;
   fromDate?: Date;
   toDate?: Date;
+  /** Admin audit: aggregate delivery outcome derived from recipient push results. */
+  status?: 'failed' | 'succeeded';
 }
 
 export class Notification extends AggregateRoot<string> {

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { EmailTemplatePayloadSchema } from '@nabarun-ngo/nestjs-shared-correspondence';
 import { CronJobPayloadSchema } from '@nabarun-ngo/nestjs-shared-cron';
-import { WorkflowDefinitionSchema } from '@nabarun-ngo/nestjs-shared-workflow';
 import { UserReferenceDataPayloadSchema } from '../../../modules/user/user-reference-data.schema';
 import { FinanceReferenceDataPayloadSchema } from '../../../modules/finance/finance-reference-data.schema';
 import { ProjectReferenceDataPayloadSchema } from '../../../modules/project/project-reference-data.schema';
@@ -14,7 +13,12 @@ import {
   ContentLinksPayloadSchema,
   LinksPayloadSchema,
   LinksReferenceDataPayloadSchema,
-} from '../../../modules/links/links.schema';
+} from './schemas/links.schema';
+import {
+  HelpPortalArticlePayloadSchema,
+  HelpPortalCatalogPayloadSchema,
+} from '../../../modules/help-portal/help-portal.schema';
+import { RequestDefinitionSchema } from '../../../modules/request/request-definition.schema';
 import {
   CustomFormFieldOptionsPayloadSchema,
 } from '../../persistence/custom-forms/schema/custom-form-field-options.schema';
@@ -25,7 +29,7 @@ export type JsonStoreSchemaRegistry = Record<string, z.ZodType>;
 export const JSON_STORE_SCHEMA_REGISTRY: JsonStoreSchemaRegistry = {
   correspondence: EmailTemplatePayloadSchema,
   cron: CronJobPayloadSchema,
-  workflow: WorkflowDefinitionSchema,
+  [JsonStoreNameSpace.RequestDefinitions]: RequestDefinitionSchema,
   'user-reference-data': UserReferenceDataPayloadSchema,
   'finance-reference-data': FinanceReferenceDataPayloadSchema,
   'project-reference-data': ProjectReferenceDataPayloadSchema,
@@ -39,6 +43,8 @@ export const JSON_STORE_SCHEMA_REGISTRY: JsonStoreSchemaRegistry = {
   'links:link-categories': LinksReferenceDataPayloadSchema,
   [JsonStoreNameSpace.PublicSite]: PublicSiteStaticContentSchema,
   [JsonStoreNameSpace.CustomFormFieldOptions]: CustomFormFieldOptionsPayloadSchema,
+  [JsonStoreNameSpace.HelpPortal]: HelpPortalArticlePayloadSchema,
+  [`${JsonStoreNameSpace.HelpPortal}:catalog`]: HelpPortalCatalogPayloadSchema,
 };
 
 export function resolveJsonStoreSchema(

@@ -10,12 +10,23 @@ export class GetAccountReferenceDataHandler implements IQueryHandler<GetAccountR
   constructor(@Optional() @Inject(IFinanceReferenceDataPort) private readonly port: IFinanceReferenceDataPort) {}
 
   async execute(): Promise<AccountRefDataDto> {
-    const data = this.port ? await this.port.getAccountReferenceData() : {};
+    if (!this.port) {
+      return {};
+    }
+    const data = await this.port.getAccountReferenceData();
     return {
       accountStatuses: data.accountStatuses,
       accountTypes: data.accountTypes,
+      ownerTypes: data.ownerTypes,
+      bankAccountTypes: data.bankAccountTypes,
+      investmentTypes: data.investmentTypes,
+      interestPayingTerms: data.interestPayingTerms,
+      transferReferenceTypes: data.transferReferenceTypes,
+      transferMatrix: data.transferMatrix,
+      transactionTypes: data.transactionTypes,
+      transactionStatuses: data.transactionStatuses,
       transactionRefTypes: data.transactionRefTypes,
+      accountStatusGroups: data.accountStatusGroups,
     };
   }
 }
-

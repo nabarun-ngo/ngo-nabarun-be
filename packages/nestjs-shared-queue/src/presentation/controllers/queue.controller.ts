@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -15,7 +16,12 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { ApiAutoPagedResponse, ApiAutoResponse } from "@nabarun-ngo/nestjs-shared-core";
+import {
+  ApiAutoPagedResponse,
+  ApiAutoResponse,
+  ApiKeyParam,
+  ENVELOPE_EXAMPLES,
+} from "@nabarun-ngo/nestjs-shared-core";
 import { RequirePermissions } from "@nabarun-ngo/nestjs-shared-auth";
 import { CleanJobsCommand } from "../../application/commands/clean-jobs/clean-jobs.command";
 import { PauseQueueCommand } from "../../application/commands/pause-queue/pause-queue.command";
@@ -28,7 +34,7 @@ import { ListJobsQuery } from "../../application/queries/list-jobs/list-jobs.que
 import { GetQueueStatisticsQuery } from "../../application/queries/get-queue-statistics/get-queue-statistics.query";
 import { SearchJobsQuery } from "../../application/queries/search-jobs/search-jobs.query";
 import { QueueJobSearchResultDto } from "../../application/dtos/queue-job.dtos";
-import { JobDetail, QueueStatistics } from "../dto/queue.dto";
+import { CleanJobsResult, JobDetail, QueueStatistics } from "../dto/queue.dto";
 import { JobStatus } from "../../domain/enums/job-status.enum";
 
 @ApiTags(QueueController.name)
@@ -43,14 +49,15 @@ export class QueueController {
 
   @Get()
   @ApiOperation({ summary: "Get jobs by status" })
-  @ApiQuery({ name: "pageIndex", required: true })
-  @ApiQuery({ name: "pageSize", required: true })
+  @ApiQuery({ name: "pageIndex", required: true, example: 0 })
+  @ApiQuery({ name: "pageSize", required: true, example: 20 })
   @ApiQuery({
     name: "status",
     required: true,
     enum: ["completed", "failed", "paused", "delayed", "active", "waiting", "waiting-children"],
+    schema: { example: "failed" },
   })
-  @ApiQuery({ name: "jobId", required: false })
+  @ApiQuery({ name: "jobId", required: false, example: "job_10482" })
   @RequirePermissions("read:jobs")
   @ApiAutoPagedResponse(JobDetail, {
     status: 200,
@@ -77,11 +84,11 @@ export class QueueController {
 
   @Get("search")
   @ApiOperation({ summary: "Search jobs by name, queue, or status (uses secondary store)" })
-  @ApiQuery({ name: "jobName", required: false })
-  @ApiQuery({ name: "queueName", required: false })
-  @ApiQuery({ name: "status", required: false, enum: JobStatus })
-  @ApiQuery({ name: "pageIndex", required: false })
-  @ApiQuery({ name: "pageSize", required: false })
+  @ApiQuery({ name: "jobName", required: false, example: "send-email" })
+  @ApiQuery({ name: "queueName", required: false, example: "correspondence" })
+  @ApiQuery({ name: "status", required: false, enum: JobStatus, schema: { example: JobStatus.Failed } })
+  @ApiQuery({ name: "pageIndex", required: false, example: 0 })
+  @ApiQuery({ name: "pageSize", required: false, example: 20 })
   @RequirePermissions("read:jobs")
   @ApiAutoPagedResponse(QueueJobSearchResultDto, {
     status: 200,
@@ -103,7 +110,7 @@ export class QueueController {
 
   @Get("details/:jobId")
   @ApiOperation({ summary: "Get job details by ID" })
-  @ApiParam({ name: "jobId" })
+  @ApiKeyParam("jobId", "job_10482", "Queue job identifier")
   @RequirePermissions("read:jobs")
   @ApiAutoResponse(JobDetail, {
     status: 200,
@@ -131,7 +138,7 @@ export class QueueController {
   @Delete("clean-old-jobs")
   @ApiOperation({ summary: "Clean old jobs" })
   @RequirePermissions("delete:jobs")
-  @ApiAutoResponse(String, {
+  @ApiAutoResponse(CleanJobsResult, {
     status: 200,
     description: "Jobs cleaned successfully",
     isArray: false,
@@ -144,13 +151,14 @@ export class QueueController {
   @Post("operation/:operation")
   @ApiOperation({ summary: "Pause or resume the queue" })
   @RequirePermissions("update:jobs")
-  @ApiParam({ name: "operation", enum: ["pause", "resume"] })
+  @ApiParam({ name: "operation", enum: ["pause", "resume"], schema: { example: "pause" } })
   @ApiAutoResponse(String, {
     status: 200,
     description: "Operation completed",
     isArray: false,
     wrapInSuccessResponse: true,
   })
+  @ApiOkResponse({ example: { ...ENVELOPE_EXAMPLES, responsePayload: "Queue paused successfully" } })
   async queueOperation(@Param("operation") operation: string): Promise<string> {
     if (operation === "pause") {
       await this.commandBus.execute(new PauseQueueCommand());
@@ -162,13 +170,16 @@ export class QueueController {
 
   @Delete(":jobId")
   @ApiOperation({ summary: "Remove a job" })
-  @ApiParam({ name: "jobId" })
+  @ApiKeyParam("jobId", "job_10482", "Queue job identifier")
   @RequirePermissions("delete:jobs")
   @ApiAutoResponse(String, {
     status: 200,
     description: "Job removed successfully",
     isArray: false,
     wrapInSuccessResponse: true,
+  })
+  @ApiOkResponse({
+    example: { ...ENVELOPE_EXAMPLES, responsePayload: "Job 'job_10482' removed successfully" },
   })
   async removeJob(@Param("jobId") jobId: string): Promise<string> {
     await this.commandBus.execute(new RemoveJobCommand(jobId));
@@ -177,13 +188,19 @@ export class QueueController {
 
   @Post("retry/:jobId")
   @ApiOperation({ summary: "Retry a failed job" })
-  @ApiParam({ name: "jobId" })
+  @ApiKeyParam("jobId", "job_10482", "Queue job identifier")
   @RequirePermissions("update:jobs")
   @ApiAutoResponse(String, {
     status: 200,
     description: "Job queued for retry",
     isArray: false,
     wrapInSuccessResponse: true,
+  })
+  @ApiOkResponse({
+    example: {
+      ...ENVELOPE_EXAMPLES,
+      responsePayload: "Job 'job_10482' has been queued for retry",
+    },
   })
   async retryJob(@Param("jobId") jobId: string): Promise<string> {
     await this.commandBus.execute(new RetryJobCommand(jobId));
@@ -198,6 +215,9 @@ export class QueueController {
     description: "All failed jobs queued for retry",
     isArray: false,
     wrapInSuccessResponse: true,
+  })
+  @ApiOkResponse({
+    example: { ...ENVELOPE_EXAMPLES, responsePayload: "Retry complete. 3 retried, 0 failed" },
   })
   async retryAllFailedJobs(): Promise<string> {
     const result = await this.commandBus.execute(new RetryAllFailedJobsCommand());

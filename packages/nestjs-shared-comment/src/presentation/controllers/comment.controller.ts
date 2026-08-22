@@ -14,7 +14,11 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AuthUser, CurrentUser, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  ApiAutoResponse,
+  ApiAutoVoidResponse,
+  ApiUuidParam,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { AddCommentCommand } from '../../application/commands/add-comment/add-comment.command';
 import { UpdateCommentCommand } from '../../application/commands/update-comment/update-comment.command';
 import { DeleteCommentCommand } from '../../application/commands/delete-comment/delete-comment.command';
@@ -64,6 +68,7 @@ export class CommentController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update an existing comment' })
+  @ApiUuidParam('id', 'Identifier of the comment')
   @ApiAutoResponse(CommentResponseDto)
   updateComment(
     @Param('id') id: string,
@@ -87,6 +92,7 @@ export class CommentController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a comment and all its replies' })
+  @ApiUuidParam('id', 'Identifier of the comment')
   @ApiAutoVoidResponse({ status: 204 })
   deleteComment(
     @Param('id') id: string,

@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ManagementClient } from 'auth0';
+import { AuthenticationClient, ManagementClient } from 'auth0';
 import { User } from '../../domain/aggregates/user/user.aggregate';
 import {
   GrantConnectionResult,
@@ -8,8 +8,10 @@ import {
   IdentityCreateResult,
   IdentityUserPatch,
   LinkedConnection,
+  PasswordChangeTicketOptions,
+  PasswordChangeTicketResult,
 } from '../../domain/ports/identity-provider.port';
-import { IdentityProviderError } from '../../domain/errors/user.errors';
+import { IdentityProviderError, InvalidCredentialsError } from '../../domain/errors/user.errors';
 import { USER_OPTIONS } from '../user-options.token';
 import type { ConnectionConfig, ConnectionType, UserModuleOptions } from '../../user.schema';
 
@@ -25,24 +27,33 @@ interface Auth0Identity {
 export class Auth0IdentityAdapter implements IIdentityProvider {
   private readonly logger = new Logger(Auth0IdentityAdapter.name);
   private readonly management: ManagementClient;
+  private readonly authentication: AuthenticationClient;
 
   constructor(
     @Inject(USER_OPTIONS) private readonly options: UserModuleOptions,
   ) {
     const { domain, clientId, clientSecret } = options.idp;
     this.management = new ManagementClient({ domain, clientId, clientSecret });
+    // SPA client — Auth0 Change Password emails and ticket redirects use this app.
+    this.authentication = new AuthenticationClient({
+      domain,
+      clientId: options.spaClientId,
+    });
   }
 
   // ── createUser ────────────────────────────────────────────────────────────
 
   /**
-   * 1. Create the user in the `default` (primary) connection.
+   * 1. Create the user in the `default` (primary) connection with a strong
+   *    system-generated password (never returned) and `email_verified: false`.
    * 2. For every other connection where `provisionOnCreate: true` and type is
-   *    `password` or `passwordless`, create a secondary identity and link it to
-   *    the primary via Auth0's account-linking API.
+   *    `password` or `passwordless`, create a secondary identity and link it.
    * 3. Return the primary `externalSub`.
    */
-  async createUser(user: User, options: IdentityCreateOptions): Promise<IdentityCreateResult> {
+  async createUser(
+    user: User,
+    options: IdentityCreateOptions = {},
+  ): Promise<IdentityCreateResult> {
     const primary = this.resolveConnection('default');
     const primarySub = await this.createInConnection(user, primary, options);
 
@@ -56,12 +67,10 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
     for (const [, conn] of secondaries) {
       try {
         const secondarySub = await this.createInConnection(user, conn, {
-          resetPassword: false,
           emailVerified: options.emailVerified,
         });
         await this.linkIdentity(primarySub, secondarySub);
       } catch (err) {
-        // Log but do not fail the entire creation — primary identity already exists.
         this.logger.warn(
           `Failed to provision secondary connection '${conn.name}' for user ${user.email}: ` +
           (err instanceof Error ? err.message : String(err)),
@@ -83,7 +92,6 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
           ? { name: `${patch.firstName} ${patch.lastName}` }
           : {}),
         ...(patch.picture ? { picture: patch.picture } : {}),
-        ...(patch.resetPassword ? { app_metadata: { reset_password: patch.resetPassword } } : {}),
       });
     } catch (err) {
       throw this.wrapError('updateUser', err);
@@ -100,47 +108,110 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
     }
   }
 
+  // ── createPasswordChangeTicket ────────────────────────────────────────────
+
+  /**
+   * POST /api/v2/tickets/password-change
+   * @see https://auth0.com/docs/api/management/v2/tickets/post-password-change
+   */
+  async createPasswordChangeTicket(
+    options: PasswordChangeTicketOptions,
+  ): Promise<PasswordChangeTicketResult> {
+    try {
+      const res = await this.management.tickets.changePassword({
+        user_id: options.userId,
+        client_id: this.options.spaClientId,
+        mark_email_as_verified: options.markEmailAsVerified ?? true,
+        includeEmailInRedirect: options.includeEmailInRedirect ?? true,
+        ...(options.ttlSec != null ? { ttl_sec: options.ttlSec } : {}),
+        ...(options.resultUrl ? { result_url: options.resultUrl } : {}),
+      });
+      const ticketUrl = res['ticket'];
+      if (!ticketUrl) {
+        throw new IdentityProviderError('Password-change ticket response missing ticket URL');
+      }
+      return { ticketUrl };
+    } catch (err) {
+      throw this.wrapError('createPasswordChangeTicket', err);
+    }
+  }
+
+  // ── verifyPassword ────────────────────────────────────────────────────────
+
+  /**
+   * Authentication API Resource Owner Password Grant (login).
+   * @see https://auth0.com/docs/api/authentication#resource-owner-password
+   */
+  async verifyPassword(email: string, password: string): Promise<void> {
+    const realm = this.resolveConnection('default').name;
+    try {
+      await this.authentication.oauth.passwordGrant({
+        username: email,
+        password,
+        realm,
+        scope: 'openid',
+      });
+    } catch (err) {
+      this.logger.debug(
+        `Password verification failed for ${email}: ${err instanceof Error ? err.message : err}`,
+      );
+      throw new InvalidCredentialsError();
+    }
+  }
+
   // ── sendPasswordReset ─────────────────────────────────────────────────────
 
   /**
-   * Fetch all identities linked to the user and send the appropriate re-engagement
-   * action for each provisionable connection type:
-   * - `password`     → change-password ticket email
-   * - `passwordless` → verification / magic-link email
-   * Social / enterprise identities are skipped.
+   * Authentication API — Auth0 sends its Change Password email template.
+   * Only used by self-service reset; onboarding delivers the ticket URL itself.
+   * @see https://auth0.com/docs/api/authentication/change-password
    */
+  private async sendPasswordChangeEmail(email: string): Promise<void> {
+    try {
+      const connection = this.resolveConnection('default').name;
+      await this.authentication.database.changePassword({
+        email,
+        connection,
+      });
+    } catch (err) {
+      throw this.wrapError('sendPasswordChangeEmail', err);
+    }
+  }
+
   async sendPasswordReset(externalSub: string): Promise<void> {
     const authUser = await this.fetchUser(externalSub, 'sendPasswordReset');
-    const email = (authUser as any).email as string | undefined;
+    const email = (authUser as { email?: string }).email
+      ?? (authUser as { data?: { email?: string } }).data?.email;
     if (!email) throw new IdentityProviderError(`No email found for user ${externalSub}`);
 
-    const identities: Auth0Identity[] = (authUser as any).identities ?? [];
+    const identities: Auth0Identity[] =
+      (authUser as { identities?: Auth0Identity[] }).identities
+      ?? (authUser as { data?: { identities?: Auth0Identity[] } }).data?.identities
+      ?? [];
+
     for (const identity of identities) {
       const conn = this.findConnectionByName(identity.connection);
       if (!conn) continue;
 
       if (conn.type === 'password') {
-        await this.sendPasswordChangeTicket(email).catch((err: unknown) =>
-          this.logger.warn(`Password ticket failed for ${identity.connection}: ${err instanceof Error ? err.message : err}`),
+        await this.sendPasswordChangeEmail(email).catch((err: unknown) =>
+          this.logger.warn(
+            `Password email failed for ${identity.connection}: ${err instanceof Error ? err.message : err}`,
+          ),
         );
       } else if (conn.type === 'passwordless') {
         const userId = `${identity.provider}|${identity.user_id}`;
         await this.sendVerificationEmail(userId).catch((err: unknown) =>
-          this.logger.warn(`Passwordless re-send failed for ${identity.connection}: ${err instanceof Error ? err.message : err}`),
+          this.logger.warn(
+            `Passwordless re-send failed for ${identity.connection}: ${err instanceof Error ? err.message : err}`,
+          ),
         );
       }
-      // social / enterprise: no server-side reset possible — skip
     }
   }
 
   // ── grantConnection ───────────────────────────────────────────────────────
 
-  /**
-   * Grant a `password` or `passwordless` connection to an existing user by
-   * creating a secondary identity in Auth0 and linking it to the primary.
-   * Throws for `social` and `enterprise` connection types — those identities
-   * cannot be pre-provisioned and are linked externally on first OAuth/federated login.
-   */
   async grantConnection(
     externalSub: string,
     connectionKey: string,
@@ -152,12 +223,12 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
       throw new IdentityProviderError(
         `Cannot grant connection '${connectionKey}' (type '${conn.type}'). ` +
         `Only 'password' and 'passwordless' connections can be granted via the API. ` +
-        `Social and enterprise identities are provisioned externally on first login.`,
+        `Social and enterprise identities are provisioned externally on first OAuth/federated login.`,
       );
     }
 
     try {
-      const secondarySub = await this.createInConnection(user, conn, { resetPassword: false });
+      const secondarySub = await this.createInConnection(user, conn, { emailVerified: false });
       await this.linkIdentity(externalSub, secondarySub);
       return { status: 'linked' };
     } catch (err) {
@@ -167,10 +238,6 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
 
   // ── revokeConnection ──────────────────────────────────────────────────────
 
-  /**
-   * Unlink a secondary identity from the user.
-   * Throws if `connectionKey` is `default` (primary cannot be revoked).
-   */
   async revokeConnection(externalSub: string, connectionKey: string): Promise<void> {
     if (connectionKey === 'default') {
       throw new IdentityProviderError(
@@ -180,7 +247,10 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
     const conn = this.resolveConnection(connectionKey);
     const authUser = await this.fetchUser(externalSub, 'revokeConnection');
 
-    const identities: Auth0Identity[] = (authUser as any).identities ?? [];
+    const identities: Auth0Identity[] =
+      (authUser as { identities?: Auth0Identity[] }).identities
+      ?? (authUser as { data?: { identities?: Auth0Identity[] } }).data?.identities
+      ?? [];
     const identity = identities.find((id) => id.connection === conn.name);
     if (!identity) {
       throw new IdentityProviderError(
@@ -191,7 +261,7 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
     try {
       await this.management.users.identities.delete(
         externalSub,
-        identity.provider as any,
+        identity.provider as never,
         identity.user_id,
       );
     } catch (err) {
@@ -201,14 +271,13 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
 
   // ── listConnections ───────────────────────────────────────────────────────
 
-  /**
-   * List all Auth0 identities linked to the user, enriched with the logical
-   * connection key from the `idp.connections` map.
-   */
   async listConnections(externalSub: string): Promise<LinkedConnection[]> {
     const authUser = await this.fetchUser(externalSub, 'listConnections');
     const primaryConnectionName = this.resolveConnection('default').name;
-    const identities: Auth0Identity[] = (authUser as any).identities ?? [];
+    const identities: Auth0Identity[] =
+      (authUser as { identities?: Auth0Identity[] }).identities
+      ?? (authUser as { data?: { identities?: Auth0Identity[] } }).data?.identities
+      ?? [];
 
     return identities.map((identity) => {
       const entry = this.findConnectionEntryByName(identity.connection);
@@ -226,8 +295,7 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
 
   private async fetchUser(externalSub: string, operation: string) {
     try {
-      const res = await this.management.users.get(externalSub);
-      return res;
+      return await this.management.users.get(externalSub);
     } catch (err) {
       throw this.wrapError(`${operation}.getUser`, err);
     }
@@ -235,73 +303,64 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
 
   /**
    * Create a user in a single Auth0 connection and return the full `user_id`.
+   * No optional app_metadata is written on create.
    */
   private async createInConnection(
     user: User,
     conn: ConnectionConfig,
-    options: Pick<IdentityCreateOptions, 'resetPassword' | 'adminPassword' | 'emailVerified'>,
+    options: IdentityCreateOptions,
   ): Promise<string> {
+    const emailVerified = options.emailVerified ?? false;
     const base = {
       email: user.email,
       given_name: user.firstName,
       family_name: user.lastName,
       name: user.fullName,
       connection: conn.name,
-      email_verified: options.emailVerified ?? false,
+      email_verified: emailVerified,
     };
 
     if (conn.type === 'password') {
-      const password = options.adminPassword ?? this.generateCompliantPassword();
+      const password = this.generateCompliantPassword();
       const res = await this.management.users.create({
         ...base,
         password,
-        app_metadata: {
-          reset_password: options.resetPassword,
-          password_expires_in_days:
-            this.options.passwordExpiresInDays ?? 180,
-        },
       });
-      return res.user_id as string;
+      return this.extractUserId(res);
     }
 
-    // passwordless — no password field
-    const res = await this.management.users.create({
-      ...base,
-      app_metadata: { profile_complete: false },
-    });
-    const userId = res.data.user_id as string;
-    // Only send a magic-link if the email is not already verified.
-    if (!options.emailVerified) {
+    // passwordless — no password field, no metadata
+    const res = await this.management.users.create({ ...base });
+    const userId = this.extractUserId(res);
+    if (!emailVerified) {
       await this.sendVerificationEmail(userId);
     }
     return userId;
   }
 
-  /**
-   * Link a secondary identity to the primary user via Auth0 account linking.
-   * The `secondaryFullId` format is `{provider}|{bareId}`.
-   */
+  private extractUserId(res: unknown): string {
+    const id =
+      (res as { user_id?: string }).user_id
+      ?? (res as { data?: { user_id?: string } }).data?.user_id;
+    if (!id) {
+      throw new IdentityProviderError('Auth0 user create response missing user_id');
+    }
+    return id;
+  }
+
   private async linkIdentity(primarySub: string, secondaryFullId: string): Promise<void> {
     const [provider, ...rest] = secondaryFullId.split('|');
     const userId = rest.join('|');
     await this.management.users.identities.link(primarySub, {
-      provider: provider as any,
+      provider: provider as never,
       user_id: userId,
     });
-  }
-
-  private async sendPasswordChangeTicket(email: string): Promise<void> {
-    await this.management.tickets.changePassword({ email });
   }
 
   private async sendVerificationEmail(userId: string): Promise<void> {
     await this.management.jobs.verificationEmail.create({ user_id: userId });
   }
 
-  /**
-   * Resolve a logical connection key to its config.
-   * Throws a descriptive error if the key is not configured.
-   */
   private resolveConnection(key: string): ConnectionConfig {
     const config = this.options.idp.connections[key];
     if (!config) {
@@ -313,7 +372,6 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
     return config;
   }
 
-  /** Find the first connection config whose `name` matches the raw Auth0 connection name. */
   private findConnectionByName(connectionName: string): ConnectionConfig | undefined {
     return this.findConnectionEntryByName(connectionName)?.conn;
   }
@@ -327,24 +385,23 @@ export class Auth0IdentityAdapter implements IIdentityProvider {
     return entry ? { key: entry[0], conn: entry[1] } : undefined;
   }
 
-  /** Returns true for connection types that can be pre-provisioned via Management API. */
   private isProvisionable(type: ConnectionConfig['type']): boolean {
     return type === 'password' || type === 'passwordless';
   }
 
   /**
-   * Generates a password satisfying Auth0's default "Fair" policy:
-   * 8+ chars, uppercase, lowercase, digit, and special character.
+   * Strong password for Auth0 Fair/Good policies: 24+ chars with upper, lower,
+   * digit, and special. Never logged or returned to callers.
    */
   private generateCompliantPassword(): string {
     const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lower = 'abcdefghijklmnopqrstuvwxyz';
     const digits = '0123456789';
-    const special = '!@#$%^&*';
+    const special = '!@#$%^&*()-_=+[]{}';
     const all = upper + lower + digits + special;
     const rand = (set: string) => set[Math.floor(Math.random() * set.length)];
     const required = [rand(upper), rand(lower), rand(digits), rand(special)];
-    const extra = Array.from({ length: 12 }, () => rand(all));
+    const extra = Array.from({ length: 28 }, () => rand(all));
     return [...required, ...extra].sort(() => Math.random() - 0.5).join('');
   }
 

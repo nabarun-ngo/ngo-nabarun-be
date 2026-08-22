@@ -14,7 +14,12 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UnifiedAuthGuard, RequirePermissions, PermissionsGuard } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse, ApiAutoVoidResponse } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  ApiAutoResponse,
+  ApiAutoVoidResponse,
+  ApiKeyParam,
+  ApiUuidParam,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { CreateJsonDocumentCommand } from '../../application/commands/create-json-document/create-json-document.command';
 import { UpdateJsonDocumentCommand } from '../../application/commands/update-json-document/update-json-document.command';
 import { UpsertJsonDocumentCommand } from '../../application/commands/upsert-json-document/upsert-json-document.command';
@@ -53,6 +58,7 @@ export class JsonDocumentController {
   @Get('by-id/:id')
   @RequirePermissions('read:json_documents')
   @ApiOperation({ summary: 'Get a JSON document by id' })
+  @ApiUuidParam('id', 'Identifier of the JSON document')
   @ApiAutoResponse(JsonDocumentResponseDto)
   getById(@Param('id') id: string): Promise<JsonDocumentResponseDto> {
     return this.queryBus.execute(new GetJsonDocumentQuery({ id }));
@@ -61,6 +67,8 @@ export class JsonDocumentController {
   @Get('by-namespace/:namespace/:key')
   @RequirePermissions('read:json_documents')
   @ApiOperation({ summary: 'Get a JSON document by namespace and key' })
+  @ApiKeyParam('namespace', 'correspondence', 'Consumer namespace')
+  @ApiKeyParam('key', 'welcome-email', 'Slug-style key, unique within the namespace')
   @ApiAutoResponse(JsonDocumentResponseDto)
   getByKey(
     @Param('namespace') namespace: string,
@@ -88,6 +96,7 @@ export class JsonDocumentController {
   @Put('by-id/:id')
   @RequirePermissions('update:json_documents')
   @ApiOperation({ summary: 'Update a JSON document payload by id' })
+  @ApiUuidParam('id', 'Identifier of the JSON document')
   @ApiAutoResponse(JsonDocumentResponseDto)
   update(
     @Param('id') id: string,
@@ -101,6 +110,8 @@ export class JsonDocumentController {
   @Put('by-namespace/:namespace/:key')
   @RequirePermissions('update:json_documents')
   @ApiOperation({ summary: 'Upsert a JSON document by namespace and key' })
+  @ApiKeyParam('namespace', 'correspondence', 'Consumer namespace')
+  @ApiKeyParam('key', 'welcome-email', 'Slug-style key, unique within the namespace')
   @ApiAutoResponse(JsonDocumentResponseDto)
   upsert(
     @Param('namespace') namespace: string,
@@ -116,6 +127,7 @@ export class JsonDocumentController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @RequirePermissions('delete:json_documents')
   @ApiOperation({ summary: 'Delete a JSON document by id' })
+  @ApiUuidParam('id', 'Identifier of the JSON document')
   @ApiAutoVoidResponse({ status: 204 })
   delete(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeleteJsonDocumentCommand({ id }));

@@ -1,0 +1,9 @@
+{
+  "_comment": "Role groups surfaced in the FE member role-group picker. Shadow groups (PLATFORM_ADMINS, SUPER_ADMINS) must NOT appear here.",
+  "items": [
+    { "key": "EXECUTIVE_BOARD",     "value": "Executive Board" },
+    { "key": "SECRETARIAT",         "value": "Secretariat" },
+    { "key": "FINANCE_TEAM",        "value": "Finance Team" },
+    { "key": "GOVERNING_COMMITTEE", "value": "Governing Committee" }
+  ]
+}

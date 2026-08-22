@@ -12,9 +12,13 @@ export class ListRolesHandler implements IQueryHandler<ListRolesQuery, PagedResp
   constructor(@Inject(IRoleRepository) private readonly repo: IRoleRepository) { }
 
   async execute(query: ListRolesQuery): Promise<PagedResponse<RoleResponseDto>> {
+    const props = query.filter?.props ?? {};
     const activeFilter = {
       ...query.filter,
-      props: { ...query.filter?.props, isActive: query.filter?.props?.isActive ?? true },
+      props: {
+        ...props,
+        isActive: props.isActive ?? true,
+      },
     };
     const paged = await this.repo.findPaged(activeFilter);
     return new PagedResponse(paged.content.map((r) => RoleResponseMapper.toDto(r)), paged.totalSize, paged.pageIndex, paged.pageSize);

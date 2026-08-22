@@ -110,10 +110,41 @@ export class NotificationPrismaRepository implements INotificationRepository {
   }
 
   async deleteExpiredBefore(date: Date): Promise<number> {
-    const result = await (this.prisma).corr2Notification.deleteMany({
+    const result = await this.prisma.corr2Notification.deleteMany({
       where: { expiresAt: { not: null, lt: date } },
     });
     return result.count;
+  }
+
+  async getDeliveryStatuses(
+    notificationIds: string[],
+  ): Promise<Map<string, 'failed' | 'succeeded'>> {
+    const result = new Map<string, 'failed' | 'succeeded'>();
+    if (notificationIds.length === 0) return result;
+
+    const [failed, delivered] = await Promise.all([
+      (this.prisma).corr2UserNotification.groupBy({
+        by: ['notificationId'],
+        where: {
+          notificationId: { in: notificationIds },
+          isPushSent: true,
+          pushDelivered: false,
+        },
+      }),
+      (this.prisma).corr2UserNotification.groupBy({
+        by: ['notificationId'],
+        where: { notificationId: { in: notificationIds }, pushDelivered: true },
+      }),
+    ]);
+
+    // "succeeded" first, then let any failure override — failed takes precedence.
+    for (const row of delivered as { notificationId: string }[]) {
+      result.set(row.notificationId, 'succeeded');
+    }
+    for (const row of failed as { notificationId: string }[]) {
+      result.set(row.notificationId, 'failed');
+    }
+    return result;
   }
 
   private buildWhere(filter?: NotificationFilter): Record<string, any> {
@@ -125,6 +156,12 @@ export class NotificationPrismaRepository implements INotificationRepository {
       ...(filter.referenceId ? { referenceId: filter.referenceId } : {}),
       ...(filter.referenceType ? { referenceType: filter.referenceType } : {}),
       ...(filter.dispatchId ? { dispatchId: filter.dispatchId } : {}),
+      ...(filter.status === 'failed'
+        ? { userNotifications: { some: { isPushSent: true, pushDelivered: false } } }
+        : {}),
+      ...(filter.status === 'succeeded'
+        ? { userNotifications: { some: { pushDelivered: true } } }
+        : {}),
       ...(filter.fromDate || filter.toDate
         ? {
           createdAt: {

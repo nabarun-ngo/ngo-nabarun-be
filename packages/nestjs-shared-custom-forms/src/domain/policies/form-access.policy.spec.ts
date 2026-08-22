@@ -13,9 +13,9 @@ function makeForm(overrides: Partial<{
     entityType: 'donation',
     key: 'intake',
     label: 'Intake',
-    managePermissions: overrides.managePermissions ?? ['admin:donations'],
+    managePermissions: overrides.managePermissions ?? ['read:donations'],
     readPermissions: overrides.readPermissions ?? ['read:donations'],
-    writePermissions: overrides.writePermissions ?? ['write:donations'],
+    writePermissions: overrides.writePermissions ?? ['update:donation'],
   });
   if (overrides.status === FormStatus.Published) form.publish();
   if (overrides.status === FormStatus.Disabled) {

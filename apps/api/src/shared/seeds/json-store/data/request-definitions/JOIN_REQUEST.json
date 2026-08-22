@@ -1,0 +1,19 @@
+{
+  "id": "JOIN_REQUEST",
+  "version": 1,
+  "name": "User Onboarding",
+  "description": "Review and fulfill membership join requests",
+  "formKey": "JOIN_REQUEST:request",
+  "executorInstructions": "Verify the applicant details, create the user profile when appropriate, and close the request.",
+  "needApproval": true,
+  "approvers": {
+    "roles": ["SECRETARY", "ASSISTANT_SECRETARY"],
+    "permissions": [],
+    "groups": []
+  },
+  "executors": {
+    "roles": [],
+    "permissions": ["create:users"],
+    "groups": []
+  }
+}

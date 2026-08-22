@@ -4,7 +4,9 @@ import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { Donation } from '../../../domain/aggregates/donation/donation.aggregate';
 import { DonationStatus } from '../../../domain/enums/donation-status.enum';
 import { DonationType } from '../../../domain/enums/donation-type.enum';
+import { DonorNotFoundError } from '../../../domain/errors/donor.errors';
 import { IDonationRepository } from '../../../domain/repositories/donation.repository';
+import { IDonorRepository } from '../../../domain/repositories/donor.repository';
 import { CreateDonationCommand } from './create-donation.command';
 
 @CommandHandler(CreateDonationCommand)
@@ -12,20 +14,22 @@ import { CreateDonationCommand } from './create-donation.command';
 export class CreateDonationHandler implements ICommandHandler<CreateDonationCommand, Donation> {
   constructor(
     @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
+    @Inject(IDonorRepository) private readonly donorRepository: IDonorRepository,
     private readonly eventBus: EventBus,
   ) { }
 
   async execute({ params: request }: CreateDonationCommand): Promise<Donation> {
+    const donor = await this.donorRepository.findById(request.donorId);
+    if (!donor) throw new DonorNotFoundError(request.donorId);
+
     const donation = Donation.create({
       type: request.type,
       amount: request.amount,
-      donorId: request.donorId!,
+      donorId: request.donorId,
       startDate: request.startDate,
       endDate: request.endDate,
-      donorName: request.donorName!,
-      donorNumber: request.donorNumber,
-      donorEmail: request.donorEmail,
-      isGuest: request.isGuest,
+      initialStatus: request.initialStatus,
+      suppressNotification: request.suppressNotification,
     });
 
     if (request.forEventId) {
@@ -52,4 +56,3 @@ export class CreateDonationHandler implements ICommandHandler<CreateDonationComm
     return saved;
   }
 }
-

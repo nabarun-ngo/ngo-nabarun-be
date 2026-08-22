@@ -16,10 +16,11 @@ export class ListTokensHandler implements IQueryHandler<ListTokensQuery, Page<OA
   ) { }
 
   async execute(query: ListTokensQuery): Promise<Page<OAuthTokenDto>> {
-    const { provider, ownerSub, isAdmin, pageIndex = 0, pageSize = 20 } = query.params;
+    const { provider, account, ownerSub, isAdmin, pageIndex = 0, pageSize = 20 } = query.params;
 
     const filter: OAuthTokenFilter = {
       ...(provider ? { provider } : {}),
+      ...(account ? { account } : {}),
       // Non-admin callers only see their own tokens — never another user's credentials.
       ...(!isAdmin ? { ownerSub: ownerSub ?? '__no_such_owner__' } : {}),
     };

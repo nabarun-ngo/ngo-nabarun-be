@@ -1,11 +1,13 @@
 import { Controller, Get, Patch, Param, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ApiAutoPagedResponse,
   ApiAutoPrimitiveResponse,
   ApiAutoVoidResponse,
+  ApiUuidParam,
   BaseFilter,
+  ENVELOPE_EXAMPLES,
   PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
 import {
@@ -63,7 +65,10 @@ export class UserNotificationController {
   @Get('unread-count')
   @RequirePermissions('read:notifications')
   @ApiOperation({ summary: 'Get unread notification count for current user' })
-  @ApiAutoPrimitiveResponse('number')
+  @ApiAutoPrimitiveResponse('number', {
+    description: 'Number of unread notifications',
+  })
+  @ApiOkResponse({ example: { ...ENVELOPE_EXAMPLES, responsePayload: 7 } })
   async unreadCount(@CurrentUser() user: AuthUser): Promise<number> {
     return this.queryBus.execute(new GetUnreadCountQuery(requireUserId(user)));
   }
@@ -79,6 +84,7 @@ export class UserNotificationController {
   @Patch(':id/read')
   @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Mark a single notification as read' })
+  @ApiUuidParam('id', 'Identifier of the user notification')
   @ApiAutoVoidResponse()
   async markRead(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
     return this.commandBus.execute(new MarkUserNotificationReadCommand(id, requireUserId(user)));
@@ -87,6 +93,7 @@ export class UserNotificationController {
   @Patch(':id/archive')
   @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Archive a single notification' })
+  @ApiUuidParam('id', 'Identifier of the user notification')
   @ApiAutoVoidResponse()
   async archive(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
     return this.commandBus.execute(new ArchiveUserNotificationCommand(id, requireUserId(user)));
@@ -95,6 +102,7 @@ export class UserNotificationController {
   @Patch(':id/resend-push')
   @RequirePermissions('update:notifications')
   @ApiOperation({ summary: 'Retry push delivery for a notification' })
+  @ApiUuidParam('id', 'Identifier of the user notification')
   @ApiAutoVoidResponse()
   async resendPush(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
     return this.commandBus.execute(new ResendPushCommand(id, requireUserId(user)));

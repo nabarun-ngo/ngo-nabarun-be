@@ -3,9 +3,9 @@ import { z } from 'zod';
 /**
  * Supported Auth0 connection types and their provisioning behaviour.
  *
- * - `password`     — Auth0 database connection. Pre-provisioned with a password
- *                    via the Management API. Supports adminPassword, resetPassword,
- *                    passwordExpiresInDays. Uses change-password ticket for reset.
+ * - `password`     — Auth0 database connection. Pre-provisioned with a strong
+ *                    system-generated password (never emailed). Set-password uses
+ *                    a Management API change-password ticket.
  * - `passwordless` — Auth0 `email` or `sms` connection. Pre-provisioned without
  *                    a password. User completes first login via magic-link/OTP.
  * - `social`       — OAuth2 connection (Google, GitHub, Facebook, Apple, etc.).
@@ -70,10 +70,19 @@ export type IdpOptions = z.infer<typeof IdpOptionsSchema>;
 export const UserModuleOptionsSchema = z.object({
   /** Auth0 Management API credentials and connection configuration. */
   idp: IdpOptionsSchema,
+  /**
+   * SPA / Universal Login application client ID.
+   * Passed as `client_id` on password-change tickets so Auth0 can redirect to the
+   * application's default login route after set-password.
+   */
+  spaClientId: z.string().min(1),
+  /**
+   * Frontend app URL used as `result_url` on self-service password-change tickets
+   * so Auth0 can redirect back after the hosted reset completes.
+   */
+  appFeUrl: z.string().url(),
   /** Default role keys to grant on admin user create (via Auth GrantUserRoleCommand). */
   defaultRoleKeys: z.array(z.string()).optional().default([]),
-  /** Number of days before a provisioned password expires (written to IdP app_metadata). */
-  passwordExpiresInDays: z.coerce.number().int().min(1).optional().default(90),
 });
 
 /** Parsed/output type — all defaults applied. Used internally after schema.parse(). */

@@ -14,26 +14,26 @@ export class CreateDonationJobHandler implements IQueueHandler<CreateDonationJob
   constructor(private readonly commandBus: CommandBus) { }
 
   async execute(job: Job<CreateDonationJob>): Promise<void> {
-    const { userId, fullName, amount, firstDate, lastDate } = job.data.payload;
+    const { donorId, amount, firstDate, lastDate, initialStatus, suppressNotification } = job.data.payload;
     try {
       const donation = await this.commandBus.execute(
         new CreateDonationCommand({
           type: DonationType.REGULAR,
           amount,
-          donorId: userId,
+          donorId,
           startDate: new Date(firstDate),
           endDate: new Date(lastDate),
-          isGuest: false,
+          initialStatus,
+          suppressNotification,
         }),
       );
-      job.log?.('Monthly donation ' + donation.id + ' raised for ' + fullName);
+      job.log?.('Monthly donation ' + donation.id + ' raised for donor ' + donorId);
     } catch (error) {
       if (error instanceof BusinessException) {
-        job.log?.('Skipping user ' + fullName + ': ' + error.message);
+        job.log?.('Skipping donor ' + donorId + ': ' + error.message);
         return;
       }
       throw error;
     }
   }
 }
-

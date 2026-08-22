@@ -37,6 +37,18 @@ const makeUserRoleGroupRepo = () => ({
   count: jest.fn(),
 });
 
+const makeUserPermissionRepo = () => ({
+  resolveDirectUserPermissions: jest.fn().mockResolvedValue([]),
+  findActiveByIdPSub: jest.fn(),
+  findById: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  findAll: jest.fn(),
+  findPaged: jest.fn(),
+  count: jest.fn(),
+});
+
 const makeCache = () => ({
   getOrSet: jest.fn(),
   del: jest.fn().mockResolvedValue(undefined),
@@ -52,16 +64,18 @@ const defaultOptions: AuthModuleOptions = {
 function buildAdapter(options: AuthModuleOptions = defaultOptions) {
   const userRoleRepo = makeUserRoleRepo();
   const userRoleGroupRepo = makeUserRoleGroupRepo();
+  const userPermissionRepo = makeUserPermissionRepo();
   const cache = makeCache();
   const userLookup = { findByIdPSub: jest.fn().mockResolvedValue(null) };
   const adapter = new UserAccessAdapter(
     userRoleRepo as any,
     userRoleGroupRepo as any,
+    userPermissionRepo as any,
     options,
     cache as any,
     userLookup as any,
   );
-  return { adapter, userRoleRepo, userRoleGroupRepo, cache, userLookup };
+  return { adapter, userRoleRepo, userRoleGroupRepo, userPermissionRepo, cache, userLookup };
 }
 
 describe('UserAccessAdapter', () => {

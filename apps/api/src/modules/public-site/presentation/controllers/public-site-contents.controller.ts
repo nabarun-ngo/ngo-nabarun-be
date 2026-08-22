@@ -4,6 +4,7 @@ import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ApiAutoResponse, BypassSuccessEnvelope } from '@nabarun-ngo/nestjs-shared-core';
 import { RequirePermissions, UseApiKey } from '@nabarun-ngo/nestjs-shared-auth';
 import { PublicSiteDynamicContentResponseDto } from '../../application/dtos/public-site-dynamic-content-response.dto';
+import { PublicSiteStaticContentResponseDto } from '../../application/dtos/public-site-static-content-response.dto';
 import { PublicSiteDynamicContent } from '../../public-site.schema';
 import { GetStaticContentQuery } from '../../application/queries/get-static-content/get-static-content.query';
 import { GetDynamicContentQuery } from '../../application/queries/get-dynamic-content/get-dynamic-content.query';
@@ -17,6 +18,9 @@ export class PublicSiteContentsController {
 
   @Get('static')
   @ApiOperation({ summary: 'Get static public site content' })
+  @ApiAutoResponse(PublicSiteStaticContentResponseDto, {
+    description: 'Operator-managed static site content document',
+  })
   @RequirePermissions('read:public_content')
   getStatic() {
     return this.queryBus.execute(new GetStaticContentQuery());

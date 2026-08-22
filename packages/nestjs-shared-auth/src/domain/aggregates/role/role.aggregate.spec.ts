@@ -52,6 +52,30 @@ describe('Role aggregate', () => {
     });
   });
 
+  describe('updateDescription()', () => {
+    it('updates description and touches updatedAt', () => {
+      const role = Role.create({ key: 'admin', description: 'old' });
+      const before = role.updatedAt;
+
+      role.updateDescription('new');
+
+      expect(role.description).toBe('new');
+      expect(role.updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    });
+  });
+
+  describe('restore()', () => {
+    it('clears deletedAt after softDelete', () => {
+      const role = Role.create({ key: 'admin' });
+      role.softDelete();
+
+      role.restore();
+
+      expect(role.isDeleted()).toBe(false);
+      expect(role.deletedAt).toBeUndefined();
+    });
+  });
+
   describe('softDelete()', () => {
     it('sets deletedAt', () => {
       const role = Role.create({ key: 'admin' });

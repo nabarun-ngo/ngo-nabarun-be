@@ -24,7 +24,11 @@ export class NotificationAdminController {
     return this.queryBus.execute(
       new GetNotificationsAdminQuery(
         new BaseFilter<NotificationFilter>(
-          { referenceId: query.referenceId, referenceType: query.referenceType },
+          {
+            referenceId: query.referenceId,
+            referenceType: query.referenceType,
+            status: query.status,
+          },
           query.pageIndex,
           query.pageSize,
           query.sortBy,

@@ -20,6 +20,7 @@ type RoleRow = {
   id: string;
   key: string;
   description: string | null;
+  isShadow: boolean;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -51,6 +52,7 @@ export class RolePrismaRepository
       id: row.id,
       key: row.key,
       description: row.description ?? undefined,
+      isShadow: row.isShadow,
       deletedAt: row.deletedAt ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -64,7 +66,12 @@ export class RolePrismaRepository
   protected toCreateInput(
     entity: Role,
   ): ({} & AuthRoleUncheckedCreateInput) | ({} & AuthRoleCreateInput) {
-    return { id: entity.id, key: entity.key, description: entity.description ?? null };
+    return {
+      id: entity.id,
+      key: entity.key,
+      description: entity.description ?? null,
+      isShadow: entity.isShadow,
+    };
   }
 
   protected toUpdateInput(
@@ -73,6 +80,7 @@ export class RolePrismaRepository
   ): ({} & AuthRoleUncheckedUpdateInput) | ({} & AuthRoleUpdateInput) {
     return {
       description: entity.description ?? null,
+      isShadow: entity.isShadow,
       deletedAt: entity.deletedAt ?? null,
       updatedAt: entity.updatedAt,
     };
@@ -86,6 +94,7 @@ export class RolePrismaRepository
     return {
       ...(filter?.key ? { key: { contains: filter.key, mode: 'insensitive' } } : {}),
       ...(filter?.isActive === true ? { deletedAt: null } : {}),
+      ...(filter?.isShadow !== undefined ? { isShadow: filter.isShadow } : {}),
     };
   }
 
@@ -97,9 +106,21 @@ export class RolePrismaRepository
     return true;
   }
 
+  protected toInclude() {
+    return { permissions: { include: { permission: true } } } as any;
+  }
+
   async findByKey(key: string): Promise<Role | null> {
     const row = await this.delegate.findUnique({ where: { key } });
     return row ? this.toDomain(row as RoleRow) : null;
+  }
+
+  async findByKeys(keys: string[]): Promise<Role[]> {
+    if (keys.length === 0) return [];
+    const rows = await this.delegate.findMany({
+      where: { key: { in: keys }, deletedAt: null },
+    });
+    return (rows as RoleRow[]).map((row) => this.toDomain(row));
   }
 
   async findWithPermissions(key: string): Promise<Role | null> {
@@ -125,5 +146,14 @@ export class RolePrismaRepository
         data: permissionIds.map((permissionId) => ({ roleId, permissionId })),
       }),
     ]);
+  }
+
+  async countActiveByPermissionId(permissionId: string): Promise<number> {
+    return (this.client).authRolePermission.count({
+      where: {
+        permissionId,
+        role: { deletedAt: null },
+      },
+    });
   }
 }

@@ -1,5 +1,5 @@
 {
-  "_comment": "App store and external links. GET /links/app-links?platform=...",
+  "_comment": "App store and external links. JSON Store key app-links.",
   "items": [
     {
       "key": "ANDROID_APP",

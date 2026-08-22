@@ -17,7 +17,7 @@ export class AssertActivityCanCloseHandler implements IQueryHandler<AssertActivi
 
   async execute(query: AssertActivityCanCloseQuery): Promise<void> {
     const expenses = await this.expenseRepository.findAll({ expenseRefId: query.activityId });
-    const allowedExpense = [ExpenseStatus.SETTLED, ExpenseStatus.REJECTED];
+    const allowedExpense = [ExpenseStatus.SETTLED, ExpenseStatus.SEND_BACK];
     if (expenses.some((e) => !allowedExpense.includes(e.status))) {
       throw new BusinessException('Cannot close activity because there are unsettled expenses.');
     }

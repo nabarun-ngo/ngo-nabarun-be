@@ -1,10 +1,12 @@
 {
-  "_comment": "Identity document types used for KYC / verification.",
+  "_comment": "Document / DMS entity types: PROFILE* for member media; remaining keys are identity docs for KYC.",
   "items": [
-    { "key": "PASSPORT",        "value": "Passport" },
-    { "key": "AADHAAR",         "value": "Aadhaar Card" },
-    { "key": "PAN",             "value": "PAN Card" },
-    { "key": "VOTER_ID",        "value": "Voter ID" },
-    { "key": "DRIVING_LICENSE", "value": "Driving License" }
+    { "key": "PROFILE_DOC",      "value": "Profile Document" },
+    { "key": "PROFILE",          "value": "Profile Picture" },
+    { "key": "PASSPORT",         "value": "Passport" },
+    { "key": "AADHAAR",          "value": "Aadhaar Card" },
+    { "key": "PAN",              "value": "PAN Card" },
+    { "key": "VOTER_ID",         "value": "Voter ID" },
+    { "key": "DRIVING_LICENSE",  "value": "Driving License" }
   ]
 }

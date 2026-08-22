@@ -1,5 +1,5 @@
 {
-  "_comment": "User guide links. linkType: INTERNAL | EXTERNAL. Served via GET /links/user-guides.",
+  "_comment": "User guide links. linkType: INTERNAL | EXTERNAL. Managed via JSON Store (links namespace).",
   "items": [
     {
       "key": "GETTING_STARTED_GUIDE",

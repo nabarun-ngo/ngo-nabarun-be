@@ -3,7 +3,8 @@
 model Account {
   id          String  @id @default(uuid())
   name        String  @db.VarChar(100)
-  type        String  @db.VarChar(20)
+  type        String  @db.VarChar(30)
+  ownerType   String  @db.VarChar(20)
   currency    String  @db.VarChar(3)
   status      String  @db.VarChar(20)
   description String? @db.Text
@@ -11,10 +12,12 @@ model Account {
 
   accountHolderName String?   @db.VarChar(255)
   accountHolderId   String?   @db.VarChar(255)
+  custodianUserIds  String[]  @default([])
   activatedOn       DateTime?
 
-  bankDetail String? @db.Text
-  upiDetail  String? @db.Text
+  bankInvestDetail AccountBankInvestDetail?
+  upiDetailRows    AccountUpiDetail[]
+  fundedInvestments AccountBankInvestDetail[] @relation("InvestmentSourceAccount")
 
   donations Donation[] @relation("DonationAccount")
 
@@ -32,7 +35,80 @@ model Account {
 
   @@index([type, status])
   @@index([accountHolderId])
+  @@index([accountHolderId, type, status])
   @@map("finance_accounts")
+}
+
+model AccountBankInvestDetail {
+  id                    String    @id @default(uuid())
+  accountId             String    @unique @db.VarChar(255)
+  bankAccountHolderName String?   @db.VarChar(255)
+  bankName              String?   @db.VarChar(255)
+  bankBranch            String?   @db.VarChar(255)
+  bankAccountNumber     String?   @db.VarChar(100)
+  bankAccountType       String?   @db.VarChar(50)
+  IFSCNumber            String?   @db.VarChar(20)
+  maturityDate          DateTime? @db.Date
+  maturityAmount        Decimal?  @db.Decimal(14, 2)
+  investmentAmount      Decimal?  @db.Decimal(14, 2)
+  sourceAccountId       String?   @db.VarChar(255)
+  dematId               String?   @db.VarChar(100)
+  interestRate          Decimal?  @db.Decimal(10, 4)
+  interestPayingTerm    String?   @db.VarChar(30)
+
+  account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  sourceAccount Account? @relation("InvestmentSourceAccount", fields: [sourceAccountId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sourceAccountId])
+  @@map("finance_account_bank_invest_details")
+}
+
+model AccountUpiDetail {
+  id           String  @id @default(uuid())
+  accountId    String  @db.VarChar(255)
+  payeeName    String? @db.VarChar(255)
+  upiId        String? @db.VarChar(100)
+  mobileNumber String? @db.VarChar(50)
+  qrData       String? @db.Text
+  label        String? @db.VarChar(100)
+  isPrimary    Boolean @default(false)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accountId])
+  @@map("finance_account_upi_detail")
+}
+
+model Donor {
+  id              String    @id @default(uuid())
+  type            String    @db.VarChar(20)
+  status          String    @db.VarChar(20)
+  preferredAmount Decimal?  @db.Decimal(10, 2)
+  statusEndDate   DateTime?
+
+  fullName    String? @db.VarChar(200)
+  email       String? @unique @db.VarChar(100)
+  phoneCode   String? @db.VarChar(10)
+  phoneNumber String? @db.VarChar(50)
+
+  userProfileId String?      @unique @db.VarChar(255)
+  userProfile   UserProfile? @relation(fields: [userProfileId], references: [id])
+
+  donations Donation[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(0)
+  deletedAt DateTime?
+
+  @@index([type, status])
+  @@map("finance_donors")
 }
 
 model Donation {
@@ -42,13 +118,9 @@ model Donation {
   currency String  @db.VarChar(3)
   status   String  @db.VarChar(20)
 
-  donorId    String?      @db.VarChar(255)
-  donor      UserProfile? @relation("Donation", fields: [donorId], references: [id])
-  donorName  String?      @db.VarChar(100)
-  donorEmail String?      @db.VarChar(100)
-  donorPhone String?      @db.VarChar(20)
+  donorId String? @db.VarChar(255)
+  donor   Donor?  @relation(fields: [donorId], references: [id])
 
-  isGuest   Boolean?  @default(false)
   startDate DateTime?
   endDate   DateTime?
   raisedOn  DateTime
@@ -175,6 +247,7 @@ model Expense {
   @@index([status])
   @@index([createdById])
   @@index([paidById])
+  @@index([paidById, status])
   @@index([referenceId, referenceType])
   @@map("finance_expenses")
 }

@@ -14,11 +14,7 @@ import { DeleteMeetingHandler } from './application/commands/delete-meeting/dele
 import { ListMeetingsHandler } from './application/queries/list-meetings/list-meetings.handler';
 import { GetMeetingByIdHandler } from './application/queries/get-meeting-by-id/get-meeting-by-id.handler';
 
-import { ProcessFathomMeetingWebhookHandler } from './application/handlers/queue/process-fathom-meeting-webhook.handler';
-
 import { MeetingController } from './presentation/controllers/meeting.controller';
-import { MeetingWebhookController } from './presentation/controllers/meeting-webhook.controller';
-import { FathomWebhookGuard } from './presentation/guards/fathom-webhook.guard';
 
 const MeetingRequiredPortsGuard = createRequiredPortsGuard('MeetingModule', [
   {
@@ -30,8 +26,6 @@ const MeetingRequiredPortsGuard = createRequiredPortsGuard('MeetingModule', [
 const COMMAND_HANDLERS = [CreateMeetingHandler, UpdateMeetingHandler, DeleteMeetingHandler];
 
 const QUERY_HANDLERS = [ListMeetingsHandler, GetMeetingByIdHandler];
-
-const JOB_HANDLERS = [ProcessFathomMeetingWebhookHandler];
 
 export interface MeetingModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
   inject?: FactoryProvider['inject'];
@@ -58,15 +52,13 @@ export class MeetingModule {
     return {
       module: MeetingModule,
       imports: [CqrsModule, ...extraImports],
-      controllers: [MeetingController, MeetingWebhookController],
+      controllers: [MeetingController],
       providers: [
         ...optionProviders,
         MeetingRequiredPortsGuard,
         { provide: IMeetingRepository, useClass: MeetingPrismaRepository },
-        FathomWebhookGuard,
         ...COMMAND_HANDLERS,
         ...QUERY_HANDLERS,
-        ...JOB_HANDLERS,
       ],
       exports: [],
     };

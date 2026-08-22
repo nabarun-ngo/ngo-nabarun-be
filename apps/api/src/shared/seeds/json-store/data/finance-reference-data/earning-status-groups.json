@@ -1,0 +1,6 @@
+{
+  "_comment": "Earning status buckets for list chips.",
+  "outstanding": ["PENDING"],
+  "closed": ["RECEIVED", "CANCELLED"],
+  "excluded": []
+}

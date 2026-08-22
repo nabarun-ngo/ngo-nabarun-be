@@ -16,7 +16,10 @@ export class GetNotificationsAdminHandler
 
   async execute(query: GetNotificationsAdminQuery): Promise<PagedResponse<NotificationResponseDto>> {
     const page = await this.notificationRepo.findPaged(query.filter);
-    const dtos = page.content.map((n) => NotificationMapper.toDto(n));
+    const statuses = await this.notificationRepo.getDeliveryStatuses(
+      page.content.map((n) => n.id),
+    );
+    const dtos = page.content.map((n) => NotificationMapper.toDto(n, statuses.get(n.id)));
     return new PagedResponse(dtos, page.totalSize, page.pageIndex, page.pageSize);
   }
 }

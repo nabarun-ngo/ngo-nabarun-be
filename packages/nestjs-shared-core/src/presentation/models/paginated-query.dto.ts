@@ -14,26 +14,26 @@ import { SortOrder } from '../../domain/models/sort-order.enum';
  * `class-validator` decorators — the domain layer must remain decorator-free.
  */
 export class PaginatedQueryDto {
-  @ApiPropertyOptional({ default: 0 })
+  @ApiPropertyOptional({ default: 0, example: 0 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(0)
   pageIndex?: number = 0;
 
-  @ApiPropertyOptional({ default: 20 })
+  @ApiPropertyOptional({ default: 20, example: 20 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   pageSize?: number = 20;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'createdAt' })
   @IsOptional()
   @IsString()
   sortBy?: string;
 
-  @ApiPropertyOptional({ enum: SortOrder, default: SortOrder.ASC })
+  @ApiPropertyOptional({ enum: SortOrder, default: SortOrder.ASC, example: SortOrder.DESC })
   @IsOptional()
   @IsEnum(SortOrder)
   sortDir?: SortOrder = SortOrder.ASC;

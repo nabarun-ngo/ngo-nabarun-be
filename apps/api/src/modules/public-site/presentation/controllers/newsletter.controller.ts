@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
 import { Request } from 'express';
 import {
@@ -10,8 +10,10 @@ import {
 } from '@nabarun-ngo/nestjs-shared-auth';
 import { ApiAutoResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { SubscribeNewsletterCommand } from '../../application/commands/subscribe-newsletter/subscribe-newsletter.command';
+import { NewsletterSubscribeResponseDto } from '../../application/dtos/newsletter-response.dto';
 
 export class NewsletterSubscribeDto {
+  @ApiProperty({ example: 'asha.verma@example.org' })
   @IsEmail()
   @IsString()
   email!: string;
@@ -27,7 +29,10 @@ export class NewsletterController {
   @StrictThrottle({ limit: 3, ttlMs: 3_600_000 })
   @ExpectedRecaptchaAction('newsletter')
   @ApiOperation({ summary: 'Subscribe to newsletter' })
-  @ApiAutoResponse(Object as never)
+  @ApiAutoResponse(NewsletterSubscribeResponseDto, {
+    status: 201,
+    description: 'Newsletter subscription accepted',
+  })
   subscribe(@Body() dto: NewsletterSubscribeDto, @Req() req: Request) {
     return this.commandBus.execute(
       new SubscribeNewsletterCommand(dto.email, req.ip),

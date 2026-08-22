@@ -142,6 +142,19 @@ describe("OAuthController (token-vault)", () => {
       expect(result.pageSize).toBe(5);
     });
 
+    it("passes the account filter through to the query bus", async () => {
+      queryBusMock.execute.mockResolvedValue({ content: [], totalSize: 0, pageIndex: 0, pageSize: 20 });
+
+      await controller.listTokens("google", {
+        pageIndex: 0,
+        pageSize: 20,
+        account: "asha.verma@example.org",
+      } as any);
+
+      const [query] = queryBusMock.execute.mock.calls[0];
+      expect(query).toMatchObject({ params: { account: "asha.verma@example.org" } });
+    });
+
     it("throws ProviderNotConfiguredError for an unconfigured provider", async () => {
       await expect(controller.listTokens("unknown", { pageIndex: 0, pageSize: 10 } as any)).rejects.toThrow(ProviderNotConfiguredError);
     });

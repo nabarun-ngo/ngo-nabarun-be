@@ -1,4 +1,3 @@
 export class RemindPendingDonationsJob {
-  constructor(public readonly payload: { userId?: string } = {}) {}
+  constructor(public readonly payload: { donorId?: string } = {}) {}
 }
-

@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
-import { WorkflowFacade } from '@nabarun-ngo/nestjs-shared-workflow';
 import { Report } from '../../domain/aggregates/report/report.aggregate';
 import { ReportStatus } from '../../domain/enums/report-status.enum';
 import { IReportRepository } from '../../domain/repositories/report.repository';
@@ -15,9 +14,11 @@ export class ReportGenerationService {
     @Inject(IReportRepository) private readonly reportRepository: IReportRepository,
     @Inject(IReportDefinitionsPort) private readonly definitionsPort: IReportDefinitionsPort,
     private readonly dmsFacade: ReportingDmsFacade,
-    private readonly workflowFacade: WorkflowFacade,
   ) { }
 
+  /**
+   * Workflow engine is disconnected: generate the report directly (no workflow start).
+   */
   async startReportWorkflow(params: {
     reportCode: string;
     parameters: Record<string, unknown>;
@@ -38,20 +39,18 @@ export class ReportGenerationService {
       }
     }
 
-    const instance = await this.workflowFacade.startWorkflow({
-      definitionId: 'REPORT_REVIEW',
-      context: {
-        reportCode: params.reportCode,
-        reportName: definition.displayName,
-        parameters: params.parameters,
-        requestedById: params.requestedById,
-        roleNames: definition.approverRoles?.join(',') ?? '',
-        needApproval: definition.requiresApproval,
-      },
-      initiatedById: params.requestedById,
+    const report = await this.generateForReport({
+      reportCode: params.reportCode,
+      parameters: params.parameters,
+      requestedById: params.requestedById,
+      userPermissions: params.userPermissions,
+      needApproval: Boolean(definition.requiresApproval),
+      approverRoles: definition.approverRoles ?? [],
+      viewerRoles: definition.visibleToRoles ?? [],
+      reportName: definition.displayName,
     });
 
-    return { workflowId: instance.id };
+    return { workflowId: '', reportId: report.id };
   }
 
   async generateForReport(params: {
@@ -125,6 +124,24 @@ export class ReportGenerationService {
     if (!report) throw new NotFoundException('Report not found');
     report.markApproved(approvedById);
     return this.reportRepository.update(report.id, report);
+  }
+
+  /**
+   * Approval on request from a reviewer. Workflow review is disconnected —
+   * reports are finalized directly.
+   */
+  async approveReport(params: {
+    reportId: string;
+    approvedById: string;
+    userPermissions: string[];
+  }): Promise<Report> {
+    const report = await this.reportRepository.findById(params.reportId);
+    if (!report) throw new NotFoundException('Report not found');
+    if (report.status === ReportStatus.APPROVED) {
+      throw new BusinessException('Report is already approved');
+    }
+
+    return this.finalizeApproval(params.reportId, params.approvedById);
   }
 
   async deleteReport(
