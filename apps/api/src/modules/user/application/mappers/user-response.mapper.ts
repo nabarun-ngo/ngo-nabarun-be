@@ -20,6 +20,7 @@ export class UserResponseMapper {
     dto.middleName = user.middleName;
     dto.dateOfBirth = user.dateOfBirth;
     dto.gender = user.gender;
+    dto.bloodGroup = user.bloodGroup;
     dto.about = user.about;
     dto.picture = user.picture;
     dto.status = user.status;
@@ -84,6 +85,7 @@ export class UserResponseMapper {
       }),
     );
     dto.roleKeys = user.roleKeys;
+    dto.uniqueMemberId = user.uniqueMemberId;
     return dto;
   }
 }

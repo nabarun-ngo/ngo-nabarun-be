@@ -44,8 +44,10 @@ export type UserProfileMinAggregateOutputType = {
   lastName: string | null
   dateOfBirth: Date | null
   gender: string | null
+  bloodGroup: string | null
   about: string | null
   picture: string | null
+  uniqueMemberId: string | null
   status: string | null
   isPublic: boolean | null
   isSameAddress: boolean | null
@@ -68,8 +70,10 @@ export type UserProfileMaxAggregateOutputType = {
   lastName: string | null
   dateOfBirth: Date | null
   gender: string | null
+  bloodGroup: string | null
   about: string | null
   picture: string | null
+  uniqueMemberId: string | null
   status: string | null
   isPublic: boolean | null
   isSameAddress: boolean | null
@@ -92,8 +96,10 @@ export type UserProfileCountAggregateOutputType = {
   lastName: number
   dateOfBirth: number
   gender: number
+  bloodGroup: number
   about: number
   picture: number
+  uniqueMemberId: number
   roleKeys: number
   status: number
   isPublic: number
@@ -127,8 +133,10 @@ export type UserProfileMinAggregateInputType = {
   lastName?: true
   dateOfBirth?: true
   gender?: true
+  bloodGroup?: true
   about?: true
   picture?: true
+  uniqueMemberId?: true
   status?: true
   isPublic?: true
   isSameAddress?: true
@@ -151,8 +159,10 @@ export type UserProfileMaxAggregateInputType = {
   lastName?: true
   dateOfBirth?: true
   gender?: true
+  bloodGroup?: true
   about?: true
   picture?: true
+  uniqueMemberId?: true
   status?: true
   isPublic?: true
   isSameAddress?: true
@@ -175,8 +185,10 @@ export type UserProfileCountAggregateInputType = {
   lastName?: true
   dateOfBirth?: true
   gender?: true
+  bloodGroup?: true
   about?: true
   picture?: true
+  uniqueMemberId?: true
   roleKeys?: true
   status?: true
   isPublic?: true
@@ -287,8 +299,10 @@ export type UserProfileGroupByOutputType = {
   lastName: string
   dateOfBirth: Date | null
   gender: string | null
+  bloodGroup: string | null
   about: string | null
   picture: string | null
+  uniqueMemberId: string | null
   roleKeys: string[]
   status: string
   isPublic: boolean
@@ -335,8 +349,10 @@ export type UserProfileWhereInput = {
   lastName?: Prisma.StringFilter<"UserProfile"> | string
   dateOfBirth?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
   gender?: Prisma.StringNullableFilter<"UserProfile"> | string | null
+  bloodGroup?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   about?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   picture?: Prisma.StringNullableFilter<"UserProfile"> | string | null
+  uniqueMemberId?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   roleKeys?: Prisma.StringNullableListFilter<"UserProfile">
   status?: Prisma.StringFilter<"UserProfile"> | string
   isPublic?: Prisma.BoolFilter<"UserProfile"> | boolean
@@ -391,8 +407,10 @@ export type UserProfileOrderByWithRelationInput = {
   lastName?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  bloodGroup?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
   picture?: Prisma.SortOrderInput | Prisma.SortOrder
+  uniqueMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleKeys?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -441,6 +459,7 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
   idpSub?: string
+  uniqueMemberId?: string
   AND?: Prisma.UserProfileWhereInput | Prisma.UserProfileWhereInput[]
   OR?: Prisma.UserProfileWhereInput[]
   NOT?: Prisma.UserProfileWhereInput | Prisma.UserProfileWhereInput[]
@@ -450,6 +469,7 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   lastName?: Prisma.StringFilter<"UserProfile"> | string
   dateOfBirth?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
   gender?: Prisma.StringNullableFilter<"UserProfile"> | string | null
+  bloodGroup?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   about?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   picture?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   roleKeys?: Prisma.StringNullableListFilter<"UserProfile">
@@ -494,7 +514,7 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   projectTeamMembers?: Prisma.ProjectTeamMemberListRelationFilter
   riskOwners?: Prisma.ProjectRiskListRelationFilter
   createdMeetings?: Prisma.MeetingListRelationFilter
-}, "id" | "email" | "idpSub">
+}, "id" | "email" | "idpSub" | "uniqueMemberId">
 
 export type UserProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -506,8 +526,10 @@ export type UserProfileOrderByWithAggregationInput = {
   lastName?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  bloodGroup?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
   picture?: Prisma.SortOrderInput | Prisma.SortOrder
+  uniqueMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   roleKeys?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -539,8 +561,10 @@ export type UserProfileScalarWhereWithAggregatesInput = {
   lastName?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"UserProfile"> | Date | string | null
   gender?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
+  bloodGroup?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   about?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   picture?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
+  uniqueMemberId?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   roleKeys?: Prisma.StringNullableListFilter<"UserProfile">
   status?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   isPublic?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
@@ -564,8 +588,10 @@ export type UserProfileCreateInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -620,8 +646,10 @@ export type UserProfileUncheckedCreateInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -676,8 +704,10 @@ export type UserProfileUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -732,8 +762,10 @@ export type UserProfileUncheckedUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -788,8 +820,10 @@ export type UserProfileCreateManyInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -813,8 +847,10 @@ export type UserProfileUpdateManyMutationInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -838,8 +874,10 @@ export type UserProfileUncheckedUpdateManyInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -873,8 +911,10 @@ export type UserProfileCountOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  bloodGroup?: Prisma.SortOrder
   about?: Prisma.SortOrder
   picture?: Prisma.SortOrder
+  uniqueMemberId?: Prisma.SortOrder
   roleKeys?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -902,8 +942,10 @@ export type UserProfileMaxOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  bloodGroup?: Prisma.SortOrder
   about?: Prisma.SortOrder
   picture?: Prisma.SortOrder
+  uniqueMemberId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSameAddress?: Prisma.SortOrder
@@ -926,8 +968,10 @@ export type UserProfileMinOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  bloodGroup?: Prisma.SortOrder
   about?: Prisma.SortOrder
   picture?: Prisma.SortOrder
+  uniqueMemberId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSameAddress?: Prisma.SortOrder
@@ -1449,8 +1493,10 @@ export type UserProfileCreateWithoutAssignedActivitiesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -1504,8 +1550,10 @@ export type UserProfileUncheckedCreateWithoutAssignedActivitiesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -1564,8 +1612,10 @@ export type UserProfileCreateWithoutOrganizedActivitiesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -1619,8 +1669,10 @@ export type UserProfileUncheckedCreateWithoutOrganizedActivitiesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -1690,8 +1742,10 @@ export type UserProfileUpdateWithoutAssignedActivitiesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1745,8 +1799,10 @@ export type UserProfileUncheckedUpdateWithoutAssignedActivitiesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1811,8 +1867,10 @@ export type UserProfileUpdateWithoutOrganizedActivitiesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1866,8 +1924,10 @@ export type UserProfileUncheckedUpdateWithoutOrganizedActivitiesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1921,8 +1981,10 @@ export type UserProfileCreateWithoutAccountsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -1976,8 +2038,10 @@ export type UserProfileUncheckedCreateWithoutAccountsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2036,8 +2100,10 @@ export type UserProfileCreateWithoutAccountCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2091,8 +2157,10 @@ export type UserProfileUncheckedCreateWithoutAccountCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2162,8 +2230,10 @@ export type UserProfileUpdateWithoutAccountsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2217,8 +2287,10 @@ export type UserProfileUncheckedUpdateWithoutAccountsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2283,8 +2355,10 @@ export type UserProfileUpdateWithoutAccountCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2338,8 +2412,10 @@ export type UserProfileUncheckedUpdateWithoutAccountCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2393,8 +2469,10 @@ export type UserProfileCreateWithoutDonorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2448,8 +2526,10 @@ export type UserProfileUncheckedCreateWithoutDonorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2519,8 +2599,10 @@ export type UserProfileUpdateWithoutDonorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2574,8 +2656,10 @@ export type UserProfileUncheckedUpdateWithoutDonorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2629,8 +2713,10 @@ export type UserProfileCreateWithoutConfirmedDonationsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2684,8 +2770,10 @@ export type UserProfileUncheckedCreateWithoutConfirmedDonationsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2755,8 +2843,10 @@ export type UserProfileUpdateWithoutConfirmedDonationsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2810,8 +2900,10 @@ export type UserProfileUncheckedUpdateWithoutConfirmedDonationsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2865,8 +2957,10 @@ export type UserProfileCreateWithoutTransactionCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2920,8 +3014,10 @@ export type UserProfileUncheckedCreateWithoutTransactionCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -2991,8 +3087,10 @@ export type UserProfileUpdateWithoutTransactionCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3046,8 +3144,10 @@ export type UserProfileUncheckedUpdateWithoutTransactionCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3101,8 +3201,10 @@ export type UserProfileCreateWithoutExpenseCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3156,8 +3258,10 @@ export type UserProfileUncheckedCreateWithoutExpenseCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3216,8 +3320,10 @@ export type UserProfileCreateWithoutExpensePaidByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3271,8 +3377,10 @@ export type UserProfileUncheckedCreateWithoutExpensePaidByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3331,8 +3439,10 @@ export type UserProfileCreateWithoutExpenseSubmittedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3386,8 +3496,10 @@ export type UserProfileUncheckedCreateWithoutExpenseSubmittedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3446,8 +3558,10 @@ export type UserProfileCreateWithoutExpenseFinalizedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3501,8 +3615,10 @@ export type UserProfileUncheckedCreateWithoutExpenseFinalizedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3561,8 +3677,10 @@ export type UserProfileCreateWithoutExpenseSettledByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3616,8 +3734,10 @@ export type UserProfileUncheckedCreateWithoutExpenseSettledByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3676,8 +3796,10 @@ export type UserProfileCreateWithoutExpenseRejectedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3731,8 +3853,10 @@ export type UserProfileUncheckedCreateWithoutExpenseRejectedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3791,8 +3915,10 @@ export type UserProfileCreateWithoutExpenseUpdatedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3846,8 +3972,10 @@ export type UserProfileUncheckedCreateWithoutExpenseUpdatedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3906,8 +4034,10 @@ export type UserProfileCreateWithoutExpensesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -3961,8 +4091,10 @@ export type UserProfileUncheckedCreateWithoutExpensesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -4032,8 +4164,10 @@ export type UserProfileUpdateWithoutExpenseCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4087,8 +4221,10 @@ export type UserProfileUncheckedUpdateWithoutExpenseCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4153,8 +4289,10 @@ export type UserProfileUpdateWithoutExpensePaidByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4208,8 +4346,10 @@ export type UserProfileUncheckedUpdateWithoutExpensePaidByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4274,8 +4414,10 @@ export type UserProfileUpdateWithoutExpenseSubmittedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4329,8 +4471,10 @@ export type UserProfileUncheckedUpdateWithoutExpenseSubmittedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4395,8 +4539,10 @@ export type UserProfileUpdateWithoutExpenseFinalizedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4450,8 +4596,10 @@ export type UserProfileUncheckedUpdateWithoutExpenseFinalizedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4516,8 +4664,10 @@ export type UserProfileUpdateWithoutExpenseSettledByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4571,8 +4721,10 @@ export type UserProfileUncheckedUpdateWithoutExpenseSettledByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4637,8 +4789,10 @@ export type UserProfileUpdateWithoutExpenseRejectedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4692,8 +4846,10 @@ export type UserProfileUncheckedUpdateWithoutExpenseRejectedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4758,8 +4914,10 @@ export type UserProfileUpdateWithoutExpenseUpdatedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4813,8 +4971,10 @@ export type UserProfileUncheckedUpdateWithoutExpenseUpdatedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4879,8 +5039,10 @@ export type UserProfileUpdateWithoutExpensesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4934,8 +5096,10 @@ export type UserProfileUncheckedUpdateWithoutExpensesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4989,8 +5153,10 @@ export type UserProfileCreateWithoutEarningCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5044,8 +5210,10 @@ export type UserProfileUncheckedCreateWithoutEarningCreatorInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5104,8 +5272,10 @@ export type UserProfileCreateWithoutEarningReceivedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5159,8 +5329,10 @@ export type UserProfileUncheckedCreateWithoutEarningReceivedByInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5230,8 +5402,10 @@ export type UserProfileUpdateWithoutEarningCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5285,8 +5459,10 @@ export type UserProfileUncheckedUpdateWithoutEarningCreatorInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5351,8 +5527,10 @@ export type UserProfileUpdateWithoutEarningReceivedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5406,8 +5584,10 @@ export type UserProfileUncheckedUpdateWithoutEarningReceivedByInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5461,8 +5641,10 @@ export type UserProfileCreateWithoutCreatedMeetingsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5516,8 +5698,10 @@ export type UserProfileUncheckedCreateWithoutCreatedMeetingsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5587,8 +5771,10 @@ export type UserProfileUpdateWithoutCreatedMeetingsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5642,8 +5828,10 @@ export type UserProfileUncheckedUpdateWithoutCreatedMeetingsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5697,8 +5885,10 @@ export type UserProfileCreateWithoutManagedProjectsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5752,8 +5942,10 @@ export type UserProfileUncheckedCreateWithoutManagedProjectsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5812,8 +6004,10 @@ export type UserProfileCreateWithoutSponsoredProjectsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5867,8 +6061,10 @@ export type UserProfileUncheckedCreateWithoutSponsoredProjectsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -5938,8 +6134,10 @@ export type UserProfileUpdateWithoutManagedProjectsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5993,8 +6191,10 @@ export type UserProfileUncheckedUpdateWithoutManagedProjectsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6059,8 +6259,10 @@ export type UserProfileUpdateWithoutSponsoredProjectsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6114,8 +6316,10 @@ export type UserProfileUncheckedUpdateWithoutSponsoredProjectsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6169,8 +6373,10 @@ export type UserProfileCreateWithoutProjectTeamMembersInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6224,8 +6430,10 @@ export type UserProfileUncheckedCreateWithoutProjectTeamMembersInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6295,8 +6503,10 @@ export type UserProfileUpdateWithoutProjectTeamMembersInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6350,8 +6560,10 @@ export type UserProfileUncheckedUpdateWithoutProjectTeamMembersInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6405,8 +6617,10 @@ export type UserProfileCreateWithoutRiskOwnersInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6460,8 +6674,10 @@ export type UserProfileUncheckedCreateWithoutRiskOwnersInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6531,8 +6747,10 @@ export type UserProfileUpdateWithoutRiskOwnersInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6586,8 +6804,10 @@ export type UserProfileUncheckedUpdateWithoutRiskOwnersInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6641,8 +6861,10 @@ export type UserProfileCreateWithoutRequestedReportsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6696,8 +6918,10 @@ export type UserProfileUncheckedCreateWithoutRequestedReportsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6756,8 +6980,10 @@ export type UserProfileCreateWithoutApprovedReportsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6811,8 +7037,10 @@ export type UserProfileUncheckedCreateWithoutApprovedReportsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -6882,8 +7110,10 @@ export type UserProfileUpdateWithoutRequestedReportsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6937,8 +7167,10 @@ export type UserProfileUncheckedUpdateWithoutRequestedReportsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7003,8 +7235,10 @@ export type UserProfileUpdateWithoutApprovedReportsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7058,8 +7292,10 @@ export type UserProfileUncheckedUpdateWithoutApprovedReportsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7113,8 +7349,10 @@ export type UserProfileCreateWithoutInitiatedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7168,8 +7406,10 @@ export type UserProfileUncheckedCreateWithoutInitiatedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7228,8 +7468,10 @@ export type UserProfileCreateWithoutReceivedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7283,8 +7525,10 @@ export type UserProfileUncheckedCreateWithoutReceivedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7343,8 +7587,10 @@ export type UserProfileCreateWithoutAssignedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7398,8 +7644,10 @@ export type UserProfileUncheckedCreateWithoutAssignedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7458,8 +7706,10 @@ export type UserProfileCreateWithoutClaimedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7513,8 +7763,10 @@ export type UserProfileUncheckedCreateWithoutClaimedRequestsInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -7584,8 +7836,10 @@ export type UserProfileUpdateWithoutInitiatedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7639,8 +7893,10 @@ export type UserProfileUncheckedUpdateWithoutInitiatedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7705,8 +7961,10 @@ export type UserProfileUpdateWithoutReceivedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7760,8 +8018,10 @@ export type UserProfileUncheckedUpdateWithoutReceivedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7826,8 +8086,10 @@ export type UserProfileUpdateWithoutAssignedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7881,8 +8143,10 @@ export type UserProfileUncheckedUpdateWithoutAssignedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7947,8 +8211,10 @@ export type UserProfileUpdateWithoutClaimedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8002,8 +8268,10 @@ export type UserProfileUncheckedUpdateWithoutClaimedRequestsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8057,8 +8325,10 @@ export type UserProfileCreateWithoutPhoneNumbersInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -8112,8 +8382,10 @@ export type UserProfileUncheckedCreateWithoutPhoneNumbersInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -8183,8 +8455,10 @@ export type UserProfileUpdateWithoutPhoneNumbersInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8238,8 +8512,10 @@ export type UserProfileUncheckedUpdateWithoutPhoneNumbersInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8293,8 +8569,10 @@ export type UserProfileCreateWithoutAddressesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -8348,8 +8626,10 @@ export type UserProfileUncheckedCreateWithoutAddressesInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -8419,8 +8699,10 @@ export type UserProfileUpdateWithoutAddressesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8474,8 +8756,10 @@ export type UserProfileUncheckedUpdateWithoutAddressesInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8529,8 +8813,10 @@ export type UserProfileCreateWithoutSocialMediaLinksInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -8584,8 +8870,10 @@ export type UserProfileUncheckedCreateWithoutSocialMediaLinksInput = {
   lastName: string
   dateOfBirth?: Date | string | null
   gender?: string | null
+  bloodGroup?: string | null
   about?: string | null
   picture?: string | null
+  uniqueMemberId?: string | null
   roleKeys?: Prisma.UserProfileCreateroleKeysInput | string[]
   status: string
   isPublic?: boolean
@@ -8655,8 +8943,10 @@ export type UserProfileUpdateWithoutSocialMediaLinksInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8710,8 +9000,10 @@ export type UserProfileUncheckedUpdateWithoutSocialMediaLinksInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bloodGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uniqueMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleKeys?: Prisma.UserProfileUpdateroleKeysInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9057,8 +9349,10 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   lastName?: boolean
   dateOfBirth?: boolean
   gender?: boolean
+  bloodGroup?: boolean
   about?: boolean
   picture?: boolean
+  uniqueMemberId?: boolean
   roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
@@ -9114,8 +9408,10 @@ export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   lastName?: boolean
   dateOfBirth?: boolean
   gender?: boolean
+  bloodGroup?: boolean
   about?: boolean
   picture?: boolean
+  uniqueMemberId?: boolean
   roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
@@ -9139,8 +9435,10 @@ export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   lastName?: boolean
   dateOfBirth?: boolean
   gender?: boolean
+  bloodGroup?: boolean
   about?: boolean
   picture?: boolean
+  uniqueMemberId?: boolean
   roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
@@ -9164,8 +9462,10 @@ export type UserProfileSelectScalar = {
   lastName?: boolean
   dateOfBirth?: boolean
   gender?: boolean
+  bloodGroup?: boolean
   about?: boolean
   picture?: boolean
+  uniqueMemberId?: boolean
   roleKeys?: boolean
   status?: boolean
   isPublic?: boolean
@@ -9179,7 +9479,7 @@ export type UserProfileSelectScalar = {
   deletedAt?: boolean
 }
 
-export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "idpSub" | "title" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "gender" | "about" | "picture" | "roleKeys" | "status" | "isPublic" | "isSameAddress" | "isProfileComplete" | "version" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["userProfile"]>
+export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "idpSub" | "title" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "gender" | "bloodGroup" | "about" | "picture" | "uniqueMemberId" | "roleKeys" | "status" | "isPublic" | "isSameAddress" | "isProfileComplete" | "version" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["userProfile"]>
 export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   phoneNumbers?: boolean | Prisma.UserProfile$phoneNumbersArgs<ExtArgs>
   addresses?: boolean | Prisma.UserProfile$addressesArgs<ExtArgs>
@@ -9262,8 +9562,10 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     lastName: string
     dateOfBirth: Date | null
     gender: string | null
+    bloodGroup: string | null
     about: string | null
     picture: string | null
+    uniqueMemberId: string | null
     roleKeys: string[]
     status: string
     isPublic: boolean
@@ -9738,8 +10040,10 @@ export interface UserProfileFieldRefs {
   readonly lastName: Prisma.FieldRef<"UserProfile", 'String'>
   readonly dateOfBirth: Prisma.FieldRef<"UserProfile", 'DateTime'>
   readonly gender: Prisma.FieldRef<"UserProfile", 'String'>
+  readonly bloodGroup: Prisma.FieldRef<"UserProfile", 'String'>
   readonly about: Prisma.FieldRef<"UserProfile", 'String'>
   readonly picture: Prisma.FieldRef<"UserProfile", 'String'>
+  readonly uniqueMemberId: Prisma.FieldRef<"UserProfile", 'String'>
   readonly roleKeys: Prisma.FieldRef<"UserProfile", 'String[]'>
   readonly status: Prisma.FieldRef<"UserProfile", 'String'>
   readonly isPublic: Prisma.FieldRef<"UserProfile", 'Boolean'>

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { PrismaClient } from '../../prisma/client';
 import {
@@ -10,11 +10,15 @@ import {
 import { TeamMemberRole } from '../../../../modules/project/domain/enums/team-member.enum';
 
 @Injectable()
-export class TeamMemberPrismaRepository implements ITeamMemberRepository {
-  constructor(private readonly db: BasePrismaService<PrismaClient>) { }
+export class TeamMemberPrismaRepository
+  extends PrismaRepositoryBase<PrismaClient, 'projectTeamMember'>
+  implements ITeamMemberRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'projectTeamMember');
+  }
 
   async findByProjectId(projectId: string): Promise<TeamMemberRecord[]> {
-    const rows = await this.db.client.projectTeamMember.findMany({
+    const rows = await this.delegate.findMany({
       where: { projectId, deletedAt: null },
       orderBy: { startDate: 'desc' },
     });
@@ -22,7 +26,7 @@ export class TeamMemberPrismaRepository implements ITeamMemberRepository {
   }
 
   async findById(id: string): Promise<TeamMemberRecord | null> {
-    const row = await this.db.client.projectTeamMember.findFirst({
+    const row = await this.delegate.findFirst({
       where: { id, deletedAt: null },
     });
     return row ? this.toRecord(row) : null;
@@ -36,7 +40,7 @@ export class TeamMemberPrismaRepository implements ITeamMemberRepository {
     responsibilities?: string;
     hoursAllocated?: number;
   }): Promise<TeamMemberRecord> {
-    const row = await this.db.client.projectTeamMember.create({
+    const row = await this.delegate.create({
       data: {
         id: randomUUID(),
         projectId: data.projectId,
@@ -55,7 +59,7 @@ export class TeamMemberPrismaRepository implements ITeamMemberRepository {
     id: string,
     data: { role?: TeamMemberRole; responsibilities?: string; hoursAllocated?: number },
   ): Promise<TeamMemberRecord> {
-    const row = await this.db.client.projectTeamMember.update({ where: { id }, data });
+    const row = await this.delegate.update({ where: { id }, data });
     return this.toRecord(row);
   }
 
@@ -64,7 +68,7 @@ export class TeamMemberPrismaRepository implements ITeamMemberRepository {
     if (!member) {
       throw new BusinessException('Team member not found');
     }
-    const row = await this.db.client.projectTeamMember.update({
+    const row = await this.delegate.update({
       where: { id },
       data: { isActive: false, endDate: new Date() },
     });

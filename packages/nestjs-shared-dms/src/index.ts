@@ -20,4 +20,5 @@ export { DocumentResponseDto, DocumentMappingDto } from './presentation/dtos/doc
 
 // Facade (cross-module integration — writes and reads via bus)
 export { DmsFacade } from './application/services/dms.facade';
+export { DownloadDocumentQuery } from './application/queries/download-document/download-document.query';
 

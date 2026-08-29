@@ -59,3 +59,19 @@ export class InvalidCredentialsError extends BusinessError {
     super('Current password is incorrect', 'INVALID_CREDENTIALS', 401);
   }
 }
+
+export class UniqueMemberIdSequenceExhaustedError extends BusinessError {
+  constructor(yymm: string) {
+    super(
+      `No remaining unique member numbers for ${yymm}`,
+      'UNIQUE_MEMBER_ID_SEQUENCE_EXHAUSTED',
+      422,
+    );
+  }
+}
+
+export class IdentityCardNotIssuableError extends BusinessError {
+  constructor(reason: string) {
+    super(reason, 'IDENTITY_CARD_NOT_ISSUABLE', 422);
+  }
+}

@@ -100,6 +100,8 @@ describe('ListDocumentsHandler', () => {
 
     expect(result.hasAccess).toBe(false);
     expect(result.reason).toBe('DOCUMENT_ENTITY_TYPE_FORBIDDEN');
+    expect(result.message).toBe('Document entity type is not supported.');
+    expect(result.message).not.toContain('invoice');
     expect(result.data).toEqual([]);
   });
 
@@ -111,6 +113,8 @@ describe('ListDocumentsHandler', () => {
 
     expect(result.hasAccess).toBe(false);
     expect(result.reason).toBe('DOCUMENT_ACCESS_DENIED');
+    expect(result.message).toBe('You do not have permission to access the requested document.');
+    expect(result.message).not.toContain('entity-1');
     expect(result.data).toEqual([]);
   });
 

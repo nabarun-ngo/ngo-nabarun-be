@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { GlobalExceptionFilter } from '@nabarun-ngo/nestjs-shared-core';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
+import { ThrottlerException } from '@nestjs/throttler';
 
 function makeHost(): { host: ArgumentsHost; json: jest.Mock; status: jest.Mock } {
   const json = jest.fn();
@@ -43,10 +44,33 @@ describe('GlobalExceptionFilter', () => {
       expect(json.mock.calls[0][0].messages).toContain('email is invalid');
     });
 
-    it('preserves BusinessException messages even for 5xx', () => {
+    it('sanitizes BusinessException messages even for 5xx', () => {
       const { host, json } = makeHost();
-      filter.catch(new BusinessException('domain rule violated'), host);
-      expect(json.mock.calls[0][0].messages).toContain('domain rule violated');
+      filter.catch(
+        new BusinessException(
+          'Provider failed for user auth0|secret: invalid_client',
+          'IDENTITY_PROVIDER_ERROR',
+          502,
+        ),
+        host,
+      );
+      const body = json.mock.calls[0][0];
+      expect(body.messages).toEqual(['Identity provider operation failed.']);
+      expect(JSON.stringify(body)).not.toContain('auth0|secret');
+      expect(JSON.stringify(body)).not.toContain('invalid_client');
+    });
+
+    it('uses the standard envelope for throttling errors', () => {
+      const { host, json, status } = makeHost();
+      filter.catch(new ThrottlerException(), host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.TOO_MANY_REQUESTS);
+      expect(json.mock.calls[0][0]).toMatchObject({
+        info: 'Error',
+        messages: ['Too many requests. Please try again later.'],
+        errorCode: 'RATE_LIMITED',
+        status: HttpStatus.TOO_MANY_REQUESTS,
+      });
     });
   });
 
@@ -69,6 +93,23 @@ describe('GlobalExceptionFilter', () => {
       const { host, json } = makeHost();
       filter.catch(new Error('boom'), host);
       expect(json.mock.calls[0][0].stackTrace).toBeDefined();
+    });
+
+    it('never exposes BusinessException diagnostic data', () => {
+      const { host, json } = makeHost();
+      filter.catch(
+        new BusinessException(
+          'User 6f9619ff-8b86-4e3b not found for email private@example.org',
+          'USER_NOT_FOUND',
+          404,
+        ),
+        host,
+      );
+
+      const body = json.mock.calls[0][0];
+      expect(body.messages).toEqual(['User not found.']);
+      expect(JSON.stringify(body)).not.toContain('6f9619ff');
+      expect(JSON.stringify(body)).not.toContain('private@example.org');
     });
   });
 

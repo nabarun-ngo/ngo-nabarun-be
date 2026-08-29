@@ -105,7 +105,7 @@ export abstract class PrismaCrudRepositoryBase<
     // Resolve effective values before building pagination so the query `take`
     // and the returned `Page` metadata always agree, even when pageSize is omitted.
     const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 1000;
+    const pageSize = filter?.pageSize ?? this.defaultPageSize();
     // Dynamic sort from filter takes precedence; fall back to the static hook.
     const orderBy = filter?.sortBy
       ? ({ [filter.sortBy]: filter.sortDir ?? SortOrder.ASC } as TOrderBy)
@@ -261,6 +261,15 @@ export abstract class PrismaCrudRepositoryBase<
   /** Default sort for list/paged queries. */
   protected defaultOrderBy(): TOrderBy | undefined {
     return undefined;
+  }
+
+  /**
+   * Default page size when `findPaged` is called without `filter.pageSize`.
+   * Override in a concrete repository to change the unbounded-list default
+   * without repeating it in every paged query.
+   */
+  protected defaultPageSize(): number {
+    return 1000;
   }
 
   /**

@@ -31,4 +31,12 @@ export class FinanceDmsAdapter {
       FINANCE_DMS_SERVICE_PERMISSIONS,
     );
   }
+
+  downloadFile(documentId: string): Promise<{ fileName: string; contentType: string; buffer: Buffer }> {
+    return this.dmsFacade.download(
+      documentId,
+      FINANCE_DMS_SERVICE_USER_ID,
+      FINANCE_DMS_SERVICE_PERMISSIONS,
+    );
+  }
 }

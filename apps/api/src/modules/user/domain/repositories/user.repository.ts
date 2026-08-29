@@ -56,4 +56,13 @@ export interface IUserRepository extends IRepository<User, string, UserFilter> {
    * No-ops when no active profile exists for the IdP subject.
    */
   updateRoleKeysByIdPSub(idpSub: string, roleKeys: string[]): Promise<void>;
+
+  /**
+   * Next lifetime membership number for the UTC month of `at`.
+   * Includes deleted members so numbers are never reused.
+   */
+  allocateNextUniqueMemberId(at: Date): Promise<string>;
+
+  /** Lookup by printed membership number, including soft-deleted rows (for public verify). */
+  findByUniqueMemberId(uniqueMemberId: string): Promise<User | null>;
 }

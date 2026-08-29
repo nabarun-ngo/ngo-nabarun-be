@@ -5,6 +5,7 @@ import { UPIPaymentType } from '../../domain/enums/upi-payment-type.enum';
 import { AccountDetailDto } from './account.dto';
 import { FinanceUserDto } from './finance-user.dto';
 import { KeyValueOption } from '../ports/finance-reference-data.port';
+import { InvoiceSummaryDto } from '../../../invoice/application/dtos/invoice.dto';
 
 export class DonationDto {
   id!: string;
@@ -36,6 +37,7 @@ export class DonationDto {
   nextStatuses!: DonationStatus[];
   activityId?: string;
   activityName?: string;
+  invoice?: InvoiceSummaryDto;
 }
 
 export class DonationSummaryDto {

@@ -105,6 +105,11 @@ export class UpdateUserProfileDto {
   @IsString()
   gender?: string;
 
+  @ApiPropertyOptional({ example: 'B+', description: 'ABO/Rh blood group, e.g. A+, O-' })
+  @IsOptional()
+  @IsString()
+  bloodGroup?: string;
+
   @ApiPropertyOptional({ example: 'Volunteer coordinator for the Barasat education programme.' })
   @IsOptional()
   @IsString()

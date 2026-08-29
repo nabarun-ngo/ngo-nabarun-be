@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EmailThemeSchema } from './email-theme';
 
 /**
  * Host-registered resource type that users may follow (resource subscription).
@@ -28,6 +29,11 @@ export const CorrespondenceOptionsSchema = z.object({
       enableProdMode: z.coerce.boolean().default(false),
       enableMocking: z.coerce.boolean().default(false),
       mockedAddress: z.string().email().optional(),
+      /**
+       * Branding of the base email layout. Unset tokens fall back to
+       * {@link DEFAULT_EMAIL_THEME}.
+       */
+      theme: EmailThemeSchema.optional(),
       smtp: z
         .object({
           host: z.string(),

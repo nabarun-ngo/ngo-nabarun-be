@@ -27,7 +27,7 @@ export { PermissionsGuard } from './presentation/guards/permissions.guard';
 export { RoleGroupsGuard } from './presentation/guards/role-groups.guard';
 export { ScopedPermissionsGuard } from './presentation/guards/scoped-permissions.guard';
 
-export type { AuthUser, ScopedRoleContext } from './application/models/auth-user';
+export type { AuthUser, ScopedRbacContext } from './application/models/auth-user';
 export { requireUserId } from './application/utilities/require-user-id.util';
 
 export { IUserAccessPort } from './application/ports/user-access.port';

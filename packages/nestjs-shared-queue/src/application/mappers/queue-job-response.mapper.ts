@@ -4,7 +4,11 @@ import { JobDetail } from '../../presentation/dto/queue.dto';
 import { QueueJobSearchResultDto } from '../dtos/queue-job.dtos';
 
 export class QueueJobResponseMapper {
-  static async toJobDetail(job: Job<any, any, string>, logs?: string[]): Promise<JobDetail> {
+  private static publicFailureReason(reason?: string): string {
+    return reason ? 'Job processing failed.' : '';
+  }
+
+  static async toJobDetail(job: Job<any, any, string>, _logs?: string[]): Promise<JobDetail> {
     return {
       id:           job.id,
       name:         job.name,
@@ -13,14 +17,14 @@ export class QueueJobResponseMapper {
       state:        await job.getState(),
       progress:     job.progress ?? 0,
       returnvalue:  job.returnvalue,
-      failedReason: job.failedReason ?? '',
+      failedReason: this.publicFailureReason(job.failedReason),
       processedOn:  job.processedOn  ? new Date(job.processedOn)  : undefined,
       finishedOn:   job.finishedOn   ? new Date(job.finishedOn)   : undefined,
       timestamp:    job.timestamp    ? new Date(job.timestamp)    : undefined,
       attemptsMade: job.attemptsMade,
       delay:        job.delay,
-      stacktrace:   job.stacktrace ?? [],
-      logs:         logs ?? [],
+      stacktrace:   [],
+      logs:         [],
     };
   }
 
@@ -31,7 +35,7 @@ export class QueueJobResponseMapper {
     dto.queueName    = queueJob.queueName;
     dto.status       = queueJob.status;
     dto.payload      = queueJob.payload;
-    dto.failedReason = queueJob.failedReason;
+    dto.failedReason = this.publicFailureReason(queueJob.failedReason) || undefined;
     dto.attemptsMade = queueJob.attemptsMade;
     dto.enqueuedAt   = queueJob.enqueuedAt;
     dto.startedAt    = queueJob.startedAt;

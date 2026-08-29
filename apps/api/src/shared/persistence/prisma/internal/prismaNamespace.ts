@@ -434,6 +434,7 @@ export const ModelName = {
   Transaction: 'Transaction',
   Expense: 'Expense',
   Earning: 'Earning',
+  Invoice: 'Invoice',
   JsonStoreDocument: 'JsonStoreDocument',
   Meeting: 'Meeting',
   Project: 'Project',
@@ -466,7 +467,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "activity" | "asset" | "assetCustodyRecord" | "auditEntityChangeLog" | "authApiKey" | "authPermission" | "authRole" | "authRolePermission" | "authRoleGroup" | "authRoleGroupRole" | "authUserRole" | "authUserRoleGroup" | "authUserPermission" | "book" | "bookLoanRecord" | "comment" | "commentMention" | "correspondenceNotification" | "correspondenceUserNotification" | "correspondenceResourceSubscription" | "correspondenceSubscriptionChannel" | "cronJobDefinition" | "form" | "formFieldDefinition" | "formSubmission" | "formFieldValue" | "formFieldValueHistoryEntry" | "documentReference" | "documentMapping" | "account" | "accountBankInvestDetail" | "accountUpiDetail" | "donor" | "donation" | "transaction" | "expense" | "earning" | "jsonStoreDocument" | "meeting" | "project" | "beneficiary" | "goal" | "milestone" | "projectTeamMember" | "projectRisk" | "report" | "request" | "requestEvent" | "tokenVaultOAuthAccount" | "tokenVaultOAuthToken" | "userProfile" | "userPhoneNumber" | "userAddress" | "userSocialLink"
+    modelProps: "activity" | "asset" | "assetCustodyRecord" | "auditEntityChangeLog" | "authApiKey" | "authPermission" | "authRole" | "authRolePermission" | "authRoleGroup" | "authRoleGroupRole" | "authUserRole" | "authUserRoleGroup" | "authUserPermission" | "book" | "bookLoanRecord" | "comment" | "commentMention" | "correspondenceNotification" | "correspondenceUserNotification" | "correspondenceResourceSubscription" | "correspondenceSubscriptionChannel" | "cronJobDefinition" | "form" | "formFieldDefinition" | "formSubmission" | "formFieldValue" | "formFieldValueHistoryEntry" | "documentReference" | "documentMapping" | "account" | "accountBankInvestDetail" | "accountUpiDetail" | "donor" | "donation" | "transaction" | "expense" | "earning" | "invoice" | "jsonStoreDocument" | "meeting" | "project" | "beneficiary" | "goal" | "milestone" | "projectTeamMember" | "projectRisk" | "report" | "request" | "requestEvent" | "tokenVaultOAuthAccount" | "tokenVaultOAuthToken" | "userProfile" | "userPhoneNumber" | "userAddress" | "userSocialLink"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3208,6 +3209,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Invoice: {
+      payload: Prisma.$InvoicePayload<ExtArgs>
+      fields: Prisma.InvoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InvoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InvoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        findFirst: {
+          args: Prisma.InvoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InvoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        findMany: {
+          args: Prisma.InvoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+        }
+        create: {
+          args: Prisma.InvoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        createMany: {
+          args: Prisma.InvoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InvoiceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+        }
+        delete: {
+          args: Prisma.InvoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        update: {
+          args: Prisma.InvoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.InvoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InvoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InvoiceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+        }
+        upsert: {
+          args: Prisma.InvoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        aggregate: {
+          args: Prisma.InvoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInvoice>
+        }
+        groupBy: {
+          args: Prisma.InvoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InvoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InvoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InvoiceCountAggregateOutputType> | number
+        }
+      }
+    }
     JsonStoreDocument: {
       payload: Prisma.$JsonStoreDocumentPayload<ExtArgs>
       fields: Prisma.JsonStoreDocumentFieldRefs
@@ -5201,6 +5276,27 @@ export const EarningScalarFieldEnum = {
 export type EarningScalarFieldEnum = (typeof EarningScalarFieldEnum)[keyof typeof EarningScalarFieldEnum]
 
 
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  status: 'status',
+  amount: 'amount',
+  currency: 'currency',
+  issuedOn: 'issuedOn',
+  voidedOn: 'voidedOn',
+  voidReason: 'voidReason',
+  documentId: 'documentId',
+  supersededByInvoiceId: 'supersededByInvoiceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  version: 'version',
+  deletedAt: 'deletedAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
 export const JsonStoreDocumentScalarFieldEnum = {
   id: 'id',
   key: 'key',
@@ -5488,8 +5584,10 @@ export const UserProfileScalarFieldEnum = {
   lastName: 'lastName',
   dateOfBirth: 'dateOfBirth',
   gender: 'gender',
+  bloodGroup: 'bloodGroup',
   about: 'about',
   picture: 'picture',
+  uniqueMemberId: 'uniqueMemberId',
   roleKeys: 'roleKeys',
   status: 'status',
   isPublic: 'isPublic',
@@ -5880,6 +5978,7 @@ export type GlobalOmitConfig = {
   transaction?: Prisma.TransactionOmit
   expense?: Prisma.ExpenseOmit
   earning?: Prisma.EarningOmit
+  invoice?: Prisma.InvoiceOmit
   jsonStoreDocument?: Prisma.JsonStoreDocumentOmit
   meeting?: Prisma.MeetingOmit
   project?: Prisma.ProjectOmit

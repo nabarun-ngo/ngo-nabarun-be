@@ -57,6 +57,7 @@ export interface EmailChannelOptions {
   overrideEmails?: string[];
   cc?: string[];
   templateData?: Record<string, unknown>;
+  attachments?: Array<{ filename: string; content: string; contentType?: string }>;
 }
 
 export interface PushChannelOptions {

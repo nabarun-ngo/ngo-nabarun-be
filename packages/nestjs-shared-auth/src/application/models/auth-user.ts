@@ -1,12 +1,17 @@
 import { UserInfo } from '@nabarun-ngo/nestjs-shared-core';
 
-export interface ScopedRoleContext {
+export interface RbacContext {
   permissions: string[];
-  roles: string[];
+  userRoles: string[];
   roleGroups: string[];
 }
 
-export interface AuthUser {
+export interface ScopedRbacContext extends RbacContext {
+  entityId: string;
+  entityType: string;
+}
+
+export interface AuthUser extends RbacContext {
   type: 'apikey' | 'jwt';
   /** IdP subject identifier (JWT sub claim / synthetic for API keys). auth-internal — DO NOT use outside auth / token-vault. */
   idpSub: string;
@@ -14,15 +19,12 @@ export interface AuthUser {
   userId?: string;
   /** Full user profile resolved at auth-time via IUserLookupPort. Undefined if port not registered. */
   userInfo?: UserInfo;
-  permissions?: string[];
-  userRoles?: string[];
-  roleGroups?: string[];
   /** Email — resolved from IdP JWT payload first, then falls back to userInfo.email. */
   email?: string;
   /** Display name — resolved from IdP JWT payload first, then falls back to userInfo.fullName. */
   name?: string;
   /** Raw JWT payload claims. Renamed from 'claims'. */
   idpClaims?: Record<string, unknown>;
-  /** Entity-scoped role contexts, keyed by "entityType:entityId" */
-  scopedRoles?: Record<string, ScopedRoleContext>;
+  /** Entity-scoped access contexts */
+  scopedAccess?: ScopedRbacContext[];
 }

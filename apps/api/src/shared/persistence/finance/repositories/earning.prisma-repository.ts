@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { Prisma, PrismaClient } from '../../prisma/client';
+import type {
+  EarningWhereInput,
+  EarningWhereUniqueInput,
+  EarningUncheckedCreateInput,
+  EarningUncheckedUpdateInput,
+  EarningOrderByWithRelationInput,
+} from '../../prisma/models/Earning';
 import { IEarningRepository, EarningFilter } from '../../../../modules/finance/domain/repositories/earning.repository';
 import { Earning } from '../../../../modules/finance/domain/aggregates/earning/earning.aggregate';
 import { EarningPrismaMapper } from '../mapper/earning-prisma.mapper';
@@ -14,57 +20,51 @@ export type EarningPersistence = Prisma.EarningGetPayload<{
   }
 }>;
 
+const EARNING_RELATIONS = {
+  account: true,
+  createdBy: true,
+  receivedBy: true,
+} as const;
+
 @Injectable()
-export class EarningPrismaRepository implements IEarningRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
-
-  async count(filter: EarningFilter): Promise<number> {
-    const where = this.whereQuery(filter);
-    return await this.database.client.earning.count({ where });
+export class EarningPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'earning',
+    Earning,
+    string,
+    EarningFilter,
+    EarningPersistence,
+    EarningWhereInput,
+    EarningWhereUniqueInput,
+    EarningUncheckedCreateInput,
+    EarningUncheckedUpdateInput,
+    EarningOrderByWithRelationInput,
+    typeof EARNING_RELATIONS
+  >
+  implements IEarningRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'earning');
   }
 
-  async findPaged(filter?: BaseFilter<EarningFilter>): Promise<Page<Earning>> {
-    const where = this.whereQuery(filter?.props);
-
-    const [data, total] = await Promise.all([
-      this.database.client.earning.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          account: true,
-          createdBy: true,
-          receivedBy: true,
-        },
-        skip: (filter?.pageIndex ?? 0) * (filter?.pageSize ?? 1000),
-        take: filter?.pageSize ?? 1000,
-      }),
-      this.database.client.earning.count({ where }),
-    ]);
-
-    return new Page<Earning>(
-      data.map(m => EarningPrismaMapper.toEarningDomain(m)!),
-      total,
-      filter?.pageIndex ?? 0,
-      filter?.pageSize ?? 1000,
-    );
+  protected toDomain(row: EarningPersistence): Earning {
+    return EarningPrismaMapper.toEarningDomain(row)!;
   }
 
-  async findAll(filter?: EarningFilter): Promise<Earning[]> {
-    const earnings = await this.database.client.earning.findMany({
-      where: this.whereQuery(filter),
-      orderBy: { createdAt: 'desc' },
-      include: {
-        account: true,
-        createdBy: true,
-        receivedBy: true,
-      },
-    });
-
-    return earnings.map(m => EarningPrismaMapper.toEarningDomain(m)!);
+  protected toCreateInput(earning: Earning): EarningUncheckedCreateInput {
+    return EarningPrismaMapper.toEarningCreatePersistence(earning);
   }
 
-  private whereQuery(props?: EarningFilter): Prisma.EarningWhereInput {
-    const where: Prisma.EarningWhereInput = {
+  protected toUpdateInput(_id: string, earning: Earning): EarningUncheckedUpdateInput {
+    return EarningPrismaMapper.toEarningUpdatePersistence(earning);
+  }
+
+  protected toUniqueWhere(id: string): EarningWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(props?: EarningFilter): EarningWhereInput {
+    return {
       ...(props?.category ? { category: { in: props.category } } : {}),
       ...(props?.source ? { source: props.source } : {}),
       ...(props?.status ? { status: { in: props.status } } : {}),
@@ -79,65 +79,41 @@ export class EarningPrismaRepository implements IEarningRepository {
         : {}),
       deletedAt: null,
     };
-    return where;
   }
 
-  async findById(id: string): Promise<Earning | null> {
-    const earning = await this.database.client.earning.findUnique({
-      where: { id },
-      include: {
-        account: true,
-        createdBy: true,
-        receivedBy: true,
-      },
-    });
-
-    return EarningPrismaMapper.toEarningDomain(earning!);
+  protected override defaultOrderBy(): EarningOrderByWithRelationInput {
+    return { createdAt: 'desc' };
   }
 
+  protected override toInclude(): typeof EARNING_RELATIONS {
+    return EARNING_RELATIONS;
+  }
 
-  async create(earning: Earning): Promise<Earning> {
-    const createData: Prisma.EarningUncheckedCreateInput = {
-      ...EarningPrismaMapper.toEarningCreatePersistence(earning),
-    };
+  protected override defaultPageSize(): number {
+    return 1000;
+  }
 
-    const created = await this.database.client.earning.create({
-      data: createData,
-      include: {
-        account: true,
-        createdBy: true,
-        receivedBy: true,
-      },
+  override async create(earning: Earning): Promise<Earning> {
+    const created = await this.delegate.create({
+      data: EarningPrismaMapper.toEarningCreatePersistence(earning),
+      include: EARNING_RELATIONS,
     });
-
     return EarningPrismaMapper.toEarningDomain(created)!;
   }
 
-  async update(id: string, earning: Earning): Promise<Earning> {
-    const updateData: Prisma.EarningUncheckedUpdateInput = {
-      ...EarningPrismaMapper.toEarningUpdatePersistence(earning),
-    };
-
-    const updated = await this.database.client.earning.update({
+  override async update(id: string, earning: Earning): Promise<Earning> {
+    const updated = await this.delegate.update({
       where: { id },
-      data: updateData,
-      include: {
-        account: true,
-        createdBy: true,
-        receivedBy: true,
-      },
+      data: EarningPrismaMapper.toEarningUpdatePersistence(earning),
+      include: EARNING_RELATIONS,
     });
-
     return EarningPrismaMapper.toEarningDomain(updated)!;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.earning.update({
+  override async delete(id: string): Promise<void> {
+    await this.delegate.update({
       where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
+      data: { deletedAt: new Date() },
     });
   }
 }
-

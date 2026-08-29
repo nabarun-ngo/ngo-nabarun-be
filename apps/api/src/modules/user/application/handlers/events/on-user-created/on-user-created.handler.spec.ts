@@ -14,6 +14,8 @@ const defaultOptions: UserModuleOptions = {
   },
   spaClientId: 'spa-client-id',
   appFeUrl: 'https://app.example.com',
+  publicApiUrl: 'https://api.example.com',
+  organisationName: 'Test Org',
   defaultRoleKeys: [],
 };
 

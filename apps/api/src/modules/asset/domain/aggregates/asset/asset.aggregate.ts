@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { AggregateRoot, BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { AssetCategory, AssetStatus } from '../../enums/asset.enum';
 
+// AssetCustodyRecordProps is a record of an asset's custody history
 export interface AssetCustodyRecordProps {
   id: string;
   custodianUserId: string;

@@ -4,6 +4,7 @@ import {
   EntityTypeForbiddenError,
   EntityAccessDeniedError,
   IEntityAccessPort,
+  resolvePublicErrorMessage,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { CommentModuleOptions } from '../../../comment.schema';
 import { COMMENT_OPTIONS } from '../../../infrastructure/comment-options.token';
@@ -39,7 +40,13 @@ export class GetCommentsHandler
       });
     } catch (err) {
       if (err instanceof EntityTypeForbiddenError || err instanceof EntityAccessDeniedError) {
-        return { hasAccess: false, reason: err.errorCode, message: err.message, comments: [], total: 0 };
+        return {
+          hasAccess: false,
+          reason: err.errorCode,
+          message: resolvePublicErrorMessage(err),
+          comments: [],
+          total: 0,
+        };
       }
       throw err;
     }

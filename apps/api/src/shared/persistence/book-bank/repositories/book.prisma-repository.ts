@@ -1,51 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
+import { PrismaClient } from '../../prisma/client';
+import type {
+  BookWhereInput,
+  BookWhereUniqueInput,
+  BookUncheckedCreateInput,
+  BookUncheckedUpdateInput,
+  BookOrderByWithRelationInput,
+} from '../../prisma/models/Book';
 import { Book, BookFilter } from '../../../../modules/book-bank/domain/aggregates/book/book.aggregate';
 import { IBookRepository } from '../../../../modules/book-bank/domain/repositories/book.repository';
-import { BookPrismaMapper } from '../mapper/book-prisma.mapper';
+import { BookPrismaMapper, BookRow } from '../mapper/book-prisma.mapper';
 import { MapperUtils } from '../../finance/mapper/mapper-utils';
 
 @Injectable()
-export class BookPrismaRepository implements IBookRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) {}
-
-  async count(filter: BookFilter): Promise<number> {
-    return this.database.client.book.count({ where: this.where(filter) });
-  }
-
-  async findPaged(filter?: BaseFilter<BookFilter>): Promise<Page<Book>> {
-    const where = this.where(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 20;
-    const [rows, total] = await Promise.all([
-      this.database.client.book.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      this.database.client.book.count({ where }),
-    ]);
-    return new Page(
-      rows.map((r) => BookPrismaMapper.toDomain(r)!),
-      total,
-      pageIndex,
-      pageSize,
-    );
-  }
-
-  async findAll(filter?: BookFilter): Promise<Book[]> {
-    const rows = await this.database.client.book.findMany({
-      where: this.where(filter),
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map((r) => BookPrismaMapper.toDomain(r)!);
+export class BookPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'book',
+    Book,
+    string,
+    BookFilter,
+    BookRow,
+    BookWhereInput,
+    BookWhereUniqueInput,
+    BookUncheckedCreateInput,
+    BookUncheckedUpdateInput,
+    BookOrderByWithRelationInput
+  >
+  implements IBookRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'book');
   }
 
   async findById(id: string): Promise<Book | null> {
-    const row = await this.database.client.book.findFirst({
+    const row = await this.delegate.findFirst({
       where: { id, deletedAt: null },
       include: { loanHistory: { orderBy: { loanedAt: 'desc' } } },
     });
@@ -53,7 +42,7 @@ export class BookPrismaRepository implements IBookRepository {
   }
 
   async create(entity: Book): Promise<Book> {
-    const row = await this.database.client.book.create({
+    const row = await this.delegate.create({
       data: BookPrismaMapper.toCreate(entity),
       include: { loanHistory: { orderBy: { loanedAt: 'desc' } } },
     });
@@ -61,7 +50,7 @@ export class BookPrismaRepository implements IBookRepository {
   }
 
   async update(id: string, entity: Book): Promise<Book> {
-    await this.database.client.$transaction(async (tx) => {
+    await this.$transaction(async (tx) => {
       await tx.book.update({
         where: { id },
         data: BookPrismaMapper.toUpdate(entity),
@@ -95,14 +84,23 @@ export class BookPrismaRepository implements IBookRepository {
     return (await this.findById(id))!;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.book.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+  protected toDomain(row: BookRow): Book {
+    return BookPrismaMapper.toDomain(row)!;
   }
 
-  private where(props?: BookFilter): Prisma.BookWhereInput {
+  protected toCreateInput(entity: Book): BookUncheckedCreateInput {
+    return BookPrismaMapper.toCreate(entity);
+  }
+
+  protected toUpdateInput(_id: string, entity: Book): BookUncheckedUpdateInput {
+    return BookPrismaMapper.toUpdate(entity);
+  }
+
+  protected toUniqueWhere(id: string): BookWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(props?: BookFilter): BookWhereInput {
     const q = props?.q?.trim();
     return {
       deletedAt: null,
@@ -129,5 +127,17 @@ export class BookPrismaRepository implements IBookRepository {
           }
         : {}),
     };
+  }
+
+  protected override supportsSoftDelete(): boolean {
+    return true;
+  }
+
+  protected override defaultOrderBy(): BookOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected defaultPageSize(): number {
+    return 20;
   }
 }

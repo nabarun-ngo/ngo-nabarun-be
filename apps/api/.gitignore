@@ -34,3 +34,6 @@ Thumbs.db
 
 # TypeScript incremental build
 *.tsbuildinfo
+
+# Local print previews from identity-card-pdf.adapter.spec.ts
+test-output/

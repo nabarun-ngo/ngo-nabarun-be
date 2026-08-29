@@ -17,6 +17,7 @@ import { DonorPrismaRepository } from '../../shared/persistence/finance/reposito
 import { ExpensePrismaRepository } from '../../shared/persistence/finance/repositories/expense.prisma-repository';
 import { EarningPrismaRepository } from '../../shared/persistence/finance/repositories/earning.prisma-repository';
 import { TransactionPrismaRepository } from '../../shared/persistence/finance/repositories/transaction.prisma-repository';
+import { DonationInvoiceService } from './application/services/donation-invoice.service';
 import { FinanceDmsAdapter } from './infrastructure/adapters/finance-dms.adapter';
 import { RazorpayIfscAdapter } from './infrastructure/adapters/razorpay-ifsc.adapter';
 import { IIfscLookupPort } from './application/ports/ifsc-lookup.port';
@@ -181,6 +182,7 @@ export class FinanceModule {
         { provide: IExpenseRepository, useClass: ExpensePrismaRepository },
         { provide: IEarningRepository, useClass: EarningPrismaRepository },
         { provide: ITransactionRepository, useClass: TransactionPrismaRepository },
+        DonationInvoiceService,
         FinanceDmsAdapter,
         AccountBankIfscValidationService,
         { provide: IIfscLookupPort, useClass: RazorpayIfscAdapter },

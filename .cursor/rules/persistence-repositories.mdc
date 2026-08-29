@@ -1,0 +1,40 @@
+---
+description: Prisma persistence must use typed base repositories for standard CRUD.
+globs: apps/api/src/shared/persistence/**/*.ts,packages/nestjs-shared-persistence/src/prisma/**/*.ts
+alwaysApply: true
+---
+
+# Persistence repositories — always use the base
+
+## Standard CRUD (required)
+
+Any Prisma adapter that implements `IRepository` **must** extend `PrismaCrudRepositoryBase`.
+
+```typescript
+@Injectable()
+export class RolePrismaRepository extends PrismaCrudRepositoryBase<
+  PrismaClient, 'authRole', Role, string, RoleFilter,
+  RoleRow, AuthRoleWhereInput, AuthRoleWhereUniqueInput,
+  ({} & AuthRoleCreateInput) | ({} & AuthRoleUncheckedCreateInput),
+  ({} & AuthRoleUpdateInput) | ({} & AuthRoleUncheckedUpdateInput),
+  AuthRoleOrderByWithRelationInput
+> implements IRoleRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'authRole'); // generated client key only
+  }
+  // five mapping hooks — do not reimplement findPaged/create/update/delete
+}
+```
+
+- Use generated delegate keys (`correspondenceNotification`, `authRole`, …). Stale names (`corr2Notification`) fail at runtime.
+- `this.delegate` for the primary model; `this.client` / `$transaction` for other models or raw SQL.
+- Preserve paging with `defaultPageSize()` instead of overriding `findPaged`.
+
+## Exceptions (only these)
+
+| Case | Use |
+|------|-----|
+| Custom port / multi-model / `$queryRaw` | `PrismaRepositoryBase` + typed `this.client` |
+| Redis, cache, null, advisory lock | Existing non-Prisma adapter |
+
+Never inject untyped `BasePrismaService` and never call missing delegates through a proxy.

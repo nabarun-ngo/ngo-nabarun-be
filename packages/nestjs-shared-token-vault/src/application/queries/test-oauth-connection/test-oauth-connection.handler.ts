@@ -87,7 +87,7 @@ export class TestOAuthConnectionHandler
         email: token.email,
         refreshed: false,
         expiresAt: token.expiresAt,
-        message: `Connection test failed: ${reason}`,
+        message: 'Connection test failed. Reconnect the account or try again later.',
       };
     }
   }

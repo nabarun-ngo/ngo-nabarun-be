@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
 import { Prisma, PrismaClient } from '../../prisma/client';
+import type {
+  AccountWhereInput,
+  AccountWhereUniqueInput,
+  AccountUncheckedCreateInput,
+  AccountUncheckedUpdateInput,
+  AccountOrderByWithRelationInput,
+} from '../../prisma/models/Account';
 import { Account } from '../../../../modules/finance/domain/aggregates/account/account.aggregate';
 import { AccountFilter, IAccountRepository } from '../../../../modules/finance/domain/repositories/account.repository';
 import { AccountPrismaMapper } from '../mapper/account-prisma.mapper';
@@ -29,19 +36,31 @@ const ACCOUNT_RELATIONS = {
 } as const;
 
 @Injectable()
-export class AccountPrismaRepository implements IAccountRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
-
-  async count(filter: AccountFilter): Promise<number> {
-    const where = this.whereQuery(filter);
-    return await this.database.client.account.count({ where });
+export class AccountPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'account',
+    Account,
+    string,
+    AccountFilter,
+    AccountWithRelations,
+    AccountWhereInput,
+    AccountWhereUniqueInput,
+    AccountUncheckedCreateInput,
+    AccountUncheckedUpdateInput,
+    AccountOrderByWithRelationInput,
+    typeof ACCOUNT_RELATIONS
+  >
+  implements IAccountRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'account');
   }
 
   async findPaged(filter?: BaseFilter<AccountFilter>): Promise<Page<Account>> {
-    const where = this.whereQuery(filter?.props!);
+    const where = this.toFilterWhere(filter?.props);
 
     const [data, total] = await Promise.all([
-      this.database.client.account.findMany({
+      this.delegate.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -51,7 +70,7 @@ export class AccountPrismaRepository implements IAccountRepository {
         skip: (filter?.pageIndex ?? 0) * (filter?.pageSize ?? 1000),
         take: filter?.pageSize ?? 1000,
       }),
-      this.database.client.account.count({ where }),
+      this.delegate.count({ where }),
     ]);
 
     return new Page<Account>(
@@ -63,8 +82,8 @@ export class AccountPrismaRepository implements IAccountRepository {
   }
 
   async findAll(filter?: AccountFilter): Promise<Account[]> {
-    const accounts = await this.database.client.account.findMany({
-      where: this.whereQuery(filter),
+    const accounts = await this.delegate.findMany({
+      where: this.toFilterWhere(filter),
       orderBy: { createdAt: 'desc' },
       include: {
         ...ACCOUNT_RELATIONS,
@@ -75,8 +94,8 @@ export class AccountPrismaRepository implements IAccountRepository {
     return accounts.map(m => AccountPrismaMapper.toAccountDomain(m)!);
   }
 
-  private whereQuery(props?: AccountFilter): Prisma.AccountWhereInput {
-    const where: Prisma.AccountWhereInput = {
+  protected toFilterWhere(props?: AccountFilter): AccountWhereInput {
+    const where: AccountWhereInput = {
       ...(props?.type && props.type.length > 0 ? { type: { in: [...props.type] } } : {}),
       ...(props?.ownerType && props.ownerType.length > 0 ? { ownerType: { in: [...props.ownerType] } } : {}),
       ...(props?.status && props.status.length > 0 ? { status: { in: [...props.status] } } : {}),
@@ -92,7 +111,7 @@ export class AccountPrismaRepository implements IAccountRepository {
   }
 
   async findById(id: string): Promise<Account | null> {
-    const account = await this.database.client.account.findUnique({
+    const account = await this.delegate.findUnique({
       where: { id },
       include: {
         ...ACCOUNT_RELATIONS,
@@ -114,7 +133,7 @@ export class AccountPrismaRepository implements IAccountRepository {
       },
     };
 
-    const created = await this.database.client.account.create({
+    const created = await this.delegate.create({
       data: createData,
       include: {
         ...ACCOUNT_RELATIONS,
@@ -142,7 +161,7 @@ export class AccountPrismaRepository implements IAccountRepository {
       },
     };
 
-    const updated = await this.database.client.account.update({
+    const updated = await this.delegate.update({
       where: { id },
       data: updateData,
       include: {
@@ -154,12 +173,35 @@ export class AccountPrismaRepository implements IAccountRepository {
     return AccountPrismaMapper.toAccountDomain(updated)!;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.account.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
+  protected toDomain(row: AccountWithRelations): Account {
+    return AccountPrismaMapper.toAccountDomain(row)!;
+  }
+
+  protected toCreateInput(account: Account): AccountUncheckedCreateInput {
+    return {
+      ...AccountPrismaMapper.toAccountCreatePersistence(account),
+      transactions: {
+        create: account.transactions.map(m => {
+          const { accountId, ...createData } = TransactionPrismaMapper.toTransactionCreatePersistence(m);
+          return createData;
+        }),
       },
-    });
+    };
+  }
+
+  protected toUpdateInput(_id: string, account: Account): AccountUncheckedUpdateInput {
+    return AccountPrismaMapper.toAccountUpdatePersistence(account);
+  }
+
+  protected toUniqueWhere(id: string): AccountWhereUniqueInput {
+    return { id };
+  }
+
+  protected override supportsSoftDelete(): boolean {
+    return true;
+  }
+
+  protected override defaultOrderBy(): AccountOrderByWithRelationInput {
+    return { createdAt: 'desc' };
   }
 }

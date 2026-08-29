@@ -78,7 +78,7 @@ describe('TestOAuthConnectionHandler', () => {
     ).rejects.toBeInstanceOf(TokenNotFoundError);
   });
 
-  it('returns ok:false when the provider profile probe fails', async () => {
+  it('returns ok:false without exposing the provider failure', async () => {
     const { handler } = makeHandler({
       profileError: new Error('provider unavailable'),
     });
@@ -87,7 +87,10 @@ describe('TestOAuthConnectionHandler', () => {
     } as any);
 
     expect(result.ok).toBe(false);
-    expect(result.message).toContain('provider unavailable');
+    expect(result.message).toBe(
+      'Connection test failed. Reconnect the account or try again later.',
+    );
+    expect(result.message).not.toContain('provider unavailable');
   });
 
   it('marks refreshed when the stored token needed refresh', async () => {

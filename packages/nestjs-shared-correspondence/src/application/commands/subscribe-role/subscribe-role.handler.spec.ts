@@ -7,6 +7,7 @@ import { IResourceSubscriptionRepository } from '@nabarun-ngo/nestjs-shared-corr
 import { ResourceSubscription } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/resource-subscription.aggregate';
 import { SubscribedVia } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/subscribed-via.enum';
 import { SubscriberType } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/subscriber-type.enum';
+import type { CorrespondenceModuleOptions } from '../../../correspondence.schema';
 
 function makeActiveRoleSub() {
   return ResourceSubscription.createRoleSubscription({
@@ -16,7 +17,10 @@ function makeActiveRoleSub() {
   });
 }
 
-function buildHandler(findByRoleResult = null, options = {}) {
+function buildHandler(
+  findByRoleResult = null,
+  options: Partial<CorrespondenceModuleOptions> = {},
+) {
   const repo: jest.Mocked<IResourceSubscriptionRepository> = {
     findByRoleAndResource: jest.fn().mockResolvedValue(findByRoleResult),
     create: jest.fn().mockResolvedValue(undefined),
@@ -33,7 +37,11 @@ function buildHandler(findByRoleResult = null, options = {}) {
   } as any;
 
   const eventBus = { publishAll: jest.fn() };
-  const handler = new SubscribeRoleHandler(repo, eventBus as any, options);
+  const handler = new SubscribeRoleHandler(
+    repo,
+    eventBus as any,
+    { environment: 'test', ...options },
+  );
   return { handler, repo };
 }
 

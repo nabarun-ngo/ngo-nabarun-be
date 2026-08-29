@@ -12,6 +12,7 @@ export interface EmailDispatchInput {
   subject?: string;
   to: string[];
   cc?: string[];
+  attachments?: EmailMessage['attachments'];
 }
 
 const DEFAULT_LAYOUT = 'email';
@@ -63,6 +64,7 @@ export class EmailDispatchService {
       subject: input.subject ?? Handlebars.compile(template.subject)(data),
       html: compiledHtml,
       text: compiledText,
+      attachments: input.attachments,
     };
 
     await this.emailSender.send(message);

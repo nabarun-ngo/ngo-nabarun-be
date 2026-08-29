@@ -2,12 +2,20 @@ import 'reflect-metadata';
 import { UserAccessAdapter } from './user-access.adapter';
 import { AuthModuleOptions } from '../../auth-options';
 
-type DirectRoleView = { roleKey: string; permissionKeys: string[]; ownerId?: string };
+type DirectRoleView = {
+  roleKey: string;
+  permissionKeys: string[];
+  ownerId?: string;
+  entityId?: string;
+  entityType?: string;
+};
 type GroupMembershipView = {
   groupKey: string;
   roleKeys: string[];
   permissionKeys: string[];
   ownerId?: string;
+  entityId?: string;
+  entityType?: string;
 };
 
 const makeUserRoleRepo = () => ({
@@ -177,6 +185,75 @@ describe('UserAccessAdapter', () => {
       expect(result.userRoles).toEqual([]);
       expect(result.roleGroups).toEqual([]);
       expect(result.userId).toBeUndefined();
+    });
+
+    it('builds scopedAccess for entity-scoped roles, groups, and permissions', async () => {
+      const { adapter, userRoleRepo, userRoleGroupRepo, userPermissionRepo, cache } = buildAdapter();
+      cache.getOrSet.mockImplementation((_key: string, fn: () => Promise<unknown>) => fn());
+      userRoleRepo.resolveDirectPermissions.mockResolvedValue([
+        {
+          roleKey: 'coordinator',
+          permissionKeys: ['read:projects', 'update:project'],
+          entityId: 'proj-A',
+          entityType: 'project',
+        },
+        { roleKey: 'editor', permissionKeys: ['read:roles'] },
+      ]);
+      userRoleGroupRepo.resolveGroupPermissions.mockResolvedValue([
+        {
+          groupKey: 'field_team',
+          roleKeys: ['volunteer_coordinator'],
+          permissionKeys: ['update:project', 'read:donations'],
+          entityId: 'proj-A',
+          entityType: 'project',
+        },
+      ]);
+      userPermissionRepo.resolveDirectUserPermissions.mockResolvedValue([
+        { permissionKey: 'close:project', entityId: 'proj-A', entityType: 'project' },
+        { permissionKey: 'read:users' },
+      ]);
+
+      const result = await adapter.resolve('user|abc');
+
+      expect(result.permissions).toEqual(expect.arrayContaining(['read:roles', 'read:users']));
+      expect(result.permissions).not.toEqual(expect.arrayContaining(['read:projects', 'update:project']));
+      expect(result.userRoles).toEqual(['editor']);
+      expect(result.roleGroups).toEqual([]);
+      expect(result.scopedAccess).toEqual([
+        {
+          entityId: 'proj-A',
+          entityType: 'project',
+          userRoles: ['coordinator', 'volunteer_coordinator'],
+          roleGroups: ['field_team'],
+          permissions: ['read:projects', 'update:project', 'read:donations', 'close:project'],
+        },
+      ]);
+    });
+
+    it('creates a scopedAccess entry from a first-time entity-scoped grant without throwing', async () => {
+      const { adapter, userRoleRepo, userRoleGroupRepo, cache } = buildAdapter();
+      cache.getOrSet.mockImplementation((_key: string, fn: () => Promise<unknown>) => fn());
+      userRoleRepo.resolveDirectPermissions.mockResolvedValue([
+        {
+          roleKey: 'coordinator',
+          permissionKeys: ['read:projects'],
+          entityId: 'proj-B',
+          entityType: 'project',
+        },
+      ]);
+      userRoleGroupRepo.resolveGroupPermissions.mockResolvedValue([]);
+
+      await expect(adapter.resolve('user|abc')).resolves.toMatchObject({
+        scopedAccess: [
+          {
+            entityId: 'proj-B',
+            entityType: 'project',
+            userRoles: ['coordinator'],
+            permissions: ['read:projects'],
+            roleGroups: [],
+          },
+        ],
+      });
     });
   });
 

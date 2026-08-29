@@ -1,6 +1,11 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { EntityTypeForbiddenError, EntityAccessDeniedError, IEntityAccessPort } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  EntityTypeForbiddenError,
+  EntityAccessDeniedError,
+  IEntityAccessPort,
+  resolvePublicErrorMessage,
+} from '@nabarun-ngo/nestjs-shared-core';
 import { IDocumentEntityAccessPort } from '../../../domain/ports/entity-access.port';
 import { IDocumentRepository } from '../../../domain/repositories/document.repository';
 import { DMS2_OPTIONS } from '../../../infrastructure/dms-options.application-token';
@@ -36,7 +41,12 @@ export class ListDocumentsHandler implements IQueryHandler<ListDocumentsQuery, L
       });
     } catch (err) {
       if (err instanceof EntityTypeForbiddenError || err instanceof EntityAccessDeniedError) {
-        return { hasAccess: false, reason: err.errorCode, message: err.message, data: [] };
+        return {
+          hasAccess: false,
+          reason: err.errorCode,
+          message: resolvePublicErrorMessage(err),
+          data: [],
+        };
       }
       throw err;
     }

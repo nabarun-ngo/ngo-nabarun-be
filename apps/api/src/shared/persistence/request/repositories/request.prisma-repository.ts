@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Page } from '@nabarun-ngo/nestjs-shared-core';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { Prisma, PrismaClient } from '../../prisma/client';
 import { RequestStatus } from '../../../../modules/request/domain/enums/request-status.enum';
 import {
@@ -20,11 +20,15 @@ import {
 } from '../mappers/request-prisma.mapper';
 
 @Injectable()
-export class RequestPrismaRepository implements IRequestRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) {}
+export class RequestPrismaRepository
+  extends PrismaRepositoryBase<PrismaClient, 'request'>
+  implements IRequestRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'request');
+  }
 
   async create(data: CreateRequestPersistence): Promise<RequestRecord> {
-    const row = await this.database.client.request.create({
+    const row = await this.delegate.create({
       data: {
         id: data.id,
         type: data.type,
@@ -48,7 +52,7 @@ export class RequestPrismaRepository implements IRequestRepository {
   }
 
   async findById(id: string, includeEvents = false): Promise<RequestRecord | null> {
-    const row = await this.database.client.request.findUnique({
+    const row = await this.delegate.findUnique({
       where: { id },
       include: includeEvents ? requestIncludeWithEvents : requestIncludeUsers,
     });
@@ -61,7 +65,7 @@ export class RequestPrismaRepository implements IRequestRepository {
     pageSize: number,
   ): Promise<Page<RequestRecord>> {
     const where = this.whereQuery(filter);
-    const total = await this.database.client.request.count({ where });
+    const total = await this.delegate.count({ where });
 
     let rows: Prisma.RequestGetPayload<{ include: typeof requestIncludeUsers }>[];
 
@@ -70,7 +74,7 @@ export class RequestPrismaRepository implements IRequestRepository {
       if (!orderedIds.length) {
         rows = [];
       } else {
-        const fetched = await this.database.client.request.findMany({
+        const fetched = await this.delegate.findMany({
           where: { id: { in: orderedIds } },
           include: requestIncludeUsers,
         });
@@ -78,7 +82,7 @@ export class RequestPrismaRepository implements IRequestRepository {
         rows = orderedIds.map((id) => byId.get(id)!).filter(Boolean);
       }
     } else {
-      rows = await this.database.client.request.findMany({
+      rows = await this.delegate.findMany({
         where,
         include: requestIncludeUsers,
         orderBy: { createdAt: 'desc' },
@@ -113,7 +117,7 @@ export class RequestPrismaRepository implements IRequestRepository {
     if (patch.completedAt !== undefined) data.completedAt = patch.completedAt;
     if (patch.decisionNote !== undefined) data.decisionNote = patch.decisionNote;
 
-    const row = await this.database.client.request.update({
+    const row = await this.delegate.update({
       where: { id },
       data,
       include: requestIncludeUsers,
@@ -122,7 +126,7 @@ export class RequestPrismaRepository implements IRequestRepository {
   }
 
   async appendEvent(input: AppendRequestEventInput): Promise<RequestEvent> {
-    const row = await this.database.client.requestEvent.create({
+    const row = await this.client.requestEvent.create({
       data: {
         requestId: input.requestId,
         type: input.type,
@@ -145,7 +149,7 @@ export class RequestPrismaRepository implements IRequestRepository {
     actorGroups: string[],
     actorPermissions: string[],
   ): Promise<number> {
-    return this.database.client.request.count({
+    return this.delegate.count({
       where: this.inboxWhere(actorRoles, actorGroups, actorPermissions),
     });
   }
@@ -158,7 +162,7 @@ export class RequestPrismaRepository implements IRequestRepository {
     const where = this.whereQuery(filter);
     // Fetch candidates then apply priority sort in memory within the page window.
     // Inbox sizes are expected to stay modest; priority = assigned-to-me at PendingForApproval.
-    const candidates = await this.database.client.request.findMany({
+    const candidates = await this.delegate.findMany({
       where,
       select: { id: true, status: true, assigneeId: true, createdAt: true },
       orderBy: { createdAt: 'desc' },

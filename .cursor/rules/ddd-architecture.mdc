@@ -26,7 +26,8 @@ Domain never imports Application, Infrastructure, or Presentation.
 - Invariants throw typed errors extending `BusinessError`
 - Child entities extend `BaseDomain<T>` — no repository, no events
 - Value objects immutable, equality by value; repos/ports are interfaces only
-- Handlers inject via token; Prisma repo implements domain interface + five mapping hooks
+- Handlers inject via token; Prisma **standard CRUD** repos **must** extend `PrismaCrudRepositoryBase` (never reimplement `findById` / `findAll` / `findPaged` / `create` / `update` / `delete` / `count` by hand)
+- Prisma constructor: `BasePrismaService<PrismaClient>` + `super(database, '<generatedDelegateKey>')`; use `this.delegate` / `this.client` — never an untyped proxy or stale model names
 
 ## Cross-module access
 

@@ -20,8 +20,12 @@ model UserProfile {
   // Profile
   dateOfBirth DateTime?
   gender      String?   @db.VarChar(10)
+  bloodGroup  String?   @db.VarChar(8)
   about       String?   @db.Text
   picture     String?   @db.Text
+
+  // Lifetime membership number (NM + 8 digits). Never cleared or reassigned.
+  uniqueMemberId String? @unique @db.VarChar(10)
 
   // Denormalized active Auth role keys (source of truth remains auth_user_role)
   roleKeys String[] @default([])

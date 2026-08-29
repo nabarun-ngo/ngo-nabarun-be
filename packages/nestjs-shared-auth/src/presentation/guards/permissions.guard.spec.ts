@@ -20,11 +20,22 @@ function makeContext(user: AuthUser | undefined) {
   };
 }
 
+function jwtUser(overrides: Partial<AuthUser> = {}): AuthUser {
+  return {
+    type: 'jwt',
+    idpSub: 'user|abc',
+    permissions: [],
+    userRoles: [],
+    roleGroups: [],
+    ...overrides,
+  };
+}
+
 describe('PermissionsGuard', () => {
   it('returns true when no permissions metadata is set', () => {
     const reflector = makeReflector(undefined);
     const guard = new PermissionsGuard(reflector as any);
-    const user: AuthUser = { type: 'jwt', idpSub: 'user|abc' };
+    const user = jwtUser();
 
     const result = guard.canActivate(makeContext(user) as any);
 
@@ -34,7 +45,7 @@ describe('PermissionsGuard', () => {
   it('returns true when the required list is empty', () => {
     const reflector = makeReflector([]);
     const guard = new PermissionsGuard(reflector as any);
-    const user: AuthUser = { type: 'jwt', idpSub: 'user|abc' };
+    const user = jwtUser();
 
     const result = guard.canActivate(makeContext(user) as any);
 
@@ -44,7 +55,7 @@ describe('PermissionsGuard', () => {
   it('returns true when the user has at least one required permission', () => {
     const reflector = makeReflector(['read:roles', 'delete:api_keys']);
     const guard = new PermissionsGuard(reflector as any);
-    const user: AuthUser = { type: 'jwt', idpSub: 'user|abc', permissions: ['read:roles'] };
+    const user = jwtUser({ permissions: ['read:roles'] });
 
     const result = guard.canActivate(makeContext(user) as any);
 
@@ -54,7 +65,7 @@ describe('PermissionsGuard', () => {
   it('returns false when the user has none of the required permissions', () => {
     const reflector = makeReflector(['delete:api_keys']);
     const guard = new PermissionsGuard(reflector as any);
-    const user: AuthUser = { type: 'jwt', idpSub: 'user|abc', permissions: ['read:roles'] };
+    const user = jwtUser({ permissions: ['read:roles'] });
 
     const result = guard.canActivate(makeContext(user) as any);
 
@@ -64,7 +75,7 @@ describe('PermissionsGuard', () => {
   it('returns false when the user has no permissions array', () => {
     const reflector = makeReflector(['read:roles']);
     const guard = new PermissionsGuard(reflector as any);
-    const user: AuthUser = { type: 'jwt', idpSub: 'user|abc' };
+    const user = { type: 'jwt', idpSub: 'user|abc' } as AuthUser;
 
     const result = guard.canActivate(makeContext(user) as any);
 
@@ -83,7 +94,7 @@ describe('PermissionsGuard', () => {
   it('passes the correct metadata keys to reflector.getAllAndOverride', () => {
     const reflector = makeReflector(['read:roles']);
     const guard = new PermissionsGuard(reflector as any);
-    const user: AuthUser = { type: 'jwt', idpSub: 'user|abc', permissions: ['read:roles'] };
+    const user = jwtUser({ permissions: ['read:roles'] });
 
     guard.canActivate(makeContext(user) as any);
 

@@ -7,6 +7,7 @@ import { PaymentMethod } from '../../domain/enums/payment-method.enum';
 import { UPIPaymentType } from '../../domain/enums/upi-payment-type.enum';
 import { AccountDetailDto } from './account.dto';
 import { FinanceUserDto } from '../../application/dtos/finance-user.dto';
+import { InvoiceSummaryDto } from '../../../invoice/application/dtos/invoice.dto';
 
 export class CreateDonationDto {
 
@@ -229,6 +230,9 @@ export class DonationDto {
 
   @ApiPropertyOptional({ description: 'Activity name this donation is for', example: 'Literacy Drive 2026' })
   activityName?: string;
+
+  @ApiPropertyOptional({ description: 'Issued donation receipt' })
+  invoice?: InvoiceSummaryDto;
 
 }
 

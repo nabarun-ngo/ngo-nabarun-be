@@ -1,84 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
+import { PrismaClient } from '../../prisma/client';
+import type {
+  ActivityWhereInput,
+  ActivityWhereUniqueInput,
+  ActivityUncheckedCreateInput,
+  ActivityUncheckedUpdateInput,
+  ActivityOrderByWithRelationInput,
+} from '../../prisma/models/Activity';
 import { Activity, ActivityFilter } from '../../../../modules/project/domain/aggregates/activity/activity.aggregate';
 import { IActivityRepository } from '../../../../modules/project/domain/repositories/activity.repository';
-import { ActivityPrismaMapper } from '../mapper/activity-prisma.mapper';
+import { ActivityPersistence, ActivityPrismaMapper } from '../mapper/activity-prisma.mapper';
+
+const ACTIVITY_RELATIONS = {
+  project: true,
+  assignee: true,
+  organizer: true,
+  parentActivity: true,
+} as const;
 
 @Injectable()
-export class ActivityPrismaRepository implements IActivityRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
-
-  async count(filter: ActivityFilter): Promise<number> {
-    return this.database.client.activity.count({ where: this.where(filter) });
+export class ActivityPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'activity',
+    Activity,
+    string,
+    ActivityFilter,
+    ActivityPersistence,
+    ActivityWhereInput,
+    ActivityWhereUniqueInput,
+    ActivityUncheckedCreateInput,
+    ActivityUncheckedUpdateInput,
+    ActivityOrderByWithRelationInput,
+    typeof ACTIVITY_RELATIONS
+  >
+  implements IActivityRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'activity');
   }
 
-  async findPaged(filter?: BaseFilter<ActivityFilter>): Promise<Page<Activity>> {
-    const where = this.where(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 20;
-    const [data, total] = await Promise.all([
-      this.database.client.activity.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        include: { project: true, assignee: true, organizer: true, parentActivity: true },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      this.database.client.activity.count({ where }),
-    ]);
-    return new Page(data.map((a) => ActivityPrismaMapper.toDomain(a)!), total, pageIndex, pageSize);
-  }
-
-  async findAll(filter?: ActivityFilter): Promise<Activity[]> {
-    const rows = await this.database.client.activity.findMany({
-      where: this.where(filter),
-      orderBy: { createdAt: 'desc' },
-      include: { project: true, assignee: true, organizer: true, parentActivity: true },
-    });
-    return rows.map((a) => ActivityPrismaMapper.toDomain(a)!);
-  }
-
-  async findById(id: string): Promise<Activity | null> {
-    const row = await this.database.client.activity.findUnique({
-      where: { id },
-      include: { project: true, assignee: true, organizer: true, parentActivity: true },
-    });
-    return ActivityPrismaMapper.toDomain(row);
-  }
-
-  async create(entity: Activity): Promise<Activity> {
-    const row = await this.database.client.activity.create({
-      data: ActivityPrismaMapper.toCreate(entity),
-      include: { project: true, assignee: true, organizer: true, parentActivity: true },
-    });
+  protected toDomain(row: ActivityPersistence): Activity {
     return ActivityPrismaMapper.toDomain(row)!;
   }
 
-  async update(id: string, entity: Activity): Promise<Activity> {
-    const row = await this.database.client.activity.update({
-      where: { id },
-      data: ActivityPrismaMapper.toUpdate(entity),
-      include: { project: true, assignee: true, organizer: true, parentActivity: true },
-    });
-    return ActivityPrismaMapper.toDomain(row)!;
+  protected toCreateInput(entity: Activity): ActivityUncheckedCreateInput {
+    return ActivityPrismaMapper.toCreate(entity);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.activity.update({ where: { id }, data: { deletedAt: new Date() } });
+  protected toUpdateInput(_id: string, entity: Activity): ActivityUncheckedUpdateInput {
+    return ActivityPrismaMapper.toUpdate(entity);
   }
 
-  async findRecentSummariesByProjectId(projectId: string, limit: number) {
-    return this.database.client.activity.findMany({
-      where: { projectId, deletedAt: null },
-      orderBy: { updatedAt: 'desc' },
-      take: limit,
-      select: { id: true, name: true, status: true, scale: true },
-    });
+  protected toUniqueWhere(id: string): ActivityWhereUniqueInput {
+    return { id };
   }
 
-  private where(props?: ActivityFilter): Prisma.ActivityWhereInput {
+  protected toFilterWhere(props?: ActivityFilter): ActivityWhereInput {
     return {
       ...(props?.projectId ? { projectId: props.projectId } : {}),
       ...(props?.scale ? { scale: props.scale } : {}),
@@ -89,5 +67,47 @@ export class ActivityPrismaRepository implements IActivityRepository {
       ...(props?.parentActivityId ? { parentActivityId: props.parentActivityId } : {}),
       deletedAt: null,
     };
+  }
+
+  protected override defaultOrderBy(): ActivityOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected override toInclude(): typeof ACTIVITY_RELATIONS {
+    return ACTIVITY_RELATIONS;
+  }
+
+  protected override defaultPageSize(): number {
+    return 20;
+  }
+
+  async findRecentSummariesByProjectId(projectId: string, limit: number) {
+    return this.delegate.findMany({
+      where: { projectId, deletedAt: null },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+      select: { id: true, name: true, status: true, scale: true },
+    });
+  }
+
+  override async create(entity: Activity): Promise<Activity> {
+    const row = await this.delegate.create({
+      data: ActivityPrismaMapper.toCreate(entity),
+      include: ACTIVITY_RELATIONS,
+    });
+    return ActivityPrismaMapper.toDomain(row)!;
+  }
+
+  override async update(id: string, entity: Activity): Promise<Activity> {
+    const row = await this.delegate.update({
+      where: { id },
+      data: ActivityPrismaMapper.toUpdate(entity),
+      include: ACTIVITY_RELATIONS,
+    });
+    return ActivityPrismaMapper.toDomain(row)!;
+  }
+
+  override async delete(id: string): Promise<void> {
+    await this.delegate.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 }

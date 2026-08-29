@@ -3,6 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UploadDocumentCommand } from '../commands/upload-document/upload-document.command';
 import { DeleteDocumentCommand } from '../commands/delete-document/delete-document.command';
 import { ListDocumentsQuery } from '../queries/list-documents/list-documents.query';
+import { DownloadDocumentQuery } from '../queries/download-document/download-document.query';
 import { DocumentResponseDto } from '../../presentation/dtos/document-response.dto';
 
 /**
@@ -56,5 +57,24 @@ export class DmsFacade {
     return this.commandBus.execute(
       new DeleteDocumentCommand(documentId, userId, userPermissions),
     );
+  }
+
+  async download(
+    documentId: string,
+    userId: string,
+    userPermissions: string[],
+  ): Promise<{ fileName: string; contentType: string; buffer: Buffer }> {
+    const result = await this.queryBus.execute(
+      new DownloadDocumentQuery(documentId, userId, userPermissions),
+    );
+    const chunks: Buffer[] = [];
+    for await (const chunk of result.stream) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    return {
+      fileName: result.fileName,
+      contentType: result.contentType,
+      buffer: Buffer.concat(chunks),
+    };
   }
 }

@@ -15,6 +15,8 @@ import { DonorType } from '../../domain/enums/donor-type.enum';
 import { DonationMapper } from '../mappers/donation.mapper';
 import { buildDonationDonorEnrichment } from '../mappers/donation-donor-display.helper';
 import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
+import { InvoiceEntityType } from '../../../invoice/domain/enums/invoice-entity-type.enum';
+import { InvoiceFacade } from '../../../invoice/application/services/invoice.facade';
 
 @Injectable()
 @CorrespondenceEventResolver()
@@ -28,6 +30,7 @@ export class DonationPaidCorrespondenceResolver
     private readonly donationRepository: IDonationRepository,
     @Inject(IDonorRepository)
     private readonly donorRepository: IDonorRepository,
+    private readonly invoiceFacade: InvoiceFacade,
   ) { }
 
   async resolve(event: DonationPaidEvent): Promise<NotificationSpec[] | null> {
@@ -56,10 +59,31 @@ export class DonationPaidCorrespondenceResolver
       donation.confirmedBy as FinanceUserRef | undefined,
     );
 
+    const invoice = await this.invoiceFacade.findIssuedByEntity(
+      InvoiceEntityType.DONATION,
+      donation.id,
+    );
+    const attachments: Array<{ filename: string; content: string; contentType?: string }> = [];
+    if (invoice?.documentId) {
+      const file = await this.invoiceFacade.downloadDocument(invoice.documentId);
+      attachments.push({
+        filename: file.fileName,
+        content: file.buffer.toString('base64'),
+        contentType: file.contentType,
+      });
+    }
+
     const email = {
       templateKey: EmailTemplateKey.DonationPaid,
-      templateData: { donation: donationDto, donationPeriod, paidOn, confirmedByName },
+      templateData: {
+        donation: donationDto,
+        donationPeriod,
+        paidOn,
+        confirmedByName,
+        invoiceId: invoice?.id,
+      },
       overrideEmails: enrichment?.donorEmail ? [enrichment.donorEmail] : undefined,
+      attachments: attachments.length ? attachments : undefined,
     };
 
     if (donor.type === DonorType.GUEST || !donor.userProfileId) {

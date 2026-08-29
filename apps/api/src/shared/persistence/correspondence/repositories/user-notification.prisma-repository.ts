@@ -1,100 +1,71 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BasePrismaService,
+  PrismaCrudRepositoryBase,
+} from '@nabarun-ngo/nestjs-shared-persistence';
 import { UserNotification, UserNotificationFilter } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/user-notification.aggregate';
 import { IUserNotificationRepository } from '@nabarun-ngo/nestjs-shared-correspondence/domain/repositories/user-notification.repository';
+import type { PrismaClient } from '../../prisma/client';
+import type {
+  CorrespondenceUserNotificationModel,
+  CorrespondenceUserNotificationWhereInput,
+  CorrespondenceUserNotificationWhereUniqueInput,
+  CorrespondenceUserNotificationCreateInput,
+  CorrespondenceUserNotificationUncheckedCreateInput,
+  CorrespondenceUserNotificationUpdateInput,
+  CorrespondenceUserNotificationUncheckedUpdateInput,
+  CorrespondenceUserNotificationOrderByWithRelationInput,
+} from '../../prisma/models/CorrespondenceUserNotification';
 
 @Injectable()
-export class UserNotificationPrismaRepository implements IUserNotificationRepository {
-  constructor(private readonly prisma: BasePrismaService) { }
-
-  async create(entity: UserNotification): Promise<UserNotification> {
-    const row = await (this.prisma).corr2UserNotification.create({
-      data: this.toCreateData(entity),
-    });
-    return this.toDomain(row);
-  }
-
-  async update(id: string, entity: UserNotification): Promise<UserNotification> {
-    const row = await (this.prisma).corr2UserNotification.update({
-      where: { id },
-      data: {
-        isRead: entity.isRead,
-        readAt: entity.readAt ?? null,
-        isArchived: entity.isArchived,
-        archivedAt: entity.archivedAt ?? null,
-        isPushSent: entity.isPushSent,
-        pushSentAt: entity.pushSentAt ?? null,
-        pushDelivered: entity.pushDelivered,
-        pushError: entity.pushError ?? null,
-        updatedAt: entity.updatedAt,
-      },
-    });
-    return this.toDomain(row);
-  }
-
-  async delete(id: string): Promise<void> {
-    await (this.prisma).corr2UserNotification.delete({ where: { id } });
-  }
-
-  async findById(id: string): Promise<UserNotification | null> {
-    const row = await (this.prisma).corr2UserNotification.findUnique({ where: { id } });
-    return row ? this.toDomain(row) : null;
+export class UserNotificationPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'correspondenceUserNotification',
+    UserNotification,
+    string,
+    UserNotificationFilter,
+    CorrespondenceUserNotificationModel,
+    CorrespondenceUserNotificationWhereInput,
+    CorrespondenceUserNotificationWhereUniqueInput,
+    ({} & CorrespondenceUserNotificationCreateInput) | ({} & CorrespondenceUserNotificationUncheckedCreateInput),
+    ({} & CorrespondenceUserNotificationUpdateInput) | ({} & CorrespondenceUserNotificationUncheckedUpdateInput),
+    CorrespondenceUserNotificationOrderByWithRelationInput
+  >
+  implements IUserNotificationRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'correspondenceUserNotification');
   }
 
   async findByUserAndNotification(
     userId: string,
     notificationId: string,
   ): Promise<UserNotification | null> {
-    const row = await (this.prisma).corr2UserNotification.findFirst({
+    const row = await this.delegate.findFirst({
       where: { userId, notificationId },
     });
     return row ? this.toDomain(row) : null;
   }
 
-  async findAll(filter?: UserNotificationFilter): Promise<UserNotification[]> {
-    const rows = await (this.prisma).corr2UserNotification.findMany({
-      where: this.buildWhere(filter),
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map((r: any) => this.toDomain(r));
-  }
-
-  async findPaged(filter?: BaseFilter<UserNotificationFilter>): Promise<Page<UserNotification>> {
-    const where = this.buildWhere(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 50;
-    const [rows, total] = await Promise.all([
-      (this.prisma).corr2UserNotification.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      (this.prisma).corr2UserNotification.count({ where }),
-    ]);
-    return new Page(rows.map((r: any) => this.toDomain(r)), total, pageIndex, pageSize);
-  }
-
-  async count(filter: UserNotificationFilter): Promise<number> {
-    return (this.prisma).corr2UserNotification.count({ where: this.buildWhere(filter) });
-  }
-
   async countUnread(userId: string): Promise<number> {
-    return (this.prisma).corr2UserNotification.count({
+    return this.delegate.count({
       where: { userId, isRead: false, isArchived: false },
     });
   }
 
   async markAllReadForUser(userId: string): Promise<void> {
     const now = new Date();
-    await (this.prisma).corr2UserNotification.updateMany({
+    await this.delegate.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true, readAt: now, updatedAt: now },
     });
   }
 
-  private buildWhere(filter?: UserNotificationFilter): Record<string, any> {
+  protected toUniqueWhere(id: string): CorrespondenceUserNotificationWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(filter?: UserNotificationFilter): CorrespondenceUserNotificationWhereInput {
     if (!filter) return {};
     return {
       ...(filter.userId ? { userId: filter.userId } : {}),
@@ -114,7 +85,9 @@ export class UserNotificationPrismaRepository implements IUserNotificationReposi
     };
   }
 
-  private toCreateData(entity: UserNotification): Record<string, any> {
+  protected toCreateInput(
+    entity: UserNotification,
+  ): ({} & CorrespondenceUserNotificationCreateInput) | ({} & CorrespondenceUserNotificationUncheckedCreateInput) {
     return {
       id: entity.id,
       notificationId: entity.notificationId,
@@ -128,7 +101,32 @@ export class UserNotificationPrismaRepository implements IUserNotificationReposi
     };
   }
 
-  private toDomain(row: any): UserNotification {
+  protected toUpdateInput(
+    _id: string,
+    entity: UserNotification,
+  ): ({} & CorrespondenceUserNotificationUpdateInput) | ({} & CorrespondenceUserNotificationUncheckedUpdateInput) {
+    return {
+      isRead: entity.isRead,
+      readAt: entity.readAt ?? null,
+      isArchived: entity.isArchived,
+      archivedAt: entity.archivedAt ?? null,
+      isPushSent: entity.isPushSent,
+      pushSentAt: entity.pushSentAt ?? null,
+      pushDelivered: entity.pushDelivered,
+      pushError: entity.pushError ?? null,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
+  protected defaultOrderBy(): CorrespondenceUserNotificationOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected defaultPageSize(): number {
+    return 50;
+  }
+
+  protected toDomain(row: CorrespondenceUserNotificationModel): UserNotification {
     return new UserNotification(row.id, row.notificationId, row.userId, {
       isRead: row.isRead,
       readAt: row.readAt ?? undefined,

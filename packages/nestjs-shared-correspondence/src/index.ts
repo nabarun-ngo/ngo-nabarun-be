@@ -8,6 +8,15 @@ export type {
 export { CORRESPONDENCE_OPTIONS } from './correspondence-options.token';
 export type { ResourceTypeConfig } from './correspondence.schema';
 
+// ── Email layout branding (host app supplies the look & feel) ────────────────
+export {
+  EmailThemeSchema,
+  DEFAULT_EMAIL_THEME,
+  resolveEmailTheme,
+  type EmailThemeOptions,
+  type ResolvedEmailTheme,
+} from './email-theme';
+
 // ── Shared correspondence vocabulary (recipient + channel types) ─────────────
 export {
   type CorrespondenceRecipients,

@@ -81,6 +81,27 @@ export const UserModuleOptionsSchema = z.object({
    * so Auth0 can redirect back after the hosted reset completes.
    */
   appFeUrl: z.string().url(),
+  /** Public API origin used on identity-card QR codes (verify URL). */
+  publicApiUrl: z.string().url(),
+  /** Organisation name printed on the identity card header. */
+  organisationName: z.string().min(1).default('Member'),
+  /** Society/NGO registration number printed under the organisation name. */
+  organisationRegistrationNumber: z.string().min(1).optional(),
+  /**
+   * Optional organisation logo on the identity card header.
+   * Must be a `data:image/(jpeg|jpg|png|webp);base64,...` value. Remote http(s)
+   * URLs are stripped so the printer never fetches an external asset.
+   */
+  organisationLogoDataUrl: z
+    .string()
+    .optional()
+    .transform((value) => {
+      const trimmed = value?.trim();
+      if (!trimmed) return undefined;
+      if (/^https?:/i.test(trimmed)) return undefined;
+      if (!/^data:image\/(jpeg|jpg|png|webp);base64,/i.test(trimmed)) return undefined;
+      return trimmed;
+    }),
   /** Default role keys to grant on admin user create (via Auth GrantUserRoleCommand). */
   defaultRoleKeys: z.array(z.string()).optional().default([]),
 });

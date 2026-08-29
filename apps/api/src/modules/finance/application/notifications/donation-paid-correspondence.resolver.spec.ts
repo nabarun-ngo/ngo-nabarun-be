@@ -7,18 +7,25 @@ import { EmailTemplateKey } from '../../../../shared/enums/email-template-key';
 import { Donor } from '../../domain/aggregates/donor/donor.aggregate';
 import { DonorType } from '../../domain/enums/donor-type.enum';
 import { DonorStatus } from '../../domain/enums/donor-status.enum';
+import { InvoiceFacade } from '../../../invoice/application/services/invoice.facade';
 
 describe('DonationPaidCorrespondenceResolver', () => {
   let donationRepo: jest.Mocked<Pick<IDonationRepository, 'findById'>>;
   let donorRepo: jest.Mocked<Pick<IDonorRepository, 'findById'>>;
+  let invoiceFacade: jest.Mocked<Pick<InvoiceFacade, 'findIssuedByEntity' | 'downloadDocument'>>;
   let resolver: DonationPaidCorrespondenceResolver;
 
   beforeEach(() => {
     donationRepo = { findById: jest.fn() };
     donorRepo = { findById: jest.fn() };
+    invoiceFacade = {
+      findIssuedByEntity: jest.fn().mockResolvedValue(null),
+      downloadDocument: jest.fn(),
+    };
     resolver = new DonationPaidCorrespondenceResolver(
       donationRepo as unknown as IDonationRepository,
       donorRepo as unknown as IDonorRepository,
+      invoiceFacade as unknown as InvoiceFacade,
     );
     jest.spyOn(DonationMapper, 'toDto').mockReturnValue({ id: 'd1' } as any);
   });

@@ -88,6 +88,7 @@ export const ModelName = {
   Transaction: 'Transaction',
   Expense: 'Expense',
   Earning: 'Earning',
+  Invoice: 'Invoice',
   JsonStoreDocument: 'JsonStoreDocument',
   Meeting: 'Meeting',
   Project: 'Project',
@@ -819,6 +820,27 @@ export const EarningScalarFieldEnum = {
 export type EarningScalarFieldEnum = (typeof EarningScalarFieldEnum)[keyof typeof EarningScalarFieldEnum]
 
 
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  status: 'status',
+  amount: 'amount',
+  currency: 'currency',
+  issuedOn: 'issuedOn',
+  voidedOn: 'voidedOn',
+  voidReason: 'voidReason',
+  documentId: 'documentId',
+  supersededByInvoiceId: 'supersededByInvoiceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  version: 'version',
+  deletedAt: 'deletedAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
 export const JsonStoreDocumentScalarFieldEnum = {
   id: 'id',
   key: 'key',
@@ -1106,8 +1128,10 @@ export const UserProfileScalarFieldEnum = {
   lastName: 'lastName',
   dateOfBirth: 'dateOfBirth',
   gender: 'gender',
+  bloodGroup: 'bloodGroup',
   about: 'about',
   picture: 'picture',
+  uniqueMemberId: 'uniqueMemberId',
   roleKeys: 'roleKeys',
   status: 'status',
   isPublic: 'isPublic',

@@ -14,7 +14,7 @@ export class GetJobDetailsHandler
 
   async execute({ jobId }: GetJobDetailsQuery): Promise<JobDetail> {
     const job = await this.processing.getJob(jobId);
-    if (!job) throw new BusinessError(`Job not found with id ${jobId}`);
+    if (!job) throw new BusinessError(`Job not found with id ${jobId}`, 'JOB_NOT_FOUND', 404);
     const { logs } = await this.processing.getJobLogs(jobId);
     return QueueJobResponseMapper.toJobDetail(job as any, logs);
   }

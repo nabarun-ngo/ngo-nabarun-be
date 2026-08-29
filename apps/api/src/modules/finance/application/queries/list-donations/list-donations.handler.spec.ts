@@ -2,6 +2,7 @@ import type { IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 import type { IDonationRepository } from '../../../domain/repositories/donation.repository';
 import type { IDonorRepository } from '../../../domain/repositories/donor.repository';
 import { DonorType } from '../../../domain/enums/donor-type.enum';
+import { InvoiceFacade } from '../../../../invoice/application/services/invoice.facade';
 import { ListDonationsHandler } from './list-donations.handler';
 import { ListDonationsQuery } from './list-donations.query';
 
@@ -15,6 +16,9 @@ describe('ListDonationsHandler', () => {
   };
   const userLookup = {
     findByIds: jest.fn(),
+  };
+  const invoiceFacade = {
+    findIssuedByEntities: jest.fn().mockResolvedValue([]),
   };
 
   beforeEach(() => {
@@ -35,6 +39,7 @@ describe('ListDonationsHandler', () => {
       donationRepository as unknown as IDonationRepository,
       donorRepository as unknown as IDonorRepository,
       userLookup as unknown as IUserLookupPort,
+      invoiceFacade as unknown as InvoiceFacade,
     );
 
     await handler.execute(new ListDonationsQuery({ isGuest }));
@@ -51,6 +56,7 @@ describe('ListDonationsHandler', () => {
       donationRepository as unknown as IDonationRepository,
       donorRepository as unknown as IDonorRepository,
       userLookup as unknown as IUserLookupPort,
+      invoiceFacade as unknown as InvoiceFacade,
     );
 
     await handler.execute(new ListDonationsQuery({ forEventId: 'activity-1' }));

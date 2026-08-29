@@ -104,6 +104,7 @@ export class CorrespondenceOrchestrator {
         ccAddresses: resolved.emailCc,
         sendEmail: !!email?.templateKey && resolved.emailTo.length > 0,
         sendPush: (push?.enabled ?? false) && resolved.pushUserIds.length > 0,
+        attachments: email?.attachments,
       });
 
       this.logger.log(

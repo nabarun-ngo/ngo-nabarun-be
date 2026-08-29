@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { Prisma, PrismaClient } from '../../prisma/client';
+import type {
+  ReportWhereInput,
+  ReportWhereUniqueInput,
+  ReportCreateInput,
+  ReportUpdateInput,
+  ReportOrderByWithRelationInput,
+} from '../../prisma/models/Report';
 import { Report, ReportFilter } from '../../../../modules/reporting/domain/aggregates/report/report.aggregate';
 import { IReportRepository } from '../../../../modules/reporting/domain/repositories/report.repository';
 import { ReportPrismaMapper } from '../mappers/report-prisma.mapper';
@@ -11,79 +17,84 @@ const includeUsers = {
   approvedBy: { select: { id: true, firstName: true, lastName: true } },
 } as const;
 
+export type ReportPersistence = Prisma.ReportGetPayload<{
+  include: {
+    requestedBy: { select: { id: true; firstName: true; lastName: true } };
+    approvedBy: { select: { id: true; firstName: true; lastName: true } };
+  };
+}>;
+
 @Injectable()
-export class ReportPrismaRepository implements IReportRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
-
-  async count(filter?: ReportFilter): Promise<number> {
-    return this.database.client.report.count({ where: this.whereQuery(filter) });
+export class ReportPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'report',
+    Report,
+    string,
+    ReportFilter,
+    ReportPersistence,
+    ReportWhereInput,
+    ReportWhereUniqueInput,
+    ReportCreateInput,
+    ReportUpdateInput,
+    ReportOrderByWithRelationInput,
+    typeof includeUsers
+  >
+  implements IReportRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'report');
   }
 
-  async findAll(filter?: ReportFilter): Promise<Report[]> {
-    const rows = await this.database.client.report.findMany({
-      where: this.whereQuery(filter),
-      include: includeUsers,
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map((row) => ReportPrismaMapper.toDomain(row)!);
+  protected toDomain(row: ReportPersistence): Report {
+    return ReportPrismaMapper.toDomain(row)!;
   }
 
-  async findById(id: string): Promise<Report | null> {
-    const row = await this.database.client.report.findUnique({
-      where: { id },
-      include: includeUsers,
-    });
-    return ReportPrismaMapper.toDomain(row);
+  protected toCreateInput(entity: Report): ReportCreateInput {
+    return ReportPrismaMapper.toCreatePersistence(entity);
   }
 
-  async findPaged(filter?: BaseFilter<ReportFilter>): Promise<Page<Report>> {
-    const where = this.whereQuery(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 20;
-    const [rows, total] = await Promise.all([
-      this.database.client.report.findMany({
-        where,
-        include: includeUsers,
-        orderBy: { createdAt: 'desc' },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      this.database.client.report.count({ where }),
-    ]);
-    return new Page(
-      rows.map((row) => ReportPrismaMapper.toDomain(row)!),
-      total,
-      pageIndex,
-      pageSize,
-    );
+  protected toUpdateInput(_id: string, entity: Report): ReportUpdateInput {
+    return ReportPrismaMapper.toUpdatePersistence(entity);
   }
 
-  async create(entity: Report): Promise<Report> {
-    const created = await this.database.client.report.create({
+  protected toUniqueWhere(id: string): ReportWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(filter?: ReportFilter): ReportWhereInput {
+    return {
+      ...(filter?.reportCode ? { reportCode: filter.reportCode } : {}),
+      ...(filter?.status?.length ? { status: { in: filter.status } } : {}),
+      ...(filter?.requestedById ? { requestedById: filter.requestedById } : {}),
+    };
+  }
+
+  protected override defaultOrderBy(): ReportOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected override toInclude(): typeof includeUsers {
+    return includeUsers;
+  }
+
+  protected override defaultPageSize(): number {
+    return 20;
+  }
+
+  override async create(entity: Report): Promise<Report> {
+    const created = await this.delegate.create({
       data: ReportPrismaMapper.toCreatePersistence(entity),
       include: includeUsers,
     });
     return ReportPrismaMapper.toDomain(created)!;
   }
 
-  async update(id: string, entity: Report): Promise<Report> {
-    const updated = await this.database.client.report.update({
+  override async update(id: string, entity: Report): Promise<Report> {
+    const updated = await this.delegate.update({
       where: { id },
       data: ReportPrismaMapper.toUpdatePersistence(entity),
       include: includeUsers,
     });
     return ReportPrismaMapper.toDomain(updated)!;
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.database.client.report.delete({ where: { id } });
-  }
-
-  private whereQuery(filter?: ReportFilter): Prisma.ReportWhereInput {
-    return {
-      ...(filter?.reportCode ? { reportCode: filter.reportCode } : {}),
-      ...(filter?.status?.length ? { status: { in: filter.status } } : {}),
-      ...(filter?.requestedById ? { requestedById: filter.requestedById } : {}),
-    };
   }
 }

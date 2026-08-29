@@ -3,15 +3,18 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
   Post,
   Put,
   Query,
+  Res,
+  StreamableFile,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
@@ -22,6 +25,7 @@ import {
   ApiStringQuery,
   ApiUuidParam,
 } from '@nabarun-ngo/nestjs-shared-core';
+import type { Response } from 'express';
 
 import { CreateUserCommand } from '../../application/commands/create-user/create-user.command';
 import { UpdateUserProfileCommand } from '../../application/commands/update-user-profile/update-user-profile.command';
@@ -49,6 +53,10 @@ import { UpdateUserProfileDto } from '../dtos/update-user-profile.dto';
 import { UpdateUserAdminDto } from '../dtos/update-user-admin.dto';
 import { ListUsersQueryDto } from '../dtos/list-users.dto';
 import { GrantConnectionDto } from '../dtos/grant-connection.dto';
+import { IssueIdentityCardDto } from '../dtos/issue-identity-card.dto';
+import { IssueIdentityCardCommand } from '../../application/commands/issue-identity-card/issue-identity-card.command';
+import { GetIdentityCardPdfQuery } from '../../application/queries/get-identity-card-pdf/get-identity-card-pdf.query';
+import { IdentityCardPdfResult } from '../../application/dtos/identity-card.dto';
 
 /**
  * IMPORTANT: Static/parameterless routes (/profile/me, /static/referenceData,
@@ -76,6 +84,20 @@ export class UserController {
     return this.queryBus.execute(
       new GetMyProfileQuery({ userId: user.userId, idpSub: user.idpSub }),
     );
+  }
+
+  @Get('profile/me/identity-card/pdf')
+  @ApiOperation({ summary: 'Download the authenticated member identity-card PDF' })
+  @ApiProduces('application/pdf')
+  @Header('Cache-Control', 'no-store')
+  async getMyIdentityCardPdf(
+    @CurrentUser() user: AuthUser,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const result = await this.queryBus.execute(
+      new GetIdentityCardPdfQuery(requireUserId(user)),
+    );
+    return sendIdentityCardPdf(res, result);
   }
 
   @Get('me/overview-metrics')
@@ -111,6 +133,7 @@ export class UserController {
           lastName: dto.lastName,
           dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
           gender: dto.gender,
+          bloodGroup: dto.bloodGroup,
           about: dto.about,
           picture: dto.picture,
           isPublic: dto.isPublic,
@@ -183,6 +206,7 @@ export class UserController {
         middleName: dto.middleName,
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
         gender: dto.gender,
+        bloodGroup: dto.bloodGroup,
         about: dto.about,
         picture: dto.picture,
         isPublic: dto.isPublic,
@@ -212,6 +236,40 @@ export class UserController {
         query.sortDir,
       ),
     );
+  }
+
+  // ── Identity card (/:id/identity-card — before plain /:id) ────────────────
+
+  @Post(':id/identity-card')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermissions('create:identity_cards')
+  @ApiOperation({ summary: 'Print a member identity-card PDF' })
+  @ApiUuidParam('id', 'Identifier of the user')
+  @ApiProduces('application/pdf')
+  @Header('Cache-Control', 'no-store')
+  async issueIdentityCard(
+    @Param('id') id: string,
+    @Body() dto: IssueIdentityCardDto = new IssueIdentityCardDto(),
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const result = await this.commandBus.execute(
+      new IssueIdentityCardCommand({ userId: id, pictureDataUrl: dto?.pictureDataUrl }),
+    );
+    return sendIdentityCardPdf(res, result);
+  }
+
+  @Get(':id/identity-card/pdf')
+  @RequirePermissions('read:identity_cards')
+  @ApiOperation({ summary: 'Reprint a member identity-card PDF' })
+  @ApiUuidParam('id', 'Identifier of the user')
+  @ApiProduces('application/pdf')
+  @Header('Cache-Control', 'no-store')
+  async getIdentityCardPdf(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const result = await this.queryBus.execute(new GetIdentityCardPdfQuery(id));
+    return sendIdentityCardPdf(res, result);
   }
 
   // ── Connection management (/:id/connections — before plain /:id) ──────────
@@ -318,4 +376,12 @@ export class UserController {
       new DeleteUserCommand({ userId: id, adminId: requireUserId(user) }),
     );
   }
+}
+
+function sendIdentityCardPdf(res: Response, result: IdentityCardPdfResult): StreamableFile {
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="${result.fileName}"`,
+  });
+  return new StreamableFile(result.buffer);
 }

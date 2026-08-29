@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { Prisma, PrismaClient } from '../../prisma/client';
+import type {
+  ExpenseWhereInput,
+  ExpenseWhereUniqueInput,
+  ExpenseUncheckedCreateInput,
+  ExpenseUncheckedUpdateInput,
+  ExpenseOrderByWithRelationInput,
+} from '../../prisma/models/Expense';
 import { IExpenseRepository, ExpenseFilter } from '../../../../modules/finance/domain/repositories/expense.repository';
 import { Expense } from '../../../../modules/finance/domain/aggregates/expense/expense.aggregate';
 import { ExpenseStatus } from '../../../../modules/finance/domain/enums/expense.enum';
@@ -22,69 +28,41 @@ export type ExpensePersistence = Prisma.ExpenseGetPayload<{
   }
 }>;
 
+const EXPENSE_RELATIONS = {
+  account: true,
+  createdBy: true,
+  updatedBy: true,
+  finalizedBy: true,
+  settledBy: true,
+  rejectedBy: true,
+  submittedBy: true,
+  paidBy: true,
+  activity: true,
+} as const;
+
 @Injectable()
-export class ExpensePrismaRepository implements IExpenseRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
-
-  async count(filter: ExpenseFilter): Promise<number> {
-    const where = this.whereQuery(filter);
-    return await this.database.client.expense.count({ where });
+export class ExpensePrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'expense',
+    Expense,
+    string,
+    ExpenseFilter,
+    ExpensePersistence,
+    ExpenseWhereInput,
+    ExpenseWhereUniqueInput,
+    ExpenseUncheckedCreateInput,
+    ExpenseUncheckedUpdateInput,
+    ExpenseOrderByWithRelationInput,
+    typeof EXPENSE_RELATIONS
+  >
+  implements IExpenseRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'expense');
   }
 
-  async findPaged(filter?: BaseFilter<ExpenseFilter>): Promise<Page<Expense>> {
-    const where = this.whereQuery(filter?.props);
-
-    const [data, total] = await Promise.all([
-      this.database.client.expense.findMany({
-        where,
-        orderBy: { expenseDate: 'desc' },
-        include: {
-          account: true,
-          createdBy: true,
-          updatedBy: true,
-          finalizedBy: true,
-          settledBy: true,
-          rejectedBy: true,
-          submittedBy: true,
-          paidBy: true,
-          activity: true,
-        },
-        skip: (filter?.pageIndex ?? 0) * (filter?.pageSize ?? 1000),
-        take: filter?.pageSize ?? 1000,
-      }),
-      this.database.client.expense.count({ where }),
-    ]);
-
-    return new Page<Expense>(
-      data.map(m => ExpensePrismaMapper.toExpenseDomain(m)!),
-      total,
-      filter?.pageIndex ?? 0,
-      filter?.pageSize ?? 1000,
-    );
-  }
-
-  async findAll(filter?: ExpenseFilter): Promise<Expense[]> {
-    const expenses = await this.database.client.expense.findMany({
-      where: this.whereQuery(filter),
-      orderBy: { expenseDate: 'desc' },
-      include: {
-        account: true,
-        createdBy: true,
-        updatedBy: true,
-        finalizedBy: true,
-        settledBy: true,
-        rejectedBy: true,
-        submittedBy: true,
-        paidBy: true,
-        activity: true,
-      },
-    });
-
-    return expenses.map(m => ExpensePrismaMapper.toExpenseDomain(m)!);
-  }
-
-  private whereQuery(props?: ExpenseFilter): Prisma.ExpenseWhereInput {
-    const where: Prisma.ExpenseWhereInput = {
+  protected toFilterWhere(props?: ExpenseFilter): ExpenseWhereInput {
+    const where: ExpenseWhereInput = {
       ...(props?.expenseStatus ? { status: { in: props.expenseStatus } } : {}),
       ...(props?.expenseId ? { id: props.expenseId } : {}),
       ...(props?.payerId ? { paidById: props.payerId } : {}),
@@ -103,19 +81,9 @@ export class ExpensePrismaRepository implements IExpenseRepository {
   }
 
   async findById(id: string): Promise<Expense | null> {
-    const expense = await this.database.client.expense.findUnique({
+    const expense = await this.delegate.findUnique({
       where: { id },
-      include: {
-        account: true,
-        createdBy: true,
-        updatedBy: true,
-        finalizedBy: true,
-        settledBy: true,
-        rejectedBy: true,
-        submittedBy: true,
-        paidBy: true,
-        activity: true,
-      },
+      include: EXPENSE_RELATIONS,
     });
 
     return ExpensePrismaMapper.toExpenseDomain(expense!);
@@ -123,40 +91,20 @@ export class ExpensePrismaRepository implements IExpenseRepository {
 
 
   async findByStatus(status: ExpenseStatus): Promise<Expense[]> {
-    const expenses = await this.database.client.expense.findMany({
+    const expenses = await this.delegate.findMany({
       where: { status, deletedAt: null },
       orderBy: { expenseDate: 'desc' },
-      include: {
-        account: true,
-        createdBy: true,
-        updatedBy: true,
-        finalizedBy: true,
-        settledBy: true,
-        rejectedBy: true,
-        submittedBy: true,
-        paidBy: true,
-        activity: true,
-      },
+      include: EXPENSE_RELATIONS,
     });
 
     return expenses.map(m => ExpensePrismaMapper.toExpenseDomain(m)!);
   }
 
   async findByRequestedBy(userId: string): Promise<Expense[]> {
-    const expenses = await this.database.client.expense.findMany({
+    const expenses = await this.delegate.findMany({
       where: { createdById: userId, deletedAt: null },
       orderBy: { expenseDate: 'desc' },
-      include: {
-        account: true,
-        createdBy: true,
-        updatedBy: true,
-        finalizedBy: true,
-        settledBy: true,
-        rejectedBy: true,
-        paidBy: true,
-        submittedBy: true,
-        activity: true,
-      },
+      include: EXPENSE_RELATIONS,
     });
 
     return expenses.map(m => ExpensePrismaMapper.toExpenseDomain(m)!);
@@ -169,19 +117,9 @@ export class ExpensePrismaRepository implements IExpenseRepository {
       ...ExpensePrismaMapper.toExpenseCreatePersistence(expense),
     };
 
-    const created = await this.database.client.expense.create({
+    const created = await this.delegate.create({
       data: createData,
-      include: {
-        account: true,
-        createdBy: true,
-        updatedBy: true,
-        finalizedBy: true,
-        settledBy: true,
-        rejectedBy: true,
-        submittedBy: true,
-        paidBy: true,
-        activity: true,
-      },
+      include: EXPENSE_RELATIONS,
     });
 
     return ExpensePrismaMapper.toExpenseDomain(created)!;
@@ -192,32 +130,41 @@ export class ExpensePrismaRepository implements IExpenseRepository {
       ...ExpensePrismaMapper.toExpenseUpdatePersistence(expense),
     };
 
-    const updated = await this.database.client.expense.update({
+    const updated = await this.delegate.update({
       where: { id },
       data: updateData,
-      include: {
-        account: true,
-        createdBy: true,
-        updatedBy: true,
-        finalizedBy: true,
-        settledBy: true,
-        rejectedBy: true,
-        paidBy: true,
-        submittedBy: true,
-        activity: true,
-      },
+      include: EXPENSE_RELATIONS,
     });
 
     return ExpensePrismaMapper.toExpenseDomain(updated)!;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.expense.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
+  protected toDomain(row: ExpensePersistence): Expense {
+    return ExpensePrismaMapper.toExpenseDomain(row)!;
+  }
+
+  protected toCreateInput(expense: Expense): ExpenseUncheckedCreateInput {
+    return ExpensePrismaMapper.toExpenseCreatePersistence(expense);
+  }
+
+  protected toUpdateInput(_id: string, expense: Expense): ExpenseUncheckedUpdateInput {
+    return ExpensePrismaMapper.toExpenseUpdatePersistence(expense);
+  }
+
+  protected toUniqueWhere(id: string): ExpenseWhereUniqueInput {
+    return { id };
+  }
+
+  protected override supportsSoftDelete(): boolean {
+    return true;
+  }
+
+  protected override defaultOrderBy(): ExpenseOrderByWithRelationInput {
+    return { expenseDate: 'desc' };
+  }
+
+  protected override toInclude(): typeof EXPENSE_RELATIONS {
+    return EXPENSE_RELATIONS;
   }
 }
 

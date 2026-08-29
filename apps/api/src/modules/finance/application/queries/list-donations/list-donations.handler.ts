@@ -8,6 +8,8 @@ import { DonationListResponseDto } from '../../dtos/donation-list.dto';
 import { DonationMapper } from '../../mappers/donation.mapper';
 import { buildDonationDonorEnrichment } from '../../mappers/donation-donor-display.helper';
 import { ListDonationsQuery } from './list-donations.query';
+import { InvoiceEntityType } from '../../../../invoice/domain/enums/invoice-entity-type.enum';
+import { InvoiceFacade } from '../../../../invoice/application/services/invoice.facade';
 
 @QueryHandler(ListDonationsQuery)
 @Injectable()
@@ -16,6 +18,7 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, D
     @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
     @Inject(IDonorRepository) private readonly donorRepository: IDonorRepository,
     @Inject(IUserLookupPort) private readonly userLookup: IUserLookupPort,
+    private readonly invoiceFacade: InvoiceFacade,
   ) { }
 
   async execute(query: ListDonationsQuery): Promise<DonationListResponseDto> {
@@ -60,12 +63,23 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, D
       .map((d) => d.userProfileId!);
     const users = memberIds.length > 0 ? await this.userLookup.findByIds(memberIds) : [];
     const userMap = new Map(users.map((u) => [u.id, u]));
+    const invoices = page.content.length
+      ? await this.invoiceFacade.findIssuedByEntities(
+        InvoiceEntityType.DONATION,
+        page.content.map((d) => d.id),
+      )
+      : [];
+    const invoiceMap = new Map(invoices.map((invoice) => [invoice.entityId, invoice]));
 
     return {
       items: page.content.map((donation) => {
         const donor = donation.donorId ? donorMap.get(donation.donorId) : undefined;
         const userProfile = donor?.userProfileId ? userMap.get(donor.userProfileId) : undefined;
-        return DonationMapper.toDto(donation, buildDonationDonorEnrichment(donor, userProfile));
+        return DonationMapper.toDto(
+          donation,
+          buildDonationDonorEnrichment(donor, userProfile),
+          invoiceMap.get(donation.id),
+        );
       }),
       total: page.totalSize,
       pageIndex: page.pageIndex,

@@ -284,3 +284,30 @@ model Earning {
   @@index([source])
   @@map("finance_earnings")
 }
+
+model Invoice {
+  id         String @id
+  entityType String @db.VarChar(40)
+  entityId   String @db.VarChar(255)
+  status     String @db.VarChar(20)
+  amount     Decimal @db.Decimal(10, 2)
+  currency   String @db.VarChar(3)
+  issuedOn   DateTime
+
+  voidedOn   DateTime?
+  voidReason String?   @db.Text
+  documentId String?   @db.VarChar(255)
+
+  supersededByInvoiceId String?   @db.VarChar(255)
+  supersededBy          Invoice?  @relation("InvoiceSupersedes", fields: [supersededByInvoiceId], references: [id])
+  predecessors          Invoice[] @relation("InvoiceSupersedes")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(0)
+  deletedAt DateTime?
+
+  @@index([entityType, entityId])
+  @@index([status])
+  @@map("finance_invoices")
+}

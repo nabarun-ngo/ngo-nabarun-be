@@ -12,10 +12,22 @@ describe('BusinessException', () => {
     expect(err.getStatus()).toBe(HttpStatus.BAD_REQUEST);
   });
 
-  it('includes the message in the response body', () => {
-    const err = new BusinessException('Invalid amount');
+  it('does not include the diagnostic message in the response body', () => {
+    const err = new BusinessException('Invalid amount for account acct-123');
     const response = err.getResponse() as any;
-    expect(response.message).toBe('Invalid amount');
+    expect(response.message).toBe('The request could not be completed.');
+    expect(response.message).not.toContain('acct-123');
+  });
+
+  it('uses an explicit reviewed public message', () => {
+    const err = new BusinessException(
+      'User 4cfa7a9b not found',
+      'USER_NOT_FOUND',
+      404,
+      'User not found.',
+    );
+    expect(err.getResponse().message).toBe('User not found.');
+    expect(err.message).toContain('4cfa7a9b');
   });
 
   it('defaults errorCode to BUSINESS_ERROR when not provided', () => {

@@ -70,6 +70,7 @@ export {
 export type { SwaggerOptions } from './presentation/config/swagger.config';
 export { buildSwaggerDocument, configureSwagger } from './presentation/config/swagger.config';
 export { BusinessException } from './presentation/exceptions/business-exception';
+export { resolvePublicErrorMessage } from './presentation/errors/public-error-message.resolver';
 export type { ApiAutoResponseOptions } from './presentation/decorators/api-auto-response.decorator';
 export {
   ApiAutoResponse,

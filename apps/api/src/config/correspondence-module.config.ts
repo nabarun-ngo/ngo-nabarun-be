@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Configkey } from "../shared/enums/config-keys";
 import { isProd } from "@nabarun-ngo/nestjs-shared-core";
 import { USER_MODULE } from "./user-module.config";
+import { buildEmailTheme } from "./email-theme.config";
 
 export const CORRESPONDENCE_MODULE = CorrespondenceModule.forRootAsync(
     {
@@ -25,6 +26,7 @@ export const CORRESPONDENCE_MODULE = CorrespondenceModule.forRootAsync(
                     config.get<boolean>(Configkey.ENABLE_PROD_MODE) ??
                     isProd(config.getOrThrow<string>(Configkey.NODE_ENV)) ??
                     false,
+                theme: buildEmailTheme(),
             },
             push: {
                 oneSignal: {

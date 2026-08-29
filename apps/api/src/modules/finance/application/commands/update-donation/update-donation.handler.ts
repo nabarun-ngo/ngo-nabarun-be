@@ -8,6 +8,7 @@ import { IDonationRepository } from '../../../domain/repositories/donation.repos
 import { FinanceDmsAdapter } from '../../../infrastructure/adapters/finance-dms.adapter';
 import { CreateTransactionCommand } from '../create-transaction/create-transaction.command';
 import { ReverseTransactionCommand } from '../reverse-transaction/reverse-transaction.command';
+import { DonationInvoiceService } from '../../services/donation-invoice.service';
 import { UpdateDonationCommand } from './update-donation.command';
 
 @CommandHandler(UpdateDonationCommand)
@@ -18,6 +19,7 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
     private readonly commandBus: CommandBus,
     private readonly eventBus: EventBus,
     private readonly dmsAdapter: FinanceDmsAdapter,
+    private readonly donationInvoiceService: DonationInvoiceService,
   ) { }
 
   async execute({ params: request }: UpdateDonationCommand): Promise<Donation> {
@@ -45,6 +47,10 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
             );
           }
           donation.resetPaymentDetails();
+          await this.donationInvoiceService.voidForDonation(
+            donation.id,
+            request.remarks || 'Update mistake',
+          );
           for (const doc of await this.dmsAdapter.getDocuments('donation', donation.id)) {
             await this.dmsAdapter.deleteFile(doc.id);
           }
@@ -80,6 +86,9 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
     if (request.isPaymentNotified) donation.markPaymentNotified();
 
     const updated = await this.donationRepository.update(request.id, donation);
+    if (request.status === DonationStatus.PAID) {
+      await this.donationInvoiceService.issueForPaidDonation(updated);
+    }
     const events = [...donation.domainEvents];
     donation.clearEvents();
     this.eventBus.publishAll(events);

@@ -61,6 +61,9 @@ export class UserResponseDto {
   @ApiPropertyOptional({ example: 'FEMALE' })
   gender?: string;
 
+  @ApiPropertyOptional({ example: 'B+' })
+  bloodGroup?: string;
+
   @ApiPropertyOptional({ example: 'Volunteer coordinator for the Barasat education programme.' })
   about?: string;
 
@@ -100,6 +103,12 @@ export class UserResponseDto {
     description: 'Denormalized active Auth role keys for this member',
   })
   roleKeys!: string[];
+
+  @ApiPropertyOptional({
+    example: 'NM24128765',
+    description: 'Lifetime membership number printed on the identity card',
+  })
+  uniqueMemberId?: string;
 
   @ApiPropertyOptional({ example: '2026-03-14T09:30:00.000Z' })
   createdAt?: Date;

@@ -38,6 +38,7 @@ export class CorrespondenceDispatchHandler
           templateData: payload.templateData,
           to: payload.emailAddresses,
           cc: payload.ccAddresses,
+          attachments: payload.attachments,
         });
         this.logger.log(`Email sent for dispatchId=${payload.dispatchId}`);
       } catch (err) {

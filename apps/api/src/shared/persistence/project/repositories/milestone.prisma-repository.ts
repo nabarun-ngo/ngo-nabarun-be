@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { PrismaClient } from '../../prisma/client';
 import {
@@ -14,15 +14,19 @@ import {
 } from '../../../../modules/project/domain/enums/milestone.enum';
 
 @Injectable()
-export class MilestonePrismaRepository implements IMilestoneRepository {
-  constructor(private readonly db: BasePrismaService<PrismaClient>) { }
+export class MilestonePrismaRepository
+  extends PrismaRepositoryBase<PrismaClient, 'milestone'>
+  implements IMilestoneRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'milestone');
+  }
 
   async count(filter: MilestoneFilter): Promise<number> {
-    return this.db.client.milestone.count({ where: this.where(filter) });
+    return this.delegate.count({ where: this.where(filter) });
   }
 
   async findUpcomingSummariesByProjectId(projectId: string, limit: number) {
-    return this.db.client.milestone.findMany({
+    return this.delegate.findMany({
       where: {
         projectId,
         deletedAt: null,
@@ -35,7 +39,7 @@ export class MilestonePrismaRepository implements IMilestoneRepository {
   }
 
   async findByProjectId(projectId: string): Promise<MilestoneRecord[]> {
-    const rows = await this.db.client.milestone.findMany({
+    const rows = await this.delegate.findMany({
       where: { projectId, deletedAt: null },
       orderBy: { targetDate: 'asc' },
     });
@@ -43,7 +47,7 @@ export class MilestonePrismaRepository implements IMilestoneRepository {
   }
 
   async findById(id: string): Promise<MilestoneRecord | null> {
-    const row = await this.db.client.milestone.findFirst({
+    const row = await this.delegate.findFirst({
       where: { id, deletedAt: null },
     });
     return row ? this.toRecord(row) : null;
@@ -56,7 +60,7 @@ export class MilestonePrismaRepository implements IMilestoneRepository {
     importance: MilestoneImportance;
     description?: string;
   }): Promise<MilestoneRecord> {
-    const row = await this.db.client.milestone.create({
+    const row = await this.delegate.create({
       data: {
         id: randomUUID(),
         projectId: data.projectId,
@@ -80,7 +84,7 @@ export class MilestonePrismaRepository implements IMilestoneRepository {
       description?: string;
     },
   ): Promise<MilestoneRecord> {
-    const row = await this.db.client.milestone.update({ where: { id }, data });
+    const row = await this.delegate.update({ where: { id }, data });
     return this.toRecord(row);
   }
 
@@ -89,7 +93,7 @@ export class MilestonePrismaRepository implements IMilestoneRepository {
     if (!milestone) {
       throw new BusinessException('Milestone not found');
     }
-    const row = await this.db.client.milestone.update({
+    const row = await this.delegate.update({
       where: { id },
       data: { status: MilestoneStatus.ACHIEVED, actualDate: new Date() },
     });

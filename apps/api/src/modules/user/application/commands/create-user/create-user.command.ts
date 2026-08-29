@@ -8,6 +8,7 @@ export class CreateUserCommand {
       middleName?: string;
       dateOfBirth?: Date;
       gender?: string;
+      bloodGroup?: string;
       about?: string;
       picture?: string;
       isPublic?: boolean;

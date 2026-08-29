@@ -1,28 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence'
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BasePrismaService,
+  PrismaCrudRepositoryBase,
+} from '@nabarun-ngo/nestjs-shared-persistence';
 import { Notification, NotificationFilter, NotificationType, NotificationPriority } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/notification.aggregate';
 import { UserNotification } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/user-notification.aggregate';
 import { INotificationRepository } from '@nabarun-ngo/nestjs-shared-correspondence/domain/repositories/notification.repository';
+import type { PrismaClient } from '../../prisma/client';
+import type {
+  CorrespondenceNotificationModel,
+  CorrespondenceNotificationWhereInput,
+  CorrespondenceNotificationWhereUniqueInput,
+  CorrespondenceNotificationCreateInput,
+  CorrespondenceNotificationUncheckedCreateInput,
+  CorrespondenceNotificationUpdateInput,
+  CorrespondenceNotificationUncheckedUpdateInput,
+  CorrespondenceNotificationOrderByWithRelationInput,
+} from '../../prisma/models/CorrespondenceNotification';
 
 @Injectable()
-export class NotificationPrismaRepository implements INotificationRepository {
-  constructor(private readonly prisma: BasePrismaService) { }
-
-  async create(notification: Notification): Promise<Notification> {
-    const row = await (this.prisma).corr2Notification.create({
-      data: this.toCreateData(notification),
-    });
-    return this.toDomain(row);
+export class NotificationPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'correspondenceNotification',
+    Notification,
+    string,
+    NotificationFilter,
+    CorrespondenceNotificationModel,
+    CorrespondenceNotificationWhereInput,
+    CorrespondenceNotificationWhereUniqueInput,
+    ({} & CorrespondenceNotificationCreateInput) | ({} & CorrespondenceNotificationUncheckedCreateInput),
+    ({} & CorrespondenceNotificationUpdateInput) | ({} & CorrespondenceNotificationUncheckedUpdateInput),
+    CorrespondenceNotificationOrderByWithRelationInput
+  >
+  implements INotificationRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'correspondenceNotification');
   }
 
   async createWithUserNotifications(
     notification: Notification,
     userNotifications: UserNotification[],
   ): Promise<Notification> {
-    const row = await (this.prisma).corr2Notification.create({
+    const row = await this.delegate.create({
       data: {
-        ...this.toCreateData(notification),
+        ...this.toCreateInput(notification),
         userNotifications: {
           create: userNotifications.map((un) => ({
             id: un.id,
@@ -40,64 +62,12 @@ export class NotificationPrismaRepository implements INotificationRepository {
     return this.toDomain(row);
   }
 
-  async update(id: string, notification: Notification): Promise<Notification> {
-    const row = await (this.prisma).corr2Notification.update({
-      where: { id },
-      data: {
-        title: notification.title,
-        body: notification.body,
-        type: notification.type,
-        category: notification.category,
-        priority: notification.priority,
-        updatedAt: notification.updatedAt,
-      },
-    });
-    return this.toDomain(row);
-  }
-
-  async delete(id: string): Promise<void> {
-    await (this.prisma).corr2Notification.delete({ where: { id } });
-  }
-
-  async findById(id: string): Promise<Notification | null> {
-    const row = await (this.prisma).corr2Notification.findUnique({ where: { id } });
-    return row ? this.toDomain(row) : null;
-  }
-
-  async findAll(filter?: NotificationFilter): Promise<Notification[]> {
-    const rows = await (this.prisma).corr2Notification.findMany({
-      where: this.buildWhere(filter),
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map((r: any) => this.toDomain(r));
-  }
-
-  async findPaged(filter?: BaseFilter<NotificationFilter>): Promise<Page<Notification>> {
-    const where = this.buildWhere(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 50;
-    const [rows, total] = await Promise.all([
-      (this.prisma).corr2Notification.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      (this.prisma).corr2Notification.count({ where }),
-    ]);
-    return new Page(rows.map((r: any) => this.toDomain(r)), total, pageIndex, pageSize);
-  }
-
-  async count(filter: NotificationFilter): Promise<number> {
-    return (this.prisma).corr2Notification.count({ where: this.buildWhere(filter) });
-  }
-
   async bulkMarkPushSent(
     userNotificationIds: string[],
     success: boolean,
     error?: string,
   ): Promise<void> {
-    await (this.prisma).corr2UserNotification.updateMany({
+    await this.client.correspondenceUserNotification.updateMany({
       where: { id: { in: userNotificationIds } },
       data: {
         isPushSent: true,
@@ -110,7 +80,7 @@ export class NotificationPrismaRepository implements INotificationRepository {
   }
 
   async deleteExpiredBefore(date: Date): Promise<number> {
-    const result = await this.prisma.corr2Notification.deleteMany({
+    const result = await this.delegate.deleteMany({
       where: { expiresAt: { not: null, lt: date } },
     });
     return result.count;
@@ -123,7 +93,7 @@ export class NotificationPrismaRepository implements INotificationRepository {
     if (notificationIds.length === 0) return result;
 
     const [failed, delivered] = await Promise.all([
-      (this.prisma).corr2UserNotification.groupBy({
+      this.client.correspondenceUserNotification.groupBy({
         by: ['notificationId'],
         where: {
           notificationId: { in: notificationIds },
@@ -131,7 +101,7 @@ export class NotificationPrismaRepository implements INotificationRepository {
           pushDelivered: false,
         },
       }),
-      (this.prisma).corr2UserNotification.groupBy({
+      this.client.correspondenceUserNotification.groupBy({
         by: ['notificationId'],
         where: { notificationId: { in: notificationIds }, pushDelivered: true },
       }),
@@ -147,7 +117,11 @@ export class NotificationPrismaRepository implements INotificationRepository {
     return result;
   }
 
-  private buildWhere(filter?: NotificationFilter): Record<string, any> {
+  protected toUniqueWhere(id: string): CorrespondenceNotificationWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(filter?: NotificationFilter): CorrespondenceNotificationWhereInput {
     if (!filter) return {};
     return {
       ...(filter.type ? { type: filter.type } : {}),
@@ -173,7 +147,9 @@ export class NotificationPrismaRepository implements INotificationRepository {
     };
   }
 
-  private toCreateData(notification: Notification): Record<string, any> {
+  protected toCreateInput(
+    notification: Notification,
+  ): ({} & CorrespondenceNotificationCreateInput) | ({} & CorrespondenceNotificationUncheckedCreateInput) {
     return {
       id: notification.id,
       title: notification.title,
@@ -193,22 +169,50 @@ export class NotificationPrismaRepository implements INotificationRepository {
       expiresAt: notification.expiresAt ?? null,
       createdAt: notification.createdAt,
       updatedAt: notification.updatedAt,
+    } as unknown as
+      | ({} & CorrespondenceNotificationCreateInput)
+      | ({} & CorrespondenceNotificationUncheckedCreateInput);
+  }
+
+  protected toUpdateInput(
+    _id: string,
+    notification: Notification,
+  ): ({} & CorrespondenceNotificationUpdateInput) | ({} & CorrespondenceNotificationUncheckedUpdateInput) {
+    return {
+      title: notification.title,
+      body: notification.body,
+      type: notification.type,
+      category: notification.category,
+      priority: notification.priority,
+      updatedAt: notification.updatedAt,
     };
   }
 
-  private toDomain(row: any): Notification {
+  protected defaultOrderBy(): CorrespondenceNotificationOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected defaultPageSize(): number {
+    return 50;
+  }
+
+  protected toDomain(row: CorrespondenceNotificationModel): Notification {
     return new Notification(row.id, row.title, row.body, row.type as NotificationType, row.category as string, {
       priority: row.priority as NotificationPriority,
       action:
         row.actionUrl || row.actionType || row.actionData
-          ? { url: row.actionUrl ?? undefined, type: row.actionType ?? undefined, data: row.actionData ?? undefined }
+          ? {
+            url: row.actionUrl ?? undefined,
+            type: row.actionType ?? undefined,
+            data: row.actionData as Record<string, any> | undefined,
+          }
           : undefined,
       referenceId: row.referenceId ?? undefined,
       referenceType: row.referenceType ?? undefined,
       dispatchId: row.dispatchId ?? undefined,
       imageUrl: row.imageUrl ?? undefined,
       icon: row.icon ?? undefined,
-      metadata: row.metadata ?? undefined,
+      metadata: row.metadata as Record<string, any> | undefined,
       expiresAt: row.expiresAt ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,

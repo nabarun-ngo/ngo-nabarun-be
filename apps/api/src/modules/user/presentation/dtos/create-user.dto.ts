@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsBoolean,
   IsDateString,
+  MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -42,6 +43,12 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   gender?: string;
+
+  @ApiPropertyOptional({ example: 'B+', description: 'ABO/Rh blood group, e.g. A+, O-' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(8)
+  bloodGroup?: string;
 
   @ApiPropertyOptional({ example: 'Volunteer coordinator for the Barasat education programme.' })
   @IsOptional()

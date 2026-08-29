@@ -42,9 +42,10 @@ alwaysApply: false
 
 ## Infrastructure — implements ports
 
-- Prisma repos extend `PrismaCrudRepositoryBase`; implement all five hooks:
-  `toDomain`, `toCreateInput`, `toUpdateInput`, `toUniqueWhere`, `toFilterWhere`
-- Override `supportsSoftDelete()` / `defaultOrderBy()` when needed
+- **Standard CRUD always uses the base repo.** Domain `IRepository` Prisma adapters **must** `extend PrismaCrudRepositoryBase`. Do not copy-paste `findPaged` / `create` / `update` / `delete`.
+- Inject `BasePrismaService<PrismaClient>`; `super(database, '<generatedDelegateKey>')`. Access via `this.delegate` (primary model) and `this.client` (other models / `$queryRaw`). Never `this.prisma.corr2*` or any name not on the generated client.
+- Implement the five hooks: `toDomain`, `toCreateInput`, `toUpdateInput`, `toUniqueWhere`, `toFilterWhere`. Override `supportsSoftDelete()`, `defaultOrderBy()`, `defaultPageSize()`, `toInclude()` when needed. Extra methods only for domain-specific operations.
+- Thin `PrismaRepositoryBase` is allowed **only** when the port is not standard `IRepository` (raw SQL, custom contracts). Redis/cache/locking adapters stay off Prisma bases.
 - Adapters map transport errors → `BusinessError` before throwing
 - **No N+1** — batch with `findByIds` / `{ id: { in: ids } }`; early-exit on empty
 - Cache behind repo/adapter only; namespaced keys + TTL; invalidate on write

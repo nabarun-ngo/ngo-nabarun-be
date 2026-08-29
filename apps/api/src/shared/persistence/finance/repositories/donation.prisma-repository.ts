@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BaseFilter, Page, SortOrder } from '@nabarun-ngo/nestjs-shared-core';
 import { Prisma, PrismaClient } from '../../prisma/client';
+import type {
+  DonationWhereInput,
+  DonationWhereUniqueInput,
+  DonationUncheckedCreateInput,
+  DonationUncheckedUpdateInput,
+  DonationOrderByWithRelationInput,
+} from '../../prisma/models/Donation';
 import { IDonationRepository, DonationFilter } from '../../../../modules/finance/domain/repositories/donation.repository';
 import { Donation } from '../../../../modules/finance/domain/aggregates/donation/donation.aggregate';
 import { DonationStatus } from '../../../../modules/finance/domain/enums/donation-status.enum';
@@ -18,55 +25,51 @@ export type FullDonation = Prisma.DonationGetPayload<{
   };
 }>;
 
+const DONATION_RELATIONS = {
+  donor: { include: { userProfile: { include: { phoneNumbers: true } } } },
+  paidToAccount: true,
+  confirmedBy: true,
+  activity: true,
+} as const;
+
 @Injectable()
-export class DonationPrismaRepository implements IDonationRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
-
-  private readonly include = {
-    donor: { include: { userProfile: { include: { phoneNumbers: true } } } },
-    paidToAccount: true,
-    confirmedBy: true,
-    activity: true,
-  } as const;
-
-  async count(filter: DonationFilter): Promise<number> {
-    return await this.database.client.donation.count({ where: this.whereQuery(filter) });
+export class DonationPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'donation',
+    Donation,
+    string,
+    DonationFilter,
+    FullDonation,
+    DonationWhereInput,
+    DonationWhereUniqueInput,
+    DonationUncheckedCreateInput,
+    DonationUncheckedUpdateInput,
+    DonationOrderByWithRelationInput,
+    typeof DONATION_RELATIONS
+  >
+  implements IDonationRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'donation');
   }
 
-  async findPaged(filter?: BaseFilter<DonationFilter>): Promise<Page<Donation>> {
-    const where = this.whereQuery(filter?.props);
-    const orderBy = filter?.props?.donorType === DonorType.GUEST
-      ? { raisedOn: 'desc' as const }
-      : { startDate: 'desc' as const };
-
-    const [data, total] = await Promise.all([
-      this.database.client.donation.findMany({
-        where,
-        orderBy,
-        include: this.include,
-        skip: (filter?.pageIndex ?? 0) * (filter?.pageSize ?? 1000),
-        take: filter?.pageSize ?? 1000,
-      }),
-      this.database.client.donation.count({ where }),
-    ]);
-    return new Page<Donation>(
-      data.map(m => DonationPrismaMapper.toDonationDomain(m)!),
-      total,
-      filter?.pageIndex ?? 0,
-      filter?.pageSize ?? 1000,
-    );
+  protected toDomain(row: FullDonation): Donation {
+    return DonationPrismaMapper.toDonationDomain(row)!;
   }
 
-  async findAll(filter?: DonationFilter): Promise<Donation[]> {
-    const donations = await this.database.client.donation.findMany({
-      where: this.whereQuery(filter),
-      orderBy: { raisedOn: 'desc' },
-      include: this.include,
-    });
-    return donations.map((m) => DonationPrismaMapper.toDonationDomain(m)!);
+  protected toCreateInput(donation: Donation): DonationUncheckedCreateInput {
+    return DonationPrismaMapper.toDonationCreatePersistence(donation);
   }
 
-  private whereQuery(props?: DonationFilter): Prisma.DonationWhereInput {
+  protected toUpdateInput(_id: string, donation: Donation): DonationUncheckedUpdateInput {
+    return DonationPrismaMapper.toDonationUpdatePersistence(donation);
+  }
+
+  protected toUniqueWhere(id: string): DonationWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(props?: DonationFilter): DonationWhereInput {
     return {
       ...(props?.type && props.type.length > 0 ? { type: { in: props.type } } : {}),
       ...(props?.status && props.status.length > 0 ? { status: { in: props.status } } : {}),
@@ -109,12 +112,30 @@ export class DonationPrismaRepository implements IDonationRepository {
     };
   }
 
-  async findById(id: string): Promise<Donation | null> {
-    const donation = await this.database.client.donation.findUnique({
-      where: { id },
-      include: this.include,
-    });
-    return DonationPrismaMapper.toDonationDomain(donation as FullDonation);
+  protected override defaultOrderBy(): DonationOrderByWithRelationInput {
+    return { raisedOn: 'desc' };
+  }
+
+  protected override toInclude(): typeof DONATION_RELATIONS {
+    return DONATION_RELATIONS;
+  }
+
+  protected override defaultPageSize(): number {
+    return 1000;
+  }
+
+  /** Guest donations have no schedule, so they are ordered by the date they were raised. */
+  override async findPaged(filter?: BaseFilter<DonationFilter>): Promise<Page<Donation>> {
+    const sortBy = filter?.props?.donorType === DonorType.GUEST ? 'raisedOn' : 'startDate';
+    return super.findPaged(
+      new BaseFilter<DonationFilter>(
+        filter?.props,
+        filter?.pageIndex,
+        filter?.pageSize,
+        sortBy,
+        SortOrder.DESC,
+      ),
+    );
   }
 
   async findByDonorId(donorId: string): Promise<Donation[]> {
@@ -137,25 +158,25 @@ export class DonationPrismaRepository implements IDonationRepository {
     return this.findAll({ startDate_raisedOn: startDate, endDate_raisedOn: endDate });
   }
 
-  async create(donation: Donation): Promise<Donation> {
-    const created = await this.database.client.donation.create({
+  override async create(donation: Donation): Promise<Donation> {
+    const created = await this.delegate.create({
       data: DonationPrismaMapper.toDonationCreatePersistence(donation),
-      include: this.include,
+      include: DONATION_RELATIONS,
     });
     return DonationPrismaMapper.toDonationDomain(created)!;
   }
 
-  async update(id: string, donation: Donation): Promise<Donation> {
-    const updated = await this.database.client.donation.update({
+  override async update(id: string, donation: Donation): Promise<Donation> {
+    const updated = await this.delegate.update({
       where: { id },
       data: DonationPrismaMapper.toDonationUpdatePersistence(donation),
-      include: this.include,
+      include: DONATION_RELATIONS,
     });
     return DonationPrismaMapper.toDonationDomain(updated)!;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.donation.update({
+  override async delete(id: string): Promise<void> {
+    await this.delegate.update({
       where: { id },
       data: { deletedAt: new Date() },
     });

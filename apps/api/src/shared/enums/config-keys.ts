@@ -1,6 +1,10 @@
 export enum Configkey {
   APP_NAME = 'APP_NAME',
   APP_SECRET = 'APP_SECRET',
+  /** Optional identity-card header logo: data:image/(jpeg|jpg|png|webp);base64,... only. */
+  IDENTITY_CARD_LOGO_DATA_URL = 'IDENTITY_CARD_LOGO_DATA_URL',
+  /** Society/NGO registration number printed under the organisation name on the identity card. */
+  IDENTITY_CARD_REGISTRATION_NUMBER = 'IDENTITY_CARD_REGISTRATION_NUMBER',
 
   // Auth0
   AUTH0_DOMAIN = 'AUTH0_DOMAIN',

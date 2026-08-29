@@ -54,14 +54,14 @@ export class JobDetail {
   @ApiProperty({ example: "completed" }) @IsObject() state: bullmq.JobState | "unknown";
   @ApiProperty({ example: 100 }) @IsObject() progress: bullmq.JobProgress;
   @ApiProperty({ required: false, example: { delivered: true } }) @IsOptional() returnvalue: unknown;
-  @ApiProperty({ required: false, example: "SMTP connection timed out" }) @IsOptional() @IsString() failedReason: string;
+  @ApiProperty({ required: false, example: "Job processing failed.", description: "Client-safe failure summary" }) @IsOptional() @IsString() failedReason: string;
   @ApiPropertyOptional({ example: "2026-03-14T09:30:00.000Z" }) @IsDate() processedOn?: Date;
   @ApiPropertyOptional({ example: "2026-03-14T09:30:00.000Z" }) @IsDate() finishedOn?: Date;
   @ApiPropertyOptional({ example: "2026-03-14T09:30:00.000Z" }) @IsDate() timestamp?: Date;
   @ApiProperty({ example: 1 }) @IsNumber() attemptsMade: number;
   @ApiProperty({ example: 0 }) @IsNumber() delay: number;
-  @ApiProperty({ required: false, example: ["Error: SMTP connection timed out", "    at SmtpClient.connect (smtp-client.ts:88:11)"] }) @IsOptional() @IsArray() stacktrace: string[];
-  @ApiPropertyOptional({ example: ["Job started", "Email sent to asha.verma@example.org"] }) @IsOptional() @IsArray() logs?: string[];
+  @ApiProperty({ required: false, example: [], description: "Internal stack traces are not exposed" }) @IsOptional() @IsArray() stacktrace: string[];
+  @ApiPropertyOptional({ example: [], description: "Internal job logs are not exposed" }) @IsOptional() @IsArray() logs?: string[];
 }
 
 export class QueueHealth {

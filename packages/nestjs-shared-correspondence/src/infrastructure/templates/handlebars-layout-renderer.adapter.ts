@@ -1,27 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ILayoutRendererPort } from '../../domain/ports/layout-renderer.port';
 import { EmailLayoutData } from '../../domain/ports/template.port';
 import { TemplateNotFoundError } from '../../domain/errors/correspondence.errors';
+import { CORRESPONDENCE_OPTIONS } from '../../correspondence-options.token';
+import type { CorrespondenceModuleOptions } from '../../correspondence.schema';
+import { ResolvedEmailTheme, resolveEmailTheme } from '../../email-theme';
 
 /**
  * Loads and compiles base `.hbs` layout templates co-located with this adapter
  * (copied into `dist/infrastructure/templates` at build time). Compiled
- * templates are cached per layout name.
+ * templates are cached per layout name. Styling comes from the host app's
+ * `email.theme` options and is exposed to layouts as `@root.theme`.
  */
 @Injectable()
 export class HandlebarsLayoutRendererAdapter implements ILayoutRendererPort {
   private static helpersRegistered = false;
   private readonly cache = new Map<string, Handlebars.TemplateDelegate>();
+  private readonly theme: ResolvedEmailTheme;
 
-  constructor() {
+  constructor(
+    @Optional()
+    @Inject(CORRESPONDENCE_OPTIONS)
+    options?: CorrespondenceModuleOptions,
+  ) {
     HandlebarsLayoutRendererAdapter.registerHelpers();
+    this.theme = resolveEmailTheme(options?.email?.theme);
   }
 
   render(layoutName: string, data: EmailLayoutData): string {
-    return this.getCompiled(layoutName)(data);
+    return this.getCompiled(layoutName)({ ...data, theme: this.theme });
   }
 
   private getCompiled(layoutName: string): Handlebars.TemplateDelegate {

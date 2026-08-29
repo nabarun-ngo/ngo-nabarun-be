@@ -15,9 +15,9 @@ export class ResolveUserAccessHandler
     const authUser = await this.userAccess.resolve(query.idpSub);
     const dto = new RbacResponseDto();
     dto.permissions = authUser.permissions ?? [];
-    dto.roles = authUser.userRoles ?? [];
+    dto.userRoles = authUser.userRoles ?? [];
     dto.roleGroups = authUser.roleGroups ?? [];
-    dto.scopedRoles = authUser.scopedRoles;
+    dto.scopedAccess = authUser.scopedAccess;
     return dto;
   }
 }

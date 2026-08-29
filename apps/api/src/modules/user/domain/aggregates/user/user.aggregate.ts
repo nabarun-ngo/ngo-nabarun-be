@@ -24,6 +24,7 @@ export interface UserCreateProps {
   middleName?: string;
   dateOfBirth?: Date;
   gender?: string;
+  bloodGroup?: string;
   about?: string;
   picture?: string;
   isPublic?: boolean;
@@ -36,6 +37,7 @@ export interface UserUpdateProps {
   lastName?: string;
   dateOfBirth?: Date;
   gender?: string;
+  bloodGroup?: string;
   about?: string;
   picture?: string;
   isPublic?: boolean;
@@ -71,6 +73,7 @@ export interface UserRehydrateProps {
   middleName?: string;
   dateOfBirth?: Date;
   gender?: string;
+  bloodGroup?: string;
   about?: string;
   picture?: string;
   isPublic: boolean;
@@ -90,6 +93,8 @@ export interface UserRehydrateProps {
   updatedById?: string;
   /** Denormalized active Auth role keys for member payloads. */
   roleKeys?: string[];
+  /** Lifetime printed membership number; never reassigned. */
+  uniqueMemberId?: string;
 }
 
 // ── Aggregate ─────────────────────────────────────────────────────────────────
@@ -109,6 +114,7 @@ export class User extends AggregateRoot<string> {
   // Profile
   #dateOfBirth: Date | undefined;
   #gender: string | undefined;
+  #bloodGroup: string | undefined;
   #about: string | undefined;
   #picture: string | undefined;
   #isPublic: boolean;
@@ -125,6 +131,9 @@ export class User extends AggregateRoot<string> {
 
   // Denormalized Auth role keys (projection; Auth remains source of truth)
   #roleKeys: string[];
+
+  /** Lifetime membership number printed on the identity card. */
+  #uniqueMemberId: string | undefined;
 
   // Timestamps / soft-delete
   #deletedAt: Date | null;
@@ -155,6 +164,7 @@ export class User extends AggregateRoot<string> {
     middleName?: string,
     dateOfBirth?: Date,
     gender?: string,
+    bloodGroup?: string,
     about?: string,
     picture?: string,
     isSameAddress?: boolean,
@@ -179,6 +189,7 @@ export class User extends AggregateRoot<string> {
     this.#middleName = middleName;
     this.#dateOfBirth = dateOfBirth;
     this.#gender = gender;
+    this.#bloodGroup = bloodGroup;
     this.#about = about;
     this.#picture = picture;
     this.#isSameAddress = isSameAddress;
@@ -187,6 +198,7 @@ export class User extends AggregateRoot<string> {
     this.#presentAddress = presentAddress;
     this.#permanentAddress = permanentAddress;
     this.#roleKeys = [...roleKeys];
+    this.#uniqueMemberId = undefined;
     this.#createdById = undefined;
     this.#updatedById = undefined;
   }
@@ -223,6 +235,7 @@ export class User extends AggregateRoot<string> {
       props.middleName ?? existingDeletedUser?.middleName,
       props.dateOfBirth ?? existingDeletedUser?.dateOfBirth,
       props.gender ?? existingDeletedUser?.gender,
+      props.bloodGroup ?? existingDeletedUser?.bloodGroup,
       props.about ?? existingDeletedUser?.about,
       props.picture ?? existingDeletedUser?.picture,
       existingDeletedUser?.isSameAddress,
@@ -231,6 +244,7 @@ export class User extends AggregateRoot<string> {
       existingDeletedUser?.presentAddress,
       existingDeletedUser?.permanentAddress,
     );
+    user.#uniqueMemberId = existingDeletedUser?.uniqueMemberId;
 
     // UserCreatedEvent is raised in linkIdentity() once the IdP sub is known.
     return user;
@@ -256,6 +270,7 @@ export class User extends AggregateRoot<string> {
       props.middleName,
       props.dateOfBirth,
       props.gender,
+      props.bloodGroup,
       props.about,
       props.picture,
       props.isSameAddress,
@@ -267,6 +282,7 @@ export class User extends AggregateRoot<string> {
     );
     user.#createdById = props.createdById;
     user.#updatedById = props.updatedById;
+    user.#uniqueMemberId = props.uniqueMemberId;
     return user;
   }
 
@@ -329,6 +345,18 @@ export class User extends AggregateRoot<string> {
     );
   }
 
+  /**
+   * Assigns the lifetime membership number once. Never overwrites an existing value.
+   */
+  assignUniqueMemberId(uniqueMemberId: string): void {
+    const value = uniqueMemberId?.trim();
+    if (!value) throw new Error('uniqueMemberId is required');
+    if (this.#uniqueMemberId && this.#uniqueMemberId !== value) {
+      throw new Error('uniqueMemberId cannot be changed once assigned');
+    }
+    this.#uniqueMemberId = value;
+  }
+
   /** Profile self-update (user or admin on profile fields). Raises UserProfileUpdatedEvent. */
   updateProfile(detail: UserUpdateProps): void {
     UserStatusTransitionPolicy.assertCanSelfUpdate(this.#status);
@@ -339,6 +367,7 @@ export class User extends AggregateRoot<string> {
     if (detail.lastName !== undefined) this.#lastName = detail.lastName;
     if (detail.dateOfBirth !== undefined) this.#dateOfBirth = detail.dateOfBirth;
     if (detail.gender !== undefined) this.#gender = detail.gender;
+    if (detail.bloodGroup !== undefined) this.#bloodGroup = detail.bloodGroup;
     if (detail.about !== undefined) this.#about = detail.about;
     if (detail.picture !== undefined) this.#picture = detail.picture;
     if (detail.isPublic !== undefined) this.#isPublic = detail.isPublic;
@@ -469,6 +498,7 @@ export class User extends AggregateRoot<string> {
   }
   get dateOfBirth(): Date | undefined { return this.#dateOfBirth; }
   get gender(): string | undefined { return this.#gender; }
+  get bloodGroup(): string | undefined { return this.#bloodGroup; }
   get about(): string | undefined { return this.#about; }
   get picture(): string | undefined { return this.#picture; }
   get isPublic(): boolean { return this.#isPublic; }
@@ -479,6 +509,7 @@ export class User extends AggregateRoot<string> {
   get permanentAddress(): Address | undefined { return this.#permanentAddress; }
   get socialMediaLinks(): SocialLink[] { return [...this.#socialMediaLinks]; }
   get roleKeys(): string[] { return [...this.#roleKeys]; }
+  get uniqueMemberId(): string | undefined { return this.#uniqueMemberId; }
   get deletedAt(): Date | null { return this.#deletedAt; }
 
   /** App profile UUID of the user who created this record (never idpSub). */

@@ -8,7 +8,7 @@ import { IIdentityProvider } from '../../../../domain/ports/identity-provider.po
  * Handles UserProfileUpdatedEvent:
  * - Syncs name/picture to Auth0 (updateUser).
  * - Invalidates Auth's user-access:{sub} cache so the next request re-fetches
- *   `profile_complete` fresh from the DB via UserLookupAdapter.
+ *   `profileComplete` fresh from the DB via UserLookupAdapter.
  */
 @Injectable()
 @EventsHandler(UserProfileUpdatedEvent)
@@ -36,7 +36,7 @@ export class OnUserProfileUpdatedHandler
       );
     }
 
-    // Flush Auth's cached AuthUser so profile_complete is re-fetched on the next request
+    // Flush Auth's cached AuthUser so profileComplete is re-fetched on the next request
     await this.userAccess.invalidate(event.idpSub);
   }
 }

@@ -12,9 +12,11 @@ module.exports = {
     '<rootDir>/packages/**/src/**/*.spec.ts',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: '<rootDir>/',
-  }),
+  moduleNameMapper: compilerOptions.paths
+    ? pathsToModuleNameMapper(compilerOptions.paths, {
+        prefix: '<rootDir>/',
+      })
+    : {},
   transform: {
     '^.+\\.ts$': [
       'ts-jest',

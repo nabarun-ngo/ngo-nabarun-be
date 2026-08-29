@@ -695,6 +695,27 @@ CREATE TABLE "finance_earnings" (
 );
 
 -- CreateTable
+CREATE TABLE "finance_invoices" (
+    "id" TEXT NOT NULL,
+    "entityType" VARCHAR(40) NOT NULL,
+    "entityId" VARCHAR(255) NOT NULL,
+    "status" VARCHAR(20) NOT NULL,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "currency" VARCHAR(3) NOT NULL,
+    "issuedOn" TIMESTAMP(3) NOT NULL,
+    "voidedOn" TIMESTAMP(3),
+    "voidReason" TEXT,
+    "documentId" VARCHAR(255),
+    "supersededByInvoiceId" VARCHAR(255),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 0,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "finance_invoices_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "json_store_document" (
     "id" TEXT NOT NULL,
     "key" TEXT NOT NULL,
@@ -982,8 +1003,10 @@ CREATE TABLE "user_profile" (
     "lastName" VARCHAR(50) NOT NULL,
     "dateOfBirth" TIMESTAMP(3),
     "gender" VARCHAR(10),
+    "bloodGroup" VARCHAR(8),
     "about" TEXT,
     "picture" TEXT,
+    "uniqueMemberId" VARCHAR(10),
     "roleKeys" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "status" VARCHAR(20) NOT NULL,
     "isPublic" BOOLEAN NOT NULL DEFAULT true,
@@ -1300,6 +1323,12 @@ CREATE INDEX "finance_earnings_category_status_idx" ON "finance_earnings"("categ
 CREATE INDEX "finance_earnings_source_idx" ON "finance_earnings"("source");
 
 -- CreateIndex
+CREATE INDEX "finance_invoices_entityType_entityId_idx" ON "finance_invoices"("entityType", "entityId");
+
+-- CreateIndex
+CREATE INDEX "finance_invoices_status_idx" ON "finance_invoices"("status");
+
+-- CreateIndex
 CREATE INDEX "json_store_namespace_idx" ON "json_store_document"("namespace");
 
 -- CreateIndex
@@ -1445,6 +1474,9 @@ CREATE UNIQUE INDEX "user_profile_email_key" ON "user_profile"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_profile_idpSub_key" ON "user_profile"("idpSub");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_profile_uniqueMemberId_key" ON "user_profile"("uniqueMemberId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_phone_number_userId_isPrimary_key" ON "user_phone_number"("userId", "isPrimary");
@@ -1601,6 +1633,9 @@ ALTER TABLE "finance_earnings" ADD CONSTRAINT "finance_earnings_createdById_fkey
 
 -- AddForeignKey
 ALTER TABLE "finance_earnings" ADD CONSTRAINT "finance_earnings_receivedById_fkey" FOREIGN KEY ("receivedById") REFERENCES "user_profile"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "finance_invoices" ADD CONSTRAINT "finance_invoices_supersededByInvoiceId_fkey" FOREIGN KEY ("supersededByInvoiceId") REFERENCES "finance_invoices"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "meetings" ADD CONSTRAINT "meetings_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "user_profile"("id") ON DELETE SET NULL ON UPDATE CASCADE;

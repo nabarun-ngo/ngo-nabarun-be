@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { PrismaClient } from '../../prisma/client';
 import {
@@ -16,15 +16,19 @@ import {
 } from '../../../../modules/project/domain/enums/risk.enum';
 
 @Injectable()
-export class ProjectRiskPrismaRepository implements IProjectRiskRepository {
-  constructor(private readonly db: BasePrismaService<PrismaClient>) { }
+export class ProjectRiskPrismaRepository
+  extends PrismaRepositoryBase<PrismaClient, 'projectRisk'>
+  implements IProjectRiskRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'projectRisk');
+  }
 
   async count(filter: ProjectRiskFilter): Promise<number> {
-    return this.db.client.projectRisk.count({ where: this.where(filter) });
+    return this.delegate.count({ where: this.where(filter) });
   }
 
   async findByProjectId(projectId: string): Promise<ProjectRiskRecord[]> {
-    const rows = await this.db.client.projectRisk.findMany({
+    const rows = await this.delegate.findMany({
       where: { projectId, deletedAt: null },
       orderBy: { identifiedDate: 'desc' },
     });
@@ -32,7 +36,7 @@ export class ProjectRiskPrismaRepository implements IProjectRiskRepository {
   }
 
   async findById(id: string): Promise<ProjectRiskRecord | null> {
-    const row = await this.db.client.projectRisk.findFirst({
+    const row = await this.delegate.findFirst({
       where: { id, deletedAt: null },
     });
     return row ? this.toRecord(row) : null;
@@ -50,7 +54,7 @@ export class ProjectRiskPrismaRepository implements IProjectRiskRepository {
     mitigationPlan?: string;
     ownerId?: string;
   }): Promise<ProjectRiskRecord> {
-    const row = await this.db.client.projectRisk.create({
+    const row = await this.delegate.create({
       data: {
         id: randomUUID(),
         projectId: data.projectId,
@@ -79,7 +83,7 @@ export class ProjectRiskPrismaRepository implements IProjectRiskRepository {
       status?: RiskStatus;
     },
   ): Promise<ProjectRiskRecord> {
-    const row = await this.db.client.projectRisk.update({ where: { id }, data });
+    const row = await this.delegate.update({ where: { id }, data });
     return this.toRecord(row);
   }
 
@@ -94,7 +98,7 @@ export class ProjectRiskPrismaRepository implements IProjectRiskRepository {
     ) {
       throw new BusinessException('Mitigation plan required for high/critical risks');
     }
-    const row = await this.db.client.projectRisk.update({
+    const row = await this.delegate.update({
       where: { id },
       data: { status: RiskStatus.CLOSED, resolvedDate: new Date() },
     });

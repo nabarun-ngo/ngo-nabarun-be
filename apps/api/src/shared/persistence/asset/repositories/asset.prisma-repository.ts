@@ -1,67 +1,94 @@
 import { Injectable } from '@nestjs/common';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { BasePrismaService, PrismaCrudRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
+import { PrismaClient } from '../../prisma/client';
+import type {
+  AssetWhereInput,
+  AssetWhereUniqueInput,
+  AssetUncheckedCreateInput,
+  AssetUncheckedUpdateInput,
+  AssetOrderByWithRelationInput,
+} from '../../prisma/models/Asset';
 import { Asset, AssetFilter } from '../../../../modules/asset/domain/aggregates/asset/asset.aggregate';
 import { IAssetRepository } from '../../../../modules/asset/domain/repositories/asset.repository';
-import { AssetPrismaMapper } from '../mapper/asset-prisma.mapper';
+import { AssetPrismaMapper, AssetRow } from '../mapper/asset-prisma.mapper';
 import { MapperUtils } from '../../finance/mapper/mapper-utils';
 
+const CUSTODY_HISTORY_INCLUDE = {
+  custodyHistory: { orderBy: { assignedAt: 'desc' } },
+} as const;
+
 @Injectable()
-export class AssetPrismaRepository implements IAssetRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) {}
-
-  async count(filter: AssetFilter): Promise<number> {
-    return this.database.client.asset.count({ where: this.where(filter) });
+export class AssetPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'asset',
+    Asset,
+    string,
+    AssetFilter,
+    AssetRow,
+    AssetWhereInput,
+    AssetWhereUniqueInput,
+    AssetUncheckedCreateInput,
+    AssetUncheckedUpdateInput,
+    AssetOrderByWithRelationInput
+  >
+  implements IAssetRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'asset');
   }
 
-  async findPaged(filter?: BaseFilter<AssetFilter>): Promise<Page<Asset>> {
-    const where = this.where(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 20;
-    const [rows, total] = await Promise.all([
-      this.database.client.asset.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      this.database.client.asset.count({ where }),
-    ]);
-    return new Page(
-      rows.map((r) => AssetPrismaMapper.toDomain(r)!),
-      total,
-      pageIndex,
-      pageSize,
-    );
+  protected toDomain(row: AssetRow): Asset {
+    return AssetPrismaMapper.toDomain(row)!;
   }
 
-  async findAll(filter?: AssetFilter): Promise<Asset[]> {
-    const rows = await this.database.client.asset.findMany({
-      where: this.where(filter),
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map((r) => AssetPrismaMapper.toDomain(r)!);
+  protected toCreateInput(entity: Asset): AssetUncheckedCreateInput {
+    return AssetPrismaMapper.toCreate(entity);
   }
 
-  async findById(id: string): Promise<Asset | null> {
-    const row = await this.database.client.asset.findFirst({
+  protected toUpdateInput(_id: string, entity: Asset): AssetUncheckedUpdateInput {
+    return AssetPrismaMapper.toUpdate(entity);
+  }
+
+  protected toUniqueWhere(id: string): AssetWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(props?: AssetFilter): AssetWhereInput {
+    return {
+      deletedAt: null,
+      ...(props?.status ? { status: props.status } : {}),
+      ...(props?.category ? { category: props.category } : {}),
+      ...(props?.custodianUserId ? { custodianUserId: props.custodianUserId } : {}),
+      ...(props?.projectId ? { projectId: props.projectId } : {}),
+    };
+  }
+
+  protected override defaultOrderBy(): AssetOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected override defaultPageSize(): number {
+    return 20;
+  }
+
+  override async findById(id: string): Promise<Asset | null> {
+    const row = await this.delegate.findFirst({
       where: { id, deletedAt: null },
-      include: { custodyHistory: { orderBy: { assignedAt: 'desc' } } },
+      include: CUSTODY_HISTORY_INCLUDE,
     });
     return AssetPrismaMapper.toDomain(row);
   }
 
-  async create(entity: Asset): Promise<Asset> {
-    const row = await this.database.client.asset.create({
+  override async create(entity: Asset): Promise<Asset> {
+    const row = await this.delegate.create({
       data: AssetPrismaMapper.toCreate(entity),
-      include: { custodyHistory: { orderBy: { assignedAt: 'desc' } } },
+      include: CUSTODY_HISTORY_INCLUDE,
     });
     return AssetPrismaMapper.toDomain(row)!;
   }
 
-  async update(id: string, entity: Asset): Promise<Asset> {
-    await this.database.client.$transaction(async (tx) => {
+  override async update(id: string, entity: Asset): Promise<Asset> {
+    await this.$transaction(async (tx) => {
       await tx.asset.update({
         where: { id },
         data: AssetPrismaMapper.toUpdate(entity),
@@ -94,20 +121,10 @@ export class AssetPrismaRepository implements IAssetRepository {
     return (await this.findById(id))!;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.database.client.asset.update({
+  override async delete(id: string): Promise<void> {
+    await this.delegate.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
-  }
-
-  private where(props?: AssetFilter): Prisma.AssetWhereInput {
-    return {
-      deletedAt: null,
-      ...(props?.status ? { status: props.status } : {}),
-      ...(props?.category ? { category: props.category } : {}),
-      ...(props?.custodianUserId ? { custodianUserId: props.custodianUserId } : {}),
-      ...(props?.projectId ? { projectId: props.projectId } : {}),
-    };
   }
 }

@@ -15,6 +15,8 @@ import { Address } from '../../../../modules/user/domain/value-objects/address.v
 import { SocialLink } from '../../../../modules/user/domain/entities/social-link.entity';
 import { UserStatus } from '../../../../modules/user/domain/enums/user-status.enum';
 import { RequestStatus } from '../../../../modules/request/domain/enums/request-status.enum';
+import { UniqueMemberId } from '../../../../modules/user/domain/value-objects/unique-member-id.vo';
+import { UniqueMemberIdSequenceExhaustedError } from '../../../../modules/user/domain/errors/user.errors';
 
 // ── Row types (shape returned by Prisma when children are included) ────────────
 
@@ -37,7 +39,8 @@ type SocialLinkRow = {
 export type UserProfileRow = {
   id: string; email: string; idpSub: string | null;
   title: string | null; firstName: string; middleName: string | null; lastName: string;
-  dateOfBirth: Date | null; gender: string | null; about: string | null; picture: string | null;
+  dateOfBirth: Date | null; gender: string | null; bloodGroup: string | null; about: string | null; picture: string | null;
+  uniqueMemberId: string | null;
   roleKeys: string[];
   status: string; isPublic: boolean; isSameAddress: boolean | null;
   isProfileComplete: boolean;
@@ -286,6 +289,39 @@ export class UserPrismaRepository
     });
   }
 
+  async allocateNextUniqueMemberId(at: Date): Promise<string> {
+    const yymm = UniqueMemberId.yymmUtc(at);
+    const prefix = `${UniqueMemberId.PREFIX}${yymm}`;
+    const monthKey = Number(yymm);
+
+    return this.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(872341, ${monthKey})`;
+      const rows = await tx.userProfile.findMany({
+        where: { uniqueMemberId: { startsWith: prefix } },
+        select: { uniqueMemberId: true },
+      });
+      let maxSeq = 0;
+      for (const row of rows) {
+        const seq = UniqueMemberId.parseSequence(row.uniqueMemberId ?? '', yymm);
+        if (seq != null && seq > maxSeq) {
+          maxSeq = seq;
+        }
+      }
+      if (maxSeq >= UniqueMemberId.MAX_SEQUENCE) {
+        throw new UniqueMemberIdSequenceExhaustedError(yymm);
+      }
+      return UniqueMemberId.compose(yymm, maxSeq + 1);
+    });
+  }
+
+  async findByUniqueMemberId(uniqueMemberId: string): Promise<User | null> {
+    const row = await this.delegate.findFirst({
+      where: { uniqueMemberId },
+      include: INCLUDE_CHILDREN,
+    });
+    return row ? this.toDomain(row as UserProfileRow) : null;
+  }
+
   // ── Abstract mapping hooks (required by PrismaCrudRepositoryBase) ─────────
 
   protected toDomain(row: UserProfileRow): User {
@@ -319,8 +355,10 @@ export class UserPrismaRepository
       middleName: row.middleName ?? undefined,
       dateOfBirth: row.dateOfBirth ?? undefined,
       gender: row.gender ?? undefined,
+      bloodGroup: row.bloodGroup ?? undefined,
       about: row.about ?? undefined,
       picture: row.picture ?? undefined,
+      uniqueMemberId: row.uniqueMemberId ?? undefined,
       isSameAddress: row.isSameAddress ?? undefined,
       createdById: row.createdById ?? undefined,
       updatedById: row.updatedById ?? undefined,
@@ -357,8 +395,10 @@ export class UserPrismaRepository
       lastName: entity.lastName,
       dateOfBirth: entity.dateOfBirth ?? null,
       gender: entity.gender ?? null,
+      bloodGroup: entity.bloodGroup ?? null,
       about: entity.about ?? null,
       picture: entity.picture ?? null,
+      uniqueMemberId: entity.uniqueMemberId ?? null,
       status: entity.status,
       isPublic: entity.isPublic,
       isSameAddress: entity.isSameAddress ?? null,
@@ -388,8 +428,10 @@ export class UserPrismaRepository
       lastName: entity.lastName,
       dateOfBirth: entity.dateOfBirth ?? null,
       gender: entity.gender ?? null,
+      bloodGroup: entity.bloodGroup ?? null,
       about: entity.about ?? null,
       picture: entity.picture ?? null,
+      ...(entity.uniqueMemberId ? { uniqueMemberId: entity.uniqueMemberId } : {}),
       status: entity.status,
       isPublic: entity.isPublic,
       isSameAddress: entity.isSameAddress ?? null,

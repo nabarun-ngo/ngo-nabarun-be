@@ -8,6 +8,7 @@ import { ResourceSubscription } from '@nabarun-ngo/nestjs-shared-correspondence/
 import { SubscribedVia } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/subscribed-via.enum';
 import { ChannelType } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/channel-type.enum';
 import { EmailRole } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/email-role.enum';
+import type { CorrespondenceModuleOptions } from '../../../correspondence.schema';
 
 function makeActiveUserSub() {
   return ResourceSubscription.createUserSubscription({
@@ -18,7 +19,10 @@ function makeActiveUserSub() {
   });
 }
 
-function buildHandler(findByUserResult = null, options = {}) {
+function buildHandler(
+  findByUserResult = null,
+  options: Partial<CorrespondenceModuleOptions> = {},
+) {
   const repo: jest.Mocked<IResourceSubscriptionRepository> = {
     findByUserAndResource: jest.fn().mockResolvedValue(findByUserResult),
     create: jest.fn().mockResolvedValue(undefined),
@@ -35,7 +39,11 @@ function buildHandler(findByUserResult = null, options = {}) {
   } as any;
 
   const eventBus = { publishAll: jest.fn() };
-  const handler = new SubscribeUserHandler(repo, eventBus as any, options);
+  const handler = new SubscribeUserHandler(
+    repo,
+    eventBus as any,
+    { environment: 'test', ...options },
+  );
   return { handler, repo };
 }
 

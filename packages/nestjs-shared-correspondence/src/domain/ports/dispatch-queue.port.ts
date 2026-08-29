@@ -13,6 +13,7 @@ export interface CorrespondenceDispatchPayload {
   ccAddresses?: string[];
   sendEmail: boolean;
   sendPush: boolean;
+  attachments?: Array<{ filename: string; content: string; contentType?: string }>;
 }
 
 export interface IDispatchQueuePort {

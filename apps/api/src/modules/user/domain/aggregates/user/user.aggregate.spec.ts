@@ -51,6 +51,16 @@ describe('User aggregate', () => {
       expect(user.id).toBe(existing.id);
     });
 
+    it('keeps the lifetime uniqueMemberId when reusing a deleted member', () => {
+      const existing = makeUser({
+        status: UserStatus.DELETED,
+        deletedAt: new Date(),
+        uniqueMemberId: 'NM24120011',
+      });
+      const user = User.create({ email: 'a@b.com', firstName: 'A', lastName: 'B' }, existing);
+      expect(user.uniqueMemberId).toBe('NM24120011');
+    });
+
     it('throws when firstName is blank', () => {
       expect(() =>
         User.create({ email: 'a@b.com', firstName: '  ', lastName: 'B' }),
@@ -139,7 +149,7 @@ describe('User aggregate', () => {
 
     it('throws when identity is not linked', () => {
       const user = User.create({ email: 'a@b.com', firstName: 'A', lastName: 'B' });
-      expect(() => user.confirmProvisioned()).toThrow('confirmProvisioned requires linkIdentity first');
+      expect(() => user.confirmProvisioned()).toThrow('confirmProvisioned requires linkIdentity() first');
     });
   });
 
@@ -303,6 +313,16 @@ describe('User aggregate', () => {
       expect(user.idpSub).toBeUndefined();
     });
 
+    it('does not clear uniqueMemberId on restore', () => {
+      const user = makeUser({
+        status: UserStatus.DELETED,
+        deletedAt: new Date(),
+        uniqueMemberId: 'NM24120011',
+      });
+      user.restoreFromDeletion();
+      expect(user.uniqueMemberId).toBe('NM24120011');
+    });
+
     it('fires UserStatusChangedEvent with ACTIVE as new status', () => {
       const user = makeUser({ status: UserStatus.DELETED, deletedAt: new Date() });
       user.restoreFromDeletion();
@@ -340,6 +360,25 @@ describe('User aggregate', () => {
     it('computes initials', () => {
       const user = makeUser({ firstName: 'Jane', lastName: 'Smith' });
       expect(user.initials).toBe('JS');
+    });
+  });
+
+  describe('assignUniqueMemberId()', () => {
+    it('assigns once', () => {
+      const user = makeUser();
+      user.assignUniqueMemberId('NM24120011');
+      expect(user.uniqueMemberId).toBe('NM24120011');
+    });
+
+    it('is idempotent for the same value', () => {
+      const user = makeUser({ uniqueMemberId: 'NM24120011' });
+      user.assignUniqueMemberId('NM24120011');
+      expect(user.uniqueMemberId).toBe('NM24120011');
+    });
+
+    it('rejects changing an assigned number', () => {
+      const user = makeUser({ uniqueMemberId: 'NM24120011' });
+      expect(() => user.assignUniqueMemberId('NM24120022')).toThrow(/cannot be changed/);
     });
   });
 });

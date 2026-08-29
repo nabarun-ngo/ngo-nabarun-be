@@ -225,6 +225,11 @@ export type Expense = Prisma.ExpenseModel
  */
 export type Earning = Prisma.EarningModel
 /**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel
+/**
  * Model JsonStoreDocument
  * 
  */

@@ -14,6 +14,7 @@ import { AUTH_MODULE } from './config/auth-module.config';
 import { QUEUE_MODULE } from './config/queue-module.config';
 import { USER_MODULE } from './config/user-module.config';
 import { FINANCE_MODULE } from './config/finance-module.config';
+import { INVOICE_MODULE } from './config/invoice-module.config';
 import { PROJECT_MODULE } from './config/project-module.config';
 import { MEETING_MODULE } from './config/meeting-module.config';
 import { ASSET_MODULE } from './config/asset-module.config';
@@ -47,6 +48,7 @@ import { HEALTH_MODULE } from './config/health-module.config';
       timezone: 'Asia/Kolkata',
     }),
     USER_MODULE,
+    INVOICE_MODULE,
     FINANCE_MODULE,
     ReportingModule.forRoot({ imports: [DMS_MODULE] }),
     PROJECT_MODULE,

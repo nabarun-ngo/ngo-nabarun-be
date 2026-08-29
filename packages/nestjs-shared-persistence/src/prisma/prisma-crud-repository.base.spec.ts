@@ -107,6 +107,12 @@ class AuditFieldsRepository extends TestRepository {
   }
 }
 
+class CustomDefaultPageSizeRepository extends TestRepository {
+  protected defaultPageSize(): number {
+    return 25;
+  }
+}
+
 function buildRepository<T extends TestRepository>(
   RepoClass: new (db: AuditedDatabaseClient<TestClient>) => T,
 ) {
@@ -180,7 +186,60 @@ describe('PrismaCrudRepositoryBase', () => {
     });
     expect(delegate.count).toHaveBeenCalledWith({ where: { name: 'alpha' } });
     expect(page.totalSize).toBe(1);
+    expect(page.pageSize).toBe(10);
     expect(page.content).toHaveLength(1);
+  });
+
+  it('findPaged uses default page size 1000 when pageSize is omitted', async () => {
+    const { repo, delegate } = buildRepository(TestRepository);
+    delegate.findMany.mockResolvedValue([makeRow()]);
+    delegate.count.mockResolvedValue(1);
+
+    const page = await repo.findPaged(
+      new BaseFilter<TestFilter>({ name: 'alpha' }),
+    );
+
+    expect(delegate.findMany).toHaveBeenCalledWith({
+      where: { name: 'alpha' },
+      take: 1000,
+      skip: 0,
+    });
+    expect(page.pageSize).toBe(1000);
+  });
+
+  it('findPaged uses overridden defaultPageSize when pageSize is omitted', async () => {
+    const { repo, delegate } = buildRepository(CustomDefaultPageSizeRepository);
+    delegate.findMany.mockResolvedValue([makeRow()]);
+    delegate.count.mockResolvedValue(1);
+
+    const page = await repo.findPaged(
+      new BaseFilter<TestFilter>({ name: 'alpha' }),
+    );
+
+    expect(delegate.findMany).toHaveBeenCalledWith({
+      where: { name: 'alpha' },
+      take: 25,
+      skip: 0,
+    });
+    expect(page.pageSize).toBe(25);
+  });
+
+  it('findPaged uses explicit filter pageSize over defaultPageSize', async () => {
+    const { repo, delegate } = buildRepository(CustomDefaultPageSizeRepository);
+    delegate.findMany.mockResolvedValue([makeRow()]);
+    delegate.count.mockResolvedValue(1);
+
+    const page = await repo.findPaged(
+      new BaseFilter<TestFilter>({ name: 'alpha' }, 1, 10),
+    );
+
+    expect(delegate.findMany).toHaveBeenCalledWith({
+      where: { name: 'alpha' },
+      take: 10,
+      skip: 10,
+    });
+    expect(page.pageIndex).toBe(1);
+    expect(page.pageSize).toBe(10);
   });
 
   it('count delegates to model count', async () => {

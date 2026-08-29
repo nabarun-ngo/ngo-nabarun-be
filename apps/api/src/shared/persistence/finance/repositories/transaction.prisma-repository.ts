@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
+import { BasePrismaService, PrismaRepositoryBase } from '@nabarun-ngo/nestjs-shared-persistence';
 import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
 import { Prisma, PrismaClient } from '../../prisma/client';
 import { ITransactionRepository, TransactionFilter } from '../../../../modules/finance/domain/repositories/transaction.repository';
@@ -11,12 +11,16 @@ export type TransactionPersistence = Prisma.TransactionGetPayload<{
 }>;
 
 @Injectable()
-export class TransactionPrismaRepository implements ITransactionRepository {
-  constructor(private readonly database: BasePrismaService<PrismaClient>) { }
+export class TransactionPrismaRepository
+  extends PrismaRepositoryBase<PrismaClient, 'transaction'>
+  implements ITransactionRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'transaction');
+  }
 
   async count(filter: TransactionFilter): Promise<number> {
     const where = this.whereQuery(filter);
-    return await this.database.client.transaction.count({ where });
+    return await this.delegate.count({ where });
   }
 
   async findPaged(filter?: BaseFilter<TransactionFilter>): Promise<Page<Transaction>> {
@@ -32,7 +36,7 @@ export class TransactionPrismaRepository implements ITransactionRepository {
       ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
       : Prisma.empty;
 
-    const data = await this.database.client.$queryRaw<any[]>`
+    const data = await this.client.$queryRaw<any[]>`
       WITH balance_cte AS (
         SELECT 
           id,
@@ -70,7 +74,7 @@ export class TransactionPrismaRepository implements ITransactionRepository {
       ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
       : Prisma.empty;
 
-    const data = await this.database.client.$queryRaw<any[]>`
+    const data = await this.client.$queryRaw<any[]>`
       WITH balance_cte AS (
         SELECT 
           id,
@@ -127,7 +131,7 @@ export class TransactionPrismaRepository implements ITransactionRepository {
   }
 
   async findById(id: string): Promise<Transaction | null> {
-    const transaction = await this.database.client.transaction.findUnique({
+    const transaction = await this.delegate.findUnique({
       where: { id },
       include: {
       },
@@ -143,7 +147,7 @@ export class TransactionPrismaRepository implements ITransactionRepository {
       ...TransactionPrismaMapper.toTransactionCreatePersistence(transaction),
     };
 
-    const created = await this.database.client.transaction.create({
+    const created = await this.delegate.create({
       data: createData,
       include: {
       },
@@ -157,7 +161,7 @@ export class TransactionPrismaRepository implements ITransactionRepository {
       ...TransactionPrismaMapper.toTransactionUpdatePersistence(transaction),
     };
 
-    const updated = await this.database.client.transaction.update({
+    const updated = await this.delegate.update({
       where: { id },
       data: updateData,
       include: {
@@ -168,7 +172,7 @@ export class TransactionPrismaRepository implements ITransactionRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.database.client.transaction.update({
+    await this.delegate.update({
       where: { id },
       data: {
         deletedAt: new Date(),

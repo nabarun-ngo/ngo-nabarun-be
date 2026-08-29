@@ -1,31 +1,65 @@
 import { Injectable } from '@nestjs/common';
-import { BasePrismaService } from '@nabarun-ngo/nestjs-shared-persistence';
-import { BaseFilter, Page } from '@nabarun-ngo/nestjs-shared-core';
+import {
+  BasePrismaService,
+  PrismaCrudRepositoryBase,
+} from '@nabarun-ngo/nestjs-shared-persistence';
 import { ResourceSubscription, SubscriptionFilter, SubscriberType, SubscribedVia } from '@nabarun-ngo/nestjs-shared-correspondence/domain/aggregates/resource-subscription.aggregate';
 import { SubscriptionChannel } from '@nabarun-ngo/nestjs-shared-correspondence/domain/entities/subscription-channel.entity';
 import { ChannelType } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/channel-type.enum';
 import { EmailRole } from '@nabarun-ngo/nestjs-shared-correspondence/domain/enums/email-role.enum';
 import { IResourceSubscriptionRepository } from '@nabarun-ngo/nestjs-shared-correspondence/domain/repositories/resource-subscription.repository';
+import type { PrismaClient } from '../../prisma/client';
+import type {
+  CorrespondenceResourceSubscriptionWhereInput,
+  CorrespondenceResourceSubscriptionWhereUniqueInput,
+  CorrespondenceResourceSubscriptionCreateInput,
+  CorrespondenceResourceSubscriptionUncheckedCreateInput,
+  CorrespondenceResourceSubscriptionUpdateInput,
+  CorrespondenceResourceSubscriptionUncheckedUpdateInput,
+  CorrespondenceResourceSubscriptionOrderByWithRelationInput,
+} from '../../prisma/models/CorrespondenceResourceSubscription';
+
+type SubscriptionRow = Awaited<
+  ReturnType<PrismaClient['correspondenceResourceSubscription']['findUnique']>
+> & {
+  channels?: Array<{
+    id: string;
+    subscriptionId: string;
+    channel: string;
+    enabled: boolean;
+    emailRole: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }>;
+};
+
+const CHANNEL_INCLUDE = { channels: true } as const;
 
 @Injectable()
-export class ResourceSubscriptionPrismaRepository implements IResourceSubscriptionRepository {
-  constructor(private readonly prisma: BasePrismaService) { }
+export class ResourceSubscriptionPrismaRepository
+  extends PrismaCrudRepositoryBase<
+    PrismaClient,
+    'correspondenceResourceSubscription',
+    ResourceSubscription,
+    string,
+    SubscriptionFilter,
+    NonNullable<SubscriptionRow>,
+    CorrespondenceResourceSubscriptionWhereInput,
+    CorrespondenceResourceSubscriptionWhereUniqueInput,
+    ({} & CorrespondenceResourceSubscriptionCreateInput) | ({} & CorrespondenceResourceSubscriptionUncheckedCreateInput),
+    ({} & CorrespondenceResourceSubscriptionUpdateInput) | ({} & CorrespondenceResourceSubscriptionUncheckedUpdateInput),
+    CorrespondenceResourceSubscriptionOrderByWithRelationInput,
+    typeof CHANNEL_INCLUDE
+  >
+  implements IResourceSubscriptionRepository {
+  constructor(database: BasePrismaService<PrismaClient>) {
+    super(database, 'correspondenceResourceSubscription');
+  }
 
-  async create(subscription: ResourceSubscription): Promise<ResourceSubscription> {
-    const row = await (this.prisma).corr2ResourceSubscription.create({
+  override async create(subscription: ResourceSubscription): Promise<ResourceSubscription> {
+    const row = await this.delegate.create({
       data: {
-        id: subscription.id,
-        subscriberType: subscription.subscriberType,
-        userId: subscription.userId ?? null,
-        userEmail: subscription.userEmail ?? null,
-        userName: subscription.userName ?? null,
-        roleName: subscription.roleName ?? null,
-        resourceType: subscription.resourceType,
-        resourceId: subscription.resourceId ?? null,
-        subscribedVia: subscription.subscribedVia,
-        isActive: subscription.isActive,
-        createdAt: subscription.createdAt,
-        updatedAt: subscription.updatedAt,
+        ...this.toCreateInput(subscription),
         channels: {
           create: subscription.channels.map((c) => ({
             id: c.id,
@@ -37,23 +71,19 @@ export class ResourceSubscriptionPrismaRepository implements IResourceSubscripti
           })),
         },
       },
-      include: { channels: true },
+      include: CHANNEL_INCLUDE,
     });
     return this.toDomain(row);
   }
 
-  async update(id: string, subscription: ResourceSubscription): Promise<ResourceSubscription> {
-    await (this.prisma).corr2ResourceSubscription.update({
+  override async update(id: string, subscription: ResourceSubscription): Promise<ResourceSubscription> {
+    await this.delegate.update({
       where: { id },
-      data: {
-        isActive: subscription.isActive,
-        userEmail: subscription.userEmail ?? null,
-        updatedAt: subscription.updatedAt,
-      },
+      data: this.toUpdateInput(id, subscription),
     });
 
     for (const channel of subscription.channels) {
-      await (this.prisma).corr2SubscriptionChannel.upsert({
+      await this.client.correspondenceSubscriptionChannel.upsert({
         where: { corr_subscriptionChannel_unique: { subscriptionId: id, channel: channel.channel } },
         create: {
           id: channel.id,
@@ -72,23 +102,7 @@ export class ResourceSubscriptionPrismaRepository implements IResourceSubscripti
       });
     }
 
-    const row = await (this.prisma).corr2ResourceSubscription.findUnique({
-      where: { id },
-      include: { channels: true },
-    });
-    return this.toDomain(row);
-  }
-
-  async delete(id: string): Promise<void> {
-    await (this.prisma).corr2ResourceSubscription.delete({ where: { id } });
-  }
-
-  async findById(id: string): Promise<ResourceSubscription | null> {
-    const row = await (this.prisma).corr2ResourceSubscription.findUnique({
-      where: { id },
-      include: { channels: true },
-    });
-    return row ? this.toDomain(row) : null;
+    return (await this.findById(id))!;
   }
 
   async findByUserAndResource(
@@ -96,9 +110,9 @@ export class ResourceSubscriptionPrismaRepository implements IResourceSubscripti
     resourceType: string,
     resourceId?: string,
   ): Promise<ResourceSubscription | null> {
-    const row = await (this.prisma).corr2ResourceSubscription.findFirst({
+    const row = await this.delegate.findFirst({
       where: { userId, resourceType, resourceId: resourceId ?? null },
-      include: { channels: true },
+      include: CHANNEL_INCLUDE,
     });
     return row ? this.toDomain(row) : null;
   }
@@ -108,9 +122,9 @@ export class ResourceSubscriptionPrismaRepository implements IResourceSubscripti
     resourceType: string,
     resourceId?: string,
   ): Promise<ResourceSubscription | null> {
-    const row = await (this.prisma).corr2ResourceSubscription.findFirst({
+    const row = await this.delegate.findFirst({
       where: { roleName, resourceType, resourceId: resourceId ?? null },
-      include: { channels: true },
+      include: CHANNEL_INCLUDE,
     });
     return row ? this.toDomain(row) : null;
   }
@@ -119,64 +133,36 @@ export class ResourceSubscriptionPrismaRepository implements IResourceSubscripti
     resourceType: string,
     resourceId?: string,
   ): Promise<ResourceSubscription[]> {
-    const rows = await (this.prisma).corr2ResourceSubscription.findMany({
+    const rows = await this.delegate.findMany({
       where: {
         resourceType,
         resourceId: resourceId ?? null,
         isActive: true,
       },
-      include: { channels: true },
+      include: CHANNEL_INCLUDE,
     });
-    return rows.map((r: any) => this.toDomain(r));
-  }
-
-  async findAll(filter?: SubscriptionFilter): Promise<ResourceSubscription[]> {
-    const rows = await (this.prisma).corr2ResourceSubscription.findMany({
-      where: this.buildWhere(filter),
-      include: { channels: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    return rows.map((r: any) => this.toDomain(r));
-  }
-
-  async findPaged(filter?: BaseFilter<SubscriptionFilter>): Promise<Page<ResourceSubscription>> {
-    const where = this.buildWhere(filter?.props);
-    const pageIndex = filter?.pageIndex ?? 0;
-    const pageSize = filter?.pageSize ?? 50;
-    const [rows, total] = await Promise.all([
-      (this.prisma).corr2ResourceSubscription.findMany({
-        where,
-        include: { channels: true },
-        orderBy: { createdAt: 'desc' },
-        skip: pageIndex * pageSize,
-        take: pageSize,
-      }),
-      (this.prisma).corr2ResourceSubscription.count({ where }),
-    ]);
-    return new Page(rows.map((r: any) => this.toDomain(r)), total, pageIndex, pageSize);
-  }
-
-  async count(filter: SubscriptionFilter): Promise<number> {
-    return (this.prisma).corr2ResourceSubscription.count({
-      where: this.buildWhere(filter),
-    });
+    return rows.map((row) => this.toDomain(row));
   }
 
   async updateEmailForUser(userId: string, newEmail: string): Promise<void> {
-    await (this.prisma).corr2ResourceSubscription.updateMany({
+    await this.delegate.updateMany({
       where: { userId },
       data: { userEmail: newEmail, updatedAt: new Date() },
     });
   }
 
   async deleteInactiveBefore(date: Date): Promise<number> {
-    const result = await (this.prisma).corr2ResourceSubscription.deleteMany({
+    const result = await this.delegate.deleteMany({
       where: { isActive: false, updatedAt: { lt: date } },
     });
     return result.count;
   }
 
-  private buildWhere(filter?: SubscriptionFilter): Record<string, any> {
+  protected toUniqueWhere(id: string): CorrespondenceResourceSubscriptionWhereUniqueInput {
+    return { id };
+  }
+
+  protected toFilterWhere(filter?: SubscriptionFilter): CorrespondenceResourceSubscriptionWhereInput {
     if (!filter) return {};
     return {
       ...(filter.userId ? { userId: filter.userId } : {}),
@@ -188,9 +174,51 @@ export class ResourceSubscriptionPrismaRepository implements IResourceSubscripti
     };
   }
 
-  private toDomain(row: any): ResourceSubscription {
+  protected toCreateInput(
+    subscription: ResourceSubscription,
+  ): ({} & CorrespondenceResourceSubscriptionCreateInput) | ({} & CorrespondenceResourceSubscriptionUncheckedCreateInput) {
+    return {
+      id: subscription.id,
+      subscriberType: subscription.subscriberType,
+      userId: subscription.userId ?? null,
+      userEmail: subscription.userEmail ?? null,
+      userName: subscription.userName ?? null,
+      roleName: subscription.roleName ?? null,
+      resourceType: subscription.resourceType,
+      resourceId: subscription.resourceId ?? null,
+      subscribedVia: subscription.subscribedVia,
+      isActive: subscription.isActive,
+      createdAt: subscription.createdAt,
+      updatedAt: subscription.updatedAt,
+    };
+  }
+
+  protected toUpdateInput(
+    _id: string,
+    subscription: ResourceSubscription,
+  ): ({} & CorrespondenceResourceSubscriptionUpdateInput) | ({} & CorrespondenceResourceSubscriptionUncheckedUpdateInput) {
+    return {
+      isActive: subscription.isActive,
+      userEmail: subscription.userEmail ?? null,
+      updatedAt: subscription.updatedAt,
+    };
+  }
+
+  protected defaultOrderBy(): CorrespondenceResourceSubscriptionOrderByWithRelationInput {
+    return { createdAt: 'desc' };
+  }
+
+  protected defaultPageSize(): number {
+    return 50;
+  }
+
+  protected override toInclude(): typeof CHANNEL_INCLUDE {
+    return CHANNEL_INCLUDE;
+  }
+
+  protected toDomain(row: NonNullable<SubscriptionRow>): ResourceSubscription {
     const channels: SubscriptionChannel[] = (row.channels ?? []).map(
-      (c: any) =>
+      (c) =>
         new SubscriptionChannel(c.id, c.subscriptionId, c.channel as ChannelType, {
           enabled: c.enabled,
           emailRole: (c.emailRole as EmailRole) ?? undefined,

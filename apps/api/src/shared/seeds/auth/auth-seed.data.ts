@@ -327,6 +327,8 @@ export const AUTH_SEED: AuthSeedData = {
     { key: 'create:user_connections', description: 'Create user connections' },
     { key: 'read:user_connections', description: 'Read user connections' },
     { key: 'delete:user_connections', description: 'Delete user connections' },
+    { key: 'create:identity_cards', description: 'Print member identity cards' },
+    { key: 'read:identity_cards', description: 'Reprint member identity cards' },
 
     // ── comment entity-type permissions (consumer-defined) ──────────────────
     { key: 'read:donation_comments', description: 'Read comments on donation entities' },
@@ -464,6 +466,8 @@ export const AUTH_SEED: AuthSeedData = {
         ...BOOK_BANK_ALL,
         'update:users',
         'read:user_connections',
+        'create:identity_cards',
+        'read:identity_cards',
 
       ],
     },
@@ -477,6 +481,8 @@ export const AUTH_SEED: AuthSeedData = {
         ...BOOK_BANK_ALL,
         'update:users',
         'read:user_connections',
+        'create:identity_cards',
+        'read:identity_cards',
 
       ],
     },
@@ -492,6 +498,8 @@ export const AUTH_SEED: AuthSeedData = {
         'update:users',
         'delete:users',
         'read:user_connections',
+        'create:identity_cards',
+        'read:identity_cards',
       ],
     },
     {
@@ -505,6 +513,8 @@ export const AUTH_SEED: AuthSeedData = {
         'create:users',
         'update:users',
         'read:user_connections',
+        'create:identity_cards',
+        'read:identity_cards',
       ],
     },
     {
@@ -554,6 +564,8 @@ export const AUTH_SEED: AuthSeedData = {
         'update:users',
         'delete:users',
         'send:email',
+        'create:identity_cards',
+        'read:identity_cards',
       ],
     },
   ],

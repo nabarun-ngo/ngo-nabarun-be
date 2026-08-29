@@ -4,9 +4,10 @@ import { DonationDto } from '../dtos/donation.dto';
 import { AccountMapper } from './account.mapper';
 import { FinanceUserMapper } from './finance-user.mapper';
 import { DonationDonorEnrichment } from './donation-donor-display.helper';
+import { InvoiceSummaryDto } from '../../../invoice/application/dtos/invoice.dto';
 
 export class DonationMapper {
-  static toDto(donation: Donation, enrichment?: DonationDonorEnrichment): DonationDto {
+  static toDto(donation: Donation, enrichment?: DonationDonorEnrichment, invoice?: InvoiceSummaryDto): DonationDto {
     return {
       id: donation.id,
       type: donation.type,
@@ -38,6 +39,7 @@ export class DonationMapper {
       nextStatuses: donation.nextStatus(),
       activityId: donation.forEventId,
       activityName: donation.activityName,
+      invoice,
     };
   }
 }

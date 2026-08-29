@@ -48,7 +48,7 @@ export class Donor extends AggregateRoot<string> {
       throw new BusinessException('userProfileId is required for member donors');
     }
     const donor = new Donor(
-      `NDNR${generateUniqueNDigitNumber(8)}`,
+      props.userProfileId,
       DonorType.MEMBER,
       DonorStatus.ACTIVE,
       props.preferredAmount,

@@ -32,7 +32,7 @@ const baseCmd = (): CreateUserCommand =>
   });
 
 describe('CreateUserHandler', () => {
-  let repo: jest.Mocked<Pick<IUserRepository, 'findByEmail' | 'create' | 'update'>>;
+  let repo: jest.Mocked<Pick<IUserRepository, 'findByEmail' | 'create' | 'update' | 'allocateNextUniqueMemberId'>>;
   let identityProvider: jest.Mocked<IIdentityProvider>;
   let eventBus: jest.Mocked<Pick<EventBus, 'publishAll'>>;
   let handler: CreateUserHandler;
@@ -42,6 +42,7 @@ describe('CreateUserHandler', () => {
       findByEmail: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue(undefined),
       update: jest.fn().mockResolvedValue(undefined),
+      allocateNextUniqueMemberId: jest.fn().mockResolvedValue('NM24120011'),
     };
     identityProvider = {
       createUser: jest.fn().mockResolvedValue({ externalSub: 'auth0|new-sub' }),
@@ -106,6 +107,22 @@ describe('CreateUserHandler', () => {
     const persistedUser: User = repo.create.mock.calls[0][0];
     expect(persistedUser.createdById).toBe('admin-id');
     expect(persistedUser.updatedById).toBe('admin-id');
+  });
+
+  it('assigns a uniqueMemberId on first create', async () => {
+    const result = await handler.execute(baseCmd());
+    expect(repo.allocateNextUniqueMemberId).toHaveBeenCalledTimes(1);
+    expect(result.uniqueMemberId).toBe('NM24120011');
+  });
+
+  it('does not allocate a new uniqueMemberId when restoring a deleted member who already has one', async () => {
+    const existingDeleted = makeDeletedUser({ uniqueMemberId: 'NM24010015' });
+    repo.findByEmail.mockResolvedValue(existingDeleted);
+
+    const result = await handler.execute(baseCmd());
+
+    expect(repo.allocateNextUniqueMemberId).not.toHaveBeenCalled();
+    expect(result.uniqueMemberId).toBe('NM24010015');
   });
 
   it('reuses a soft-deleted user record on email collision', async () => {

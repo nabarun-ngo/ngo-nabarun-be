@@ -15,6 +15,7 @@ import { isLocalEnv } from '../../infrastructure/utilities/env.util';
 import { BusinessError } from '../../domain/errors/business-error';
 import { ErrorResponse } from '../models/response-model';
 import { getTraceId, resolveTraceId } from '../../infrastructure/utilities/trace-context.util';
+import { resolvePublicErrorMessage } from '../errors/public-error-message.resolver';
 
 interface ClassifiedError {
   status: number;
@@ -50,7 +51,7 @@ function isPrismaValidationError(
  * Global exception filter that handles all exceptions in the application.
  *
  * Behavior:
- * - Business exceptions: Returns the actual error message
+ * - Business exceptions: Returns a stable, client-safe public message
  * - HTTP exceptions (4xx): Returns the error message
  * - Server errors (5xx): Returns generic message in production, detailed error in non-production
  * - Unknown errors: Returns generic message in production, detailed error in non-production
@@ -79,14 +80,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     this.logRequestContext(request, classified);
     this.sanitiseForClient(exception, classified.status, errorResponse);
 
-    if (exception instanceof ThrottlerException) {
-      response.status(HttpStatus.TOO_MANY_REQUESTS).json({
-        success: false,
-        message: 'Too many requests. Please try again later.',
-      });
-      return;
-    }
-
     response.status(classified.status).json(errorResponse);
   }
 
@@ -101,8 +94,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       this.logger.warn(`Business Error: ${exception.message}`, stackTrace);
       return {
         status: exception.statusCode,
-        messages: [exception.message],
+        messages: [resolvePublicErrorMessage(exception)],
         errorCode: exception.errorCode,
+        stackTrace,
+      };
+    }
+
+    if (exception instanceof ThrottlerException) {
+      return {
+        status: HttpStatus.TOO_MANY_REQUESTS,
+        messages: ['Too many requests. Please try again later.'],
+        errorCode: 'RATE_LIMITED',
         stackTrace,
       };
     }
@@ -236,17 +238,24 @@ export class GlobalExceptionFilter implements ExceptionFilter {
    * Removes internal details from the response before it reaches the client.
    * Stack traces are always stripped in non-local environments. The error
    * message is replaced for 5xx non-business errors to avoid leaking internals.
+   * Business-error messages were already resolved to safe text during
+   * classification in every environment.
    */
   private sanitiseForClient(
     exception: unknown,
     status: number,
     errorResponse: ErrorResponse,
   ): void {
+    if (exception instanceof BusinessError) {
+      delete errorResponse.stackTrace;
+      return;
+    }
+
     if (!this.maskErrors) return;
 
     delete errorResponse.stackTrace;
 
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR && !(exception instanceof BusinessError)) {
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       errorResponse.messages = ['An internal server error occurred. Please try again later.'];
     }
   }

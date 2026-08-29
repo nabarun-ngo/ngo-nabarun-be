@@ -38,6 +38,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand, Use
         middleName: cmd.middleName,
         dateOfBirth: cmd.dateOfBirth,
         gender: cmd.gender,
+        bloodGroup: cmd.bloodGroup,
         about: cmd.about,
         picture: cmd.picture,
         isPublic: cmd.isPublic,
@@ -47,6 +48,11 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand, Use
 
     if (isReuse) {
       user.restoreFromDeletion();
+    }
+
+    if (!user.uniqueMemberId) {
+      const uniqueMemberId = await this.repo.allocateNextUniqueMemberId(new Date());
+      user.assignUniqueMemberId(uniqueMemberId);
     }
 
     // 3. Profile completeness (independent of lifecycle status)

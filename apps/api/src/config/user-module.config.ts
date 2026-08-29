@@ -17,6 +17,10 @@ export const USER_MODULE = UserModule.forRootAsync({
         },
         spaClientId: config.getOrThrow(Configkey.SPA_CLIENT_ID),
         appFeUrl: config.getOrThrow(Configkey.APP_FE_URL),
+        publicApiUrl: config.getOrThrow(Configkey.APP_BE_URL),
+        organisationName: config.get(Configkey.APP_NAME) ?? 'Member',
+        organisationRegistrationNumber: config.get(Configkey.IDENTITY_CARD_REGISTRATION_NUMBER),
+        organisationLogoDataUrl: config.get(Configkey.IDENTITY_CARD_LOGO_DATA_URL),
         defaultRoleKeys: ['MEMBER'],
     }),
 });

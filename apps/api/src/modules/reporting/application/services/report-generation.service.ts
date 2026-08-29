@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { BusinessException } from '@nabarun-ngo/nestjs-shared-core';
 import { Report } from '../../domain/aggregates/report/report.aggregate';
 import { ReportStatus } from '../../domain/enums/report-status.enum';
@@ -9,6 +9,8 @@ import { ReportingDmsFacade } from '../../infrastructure/adapters/reporting-dms.
 
 @Injectable()
 export class ReportGenerationService {
+  private readonly logger = new Logger(ReportGenerationService.name);
+
   constructor(
     private readonly registry: ReportRegistryService,
     @Inject(IReportRepository) private readonly reportRepository: IReportRepository,
@@ -28,13 +30,20 @@ export class ReportGenerationService {
   }): Promise<{ workflowId: string; reportId?: string }> {
     const definition = await this.definitionsPort.getDefinition(params.reportCode);
     if (!definition || !definition.isActive) {
-      throw new NotFoundException(`Report definition for ${params.reportCode} not found`);
+      this.logger.warn(`Report definition not found or inactive: ${params.reportCode}`);
+      throw new NotFoundException('Report definition not found');
     }
     if (definition.approverRoles?.length) {
       const allowed = params.userRoles.some((role) => definition.approverRoles?.includes(role));
       if (!allowed) {
+        this.logger.warn(
+          `Report generation denied for ${params.reportCode}; requiredRoles=${definition.approverRoles.join(',')}`,
+        );
         throw new BusinessException(
           `You do not have the required role to generate this report. Required: ${definition.approverRoles.join(', ')}`,
+          'REPORT_GENERATION_FORBIDDEN',
+          403,
+          'You do not have permission to generate this report.',
         );
       }
     }
@@ -68,7 +77,8 @@ export class ReportGenerationService {
   }): Promise<Report> {
     const provider = this.registry.getProvider(params.reportCode);
     if (!provider) {
-      throw new NotFoundException(`Report provider for ${params.reportCode} not found`);
+      this.logger.warn(`Report provider not found: ${params.reportCode}`);
+      throw new NotFoundException('Report provider not found');
     }
 
     let report: Report;

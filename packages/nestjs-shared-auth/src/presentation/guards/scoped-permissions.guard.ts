@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import {
   REQUIRE_PERMISSIONS_IN_SCOPE_KEY,
@@ -9,6 +9,8 @@ import { AuthUser } from '../../application/models/auth-user';
 
 @Injectable()
 export class ScopedPermissionsGuard implements CanActivate {
+  private readonly logger = new Logger(ScopedPermissionsGuard.name);
+
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -40,14 +42,16 @@ export class ScopedPermissionsGuard implements CanActivate {
       throw new ForbiddenException('Entity scope could not be resolved from the request.');
     }
 
-    const scopeKey = `${entityType}:${entityId}`;
-    const scopedPermissions = user.scopedRoles?.[scopeKey]?.permissions ?? [];
+    const scopedPermissions =
+      user.scopedAccess?.find((scope) => scope.entityId === entityId && scope.entityType === entityType)
+        ?.permissions ?? [];
 
     if (required.every((p) => scopedPermissions.includes(p))) return true;
 
-    throw new ForbiddenException(
-      `Insufficient permissions for ${scopeKey}. Required: ${required.join(', ')}.`,
+    this.logger.warn(
+      `Scoped access denied for ${entityType}/${entityId}; required=${required.join(',')}`,
     );
+    throw new ForbiddenException('Insufficient permissions for the requested resource.');
   }
 
   private extractFromRequest(
