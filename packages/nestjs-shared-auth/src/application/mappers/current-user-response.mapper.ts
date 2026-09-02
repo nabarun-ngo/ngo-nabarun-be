@@ -14,7 +14,7 @@ export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDt
         userRoles: authUser.userRoles,
         roleGroups: authUser.roleGroups,
         idpClaims: authUser.idpClaims,
-        attributes: Object.fromEntries(authUser.userInfo?.attributes ?? []),
+        attributes: authUser.userInfo?.attributes,
         phoneNo: authUser.userInfo?.phoneNo,
         scopedAccess: authUser.scopedAccess?.map((scopedRole) => {
             return {

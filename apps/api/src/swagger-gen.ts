@@ -5,6 +5,7 @@ import { RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { buildSwaggerDocument } from '@nabarun-ngo/nestjs-shared-core';
 import { AppModule } from './app.module';
+import { prefixExclusions } from './main';
 
 /**
  * Writes `apps/api/swagger.json` from the compiled application.
@@ -25,19 +26,14 @@ async function main() {
 
   // Must mirror main.ts, otherwise every documented path loses its /api prefix.
   app.setGlobalPrefix('api', {
-    exclude: [
-      { path: 'newsletter', method: RequestMethod.POST },
-      { path: 'health', method: RequestMethod.GET },
-      { path: 'ready', method: RequestMethod.GET },
-      { path: 'metrics', method: RequestMethod.GET },
-    ],
+    exclude: prefixExclusions,
   });
 
   // Title and description are pinned rather than read from APP_NAME so the
   // committed spec does not churn with each developer's local .env.
   const document = buildSwaggerDocument(app, {
-    title: 'NABARUN API',
-    description: 'NABARUN application backend',
+    title: 'NABARUN Mock API',
+    description: 'NABARUN Mock application backend',
     version: '1.0',
   });
 
@@ -47,7 +43,7 @@ async function main() {
   await app.close();
   process.stdout.write(
     `swagger.json written: ${Object.keys(document.paths).length} paths, ` +
-      `${Object.keys(document.components?.schemas ?? {}).length} schemas\n`,
+    `${Object.keys(document.components?.schemas ?? {}).length} schemas\n`,
   );
 }
 

@@ -2,9 +2,16 @@ import 'reflect-metadata';
 import { RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { applyConfig } from '@nabarun-ngo/nestjs-shared-core';
+import { applyConfig, RouteExclusion } from '@nabarun-ngo/nestjs-shared-core';
 import { AppModule } from './app.module';
 import { Configkey } from './shared/enums/config-keys';
+
+export const prefixExclusions: RouteExclusion[] = [
+  { path: 'newsletter', method: RequestMethod.POST },
+  { path: 'health', method: RequestMethod.GET },
+  { path: 'ready', method: RequestMethod.GET },
+  { path: 'metrics', method: RequestMethod.GET },
+]
 
 async function main() {
   const app = await NestFactory.create(AppModule);
@@ -12,12 +19,7 @@ async function main() {
 
   applyConfig(app, {
     globalPrefix: 'api',
-    globalPrefixExclusions: [
-      { path: 'newsletter', method: RequestMethod.POST },
-      { path: 'health', method: RequestMethod.GET },
-      { path: 'ready', method: RequestMethod.GET },
-      { path: 'metrics', method: RequestMethod.GET },
-    ],
+    globalPrefixExclusions: prefixExclusions,
     environment: config.getOrThrow<string>(Configkey.NODE_ENV),
     appName: `${config.get<string>(Configkey.APP_NAME) ?? 'NestJS'} API`,
     corsOrigins: config.get<string>(Configkey.CORS_ALLOWED_ORIGIN)?.split(','),
