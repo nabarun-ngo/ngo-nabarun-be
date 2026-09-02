@@ -1,11 +1,10 @@
 import 'reflect-metadata';
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { buildSwaggerDocument } from '@nabarun-ngo/nestjs-shared-core';
 import { AppModule } from './app.module';
-import { prefixExclusions } from './main';
+import { prefixExclusions } from './config/http-prefix.config';
 
 /**
  * Writes `apps/api/swagger.json` from the compiled application.
@@ -32,8 +31,8 @@ async function main() {
   // Title and description are pinned rather than read from APP_NAME so the
   // committed spec does not churn with each developer's local .env.
   const document = buildSwaggerDocument(app, {
-    title: 'NABARUN Mock API',
-    description: 'NABARUN Mock application backend',
+    title: 'NABARUN API',
+    description: 'NABARUN application backend',
     version: '1.0',
   });
 

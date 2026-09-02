@@ -18691,8 +18691,7 @@
             "example": "2026-03-14T09:30:00.000Z"
           },
           "updatedAt": {
-            "format": "date-time",
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "example": "2026-03-14T09:30:00.000Z"
           }
@@ -18733,7 +18732,7 @@
             "example": "Volunteer Intake Form"
           },
           "description": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "example": "Collects availability and emergency contact details from new volunteers"
           },
@@ -18785,8 +18784,7 @@
             "example": "2026-03-14T09:30:00.000Z"
           },
           "updatedAt": {
-            "format": "date-time",
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "example": "2026-03-14T09:30:00.000Z"
           },
@@ -18983,7 +18981,7 @@
             "example": "Volunteer Intake Form"
           },
           "description": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "example": "Collects availability and emergency contact details from new volunteers"
           },
@@ -19068,7 +19066,7 @@
             "example": "Volunteer Intake Form"
           },
           "description": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "example": "Collects availability and emergency contact details from new volunteers"
           },
@@ -19441,13 +19439,13 @@
             "example": 1
           },
           "stepId": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "description": "Wizard step identifier for multi-step forms",
             "example": "contact-details"
           },
           "stepName": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "description": "Display label for the wizard step",
             "example": "Contact details"
@@ -20471,8 +20469,10 @@
           },
           "attributes": {
             "type": "object",
-            "description": "Extra profile attributes — carried as a Map, so it serialises to an empty object",
-            "example": {}
+            "description": "Extra profile attributes (e.g. profileComplete)",
+            "example": {
+              "profileComplete": true
+            }
           },
           "type": {
             "type": "string",
@@ -20496,7 +20496,6 @@
           "permissions",
           "userRoles",
           "roleGroups",
-          "id",
           "type"
         ]
       },
@@ -33756,13 +33755,13 @@
             "example": 1
           },
           "stepId": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "description": "Wizard step identifier for multi-step forms",
             "example": "contact-details"
           },
           "stepName": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "description": "Display label for the wizard step",
             "example": "Contact details"
@@ -33816,7 +33815,7 @@
             "example": "Volunteer Intake Form"
           },
           "description": {
-            "type": "string",
+            "type": "object",
             "nullable": true,
             "example": "Collects availability and emergency contact details from new volunteers"
           },

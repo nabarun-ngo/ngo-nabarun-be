@@ -1,17 +1,10 @@
 import 'reflect-metadata';
-import { RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { applyConfig, RouteExclusion } from '@nabarun-ngo/nestjs-shared-core';
+import { applyConfig } from '@nabarun-ngo/nestjs-shared-core';
 import { AppModule } from './app.module';
+import { prefixExclusions } from './config/http-prefix.config';
 import { Configkey } from './shared/enums/config-keys';
-
-export const prefixExclusions: RouteExclusion[] = [
-  { path: 'newsletter', method: RequestMethod.POST },
-  { path: 'health', method: RequestMethod.GET },
-  { path: 'ready', method: RequestMethod.GET },
-  { path: 'metrics', method: RequestMethod.GET },
-]
 
 async function main() {
   const app = await NestFactory.create(AppModule);
