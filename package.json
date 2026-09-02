@@ -25,7 +25,7 @@
     "release": "npm run release:ci",
     "watch:packages": "turbo watch build --filter=./packages/*",
     "start:debug": "npm run start:debug --workspace=apps/api && start npm run watch:packages ",
-    "start": "start npm run watch:packages && npm run dev --workspace=apps/api"
+    "start:dev": "start npm run watch:packages && npm run dev --workspace=apps/api"
   },
   "dependencies": {
     "@googleapis/calendar": "^15.0.0",

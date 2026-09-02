@@ -18691,7 +18691,8 @@
             "example": "2026-03-14T09:30:00.000Z"
           },
           "updatedAt": {
-            "type": "object",
+            "type": "string",
+            "format": "date-time",
             "nullable": true,
             "example": "2026-03-14T09:30:00.000Z"
           }
@@ -18732,7 +18733,7 @@
             "example": "Volunteer Intake Form"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "example": "Collects availability and emergency contact details from new volunteers"
           },
@@ -18784,7 +18785,8 @@
             "example": "2026-03-14T09:30:00.000Z"
           },
           "updatedAt": {
-            "type": "object",
+            "type": "string",
+            "format": "date-time",
             "nullable": true,
             "example": "2026-03-14T09:30:00.000Z"
           },
@@ -33755,13 +33757,13 @@
             "example": 1
           },
           "stepId": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "description": "Wizard step identifier for multi-step forms",
             "example": "contact-details"
           },
           "stepName": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "description": "Display label for the wizard step",
             "example": "Contact details"
@@ -33815,7 +33817,7 @@
             "example": "Volunteer Intake Form"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "example": "Collects availability and emergency contact details from new volunteers"
           },

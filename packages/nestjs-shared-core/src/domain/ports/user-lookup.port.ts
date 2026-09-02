@@ -12,7 +12,7 @@ export interface UserInfo {
   fullName?: string;
   email?: string;
   phoneNo?: string;
-  attributes?: Map<string, unknown>;
+  [key: string]: any
 }
 
 export const IUserLookupPort = Symbol('IUserLookupPort');

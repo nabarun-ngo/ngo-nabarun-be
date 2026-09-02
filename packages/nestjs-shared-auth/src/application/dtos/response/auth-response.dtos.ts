@@ -108,7 +108,7 @@ export class AuthUserInfoResponseDto extends RbacResponseDto {
     description: 'Extra profile attributes (e.g. profileComplete)',
     example: { profileComplete: true },
   })
-  attributes?: Record<string, unknown>;
+  attributes?: Record<string, any>;
 }
 
 /** Payload of `GET /auth/me` — the resolved `AuthUser` of the caller. */

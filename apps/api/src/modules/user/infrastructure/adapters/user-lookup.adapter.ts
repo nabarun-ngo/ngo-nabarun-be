@@ -46,9 +46,7 @@ export class UserLookupAdapter implements IUserLookupPort {
       lastName: user.lastName,
       fullName: user.fullName,
       email: user.email,
-      attributes: new Map([
-        ['profileComplete', user.isProfileComplete],
-      ]),
+      'profileComplete': user.isProfileComplete
     };
   }
 }

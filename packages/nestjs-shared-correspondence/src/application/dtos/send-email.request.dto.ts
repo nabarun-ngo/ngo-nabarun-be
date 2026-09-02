@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -96,5 +97,6 @@ export class SendEmailDto {
 
 export class SendEmailResultDto {
   @ApiProperty({ description: 'Whether the email was accepted and sent.', example: true })
+  @IsBoolean()
   accepted: boolean;
 }

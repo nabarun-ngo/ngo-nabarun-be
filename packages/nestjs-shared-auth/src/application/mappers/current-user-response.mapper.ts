@@ -1,19 +1,10 @@
 import { AuthUser } from "../models/auth-user";
 import { CurrentUserResponseDto } from "../dtos/response/auth-response.dtos";
-
-function attributesToRecord(
-    attributes?: Map<string, unknown> | Record<string, unknown>,
-): Record<string, unknown> {
-    if (!attributes) {
-        return {};
-    }
-    if (attributes instanceof Map) {
-        return Object.fromEntries(attributes);
-    }
-    return { ...attributes };
-}
+import { userInfo } from "os";
+import { UserInfo } from "@nabarun-ngo/nestjs-shared-core";
 
 export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDto {
+
     return {
         type: authUser.type,
         idpSub: authUser.idpSub,
@@ -26,7 +17,6 @@ export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDt
         userRoles: authUser.userRoles,
         roleGroups: authUser.roleGroups,
         idpClaims: authUser.idpClaims,
-        attributes: attributesToRecord(authUser.userInfo?.attributes),
         phoneNo: authUser.userInfo?.phoneNo,
         scopedAccess: authUser.scopedAccess?.map((scopedRole) => {
             return {
@@ -37,5 +27,6 @@ export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDt
                 roleGroups: scopedRole.roleGroups,
             };
         }) ?? [],
-    };
+        attributes: authUser.userInfo
+    }; 
 }

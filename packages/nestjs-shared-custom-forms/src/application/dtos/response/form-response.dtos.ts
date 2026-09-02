@@ -75,11 +75,11 @@ export class FormFieldDefinitionResponseDto {
   @IsNumber()
   sortOrder: number;
 
-  @ApiPropertyOptional({ nullable: true, description: 'Wizard step identifier for multi-step forms', example: 'contact-details' })
+  @ApiPropertyOptional({ type: String, nullable: true, description: 'Wizard step identifier for multi-step forms', example: 'contact-details' })
   @IsString()
   stepId: string | null;
 
-  @ApiPropertyOptional({ nullable: true, description: 'Display label for the wizard step', example: 'Contact details' })
+  @ApiPropertyOptional({ type: String, nullable: true, description: 'Display label for the wizard step', example: 'Contact details' })
   @IsString()
   stepName: string | null;
 
@@ -104,7 +104,7 @@ export class FormFieldDefinitionResponseDto {
   @IsDate()
   createdAt: Date;
 
-  @ApiPropertyOptional({ nullable: true, example: '2026-03-14T09:30:00.000Z' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', nullable: true, example: '2026-03-14T09:30:00.000Z' })
   @IsDate()
   updatedAt: Date | null;
 }
@@ -126,7 +126,7 @@ export class FormResponseDto {
   @IsString()
   label: string;
 
-  @ApiPropertyOptional({ nullable: true, example: 'Collects availability and emergency contact details from new volunteers' })
+  @ApiPropertyOptional({ type: String, nullable: true, example: 'Collects availability and emergency contact details from new volunteers' })
   @IsString()
   description: string | null;
 
@@ -156,7 +156,7 @@ export class FormResponseDto {
   @IsDate()
   createdAt: Date;
 
-  @ApiPropertyOptional({ nullable: true, example: '2026-03-14T09:30:00.000Z' })
+  @ApiPropertyOptional({ type: String, format: 'date-time', nullable: true, example: '2026-03-14T09:30:00.000Z' })
   @IsDate()
   updatedAt: Date | null;
 

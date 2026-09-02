@@ -27,7 +27,8 @@ generated/
 apps/api/swagger.mock.json
 apps/api/src/persistence/prisma/
 **/database/generated/**
-**/prisma/models/shared/
+**/prisma/models/shared/**
+apps/api/src/shared/persistence/prisma/
 
 # Test coverage
 coverage/
