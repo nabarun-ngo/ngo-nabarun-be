@@ -88,7 +88,7 @@ export class BasePrismaService<TClient extends PrismaClientLike = PrismaClientLi
         }
         const clientVal = (target)._client;
         if (clientVal && prop in clientVal) {
-          const val = clientVal[prop];
+          const val = Reflect.get(clientVal, prop);
           return typeof val === "function" ? val.bind(clientVal) : val;
         }
         return Reflect.get(target, prop, receiver);

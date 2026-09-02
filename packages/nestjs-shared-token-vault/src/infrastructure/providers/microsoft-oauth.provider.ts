@@ -165,8 +165,9 @@ export class MicrosoftOAuthProvider implements IOAuthProvider {
       );
       this.logger.log('Microsoft sign-in sessions revoked via Graph API');
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'unknown error';
       this.logger.warn(
-        `Best-effort Microsoft token revocation failed: ${err?.message ?? 'unknown error'}. Local token will still be removed.`,
+        `Best-effort Microsoft token revocation failed: ${message}. Local token will still be removed.`,
       );
     }
   }

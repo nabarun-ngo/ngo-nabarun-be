@@ -95,7 +95,7 @@ export class RbacResponseDto extends RbacContextResponseDto {
 }
 
 export class AuthUserInfoResponseDto extends RbacResponseDto {
-  @ApiProperty({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) id: string;
+  @ApiProperty({ required: false, example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) id?: string;
   @ApiProperty({ required: false, example: 'auth0|65f1a2b3c4d5e6f708192a3b' }) idpSub?: string;
   @ApiProperty({ required: false, example: 'Asha' }) firstName?: string;
   @ApiProperty({ required: false, example: 'Verma' }) lastName?: string;
@@ -105,10 +105,10 @@ export class AuthUserInfoResponseDto extends RbacResponseDto {
   @ApiProperty({
     required: false,
     type: Object,
-    description: 'Extra profile attributes — carried as a Map, so it serialises to an empty object',
-    example: {},
+    description: 'Extra profile attributes (e.g. profileComplete)',
+    example: { profileComplete: true },
   })
-  attributes?: Map<string, unknown>;
+  attributes?: Record<string, unknown>;
 }
 
 /** Payload of `GET /auth/me` — the resolved `AuthUser` of the caller. */

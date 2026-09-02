@@ -1,6 +1,18 @@
 import { AuthUser } from "../models/auth-user";
 import { CurrentUserResponseDto } from "../dtos/response/auth-response.dtos";
 
+function attributesToRecord(
+    attributes?: Map<string, unknown> | Record<string, unknown>,
+): Record<string, unknown> {
+    if (!attributes) {
+        return {};
+    }
+    if (attributes instanceof Map) {
+        return Object.fromEntries(attributes);
+    }
+    return { ...attributes };
+}
+
 export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDto {
     return {
         type: authUser.type,
@@ -14,7 +26,7 @@ export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDt
         userRoles: authUser.userRoles,
         roleGroups: authUser.roleGroups,
         idpClaims: authUser.idpClaims,
-        attributes: authUser.userInfo?.attributes,
+        attributes: attributesToRecord(authUser.userInfo?.attributes),
         phoneNo: authUser.userInfo?.phoneNo,
         scopedAccess: authUser.scopedAccess?.map((scopedRole) => {
             return {

@@ -293,7 +293,9 @@ export class QueueProcessorRegistry
     } catch (error) {
       if (error instanceof WaitingChildrenError) throw error;
 
-      const categorized = categorizeError(error);
+      const categorized = categorizeError(
+        error instanceof Error ? error : new Error(String(error)),
+      );
       const retryDelay = getRetryDelay(categorized, attemptNumber);
 
       const duration = Date.now() - startTime;

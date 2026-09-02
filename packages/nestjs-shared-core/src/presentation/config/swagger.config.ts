@@ -62,7 +62,9 @@ export function buildSwaggerDocument(app: INestApplication, options: SwaggerOpti
       if (
         ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(method)
       ) {
-        const operation: any = pathItem[method];
+        const operation = pathItem[method as keyof typeof pathItem] as
+          | { description?: string; ['x-required-permissions']?: string[]; ['x-require-all-permissions']?: boolean }
+          | undefined;
         if (operation) {
           const permissions = operation['x-required-permissions'] as string[];
           const requireAll = operation['x-require-all-permissions'] == true;

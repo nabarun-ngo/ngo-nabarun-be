@@ -13,8 +13,18 @@ const validOptions = {
   }),
 };
 
-function findProvider(mod: DynamicModule, token: symbol | string) {
-  const direct = (mod.providers as any[] | undefined)?.find(
+type ProviderLike = {
+  provide?: unknown;
+  useValue?: { redisUrl?: string };
+  useFactory?: (...args: unknown[]) => unknown;
+  inject?: unknown[];
+};
+
+function findProvider(
+  mod: DynamicModule,
+  token: symbol | string,
+): ProviderLike | undefined {
+  const direct = (mod.providers as ProviderLike[] | undefined)?.find(
     (p) => p.provide === token,
   );
   if (direct) return direct;
@@ -45,7 +55,7 @@ describe('DatabaseModule', () => {
       const mod = DatabaseModule.forRoot(validOptions) as DynamicModule;
       const optionsProvider = findProvider(mod, DATABASE_OPTIONS);
       expect(optionsProvider).toBeDefined();
-      expect(optionsProvider.useValue.redisUrl).toBe(validOptions.redisUrl);
+      expect(optionsProvider!.useValue!.redisUrl).toBe(validOptions.redisUrl);
     });
 
     it('provides PRISMA_CLIENT token', () => {
@@ -96,7 +106,7 @@ describe('DatabaseModule', () => {
       expect(mod.module).toBe(DatabaseModule);
       const optionsProvider = findProvider(mod, DATABASE_OPTIONS);
       expect(optionsProvider).toBeDefined();
-      expect(typeof optionsProvider.useFactory).toBe('function');
+      expect(typeof optionsProvider!.useFactory).toBe('function');
     });
 
     it('accepts inject array for factory dependencies', () => {
@@ -106,7 +116,7 @@ describe('DatabaseModule', () => {
         useFactory: (_myToken: any) => validOptions,
       });
       const optionsProvider = findProvider(mod, DATABASE_OPTIONS);
-      expect(optionsProvider.inject).toContain(TOKEN);
+      expect(optionsProvider!.inject).toContain(TOKEN);
     });
 
     it('validates async factory options', async () => {
@@ -118,7 +128,7 @@ describe('DatabaseModule', () => {
       });
       const optionsProvider = findProvider(mod, DATABASE_OPTIONS);
 
-      await expect(optionsProvider.useFactory()).rejects.toThrow(
+      await expect(optionsProvider!.useFactory!()).rejects.toThrow(
         '[DatabaseModule] Config validation failed:',
       );
     });
@@ -147,7 +157,7 @@ describe('DatabaseModule', () => {
       const prismaProvider = (mod.providers as any[]).find(
         (p) => p.provide === PRISMA_CLIENT,
       );
-      const validated = await optionsProvider.useFactory();
+      const validated = await optionsProvider!.useFactory!();
 
       await expect(prismaProvider.useFactory(validated)).resolves.toBe(prismaClient);
       expect(prismaClientFactory).toHaveBeenCalledWith();

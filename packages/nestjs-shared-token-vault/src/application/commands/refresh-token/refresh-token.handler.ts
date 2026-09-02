@@ -86,7 +86,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand,
         });
       } catch (err) {
         this.logger.warn(
-          `Token refresh failed for ${provider} token ${tokenId}: ${err.message}. Removing stale credential.`,
+          `Token refresh failed for ${provider} token ${tokenId}: ${err instanceof Error ? err.message : String(err)}. Removing stale credential.`,
         );
         fresh.revoke();
         const revokeEvents = [...fresh.domainEvents];

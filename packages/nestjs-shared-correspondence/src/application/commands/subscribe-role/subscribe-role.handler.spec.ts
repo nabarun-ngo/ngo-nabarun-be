@@ -18,7 +18,7 @@ function makeActiveRoleSub() {
 }
 
 function buildHandler(
-  findByRoleResult = null,
+  findByRoleResult: ResourceSubscription | null = null,
   options: Partial<CorrespondenceModuleOptions> = {},
 ) {
   const repo: jest.Mocked<IResourceSubscriptionRepository> = {

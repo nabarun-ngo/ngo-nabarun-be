@@ -168,7 +168,9 @@ export class GoogleOAuthProvider implements IOAuthProvider {
       scoped.setCredentials({ access_token: accessToken });
       return scoped;
     } catch (error) {
-      this.eventBus.publish(new AppTechnicalError(error));
+      this.eventBus.publish(
+        new AppTechnicalError(error instanceof Error ? error : new Error(String(error))),
+      );
       throw error;
     }
   }

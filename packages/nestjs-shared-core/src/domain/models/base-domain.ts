@@ -88,7 +88,7 @@ export abstract class BaseDomain<T> {
 
       for (const [key, descriptor] of Object.entries(descriptors)) {
         if (descriptor.get && key !== 'constructor') {
-          result[key] = this.convert((this)[key]);
+          result[key] = this.convert(Reflect.get(this, key));
         }
       }
 

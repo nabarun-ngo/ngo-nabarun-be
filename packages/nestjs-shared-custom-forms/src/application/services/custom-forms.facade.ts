@@ -149,7 +149,10 @@ export class CustomFormsFacade {
       ),
     );
 
-    const validation = await this.queryBus.execute(
+    const validation = await this.queryBus.execute<
+      ValidateFormSubmissionQuery,
+      FormValidationResultResponseDto
+    >(
       new ValidateFormSubmissionQuery(
         params.formId,
         params.entityType,

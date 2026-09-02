@@ -60,7 +60,7 @@ export class CommentController {
         mentions: dto.mentions,
         authorId,
         authorName: user.name ?? 'Unknown User',
-        authorEmail: user.email,
+        authorEmail: user.email ?? '',
         userPermissions: user.permissions ?? [],
       }),
     );

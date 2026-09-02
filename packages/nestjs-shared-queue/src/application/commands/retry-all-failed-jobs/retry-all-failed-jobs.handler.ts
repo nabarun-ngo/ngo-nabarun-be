@@ -29,7 +29,9 @@ export class RetryAllFailedJobsHandler
         retriedCount++;
       } catch (error) {
         failedCount++;
-        this.logger.error(`Failed to retry job ${job.id}: ${error.message}`);
+        this.logger.error(
+          `Failed to retry job ${job.id}: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
     return { retriedCount, failedCount };

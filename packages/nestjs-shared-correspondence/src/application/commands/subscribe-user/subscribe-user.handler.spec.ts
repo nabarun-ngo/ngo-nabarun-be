@@ -20,7 +20,7 @@ function makeActiveUserSub() {
 }
 
 function buildHandler(
-  findByUserResult = null,
+  findByUserResult: ResourceSubscription | null = null,
   options: Partial<CorrespondenceModuleOptions> = {},
 ) {
   const repo: jest.Mocked<IResourceSubscriptionRepository> = {

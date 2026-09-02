@@ -79,8 +79,13 @@ export class CompleteOAuthHandler implements ICommandHandler<CompleteOAuthComman
     } catch (err) {
       // HIGH-1: Remove the cache entry so the user can retry the same code.
       await this.cacheService.del(codeKey);
-      this.logger.error(`OAuth code exchange failed for ${provider}`, err.stack);
-      throw new OAuthCallbackError(err.message ?? 'code exchange failed');
+      this.logger.error(
+        `OAuth code exchange failed for ${provider}`,
+        err instanceof Error ? err.stack : undefined,
+      );
+      throw new OAuthCallbackError(
+        err instanceof Error ? err.message : 'code exchange failed',
+      );
     }
 
     // After successful exchange, codeKey must remain set to block replay —
@@ -159,7 +164,7 @@ export class CompleteOAuthHandler implements ICommandHandler<CompleteOAuthComman
         `[TokenVault] Post-exchange failure after successful OAuth exchange. ` +
         `provider=${provider} email=${profile?.email ?? 'unknown'} accountId=${account?.id ?? 'unknown'}. ` +
         `The authorization code is burned; provider-issued tokens are unreachable. ` +
-        `User must re-authorize. Error: ${err.message}`,
+        `User must re-authorize. Error: ${err instanceof Error ? err.message : String(err)}`,
       );
       throw err;
     }

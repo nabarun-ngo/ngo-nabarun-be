@@ -15,9 +15,6 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "types": [
-      "jest",
-      "node"
-    ]
+    "forceConsistentCasingInFileNames": true
   }
 }

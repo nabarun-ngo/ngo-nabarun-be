@@ -205,7 +205,9 @@ export class PuppeteerPdfBuilderService implements IPdfBuilder {
             });
 
             const page = await browser.newPage();
-            await page.setContent(html, { waitUntil: 'networkidle0' });
+            await page.setContent(html, {
+                waitUntil: 'networkidle0' as unknown as 'load' | 'domcontentloaded',
+            });
 
             const pdfOptions: puppeteerType.PDFOptions = {
                 format: (this.options.pageSize?.toUpperCase() as any) || 'A4',

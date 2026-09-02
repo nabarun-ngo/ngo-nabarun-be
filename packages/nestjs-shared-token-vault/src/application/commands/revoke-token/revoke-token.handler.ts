@@ -46,7 +46,7 @@ export class RevokeTokenHandler implements ICommandHandler<RevokeTokenCommand, v
       this.logger.log(`Revoked ${provider} token ${tokenId} at provider`);
     } catch (err) {
       this.logger.warn(
-        `Provider revocation failed for ${provider} token ${tokenId}: ${err.message}. Removing from local storage anyway.`,
+        `Provider revocation failed for ${provider} token ${tokenId}: ${err instanceof Error ? err.message : String(err)}. Removing from local storage anyway.`,
       );
     }
 
