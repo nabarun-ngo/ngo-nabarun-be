@@ -5,6 +5,7 @@ import { AccountStatus } from '../../domain/enums/account-status.enum';
 import { AccountOwnerType } from '../../domain/enums/account-owner-type.enum';
 import { AccountType } from '../../domain/enums/account-type.enum';
 import { KeyValueOption } from '../../application/ports/finance-reference-data.port';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 export class BankDetailDto {
   @ApiPropertyOptional({ example: 'Asha Verma' })
@@ -164,7 +165,7 @@ export class AccountDetailDto {
   upiDetails?: UPIDetailDto[];
 }
 
-export class AccountDetailFilterDto {
+export class AccountDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ enum: AccountStatus, isArray: true, example: [AccountStatus.ACTIVE] })
   @IsOptional()
   @Transform(({ value }) =>

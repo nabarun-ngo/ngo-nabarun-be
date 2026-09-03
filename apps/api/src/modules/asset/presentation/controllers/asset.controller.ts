@@ -16,10 +16,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import {
+  ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
   ApiPaginationQuery,
   ApiUuidParam,
+  PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateAssetCommand } from '../../application/commands/create-asset/create-asset.command';
 import { UpdateAssetCommand } from '../../application/commands/update-asset/update-asset.command';
@@ -33,7 +35,6 @@ import {
   AssignAssetCustodyDto,
   AssetDetailDto,
   AssetDetailFilterDto,
-  AssetListResponseDto,
   CreateAssetDto,
   ReturnAssetCustodyDto,
   UpdateAssetDto,
@@ -64,13 +65,11 @@ export class AssetController {
   @Get('list')
   @RequirePermissions('read:assets')
   @ApiPaginationQuery()
-  @ApiAutoResponse(AssetListResponseDto)
+  @ApiAutoPagedResponse(AssetDetailDto)
   listAssets(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: AssetDetailFilterDto,
-  ): Promise<AssetListResponseDto> {
-    return this.queryBus.execute(new ListAssetsQuery(filter, pageIndex, pageSize));
+  ): Promise<PagedResponse<AssetDetailDto>> {
+    return this.queryBus.execute(new ListAssetsQuery(filter));
   }
 
   @Get(':id')

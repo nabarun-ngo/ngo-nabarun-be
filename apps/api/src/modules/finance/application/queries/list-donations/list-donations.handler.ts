@@ -4,16 +4,17 @@ import { IUserLookupPort } from '@nabarun-ngo/nestjs-shared-core';
 import { IDonationRepository } from '../../../domain/repositories/donation.repository';
 import { IDonorRepository } from '../../../domain/repositories/donor.repository';
 import { DonorType } from '../../../domain/enums/donor-type.enum';
-import { DonationListResponseDto } from '../../dtos/donation-list.dto';
 import { DonationMapper } from '../../mappers/donation.mapper';
 import { buildDonationDonorEnrichment } from '../../mappers/donation-donor-display.helper';
 import { ListDonationsQuery } from './list-donations.query';
 import { InvoiceEntityType } from '../../../../invoice/domain/enums/invoice-entity-type.enum';
 import { InvoiceFacade } from '../../../../invoice/application/services/invoice.facade';
+import { DonationDto } from '../../../presentation/dtos/donation.dto';
+import { PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 
 @QueryHandler(ListDonationsQuery)
 @Injectable()
-export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, DonationListResponseDto> {
+export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, PagedResponse<DonationDto>> {
   constructor(
     @Inject(IDonationRepository) private readonly donationRepository: IDonationRepository,
     @Inject(IDonorRepository) private readonly donorRepository: IDonorRepository,
@@ -21,7 +22,7 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, D
     private readonly invoiceFacade: InvoiceFacade,
   ) { }
 
-  async execute(query: ListDonationsQuery): Promise<DonationListResponseDto> {
+  async execute(query: ListDonationsQuery): Promise<PagedResponse<DonationDto>> {
     let donorId = query.filter.donorId;
     const donorType = query.filter.donorType
       ?? (query.filter.isGuest === 'Y'
@@ -33,7 +34,7 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, D
       const donor = await this.donorRepository.findByUserProfileId(query.filter.userProfileId);
       donorId = donor?.id;
       if (!donorId) {
-        return { items: [], total: 0, pageIndex: query.pageIndex ?? 0, pageSize: query.pageSize ?? 20 };
+        return { content: [], totalSize: 0, pageIndex: query.pageIndex ?? 0, pageSize: query.pageSize ?? 20 };
       }
     }
 
@@ -72,7 +73,7 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, D
     const invoiceMap = new Map(invoices.map((invoice) => [invoice.entityId, invoice]));
 
     return {
-      items: page.content.map((donation) => {
+      content: page.content.map((donation) => {
         const donor = donation.donorId ? donorMap.get(donation.donorId) : undefined;
         const userProfile = donor?.userProfileId ? userMap.get(donor.userProfileId) : undefined;
         return DonationMapper.toDto(
@@ -81,7 +82,7 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, D
           invoiceMap.get(donation.id),
         );
       }),
-      total: page.totalSize,
+      totalSize: page.totalSize,
       pageIndex: page.pageIndex,
       pageSize: page.pageSize,
     };

@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse, ApiPaginationQuery, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiPaginationQuery, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateExpenseCommand } from '../../application/commands/create-expense/create-expense.command';
 import { UpdateExpenseCommand } from '../../application/commands/update-expense/update-expense.command';
 import { FinalizeExpenseCommand } from '../../application/commands/finalize-expense/finalize-expense.command';
@@ -13,7 +13,6 @@ import { GetExpenseByIdQuery } from '../../application/queries/get-expense-by-id
 import { GetExpenseReferenceDataQuery } from '../../application/queries/get-expense-reference-data/get-expense-reference-data.query';
 import { ExpenseMapper } from '../../application/mappers/expense.mapper';
 import { CreateExpenseDto, ExpenseDetailDto, ExpenseDetailFilterDto, ExpenseRefDataDto, UpdateExpenseDto } from '../dtos/expense.dto';
-import { ExpenseListResponseDto } from '../../application/dtos/expense-list.dto';
 
 @ApiTags('Expense')
 @ApiBearerAuth('jwt')
@@ -101,25 +100,21 @@ export class ExpenseController {
   @Get('list')
   @RequirePermissions('read:expenses')
   @ApiPaginationQuery()
-  @ApiAutoResponse(ExpenseListResponseDto)
+  @ApiAutoPagedResponse(ExpenseDetailDto)
   listExpenses(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: ExpenseDetailFilterDto,
-  ): Promise<ExpenseListResponseDto> {
-    return this.queryBus.execute(new ListExpensesQuery(filter ?? {}, pageIndex, pageSize));
+  ): Promise<PagedResponse<ExpenseDetailDto>> {
+    return this.queryBus.execute(new ListExpensesQuery(filter));
   }
 
   @Get('list/me')
   @ApiPaginationQuery()
-  @ApiAutoResponse(ExpenseListResponseDto)
+  @ApiAutoPagedResponse(ExpenseDetailDto)
   listSelfExpenses(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: ExpenseDetailFilterDto,
     @CurrentUser() user?: AuthUser,
-  ): Promise<ExpenseListResponseDto> {
-    return this.queryBus.execute(new ListExpensesQuery({ ...filter, payerId: user?.userId }, pageIndex, pageSize));
+  ): Promise<PagedResponse<ExpenseDetailDto>> {
+    return this.queryBus.execute(new ListExpensesQuery({ ...filter, payerId: user?.userId }));
   }
 
   @Get(':id')

@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
+import { BaseFilter, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { IEarningRepository } from '../../../domain/repositories/earning.repository';
-import { EarningListResponseDto } from '../../dtos/earning-list.dto';
 import { EarningMapper } from '../../mappers/earning.mapper';
 import { ListEarningsQuery } from './list-earnings.query';
+import { EarningDetailDto } from '../../dtos/earning.dto';
 
 @QueryHandler(ListEarningsQuery)
 @Injectable()
-export class ListEarningsHandler implements IQueryHandler<ListEarningsQuery, EarningListResponseDto> {
+export class ListEarningsHandler implements IQueryHandler<ListEarningsQuery, PagedResponse<EarningDetailDto>> {
   constructor(@Inject(IEarningRepository) private readonly repo: IEarningRepository) { }
 
-  async execute(query: ListEarningsQuery): Promise<EarningListResponseDto> {
+  async execute(query: ListEarningsQuery): Promise<PagedResponse<EarningDetailDto>> {
     const filter = new BaseFilter(query.filter, query.pageIndex ?? 0, query.pageSize ?? 20);
     const page = await this.repo.findPaged({
       pageIndex: filter.pageIndex,
@@ -19,8 +19,8 @@ export class ListEarningsHandler implements IQueryHandler<ListEarningsQuery, Ear
       props: filter.props,
     });
     return {
-      items: page.content.map(EarningMapper.toDto),
-      total: page.totalSize,
+      content: page.content.map(EarningMapper.toDto),
+      totalSize: page.totalSize,
       pageIndex: page.pageIndex,
       pageSize: page.pageSize,
     };

@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query,
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoPagedResponse, ApiAutoResponse, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateGuestDonorCommand } from '../../application/commands/create-guest-donor/create-guest-donor.command';
 import { UpdateGuestDonorCommand } from '../../application/commands/update-guest-donor/update-guest-donor.command';
 import { UpdateMemberDonorCommand } from '../../application/commands/update-member-donor/update-member-donor.command';
@@ -13,7 +13,6 @@ import { GetDonorReferenceDataQuery } from '../../application/queries/get-donor-
 import { DonorMapper } from '../../application/mappers/donor.mapper';
 import {
   CreateGuestDonorRequestDto,
-  DonorListResponseDto,
   DonorRefDataDto,
   DonorResponseDto,
   ListDonorsQueryDto,
@@ -67,7 +66,7 @@ export class DonorController {
   @Get('list')
   @RequirePermissions('read:donors')
   @ApiAutoPagedResponse(DonorResponseDto)
-  list(@Query() query: ListDonorsQueryDto): Promise<DonorListResponseDto> {
+  list(@Query() query: ListDonorsQueryDto): Promise<PagedResponse<DonorResponseDto>> {
     return this.queryBus.execute(
       new ListDonorsQuery(
         { q: query.q, type: query.type, status: query.status },

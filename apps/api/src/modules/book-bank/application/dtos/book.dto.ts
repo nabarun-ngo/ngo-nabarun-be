@@ -15,6 +15,7 @@ import {
   BookStatus,
   BookSubject,
 } from '../../domain/enums/book.enum';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 export class BookLoanRecordDto {
   @ApiProperty() id!: string;
@@ -143,7 +144,7 @@ export class BookDetailDto {
   @ApiProperty() updatedAt!: Date;
 }
 
-export class BookDetailFilterDto {
+export class BookDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ enum: BookStatus }) @IsOptional() @IsEnum(BookStatus) status?: BookStatus;
   @ApiPropertyOptional({ enum: BookCategory }) @IsOptional() @IsEnum(BookCategory) category?: BookCategory;
   @ApiPropertyOptional() @IsOptional() @IsString() author?: string;
@@ -159,13 +160,6 @@ export class BookDetailFilterDto {
   @IsOptional()
   @IsString()
   q?: string;
-}
-
-export class BookListResponseDto {
-  @ApiProperty({ type: [BookDetailDto] }) items!: BookDetailDto[];
-  @ApiProperty({ example: 42 }) total!: number;
-  @ApiProperty({ example: 0 }) pageIndex!: number;
-  @ApiProperty({ example: 20 }) pageSize!: number;
 }
 
 export class BookReferenceDataDto {

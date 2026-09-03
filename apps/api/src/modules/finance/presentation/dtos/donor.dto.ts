@@ -166,17 +166,3 @@ export class DonorResponseDto {
   @ApiProperty()
   updatedAt!: Date;
 }
-
-export class DonorListResponseDto {
-  @ApiProperty({ type: [DonorResponseDto] })
-  items!: DonorResponseDto[];
-
-  @ApiProperty()
-  total!: number;
-
-  @ApiProperty()
-  pageIndex!: number;
-
-  @ApiProperty()
-  pageSize!: number;
-}

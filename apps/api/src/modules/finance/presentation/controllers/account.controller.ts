@@ -12,10 +12,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import {
+  ApiAutoPagedResponse,
   ApiAutoPrimitiveResponse,
   ApiAutoResponse,
   ApiPaginationQuery,
   ApiUuidParam,
+  PagedResponse,
   SuccessResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateAccountCommand } from '../../application/commands/create-account/create-account.command';
@@ -29,8 +31,7 @@ import { GetIfscDetailsQuery } from '../../application/queries/get-ifsc-details/
 import { AccountMapper } from '../../application/mappers/account.mapper';
 import { TransactionRefType } from '../../domain/enums/transaction.enum';
 import { AccountDetailDto, AccountDetailFilterDto, AccountRefDataDto, CreateAccountDto, TransferDto, UpdateAccountDto, UpdateAccountSelfDto } from '../dtos/account.dto';
-import { AccountListResponseDto, TransactionListResponseDto } from '../../application/dtos/account-list.dto';
-import { ReverseTransactionDto, TransactionDetailFilterDto } from '../dtos/transaction.dto';
+import { TransactionDetailDto, TransactionDetailFilterDto } from '../dtos/transaction.dto';
 import { IfscDetailsDto } from '../dtos/ifsc.dto';
 
 /**
@@ -116,25 +117,21 @@ export class AccountController {
   @Get('list')
   @RequirePermissions('read:accounts')
   @ApiPaginationQuery()
-  @ApiAutoResponse(AccountListResponseDto)
+  @ApiAutoPagedResponse(AccountDetailDto)
   listAccounts(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: AccountDetailFilterDto,
-  ): Promise<AccountListResponseDto> {
-    return this.queryBus.execute(new ListAccountsQuery(filter ?? {}, pageIndex, pageSize));
+  ): Promise<PagedResponse<AccountDetailDto>> {
+    return this.queryBus.execute(new ListAccountsQuery(filter));
   }
 
   @Get('list/me')
   @ApiPaginationQuery()
-  @ApiAutoResponse(AccountListResponseDto)
+  @ApiAutoPagedResponse(AccountDetailDto)
   listSelfAccounts(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: AccountDetailFilterDto,
     @CurrentUser() user?: AuthUser,
-  ): Promise<AccountListResponseDto> {
-    return this.queryBus.execute(new ListAccountsQuery(filter ?? {}, pageIndex, pageSize, user?.userId));
+  ): Promise<PagedResponse<AccountDetailDto>> {
+    return this.queryBus.execute(new ListAccountsQuery(filter, user?.userId));
   }
 
   @Post('create')
@@ -198,28 +195,24 @@ export class AccountController {
   @RequirePermissions('read:transactions')
   @ApiUuidParam('id', 'Identifier of the account')
   @ApiPaginationQuery()
-  @ApiAutoResponse(TransactionListResponseDto)
+  @ApiAutoPagedResponse(TransactionDetailDto)
   listAccountTransactions(
     @Param('id') accountId: string,
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: TransactionDetailFilterDto,
-  ): Promise<TransactionListResponseDto> {
-    return this.queryBus.execute(new ListAccountTransactionsQuery(accountId, filter ?? {}, pageIndex, pageSize));
+  ): Promise<PagedResponse<TransactionDetailDto>> {
+    return this.queryBus.execute(new ListAccountTransactionsQuery(accountId, filter));
   }
 
   @Get(':id/transactions/me')
   @ApiUuidParam('id', 'Identifier of the account')
   @ApiPaginationQuery()
-  @ApiAutoResponse(TransactionListResponseDto)
+  @ApiAutoPagedResponse(TransactionDetailDto)
   listSelfAccountTransactions(
     @Param('id') accountId: string,
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: TransactionDetailFilterDto,
     @CurrentUser() user?: AuthUser,
-  ): Promise<TransactionListResponseDto> {
-    return this.queryBus.execute(new ListAccountTransactionsQuery(accountId, filter ?? {}, pageIndex, pageSize, user?.userId));
+  ): Promise<PagedResponse<TransactionDetailDto>> {
+    return this.queryBus.execute(new ListAccountTransactionsQuery(accountId, filter, user?.userId));
   }
 
   @Post(':id/transfer')

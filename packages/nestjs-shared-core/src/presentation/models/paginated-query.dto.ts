@@ -28,7 +28,7 @@ export class PaginatedQueryDto {
   @Min(1)
   pageSize?: number = 20;
 
-  @ApiPropertyOptional({ example: 'createdAt' })
+  @ApiPropertyOptional({ example: 'createdBy' })
   @IsOptional()
   @IsString()
   sortBy?: string;

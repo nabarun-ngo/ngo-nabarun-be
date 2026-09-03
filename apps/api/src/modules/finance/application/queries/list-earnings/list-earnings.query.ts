@@ -1,15 +1,8 @@
-import { EarningCategory, EarningStatus } from '../../../domain/enums/earning.enum';
+import { EarningDetailFilterDto } from '../../../presentation/dtos/earning.dto';
 
 export class ListEarningsQuery {
   constructor(
-    public readonly filter: {
-      status?: EarningStatus[];
-      category?: EarningCategory[];
-      source?: string;
-      referenceId?: string;
-      startDate?: Date;
-      endDate?: Date;
-    } = {},
+    public readonly filter: EarningDetailFilterDto = {},
     public readonly pageIndex?: number,
     public readonly pageSize?: number,
   ) {}

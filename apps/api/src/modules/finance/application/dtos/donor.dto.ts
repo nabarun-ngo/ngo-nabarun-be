@@ -23,13 +23,6 @@ export class DonorDto {
   updatedAt!: Date;
 }
 
-export class DonorListResponseDto {
-  items!: DonorDto[];
-  total!: number;
-  pageIndex!: number;
-  pageSize!: number;
-}
-
 export class MergeGuestDonorsDto {
   sourceDonorId!: string;
   targetDonorId!: string;

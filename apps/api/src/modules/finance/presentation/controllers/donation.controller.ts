@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse, ApiPaginationQuery, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiPaginationQuery, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateDonationCommand } from '../../application/commands/create-donation/create-donation.command';
 import { CreateGuestDonorCommand } from '../../application/commands/create-guest-donor/create-guest-donor.command';
 import { UpdateDonationCommand } from '../../application/commands/update-donation/update-donation.command';
@@ -15,7 +15,6 @@ import { buildDonationDonorEnrichment } from '../../application/mappers/donation
 import { DonationType } from '../../domain/enums/donation-type.enum';
 import { DonorType } from '../../domain/enums/donor-type.enum';
 import { CreateDonationDto, CreateGuestDonationDto, DonationDetailFilterDto, DonationDto, DonationRefDataDto, DonationSummaryDto, UpdateDonationDto } from '../dtos/donation.dto';
-import { DonationListResponseDto } from '../../application/dtos/donation-list.dto';
 
 @ApiTags('Donation')
 @ApiBearerAuth('jwt')
@@ -97,41 +96,35 @@ export class DonationController {
 
   @Get('list/me')
   @ApiPaginationQuery()
-  @ApiAutoResponse(DonationListResponseDto)
+  @ApiAutoPagedResponse(DonationDto)
   getSelfDonations(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: DonationDetailFilterDto,
     @CurrentUser() user?: AuthUser,
-  ): Promise<DonationListResponseDto> {
+  ): Promise<PagedResponse<DonationDto>> {
     return this.queryBus.execute(
-      new ListDonationsQuery({ ...filter, userProfileId: user?.userId }, pageIndex, pageSize),
+      new ListDonationsQuery({ ...filter, userProfileId: user?.userId }),
     );
   }
 
   @Get('list')
   @RequirePermissions('read:donations')
   @ApiPaginationQuery()
-  @ApiAutoResponse(DonationListResponseDto)
+  @ApiAutoPagedResponse(DonationDto)
   list(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: DonationDetailFilterDto,
-  ): Promise<DonationListResponseDto> {
-    return this.queryBus.execute(new ListDonationsQuery(filter ?? {}, pageIndex, pageSize));
+  ): Promise<PagedResponse<DonationDto>> {
+    return this.queryBus.execute(new ListDonationsQuery(filter));
   }
 
   @Get('list/guest')
   @RequirePermissions('read:donation_guest')
   @ApiPaginationQuery()
-  @ApiAutoResponse(DonationListResponseDto)
+  @ApiAutoPagedResponse(DonationDto)
   listGuest(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: DonationDetailFilterDto,
-  ): Promise<DonationListResponseDto> {
+  ): Promise<PagedResponse<DonationDto>> {
     return this.queryBus.execute(
-      new ListDonationsQuery({ ...filter, donorType: DonorType.GUEST }, pageIndex, pageSize),
+      new ListDonationsQuery({ ...filter, donorType: DonorType.GUEST }),
     );
   }
 
@@ -153,15 +146,13 @@ export class DonationController {
   @RequirePermissions('read:member_donations')
   @ApiUuidParam('memberId', 'Identifier of the member user profile')
   @ApiPaginationQuery()
-  @ApiAutoResponse(DonationListResponseDto)
+  @ApiAutoPagedResponse(DonationDto)
   getMemberDonations(
     @Param('memberId') memberId: string,
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: DonationDetailFilterDto,
-  ): Promise<DonationListResponseDto> {
+  ): Promise<PagedResponse<DonationDto>> {
     return this.queryBus.execute(
-      new ListDonationsQuery({ ...filter, userProfileId: memberId }, pageIndex, pageSize),
+      new ListDonationsQuery({ ...filter, userProfileId: memberId }),
     );
   }
 }

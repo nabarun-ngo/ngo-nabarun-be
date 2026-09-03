@@ -3,6 +3,7 @@ import { IsString, IsOptional, IsNumber, IsEnum, IsDate, Min } from 'class-valid
 import { Transform, Type } from 'class-transformer';
 import { AccountDetailDto } from './account.dto';
 import { TransactionRefType, TransactionStatus, TransactionType } from '../../domain/enums/transaction.enum';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 /**
  * Transaction Detail DTO - matches legacy TransactionDetail
@@ -87,7 +88,7 @@ export class TransactionDetailDto {
 /**
  * Transaction Detail Filter DTO
  */
-export class TransactionDetailFilterDto {
+export class TransactionDetailFilterDto extends PaginatedQueryDto{
   @ApiPropertyOptional({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' })
   @IsOptional()
   @IsString()

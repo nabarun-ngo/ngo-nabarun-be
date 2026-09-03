@@ -1,18 +1,9 @@
-import { TransactionStatus, TransactionType } from '../../../domain/enums/transaction.enum';
+import { TransactionDetailFilterDto } from '../../../presentation/dtos/transaction.dto';
 
 export class ListAccountTransactionsQuery {
   constructor(
     public readonly accountId: string,
-    public readonly filter: {
-      txnId?: string;
-      txnType?: TransactionType[];
-      txnStatus?: TransactionStatus[];
-      transactionRef?: string;
-      startDate?: Date;
-      endDate?: Date;
-    } = {},
-    public readonly pageIndex?: number,
-    public readonly pageSize?: number,
+    public readonly filter: TransactionDetailFilterDto={},
     public readonly userId?: string,
   ) {}
 }

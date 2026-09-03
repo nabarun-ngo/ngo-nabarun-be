@@ -16,10 +16,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import {
+  ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
   ApiPaginationQuery,
   ApiUuidParam,
+  PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateBookCommand } from '../../application/commands/create-book/create-book.command';
 import { UpdateBookCommand } from '../../application/commands/update-book/update-book.command';
@@ -33,7 +35,6 @@ import {
   ApplyBookOperationDto,
   BookDetailDto,
   BookDetailFilterDto,
-  BookListResponseDto,
   BookReferenceDataDto,
   CreateBookDto,
   UpdateBookDto,
@@ -64,13 +65,11 @@ export class BookController {
   @Get('list')
   @RequirePermissions('read:books')
   @ApiPaginationQuery()
-  @ApiAutoResponse(BookListResponseDto)
+  @ApiAutoPagedResponse(BookDetailDto)
   listBooks(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: BookDetailFilterDto,
-  ): Promise<BookListResponseDto> {
-    return this.queryBus.execute(new ListBooksQuery(filter, pageIndex, pageSize));
+  ): Promise<PagedResponse<BookDetailDto>> {
+    return this.queryBus.execute(new ListBooksQuery(filter));
   }
 
   @Get('static/referenceData')

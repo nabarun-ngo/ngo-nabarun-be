@@ -11,6 +11,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { AssetCategory, AssetStatus } from '../../domain/enums/asset.enum';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 export class AssetCustodyRecordDto {
   @ApiProperty({ example: '3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55' }) id!: string;
@@ -140,16 +141,9 @@ export class AssetDetailDto {
   @ApiProperty() updatedAt!: Date;
 }
 
-export class AssetDetailFilterDto {
+export class AssetDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ enum: AssetStatus }) @IsOptional() @IsEnum(AssetStatus) status?: AssetStatus;
   @ApiPropertyOptional({ enum: AssetCategory }) @IsOptional() @IsEnum(AssetCategory) category?: AssetCategory;
   @ApiPropertyOptional() @IsOptional() @IsString() custodianUserId?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() projectId?: string;
-}
-
-export class AssetListResponseDto {
-  @ApiProperty({ type: [AssetDetailDto] }) items!: AssetDetailDto[];
-  @ApiProperty({ example: 42 }) total!: number;
-  @ApiProperty({ example: 0 }) pageIndex!: number;
-  @ApiProperty({ example: 20 }) pageSize!: number;
 }

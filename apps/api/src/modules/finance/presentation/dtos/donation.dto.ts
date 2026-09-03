@@ -8,6 +8,7 @@ import { UPIPaymentType } from '../../domain/enums/upi-payment-type.enum';
 import { AccountDetailDto } from './account.dto';
 import { FinanceUserDto } from '../../application/dtos/finance-user.dto';
 import { InvoiceSummaryDto } from '../../../invoice/application/dtos/invoice.dto';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 export class CreateDonationDto {
 
@@ -73,7 +74,7 @@ export class CreateGuestDonationDto {
   forEventId?: string;
 }
 
-export class DonationDetailFilterDto {
+export class DonationDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' })
   @IsOptional()
   @IsString()

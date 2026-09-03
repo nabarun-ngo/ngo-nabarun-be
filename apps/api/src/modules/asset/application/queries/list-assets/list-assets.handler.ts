@@ -4,23 +4,24 @@ import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
 import { ListAssetsQuery } from './list-assets.query';
 import { IAssetRepository } from '../../../domain/repositories/asset.repository';
 import { AssetMapper } from '../../mappers/asset.mapper';
-import { AssetListResponseDto } from '../../dtos/asset.dto';
+import { PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { AssetDetailDto } from '../../dtos/asset.dto';
 
 @QueryHandler(ListAssetsQuery)
 @Injectable()
-export class ListAssetsHandler implements IQueryHandler<ListAssetsQuery, AssetListResponseDto> {
-  constructor(@Inject(IAssetRepository) private readonly repo: IAssetRepository) {}
+export class ListAssetsHandler implements IQueryHandler<ListAssetsQuery, PagedResponse<AssetDetailDto>> {
+  constructor(@Inject(IAssetRepository) private readonly repo: IAssetRepository) { }
 
-  async execute(query: ListAssetsQuery): Promise<AssetListResponseDto> {
-    const filter = new BaseFilter(query.filter, query.pageIndex ?? 0, query.pageSize ?? 20);
+  async execute(query: ListAssetsQuery): Promise<PagedResponse<AssetDetailDto>> {
+    const filter = new BaseFilter(query.filter, query.filter?.pageIndex ?? 0, query.filter?.pageSize ?? 20);
     const page = await this.repo.findPaged({
       pageIndex: filter.pageIndex,
       pageSize: filter.pageSize,
       props: filter.props,
     });
     return {
-      items: page.content.map(AssetMapper.toDto),
-      total: page.totalSize,
+      content: page.content.map(AssetMapper.toDto),
+      totalSize: page.totalSize,
       pageIndex: page.pageIndex,
       pageSize: page.pageSize,
     };

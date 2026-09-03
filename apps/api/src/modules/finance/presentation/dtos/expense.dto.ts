@@ -4,6 +4,7 @@ import { Transform, Type } from 'class-transformer';
 import { ExpenseRefType, ExpenseStatus } from '../../domain/enums/expense.enum';
 import { FinanceUserDto } from '../../application/dtos/finance-user.dto';
 import { KeyValueOption } from '../../application/ports/finance-reference-data.port';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 
 /**
@@ -100,7 +101,7 @@ export class ExpenseDetailDto {
 /**
  * Expense Detail Filter DTO
  */
-export class ExpenseDetailFilterDto {
+export class ExpenseDetailFilterDto extends PaginatedQueryDto{
   @ApiPropertyOptional({ type: String, format: 'date-time', example: '2026-03-14T09:30:00.000Z' })
   @IsOptional()
   startDate?: Date;
