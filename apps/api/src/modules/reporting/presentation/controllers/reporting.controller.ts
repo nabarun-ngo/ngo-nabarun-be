@@ -23,11 +23,12 @@ import {
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import {
+  ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
   ApiKeyParam,
-  ApiPaginationQuery,
   ApiUuidParam,
+  PagedResponse,
   createSuccessResponseType,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { ApproveReportCommand } from '../../application/commands/approve-report/approve-report.command';
@@ -40,7 +41,6 @@ import {
   ReportFilterDto,
   ReportGenerationStartedDto,
   ReportInputFieldDto,
-  ReportListResponseDto,
 } from '../../application/dtos/report.dto';
 import { GetRegisteredReportsQuery } from '../../application/queries/get-registered-reports/get-registered-reports.query';
 import { GetReportInputsQuery } from '../../application/queries/get-report-inputs/get-report-inputs.query';
@@ -112,22 +112,12 @@ export class ReportingController {
   @Get('list/:reportCode')
   @RequirePermissions('read:reports')
   @ApiKeyParam('reportCode', EXAMPLE_REPORT_CODE, 'Code of the registered report definition')
-  @ApiPaginationQuery()
-  @ApiAutoResponse(ReportListResponseDto, { description: 'Page of generated reports' })
+  @ApiAutoPagedResponse(ReportDetailDto, { description: 'Page of generated reports' })
   listReports(
     @Param('reportCode') reportCode: string,
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: ReportFilterDto,
-  ): Promise<ReportListResponseDto> {
-    return this.queryBus.execute(
-      new ListReportsByCodeQuery(
-        reportCode,
-        pageIndex ? Number(pageIndex) : 0,
-        pageSize ? Number(pageSize) : 20,
-        filter,
-      ),
-    );
+  ): Promise<PagedResponse<ReportDetailDto>> {
+    return this.queryBus.execute(new ListReportsByCodeQuery(reportCode, filter));
   }
 
   @Post(':reportId/regenerate')

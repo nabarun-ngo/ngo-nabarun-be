@@ -34,13 +34,13 @@ export class ListDonationsHandler implements IQueryHandler<ListDonationsQuery, P
       const donor = await this.donorRepository.findByUserProfileId(query.filter.userProfileId);
       donorId = donor?.id;
       if (!donorId) {
-        return { content: [], totalSize: 0, pageIndex: query.pageIndex ?? 0, pageSize: query.pageSize ?? 20 };
+        return { content: [], totalSize: 0, pageIndex: query.filter.pageIndex ?? 0, pageSize: query.filter.pageSize ?? 20 };
       }
     }
 
     const page = await this.donationRepository.findPaged({
-      pageIndex: query.pageIndex ?? 0,
-      pageSize: query.pageSize ?? 20,
+      pageIndex: query.filter.pageIndex ?? 0,
+      pageSize: query.filter.pageSize ?? 20,
       props: {
         donationId: query.filter.donationId,
         donorId,

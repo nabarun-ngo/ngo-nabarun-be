@@ -1,13 +1,8 @@
-import { ReportStatus } from '../../../domain/enums/report-status.enum';
+import { ReportFilterDto } from '../../dtos/report.dto';
 
 export class ListReportsByCodeQuery {
   constructor(
     public readonly reportCode: string,
-    public readonly pageIndex: number,
-    public readonly pageSize: number,
-    public readonly filter?: {
-      status?: ReportStatus;
-      requestedById?: string;
-    },
+    public readonly filter: ReportFilterDto = {},
   ) {}
 }

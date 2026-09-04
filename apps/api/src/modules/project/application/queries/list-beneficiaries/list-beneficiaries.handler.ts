@@ -1,17 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
+import { BaseFilter, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { IBeneficiaryRepository } from '../../../domain/repositories/beneficiary.repository';
 import { BeneficiaryMapper } from '../../mappers/beneficiary.mapper';
-import { BeneficiaryListResponseDto } from '../../dtos/beneficiary.dto';
+import { BeneficiaryDetailDto } from '../../dtos/beneficiary.dto';
 import { ListBeneficiariesQuery } from './list-beneficiaries.query';
 
 @QueryHandler(ListBeneficiariesQuery)
 @Injectable()
-export class ListBeneficiariesHandler implements IQueryHandler<ListBeneficiariesQuery, BeneficiaryListResponseDto> {
+export class ListBeneficiariesHandler implements IQueryHandler<ListBeneficiariesQuery, PagedResponse<BeneficiaryDetailDto>> {
   constructor(@Inject(IBeneficiaryRepository) private readonly repo: IBeneficiaryRepository) { }
-  async execute(q: ListBeneficiariesQuery): Promise<BeneficiaryListResponseDto> {
-    const page = await this.repo.findPaged(new BaseFilter({ ...q.filter, projectId: q.projectId }, q.pageIndex ?? 0, q.pageSize ?? 20));
-    return { items: page.content.map(BeneficiaryMapper.toDto), total: page.totalSize, pageIndex: page.pageIndex, pageSize: page.pageSize };
+
+  async execute(q: ListBeneficiariesQuery): Promise<PagedResponse<BeneficiaryDetailDto>> {
+    const { pageIndex, pageSize, sortBy, sortDir, ...props } = q.filter ?? {};
+    const page = await this.repo.findPaged(
+      new BaseFilter({ ...props, projectId: q.projectId }, pageIndex ?? 0, pageSize ?? 20, sortBy, sortDir),
+    );
+    return {
+      content: page.content.map(BeneficiaryMapper.toDto),
+      totalSize: page.totalSize,
+      pageIndex: page.pageIndex,
+      pageSize: page.pageSize,
+    };
   }
 }

@@ -24,8 +24,9 @@ function jwtUser(overrides: Partial<AuthUser> = {}): AuthUser {
 }
 
 describe('mapAuthUserToResponse', () => {
-  it('flattens profile fields and converts attributes Map including profileComplete', () => {
-    expect(mapAuthUserToResponse(jwtUser())).toEqual({
+  it('flattens profile fields and passes userInfo through as attributes', () => {
+    const user = jwtUser();
+    expect(mapAuthUserToResponse(user)).toEqual({
       type: 'jwt',
       idpSub: 'auth0|abc',
       id: 'u-1',
@@ -37,49 +38,45 @@ describe('mapAuthUserToResponse', () => {
       userRoles: ['editor'],
       roleGroups: ['field_team'],
       idpClaims: { sub: 'auth0|abc' },
-      attributes: { profileComplete: true },
+      attributes: user.userInfo,
       phoneNo: '+919876543210',
       scopedAccess: [],
     });
   });
 
-  it('keeps profileComplete in JSON so GET /auth/me does not drop the Map', () => {
-    const rawMapJson = JSON.stringify({
-      attributes: new Map([['profileComplete', true]]),
-    });
-    expect(JSON.parse(rawMapJson).attributes).toEqual({});
-
+  it('serialises nested Map attributes to an empty object in JSON', () => {
     const body = JSON.parse(JSON.stringify(mapAuthUserToResponse(jwtUser())));
-    expect(body.attributes).toEqual({ profileComplete: true });
+    expect(body.attributes).toEqual({
+      id: 'u-1',
+      firstName: 'Asha',
+      lastName: 'Verma',
+      fullName: 'Asha Verma',
+      phoneNo: '+919876543210',
+      attributes: {},
+    });
   });
 
-  it('emits profileComplete false when the profile is incomplete', () => {
-    const result = mapAuthUserToResponse(
-      jwtUser({
-        userInfo: {
-          id: 'u-1',
-          attributes: new Map([['profileComplete', false]]),
-        },
-      }),
-    );
+  it('passes through incomplete userInfo without flattening nested attributes', () => {
+    const userInfo = {
+      id: 'u-1',
+      attributes: new Map([['profileComplete', false]]),
+    };
+    const result = mapAuthUserToResponse(jwtUser({ userInfo }));
 
-    expect(result.attributes).toEqual({ profileComplete: false });
+    expect(result.attributes).toEqual(userInfo);
   });
 
-  it('passes through attributes that are already a plain object', () => {
-    const result = mapAuthUserToResponse(
-      jwtUser({
-        userInfo: {
-          id: 'u-1',
-          attributes: { profileComplete: true } as unknown as Map<string, unknown>,
-        },
-      }),
-    );
+  it('passes through userInfo when nested attributes are already a plain object', () => {
+    const userInfo = {
+      id: 'u-1',
+      attributes: { profileComplete: true } as unknown as Map<string, unknown>,
+    };
+    const result = mapAuthUserToResponse(jwtUser({ userInfo }));
 
-    expect(result.attributes).toEqual({ profileComplete: true });
+    expect(result.attributes).toEqual(userInfo);
   });
 
-  it('maps scopedAccess and uses empty collections when optional fields are missing', () => {
+  it('maps scopedAccess and leaves attributes undefined when userInfo is missing', () => {
     const authUser: AuthUser = {
       type: 'apikey',
       idpSub: 'apikey:key-1',
@@ -100,7 +97,7 @@ describe('mapAuthUserToResponse', () => {
     const result = mapAuthUserToResponse(authUser);
 
     expect(result.id).toBeUndefined();
-    expect(result.attributes).toEqual({});
+    expect(result.attributes).toBeUndefined();
     expect(result.scopedAccess).toEqual([
       {
         entityId: 'proj-A',

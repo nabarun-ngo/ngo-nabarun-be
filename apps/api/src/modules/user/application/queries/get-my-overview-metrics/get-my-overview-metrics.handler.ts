@@ -27,19 +27,6 @@ export class GetMyOverviewMetricsHandler
 
   async execute(query: GetMyOverviewMetricsQuery): Promise<UserOverviewMetricsDto> {
     const { userId, permissions, userRoles, roleGroups } = query;
-    const result: UserOverviewMetricsDto = {};
-
-    const needsFinance = hasAnyPermission(permissions, [
-      ...DONATION_READ_PERMISSIONS,
-      'read:users',
-      'read:expenses',
-    ]);
-    const needsInbox = permissions.includes('read:requests');
-
-    if (!needsFinance && !needsInbox) {
-      return result;
-    }
-
     // One SQL round-trip (four scalar subselects); strip fields by permission below.
     const aggregates = await this.userRepo.getMyOverviewAggregates(
       userId,
@@ -48,22 +35,11 @@ export class GetMyOverviewMetricsHandler
       permissions,
     );
 
-    if (needsFinance && hasAnyPermission(permissions, DONATION_READ_PERMISSIONS)) {
-      result.pendingDonations = aggregates.pendingDonations;
-    }
-
-    if (needsFinance && permissions.includes('read:users')) {
-      result.walletBalance = aggregates.walletBalance;
-    }
-
-    if (needsFinance && permissions.includes('read:expenses')) {
-      result.unsettledExpense = aggregates.unsettledExpense;
-    }
-
-    if (needsInbox) {
-      result.pendingTask = aggregates.pendingTask;
-    }
-
-    return result;
+    return {
+      pendingDonations: aggregates.pendingDonations,
+      walletBalance: aggregates.walletBalance,
+      unsettledExpense: aggregates.unsettledExpense,
+      pendingTask: aggregates.pendingTask,
+    };
   }
 }

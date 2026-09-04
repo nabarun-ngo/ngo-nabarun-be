@@ -15,7 +15,6 @@ import {
   ApiAutoPagedResponse,
   ApiAutoPrimitiveResponse,
   ApiAutoResponse,
-  ApiPaginationQuery,
   ApiUuidParam,
   PagedResponse,
   SuccessResponse,
@@ -116,7 +115,6 @@ export class AccountController {
 
   @Get('list')
   @RequirePermissions('read:accounts')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(AccountDetailDto)
   listAccounts(
     @Query() filter?: AccountDetailFilterDto,
@@ -125,7 +123,6 @@ export class AccountController {
   }
 
   @Get('list/me')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(AccountDetailDto)
   listSelfAccounts(
     @Query() filter?: AccountDetailFilterDto,
@@ -194,7 +191,6 @@ export class AccountController {
   @Get(':id/transactions')
   @RequirePermissions('read:transactions')
   @ApiUuidParam('id', 'Identifier of the account')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(TransactionDetailDto)
   listAccountTransactions(
     @Param('id') accountId: string,
@@ -205,7 +201,6 @@ export class AccountController {
 
   @Get(':id/transactions/me')
   @ApiUuidParam('id', 'Identifier of the account')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(TransactionDetailDto)
   listSelfAccountTransactions(
     @Param('id') accountId: string,

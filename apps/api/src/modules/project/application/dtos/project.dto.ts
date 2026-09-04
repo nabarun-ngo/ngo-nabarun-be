@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 import { ProjectCategory, ProjectPhase, ProjectStatus } from '../../domain/enums/project.enum';
 import { KeyValueOption } from '../ports/project-reference-data.port';
 
@@ -67,7 +68,7 @@ export class ProjectDetailDto {
   @ApiProperty({ enum: ProjectStatus, isArray: true, example: [ProjectStatus.ON_HOLD, ProjectStatus.COMPLETED] }) nextStatus!: ProjectStatus[];
 }
 
-export class ProjectDetailFilterDto {
+export class ProjectDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ enum: ProjectStatus, example: ProjectStatus.ACTIVE }) status?: ProjectStatus;
   @ApiPropertyOptional({ enum: ProjectCategory, example: ProjectCategory.EDUCATION }) category?: ProjectCategory;
   @ApiPropertyOptional({ enum: ProjectPhase, example: ProjectPhase.EXECUTION }) phase?: ProjectPhase;

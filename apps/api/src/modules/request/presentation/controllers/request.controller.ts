@@ -22,7 +22,6 @@ import {
 import {
   ApiAutoPagedResponse,
   ApiAutoResponse,
-  ApiPaginationQuery,
   ApiUuidParam,
   PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
@@ -85,7 +84,6 @@ export class RequestController {
 
   @Get()
   @RequirePermissions('read:requests')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(RequestDto)
   list(
     @Query() query: ListRequestsQueryDto,

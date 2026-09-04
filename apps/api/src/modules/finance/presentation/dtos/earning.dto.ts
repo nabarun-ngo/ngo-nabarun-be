@@ -3,6 +3,7 @@ import { IsString, IsOptional, IsNumber, IsEnum, IsDate, Min } from 'class-valid
 import { Transform, Type } from 'class-transformer';
 import { EarningCategory, EarningStatus } from '../../domain/enums/earning.enum';
 import { KeyValueOption } from '../../application/ports/finance-reference-data.port';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 
 /**
  * Earning Detail DTO
@@ -67,7 +68,7 @@ export class EarningDetailDto {
 /**
  * Earning Detail Filter DTO
  */
-export class EarningDetailFilterDto {
+export class EarningDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ enum: EarningStatus, isArray: true, example: [EarningStatus.RECEIVED, EarningStatus.PENDING] })
   @IsOptional()
   @Transform(({ value }) =>

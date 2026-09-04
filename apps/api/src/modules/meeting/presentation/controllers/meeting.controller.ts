@@ -4,10 +4,11 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
 import {
+  ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
-  ApiPaginationQuery,
   ApiUuidParam,
+  PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateMeetingCommand } from '../../application/commands/create-meeting/create-meeting.command';
 import { UpdateMeetingCommand } from '../../application/commands/update-meeting/update-meeting.command';
@@ -19,7 +20,6 @@ import {
   CreateMeetingDto,
   MeetingDetailDto,
   MeetingDetailFilterDto,
-  MeetingListResponseDto,
   UpdateMeetingDto,
 } from '../../application/dtos/meeting.dto';
 
@@ -45,16 +45,13 @@ export class MeetingController {
 
   @Get('list')
   @RequirePermissions('read:meetings')
-  @ApiPaginationQuery()
-  @ApiAutoResponse(MeetingListResponseDto)
+  @ApiAutoPagedResponse(MeetingDetailDto)
   listMeetings(
     @CurrentUser() user: AuthUser,
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: MeetingDetailFilterDto,
-  ): Promise<MeetingListResponseDto> {
+  ): Promise<PagedResponse<MeetingDetailDto>> {
     return this.queryBus.execute(
-      new ListMeetingsQuery({ ...filter, participantId: filter?.participantId ?? requireUserId(user) }, pageIndex, pageSize),
+      new ListMeetingsQuery({ ...filter, participantId: filter?.participantId ?? requireUserId(user) }),
     );
   }
 

@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsDate, IsEnum, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 import { ActivityPriority, ActivityScale, ActivityStatus, ActivityType } from '../../domain/enums/activity.enum';
 
 export class CreateActivityDto {
@@ -75,7 +76,7 @@ export class ActivityDetailDto {
   @ApiProperty({ enum: ActivityStatus, isArray: true, example: [ActivityStatus.COMPLETED, ActivityStatus.CANCELLED] }) nextStatus!: ActivityStatus[];
 }
 
-export class ActivityDetailFilterDto {
+export class ActivityDetailFilterDto extends PaginatedQueryDto {
   @IsOptional() @IsString() @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) projectId?: string;
   @IsOptional() @IsEnum(ActivityScale) @ApiPropertyOptional({ enum: ActivityScale, example: ActivityScale.ACTIVITY }) scale?: ActivityScale;
   @ApiPropertyOptional({ enum: ActivityStatus, example: ActivityStatus.IN_PROGRESS }) status?: ActivityStatus;

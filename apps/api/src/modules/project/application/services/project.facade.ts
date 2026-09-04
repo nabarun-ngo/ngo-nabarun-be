@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ActivityListResponseDto } from '../dtos/activity-list.dto';
-import { ActivityDetailFilterDto } from '../dtos/activity.dto';
-import { GoalListResponseDto } from '../dtos/goal.dto';
-import { ProjectListResponseDto } from '../dtos/project-list.dto';
-import { ProjectDetailFilterDto } from '../dtos/project.dto';
+import { PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ActivityDetailDto, ActivityDetailFilterDto } from '../dtos/activity.dto';
+import { GoalDetailDto } from '../dtos/goal.dto';
+import { ProjectDetailDto, ProjectDetailFilterDto } from '../dtos/project.dto';
 import { ListActivitiesQuery } from '../queries/list-activities/list-activities.query';
 import { ListGoalsQuery } from '../queries/list-goals/list-goals.query';
 import { ListProjectsQuery } from '../queries/list-projects/list-projects.query';
@@ -33,11 +32,6 @@ import {
 } from '../../domain/enums/risk.enum';
 import { MilestoneImportance } from '../../domain/enums/milestone.enum';
 
-export type ProjectFacadePagination = {
-  pageIndex?: number;
-  pageSize?: number;
-};
-
 @Injectable()
 export class ProjectFacade {
   constructor(
@@ -47,11 +41,8 @@ export class ProjectFacade {
 
   listProjects(
     filter: ProjectDetailFilterDto = {},
-    pagination?: ProjectFacadePagination,
-  ): Promise<ProjectListResponseDto> {
-    return this.queryBus.execute(
-      new ListProjectsQuery(filter, pagination?.pageIndex ?? 0, pagination?.pageSize ?? 20),
-    );
+  ): Promise<PagedResponse<ProjectDetailDto>> {
+    return this.queryBus.execute(new ListProjectsQuery(filter));
   }
 
   countBeneficiaries(
@@ -65,19 +56,19 @@ export class ProjectFacade {
     projectId: string;
     pageIndex?: number;
     pageSize?: number;
-  }): Promise<GoalListResponseDto> {
+  }): Promise<PagedResponse<GoalDetailDto>> {
     return this.queryBus.execute(
-      new ListGoalsQuery(params.projectId, params.pageIndex ?? 0, params.pageSize ?? 100),
+      new ListGoalsQuery(params.projectId, {
+        pageIndex: params.pageIndex ?? 0,
+        pageSize: params.pageSize ?? 100,
+      }),
     );
   }
 
   listActivities(
     filter: ActivityDetailFilterDto = {},
-    pagination?: ProjectFacadePagination,
-  ): Promise<ActivityListResponseDto> {
-    return this.queryBus.execute(
-      new ListActivitiesQuery(filter, pagination?.pageIndex ?? 0, pagination?.pageSize ?? 20),
-    );
+  ): Promise<PagedResponse<ActivityDetailDto>> {
+    return this.queryBus.execute(new ListActivitiesQuery(filter));
   }
 
   listTeamMembers(projectId: string) {

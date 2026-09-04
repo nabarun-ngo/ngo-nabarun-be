@@ -1,7 +1,5 @@
 import { AuthUser } from "../models/auth-user";
 import { CurrentUserResponseDto } from "../dtos/response/auth-response.dtos";
-import { userInfo } from "os";
-import { UserInfo } from "@nabarun-ngo/nestjs-shared-core";
 
 export function mapAuthUserToResponse(authUser: AuthUser): CurrentUserResponseDto {
 

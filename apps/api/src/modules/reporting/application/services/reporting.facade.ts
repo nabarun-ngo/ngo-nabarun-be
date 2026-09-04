@@ -6,8 +6,8 @@ import { StartReportGenerationCommand } from '../commands/start-report-generatio
 import { GetRegisteredReportsQuery } from '../queries/get-registered-reports/get-registered-reports.query';
 import { GetReportInputsQuery } from '../queries/get-report-inputs/get-report-inputs.query';
 import { ListReportsByCodeQuery } from '../queries/list-reports-by-code/list-reports-by-code.query';
-import type { ReportCategoryDto, ReportDetailDto, ReportInputFieldDto } from '../dtos/report.dto';
-import type { ListReportsByCodeResult } from '../queries/list-reports-by-code/list-reports-by-code.handler';
+import type { ReportCategoryDto, ReportDetailDto, ReportFilterDto, ReportInputFieldDto } from '../dtos/report.dto';
+import { PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 
 @Injectable()
 export class ReportingFacade {
@@ -22,10 +22,9 @@ export class ReportingFacade {
 
   listReportsByCode(
     reportCode: string,
-    pageIndex: number,
-    pageSize: number,
-  ): Promise<ListReportsByCodeResult> {
-    return this.queryBus.execute(new ListReportsByCodeQuery(reportCode, pageIndex, pageSize));
+    filter: ReportFilterDto = {},
+  ): Promise<PagedResponse<ReportDetailDto>> {
+    return this.queryBus.execute(new ListReportsByCodeQuery(reportCode, filter));
   }
 
   getReportInputs(reportCode: string): Promise<ReportInputFieldDto[]> {

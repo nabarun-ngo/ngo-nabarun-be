@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiNoContentResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoResponse, ApiPaginationQuery, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
+import { RequirePermissions, UnifiedAuthGuard } from '@nabarun-ngo/nestjs-shared-auth';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateProjectCommand } from '../../application/commands/create-project/create-project.command';
 import { UpdateProjectCommand } from '../../application/commands/update-project/update-project.command';
 import { CreateActivityCommand } from '../../application/commands/create-activity/create-activity.command';
@@ -30,8 +30,6 @@ import {
   LinkExpenseToActivityDto,
   UpdateActivityDto,
 } from '../../application/dtos/activity.dto';
-import { ProjectListResponseDto } from '../../application/dtos/project-list.dto';
-import { ActivityListResponseDto } from '../../application/dtos/activity-list.dto';
 import {
   ProjectDashboardResponseDto,
   ProjectProgressResponseDto,
@@ -54,14 +52,11 @@ export class ProjectController {
 
   @Get()
   @RequirePermissions('read:projects')
-  @ApiPaginationQuery()
-  @ApiAutoResponse(ProjectListResponseDto)
+  @ApiAutoPagedResponse(ProjectDetailDto)
   listProjects(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: ProjectDetailFilterDto,
-  ): Promise<ProjectListResponseDto> {
-    return this.queryBus.execute(new ListProjectsQuery(filter ?? {}, pageIndex, pageSize));
+  ): Promise<PagedResponse<ProjectDetailDto>> {
+    return this.queryBus.execute(new ListProjectsQuery(filter));
   }
 
   @Post('create')
@@ -75,14 +70,11 @@ export class ProjectController {
 
   @Get('activities')
   @RequirePermissions('read:activities')
-  @ApiPaginationQuery()
-  @ApiAutoResponse(ActivityListResponseDto)
+  @ApiAutoPagedResponse(ActivityDetailDto)
   listAllActivities(
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: ActivityDetailFilterDto,
-  ): Promise<ActivityListResponseDto> {
-    return this.queryBus.execute(new ListActivitiesQuery(filter ?? {}, pageIndex, pageSize));
+  ): Promise<PagedResponse<ActivityDetailDto>> {
+    return this.queryBus.execute(new ListActivitiesQuery(filter));
   }
 
   @Get(':id/progress')
@@ -121,16 +113,13 @@ export class ProjectController {
   @Get(':id/activities')
   @RequirePermissions('read:activities')
   @ApiUuidParam('id', 'Identifier of the project')
-  @ApiPaginationQuery()
-  @ApiAutoResponse(ActivityListResponseDto)
+  @ApiAutoPagedResponse(ActivityDetailDto)
   listActivities(
     @Param('id') id: string,
-    @Query('pageIndex') pageIndex?: number,
-    @Query('pageSize') pageSize?: number,
     @Query() filter?: ActivityDetailFilterDto,
-  ): Promise<ActivityListResponseDto> {
+  ): Promise<PagedResponse<ActivityDetailDto>> {
     return this.queryBus.execute(
-      new ListActivitiesQuery({ ...filter, projectId: id }, pageIndex, pageSize),
+      new ListActivitiesQuery({ ...filter, projectId: id }),
     );
   }
 

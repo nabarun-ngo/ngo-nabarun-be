@@ -33,11 +33,11 @@ export class PublicSiteDynamicContentAdapter implements IPublicSiteDynamicConten
   async getDynamicContent(): Promise<PublicSiteDynamicContent> {
     const [usersPage, projectsPage, beneficiaryCount] = await Promise.all([
       this.userFacade.listUsers(PUBLIC_TEAM_FILTER, PUBLIC_SITE_LIST_PAGE),
-      this.projectFacade.listProjects(PUBLIC_PROJECT_FILTER, PUBLIC_SITE_LIST_PAGE),
+      this.projectFacade.listProjects({ ...PUBLIC_PROJECT_FILTER, ...PUBLIC_SITE_LIST_PAGE }),
       this.projectFacade.countBeneficiaries(PUBLIC_PROJECT_FILTER, PUBLIC_BENEFICIARY_FILTER),
     ]);
 
-    const projectIds = projectsPage.items.map((project) => project.id);
+    const projectIds = projectsPage.content.map((project) => project.id);
     const [events, goalsByProjectId] = await Promise.all([
       this.loadEventsForProjects(projectIds),
       this.loadGoalsByProjectId(projectIds),
@@ -45,11 +45,11 @@ export class PublicSiteDynamicContentAdapter implements IPublicSiteDynamicConten
 
     return mapPublicSiteDynamicContent({
       stats: {
-        projectCount: projectsPage.total,
+        projectCount: projectsPage.totalSize,
         beneficiaryCount,
       },
       users: usersPage.items,
-      projects: projectsPage.items.map((project) => ({
+      projects: projectsPage.content.map((project) => ({
         project,
         goals: goalsByProjectId.get(project.id) ?? [],
       })),
@@ -61,7 +61,7 @@ export class PublicSiteDynamicContentAdapter implements IPublicSiteDynamicConten
     const entries = await Promise.all(
       projectIds.map(async (projectId) => {
         const page = await this.projectFacade.listProjectGoals({ projectId });
-        return [projectId, page.items] as const;
+        return [projectId, page.content] as const;
       }),
     );
 
@@ -75,13 +75,14 @@ export class PublicSiteDynamicContentAdapter implements IPublicSiteDynamicConten
 
     const pages = await Promise.all(
       projectIds.map((projectId) =>
-        this.projectFacade.listActivities(
-          { projectId, scale: ActivityScale.EVENT },
-          PUBLIC_SITE_LIST_PAGE,
-        ),
+        this.projectFacade.listActivities({
+          projectId,
+          scale: ActivityScale.EVENT,
+          ...PUBLIC_SITE_LIST_PAGE,
+        }),
       ),
     );
 
-    return pages.flatMap((page) => page.items);
+    return pages.flatMap((page) => page.content);
   }
 }

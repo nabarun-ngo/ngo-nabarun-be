@@ -19,7 +19,6 @@ import {
   ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
-  ApiPaginationQuery,
   ApiUuidParam,
   PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
@@ -64,7 +63,6 @@ export class BookController {
 
   @Get('list')
   @RequirePermissions('read:books')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(BookDetailDto)
   listBooks(
     @Query() filter?: BookDetailFilterDto,

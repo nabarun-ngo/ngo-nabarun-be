@@ -6,7 +6,8 @@ import { IdentityCardPdfAdapter, printIdentityCard } from './identity-card-pdf.a
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
 
 describe('IdentityCardPdfAdapter (no HTTP server)', () => {
-  jest.setTimeout(60_000);
+  // Each case starts a real Chromium, which is far slower when the full suite saturates the workers.
+  jest.setTimeout(180_000);
 
   const sample: IdentityCardPdfInput = {
     organisationName: 'Ichapur Nabarun Social Welfare Society',

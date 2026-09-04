@@ -12,7 +12,7 @@ export class ListEarningsHandler implements IQueryHandler<ListEarningsQuery, Pag
   constructor(@Inject(IEarningRepository) private readonly repo: IEarningRepository) { }
 
   async execute(query: ListEarningsQuery): Promise<PagedResponse<EarningDetailDto>> {
-    const filter = new BaseFilter(query.filter, query.pageIndex ?? 0, query.pageSize ?? 20);
+    const filter = new BaseFilter(query.filter, query.filter?.pageIndex ?? 0, query.filter?.pageSize ?? 20);
     const page = await this.repo.findPaged({
       pageIndex: filter.pageIndex,
       pageSize: filter.pageSize,

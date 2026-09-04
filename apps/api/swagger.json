@@ -1293,7 +1293,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -1661,7 +1661,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -2101,7 +2101,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -2455,7 +2455,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -3609,20 +3609,45 @@
         "parameters": [
           {
             "name": "pageIndex",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
           },
           {
             "name": "pageSize",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -3631,6 +3656,7 @@
             "in": "query",
             "schema": {
               "example": "failed",
+              "type": "string",
               "enum": [
                 "completed",
                 "failed",
@@ -3639,8 +3665,7 @@
                 "active",
                 "waiting",
                 "waiting-children"
-              ],
-              "type": "string"
+              ]
             }
           },
           {
@@ -3708,6 +3733,49 @@
         "operationId": "QueueController_searchJobs",
         "parameters": [
           {
+            "name": "pageIndex",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
             "name": "jobName",
             "required": false,
             "in": "query",
@@ -3731,32 +3799,14 @@
             "in": "query",
             "schema": {
               "example": "failed",
+              "type": "string",
               "enum": [
                 "waiting",
                 "active",
                 "completed",
                 "failed",
                 "delayed"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "pageIndex",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "example": 0,
-              "type": "number"
-            }
-          },
-          {
-            "name": "pageSize",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "example": 20,
-              "type": "number"
+              ]
             }
           }
         ],
@@ -4449,7 +4499,6 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
               "default": 0,
               "example": 0,
@@ -4460,7 +4509,6 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
               "default": 20,
               "example": 20,
@@ -4472,7 +4520,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -7612,8 +7660,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -7622,10 +7670,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -7743,11 +7814,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseDonationListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageDonationDto"
                 }
               }
             }
@@ -7794,8 +7865,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -7804,10 +7875,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -7925,11 +8019,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseDonationListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageDonationDto"
                 }
               }
             }
@@ -7980,8 +8074,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -7990,10 +8084,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -8111,11 +8228,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseDonationListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageDonationDto"
                 }
               }
             }
@@ -8291,8 +8408,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -8301,10 +8418,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -8422,11 +8562,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseDonationListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageDonationDto"
                 }
               }
             }
@@ -9200,8 +9340,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -9210,10 +9350,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -9328,11 +9491,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseAccountListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageAccountDetailDto"
                 }
               }
             }
@@ -9383,8 +9546,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -9393,10 +9556,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -9511,11 +9697,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseAccountListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageAccountDetailDto"
                 }
               }
             }
@@ -9782,8 +9968,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -9792,10 +9978,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -9876,11 +10085,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseTransactionListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageTransactionDetailDto"
                 }
               }
             }
@@ -9942,8 +10151,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -9952,10 +10161,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -10036,11 +10268,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseTransactionListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageTransactionDetailDto"
                 }
               }
             }
@@ -10585,8 +10817,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -10595,10 +10827,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -10673,11 +10928,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseExpenseListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageExpenseDetailDto"
                 }
               }
             }
@@ -10728,8 +10983,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -10738,10 +10993,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -10816,11 +11094,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseExpenseListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageExpenseDetailDto"
                 }
               }
             }
@@ -11119,8 +11397,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -11129,10 +11407,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -11218,11 +11519,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseEarningListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageEarningDetailDto"
                 }
               }
             }
@@ -11461,8 +11762,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -11471,10 +11772,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -11506,7 +11830,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseReportListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageReportDetailDto"
                 }
               }
             }
@@ -11858,8 +12182,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -11868,10 +12192,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -11979,11 +12326,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseProjectListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageProjectDetailDto"
                 }
               }
             }
@@ -12097,8 +12444,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -12107,10 +12454,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -12208,11 +12578,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseActivityListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageActivityDetailDto"
                 }
               }
             }
@@ -12544,8 +12914,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -12554,10 +12924,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -12655,11 +13048,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseActivityListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageActivityDetailDto"
                 }
               }
             }
@@ -12941,8 +13334,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -12951,10 +13344,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -13000,11 +13416,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseBeneficiaryListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageBeneficiaryDetailDto"
                 }
               }
             }
@@ -13379,8 +13795,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -13389,20 +13805,43 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseGoalListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageGoalDetailDto"
                 }
               }
             }
@@ -14669,8 +15108,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -14679,10 +15118,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -14715,11 +15177,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseMeetingListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageMeetingDetailDto"
                 }
               }
             }
@@ -15029,8 +15491,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -15039,10 +15501,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -15093,11 +15578,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseAssetListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageAssetDetailDto"
                 }
               }
             }
@@ -15557,8 +16042,8 @@
             "name": "pageIndex",
             "required": false,
             "in": "query",
-            "description": "Zero-based page index",
             "schema": {
+              "default": 0,
               "example": 0,
               "type": "number"
             }
@@ -15567,10 +16052,33 @@
             "name": "pageSize",
             "required": false,
             "in": "query",
-            "description": "Number of items per page",
             "schema": {
+              "default": 20,
               "example": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "createdBy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
@@ -15690,11 +16198,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "Paginated results retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponseBookListResponseDto"
+                  "$ref": "#/components/schemas/SuccessResponsePageBookDetailDto"
                 }
               }
             }
@@ -16209,7 +16717,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -16601,7 +17109,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -18069,7 +18577,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -18323,7 +18831,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "example": "createdAt",
+              "example": "createdBy",
               "type": "string"
             }
           },
@@ -25608,33 +26116,40 @@
           "responsePayload"
         ]
       },
-      "DonationListResponseDto": {
+      "PageDonationDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DonationDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseDonationListResponseDto": {
+      "SuccessResponsePageDonationDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -25655,10 +26170,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/DonationListResponseDto"
+                "$ref": "#/components/schemas/PageDonationDto"
               }
             ]
           }
@@ -26447,33 +26962,40 @@
           "responsePayload"
         ]
       },
-      "AccountListResponseDto": {
+      "PageAccountDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AccountDetailDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseAccountListResponseDto": {
+      "SuccessResponsePageAccountDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -26494,10 +27016,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/AccountListResponseDto"
+                "$ref": "#/components/schemas/PageAccountDetailDto"
               }
             ]
           }
@@ -26683,65 +27205,81 @@
         "type": "object",
         "properties": {
           "txnId": {
-            "type": "string"
+            "type": "string",
+            "example": "3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55"
           },
           "txnNumber": {
-            "type": "string"
+            "type": "string",
+            "example": "TXN-2026-000482"
           },
           "txnDate": {
+            "type": "string",
             "format": "date-time",
-            "type": "string"
+            "example": "2026-03-14T09:30:00.000Z"
           },
           "txnAmount": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0.01,
+            "example": 1500
           },
           "txnType": {
-            "type": "string",
             "enum": [
               "IN",
               "OUT"
-            ]
+            ],
+            "type": "string",
+            "example": "IN"
           },
           "txnStatus": {
-            "type": "string",
             "enum": [
               "SUCCESS",
               "REVERSED"
-            ]
+            ],
+            "type": "string",
+            "example": "SUCCESS"
           },
           "txnDescription": {
-            "type": "string"
+            "type": "string",
+            "example": "Monthly donation received"
           },
           "txnParticulars": {
-            "type": "string"
+            "type": "string",
+            "example": "Donation from Asha Verma"
           },
           "txnRefId": {
-            "type": "string"
+            "type": "string",
+            "example": "7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68"
           },
           "txnRefType": {
-            "type": "string",
             "enum": [
               "DONATION",
               "NONE",
               "EXPENSE",
               "EARNING",
               "TXN_REVERSE"
-            ]
+            ],
+            "type": "string",
+            "example": "DONATION"
           },
           "accBalance": {
-            "type": "number"
+            "type": "number",
+            "example": 25000
           },
           "accTxnType": {
-            "type": "string"
+            "type": "string",
+            "example": "CREDIT"
           },
           "transferFrom": {
-            "type": "string"
+            "type": "string",
+            "example": "7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68"
           },
           "transferTo": {
-            "type": "string"
+            "type": "string",
+            "example": "3f8a1c92-5d47-4e0b-9a6f-2b7c8e1d4a55"
           },
           "transactionRef": {
-            "type": "string"
+            "type": "string",
+            "example": "TXN-2026-000482"
           },
           "account": {
             "$ref": "#/components/schemas/AccountDetailDto"
@@ -26757,33 +27295,40 @@
           "transactionRef"
         ]
       },
-      "TransactionListResponseDto": {
+      "PageTransactionDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TransactionDetailDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseTransactionListResponseDto": {
+      "SuccessResponsePageTransactionDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -26804,10 +27349,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/TransactionListResponseDto"
+                "$ref": "#/components/schemas/PageTransactionDetailDto"
               }
             ]
           }
@@ -27263,33 +27808,40 @@
           }
         }
       },
-      "ExpenseListResponseDto": {
+      "PageExpenseDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ExpenseDetailDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseExpenseListResponseDto": {
+      "SuccessResponsePageExpenseDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -27310,10 +27862,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/ExpenseListResponseDto"
+                "$ref": "#/components/schemas/PageExpenseDetailDto"
               }
             ]
           }
@@ -27668,33 +28220,40 @@
           }
         }
       },
-      "EarningListResponseDto": {
+      "PageEarningDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EarningDetailDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseEarningListResponseDto": {
+      "SuccessResponsePageEarningDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -27715,10 +28274,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/EarningListResponseDto"
+                "$ref": "#/components/schemas/PageEarningDetailDto"
               }
             ]
           }
@@ -27972,36 +28531,40 @@
           "updatedAt"
         ]
       },
-      "ReportListResponseDto": {
+      "PageReportDetailDto": {
         "type": "object",
         "properties": {
           "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ReportDetailDto"
             }
           },
-          "totalSize": {
-            "type": "number",
-            "example": 12
-          },
           "pageIndex": {
             "type": "number",
+            "description": "Current page index (0-based)",
             "example": 0
           },
           "pageSize": {
             "type": "number",
+            "description": "Page size (number of items per page)",
             "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
           "content",
-          "totalSize",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseReportListResponseDto": {
+      "SuccessResponsePageReportDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -28022,10 +28585,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/ReportListResponseDto"
+                "$ref": "#/components/schemas/PageReportDetailDto"
               }
             ]
           }
@@ -28471,33 +29034,40 @@
           "nextStatus"
         ]
       },
-      "ProjectListResponseDto": {
+      "PageProjectDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProjectDetailDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseProjectListResponseDto": {
+      "SuccessResponsePageProjectDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -28518,10 +29088,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/ProjectListResponseDto"
+                "$ref": "#/components/schemas/PageProjectDetailDto"
               }
             ]
           }
@@ -28881,33 +29451,40 @@
           "nextStatus"
         ]
       },
-      "ActivityListResponseDto": {
+      "PageActivityDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ActivityDetailDto"
             }
           },
-          "total": {
-            "type": "number"
-          },
           "pageIndex": {
-            "type": "number"
+            "type": "number",
+            "description": "Current page index (0-based)",
+            "example": 0
           },
           "pageSize": {
-            "type": "number"
+            "type": "number",
+            "description": "Page size (number of items per page)",
+            "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseActivityListResponseDto": {
+      "SuccessResponsePageActivityDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -28928,10 +29505,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/ActivityListResponseDto"
+                "$ref": "#/components/schemas/PageActivityDetailDto"
               }
             ]
           }
@@ -29654,36 +30231,40 @@
           "updatedAt"
         ]
       },
-      "BeneficiaryListResponseDto": {
+      "PageBeneficiaryDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BeneficiaryDetailDto"
             }
           },
-          "total": {
-            "type": "number",
-            "example": 312
-          },
           "pageIndex": {
             "type": "number",
+            "description": "Current page index (0-based)",
             "example": 0
           },
           "pageSize": {
             "type": "number",
+            "description": "Page size (number of items per page)",
             "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseBeneficiaryListResponseDto": {
+      "SuccessResponsePageBeneficiaryDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -29704,10 +30285,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/BeneficiaryListResponseDto"
+                "$ref": "#/components/schemas/PageBeneficiaryDetailDto"
               }
             ]
           }
@@ -29975,36 +30556,40 @@
           "currentValue"
         ]
       },
-      "GoalListResponseDto": {
+      "PageGoalDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GoalDetailDto"
             }
           },
-          "total": {
-            "type": "number",
-            "example": 12
-          },
           "pageIndex": {
             "type": "number",
+            "description": "Current page index (0-based)",
             "example": 0
           },
           "pageSize": {
             "type": "number",
+            "description": "Page size (number of items per page)",
             "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseGoalListResponseDto": {
+      "SuccessResponsePageGoalDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -30025,10 +30610,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/GoalListResponseDto"
+                "$ref": "#/components/schemas/PageGoalDetailDto"
               }
             ]
           }
@@ -31190,36 +31775,40 @@
           "attendees"
         ]
       },
-      "MeetingListResponseDto": {
+      "PageMeetingDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MeetingDetailDto"
             }
           },
-          "total": {
-            "type": "number",
-            "example": 42
-          },
           "pageIndex": {
             "type": "number",
+            "description": "Current page index (0-based)",
             "example": 0
           },
           "pageSize": {
             "type": "number",
+            "description": "Page size (number of items per page)",
             "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseMeetingListResponseDto": {
+      "SuccessResponsePageMeetingDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -31240,10 +31829,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/MeetingListResponseDto"
+                "$ref": "#/components/schemas/PageMeetingDetailDto"
               }
             ]
           }
@@ -31554,36 +32143,40 @@
           "category"
         ]
       },
-      "AssetListResponseDto": {
+      "PageAssetDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AssetDetailDto"
             }
           },
-          "total": {
-            "type": "number",
-            "example": 42
-          },
           "pageIndex": {
             "type": "number",
+            "description": "Current page index (0-based)",
             "example": 0
           },
           "pageSize": {
             "type": "number",
+            "description": "Page size (number of items per page)",
             "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseAssetListResponseDto": {
+      "SuccessResponsePageAssetDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -31604,10 +32197,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/AssetListResponseDto"
+                "$ref": "#/components/schemas/PageAssetDetailDto"
               }
             ]
           }
@@ -31980,36 +32573,40 @@
           "acquisitionType"
         ]
       },
-      "BookListResponseDto": {
+      "PageBookDetailDto": {
         "type": "object",
         "properties": {
-          "items": {
+          "content": {
+            "description": "List of items for the current page",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BookDetailDto"
             }
           },
-          "total": {
-            "type": "number",
-            "example": 42
-          },
           "pageIndex": {
             "type": "number",
+            "description": "Current page index (0-based)",
             "example": 0
           },
           "pageSize": {
             "type": "number",
+            "description": "Page size (number of items per page)",
             "example": 20
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 137
           }
         },
         "required": [
-          "items",
-          "total",
+          "content",
           "pageIndex",
-          "pageSize"
+          "pageSize",
+          "totalSize"
         ]
       },
-      "SuccessResponseBookListResponseDto": {
+      "SuccessResponsePageBookDetailDto": {
         "type": "object",
         "properties": {
           "info": {
@@ -32030,10 +32627,10 @@
             "example": "Operation completed successfully"
           },
           "responsePayload": {
-            "description": "Response payload data",
+            "description": "Paginated response payload",
             "allOf": [
               {
-                "$ref": "#/components/schemas/BookListResponseDto"
+                "$ref": "#/components/schemas/PageBookDetailDto"
               }
             ]
           }

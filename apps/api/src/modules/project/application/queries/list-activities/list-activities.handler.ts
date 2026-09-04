@@ -1,26 +1,27 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BaseFilter } from '@nabarun-ngo/nestjs-shared-core';
+import { BaseFilter, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { IActivityRepository } from '../../../domain/repositories/activity.repository';
-import { ActivityListResponseDto } from '../../dtos/activity-list.dto';
+import { ActivityDetailDto } from '../../dtos/activity.dto';
 import { ActivityMapper } from '../../mappers/activity.mapper';
 import { ListActivitiesQuery } from './list-activities.query';
 
 @QueryHandler(ListActivitiesQuery)
 @Injectable()
-export class ListActivitiesHandler implements IQueryHandler<ListActivitiesQuery, ActivityListResponseDto> {
+export class ListActivitiesHandler implements IQueryHandler<ListActivitiesQuery, PagedResponse<ActivityDetailDto>> {
   constructor(@Inject(IActivityRepository) private readonly repo: IActivityRepository) { }
 
-  async execute(query: ListActivitiesQuery): Promise<ActivityListResponseDto> {
-    const filter = new BaseFilter(query.filter, query.pageIndex ?? 0, query.pageSize ?? 20);
+  async execute(query: ListActivitiesQuery): Promise<PagedResponse<ActivityDetailDto>> {
+    const { pageIndex, pageSize, sortBy, sortDir, ...props } = query.filter ?? {};
+    const filter = new BaseFilter(props, pageIndex ?? 0, pageSize ?? 20, sortBy, sortDir);
     const page = await this.repo.findPaged({
       pageIndex: filter.pageIndex,
       pageSize: filter.pageSize,
       props: filter.props,
     });
     return {
-      items: page.content.map(ActivityMapper.toDto),
-      total: page.totalSize,
+      content: page.content.map(ActivityMapper.toDto),
+      totalSize: page.totalSize,
       pageIndex: page.pageIndex,
       pageSize: page.pageSize,
     };

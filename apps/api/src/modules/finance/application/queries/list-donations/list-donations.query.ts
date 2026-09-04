@@ -15,8 +15,8 @@ export class ListDonationsQuery {
       forEventId?: string;
       startDate?: Date;
       endDate?: Date;
+      pageIndex?: number;
+      pageSize?: number;
     } = {},
-    public readonly pageIndex?: number,
-    public readonly pageSize?: number,
   ) {}
 }

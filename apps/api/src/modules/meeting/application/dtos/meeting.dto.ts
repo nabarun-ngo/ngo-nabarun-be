@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 import { MeetingType } from '../../domain/enums/meeting-type.enum';
 
 export class MeetingParticipantDto {
@@ -84,15 +85,8 @@ export class MeetingDetailDto {
   @ApiProperty({ example: '2026-03-14T09:30:00.000Z' }) updatedAt!: Date;
 }
 
-export class MeetingDetailFilterDto {
+export class MeetingDetailFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ example: 'b41d7e60-9c38-4a15-8f27-6d0e2a9b3c41' }) @IsOptional() @IsString() createdById?: string;
   @ApiPropertyOptional({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' }) @IsOptional() @IsString() participantId?: string;
   @ApiPropertyOptional({ example: 'asha.verma@example.org' }) @IsOptional() @IsString() participantEmail?: string;
-}
-
-export class MeetingListResponseDto {
-  @ApiProperty({ type: [MeetingDetailDto] }) items!: MeetingDetailDto[];
-  @ApiProperty({ example: 42 }) total!: number;
-  @ApiProperty({ example: 0 }) pageIndex!: number;
-  @ApiProperty({ example: 20 }) pageSize!: number;
 }

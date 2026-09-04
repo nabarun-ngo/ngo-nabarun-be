@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 import { BeneficiaryGender, BeneficiaryStatus, BeneficiaryType } from '../../domain/enums/beneficiary.enum';
 
 export class CreateBeneficiaryDto {
@@ -34,7 +35,7 @@ export class UpdateBeneficiaryDto {
   @IsOptional() @ApiPropertyOptional({ example: 'Attends evening literacy classes regularly' }) notes?: string;
 }
 
-export class BeneficiaryDetailFilterDto {
+export class BeneficiaryDetailFilterDto extends PaginatedQueryDto {
   @IsOptional() @IsEnum(BeneficiaryStatus) @ApiPropertyOptional({ enum: BeneficiaryStatus, example: BeneficiaryStatus.ACTIVE }) status?: BeneficiaryStatus;
   @IsOptional() @IsEnum(BeneficiaryType) @ApiPropertyOptional({ enum: BeneficiaryType, example: BeneficiaryType.INDIVIDUAL }) type?: BeneficiaryType;
   @IsOptional() @IsString() @ApiPropertyOptional({ example: 'Adult literacy' }) category?: string;
@@ -63,9 +64,3 @@ export class BeneficiaryDetailDto {
   @ApiProperty({ example: '2026-06-01T12:00:00.000Z' }) updatedAt: Date;
 }
 
-export class BeneficiaryListResponseDto {
-  @ApiProperty({ type: [BeneficiaryDetailDto] }) items: BeneficiaryDetailDto[];
-  @ApiProperty({ example: 312 }) total: number;
-  @ApiProperty({ example: 0 }) pageIndex: number;
-  @ApiProperty({ example: 20 }) pageSize: number;
-}

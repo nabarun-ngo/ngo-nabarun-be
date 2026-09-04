@@ -19,7 +19,6 @@ import {
   ApiAutoPagedResponse,
   ApiAutoResponse,
   ApiAutoVoidResponse,
-  ApiPaginationQuery,
   ApiUuidParam,
   PagedResponse,
 } from '@nabarun-ngo/nestjs-shared-core';
@@ -64,7 +63,6 @@ export class AssetController {
 
   @Get('list')
   @RequirePermissions('read:assets')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(AssetDetailDto)
   listAssets(
     @Query() filter?: AssetDetailFilterDto,

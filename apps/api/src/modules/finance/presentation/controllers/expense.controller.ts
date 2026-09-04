@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoPagedResponse, ApiAutoResponse, ApiPaginationQuery, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateExpenseCommand } from '../../application/commands/create-expense/create-expense.command';
 import { UpdateExpenseCommand } from '../../application/commands/update-expense/update-expense.command';
 import { FinalizeExpenseCommand } from '../../application/commands/finalize-expense/finalize-expense.command';
@@ -99,7 +99,6 @@ export class ExpenseController {
 
   @Get('list')
   @RequirePermissions('read:expenses')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(ExpenseDetailDto)
   listExpenses(
     @Query() filter?: ExpenseDetailFilterDto,
@@ -108,7 +107,6 @@ export class ExpenseController {
   }
 
   @Get('list/me')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(ExpenseDetailDto)
   listSelfExpenses(
     @Query() filter?: ExpenseDetailFilterDto,

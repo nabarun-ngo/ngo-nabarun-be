@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoPagedResponse, ApiAutoResponse, ApiPaginationQuery, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateDonationCommand } from '../../application/commands/create-donation/create-donation.command';
 import { CreateGuestDonorCommand } from '../../application/commands/create-guest-donor/create-guest-donor.command';
 import { UpdateDonationCommand } from '../../application/commands/update-donation/update-donation.command';
@@ -95,7 +95,6 @@ export class DonationController {
   }
 
   @Get('list/me')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(DonationDto)
   getSelfDonations(
     @Query() filter?: DonationDetailFilterDto,
@@ -108,7 +107,6 @@ export class DonationController {
 
   @Get('list')
   @RequirePermissions('read:donations')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(DonationDto)
   list(
     @Query() filter?: DonationDetailFilterDto,
@@ -118,7 +116,6 @@ export class DonationController {
 
   @Get('list/guest')
   @RequirePermissions('read:donation_guest')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(DonationDto)
   listGuest(
     @Query() filter?: DonationDetailFilterDto,
@@ -145,7 +142,6 @@ export class DonationController {
   @Get(':memberId/list')
   @RequirePermissions('read:member_donations')
   @ApiUuidParam('memberId', 'Identifier of the member user profile')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(DonationDto)
   getMemberDonations(
     @Param('memberId') memberId: string,

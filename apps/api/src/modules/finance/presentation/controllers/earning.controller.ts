@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import type { AuthUser } from '@nabarun-ngo/nestjs-shared-auth';
-import { ApiAutoPagedResponse, ApiAutoResponse, ApiPaginationQuery, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
+import { ApiAutoPagedResponse, ApiAutoResponse, ApiUuidParam, PagedResponse } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateEarningCommand } from '../../application/commands/create-earning/create-earning.command';
 import { UpdateEarningCommand } from '../../application/commands/update-earning/update-earning.command';
 import { ListEarningsQuery } from '../../application/queries/list-earnings/list-earnings.query';
@@ -68,7 +68,6 @@ export class EarningController {
 
   @Get('list')
   @RequirePermissions('read:earnings')
-  @ApiPaginationQuery()
   @ApiAutoPagedResponse(EarningDetailDto)
   listEarnings(
     @Query() filter?: EarningDetailFilterDto,

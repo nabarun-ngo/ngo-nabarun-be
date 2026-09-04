@@ -11,7 +11,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiSecurity,
   ApiTags,
 } from "@nestjs/swagger";
@@ -35,7 +34,7 @@ import { GetQueueStatisticsQuery } from "../../application/queries/get-queue-sta
 import { SearchJobsQuery } from "../../application/queries/search-jobs/search-jobs.query";
 import { QueueJobSearchResultDto } from "../../application/dtos/queue-job.dtos";
 import { CleanJobsResult, JobDetail, QueueStatistics } from "../dto/queue.dto";
-import { JobStatus } from "../../domain/enums/job-status.enum";
+import { ListJobsQueryDto, SearchJobsQueryDto } from "../dto/queue-query.dto";
 
 @ApiTags(QueueController.name)
 @Controller("queue")
@@ -49,15 +48,6 @@ export class QueueController {
 
   @Get()
   @ApiOperation({ summary: "Get jobs by status" })
-  @ApiQuery({ name: "pageIndex", required: true, example: 0 })
-  @ApiQuery({ name: "pageSize", required: true, example: 20 })
-  @ApiQuery({
-    name: "status",
-    required: true,
-    enum: ["completed", "failed", "paused", "delayed", "active", "waiting", "waiting-children"],
-    schema: { example: "failed" },
-  })
-  @ApiQuery({ name: "jobId", required: false, example: "job_10482" })
   @RequirePermissions("read:jobs")
   @ApiAutoPagedResponse(JobDetail, {
     status: 200,
@@ -65,30 +55,19 @@ export class QueueController {
     isArray: true,
     wrapInSuccessResponse: true,
   })
-  async getJobs(
-    @Query("pageIndex") pageIndex: number,
-    @Query("pageSize") pageSize: number,
-    @Query("status")
-    status:
-      | "completed"
-      | "failed"
-      | "paused"
-      | "delayed"
-      | "active"
-      | "waiting"
-      | "waiting-children",
-    @Query("jobId") jobId?: string,
-  ) {
-    return this.queryBus.execute(new ListJobsQuery({ pageIndex: +pageIndex, pageSize: +pageSize, status: status as any, jobId }));
+  async getJobs(@Query() query: ListJobsQueryDto) {
+    return this.queryBus.execute(
+      new ListJobsQuery({
+        pageIndex: query.pageIndex ?? 0,
+        pageSize: query.pageSize ?? 20,
+        status: query.status as any,
+        jobId: query.jobId,
+      }),
+    );
   }
 
   @Get("search")
   @ApiOperation({ summary: "Search jobs by name, queue, or status (uses secondary store)" })
-  @ApiQuery({ name: "jobName", required: false, example: "send-email" })
-  @ApiQuery({ name: "queueName", required: false, example: "correspondence" })
-  @ApiQuery({ name: "status", required: false, enum: JobStatus, schema: { example: JobStatus.Failed } })
-  @ApiQuery({ name: "pageIndex", required: false, example: 0 })
-  @ApiQuery({ name: "pageSize", required: false, example: 20 })
   @RequirePermissions("read:jobs")
   @ApiAutoPagedResponse(QueueJobSearchResultDto, {
     status: 200,
@@ -96,15 +75,15 @@ export class QueueController {
     isArray: true,
     wrapInSuccessResponse: true,
   })
-  async searchJobs(
-    @Query("jobName") jobName?: string,
-    @Query("queueName") queueName?: string,
-    @Query("status") status?: JobStatus,
-    @Query("pageIndex") pageIndex?: number,
-    @Query("pageSize") pageSize?: number,
-  ) {
+  async searchJobs(@Query() query: SearchJobsQueryDto) {
     return this.queryBus.execute(
-      new SearchJobsQuery({ jobName, queueName, status, pageIndex: pageIndex ? +pageIndex : 0, pageSize: pageSize ? +pageSize : 20 }),
+      new SearchJobsQuery({
+        jobName: query.jobName,
+        queueName: query.queueName,
+        status: query.status,
+        pageIndex: query.pageIndex ?? 0,
+        pageSize: query.pageSize ?? 20,
+      }),
     );
   }
 

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginatedQueryDto } from '@nabarun-ngo/nestjs-shared-core';
 import { Report } from '../../domain/aggregates/report/report.aggregate';
 import { ReportStatus } from '../../domain/enums/report-status.enum';
 import { ReportDefinition } from '../../domain/reporting.interface';
@@ -83,7 +84,7 @@ export class ReportCategoryDto {
   isActive?: boolean;
 }
 
-export class ReportFilterDto {
+export class ReportFilterDto extends PaginatedQueryDto {
   @ApiPropertyOptional({ enum: ReportStatus, example: ReportStatus.DRAFT })
   status?: ReportStatus;
 
@@ -105,22 +106,6 @@ export class ReportInputFieldDto {
   mandatory?: boolean;
 }
 
-/** Page of generated reports — mirrors `ListReportsByCodeResult`. */
-export class ReportListResponseDto {
-  @ApiProperty({ type: () => [ReportDetailDto] })
-  content: ReportDetailDto[];
-
-  @ApiProperty({ example: 12 })
-  totalSize: number;
-
-  @ApiProperty({ example: 0 })
-  pageIndex: number;
-
-  @ApiProperty({ example: 20 })
-  pageSize: number;
-}
-
-/** Handle of the approval workflow started for a report generation request. */
 export class ReportGenerationStartedDto {
   @ApiProperty({ example: '7c2e5b84-13af-4d6c-8e90-5a1f3b2c7d68' })
   workflowId: string;
