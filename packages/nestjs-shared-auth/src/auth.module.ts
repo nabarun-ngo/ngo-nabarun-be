@@ -99,7 +99,7 @@ import { MeController } from './presentation/controllers/me.controller';
 import { RolesController } from './presentation/controllers/roles.controller';
 import { PermissionsController } from './presentation/controllers/permissions.controller';
 import { RoleGroupsController } from './presentation/controllers/role-groups.controller';
-import { UserRolesController } from './presentation/controllers/user-roles.controller';
+import { UserRolesController } from './presentation/controllers/user-access.controller';
 
 export interface AuthModuleAsyncOptions
   extends DynamicModuleAsyncOptions<AuthModuleOptions> { }
@@ -263,19 +263,19 @@ export class AuthModule extends BaseDynamicModule {
   ): DynamicModule {
     const throttlerImport = syncThrottlers
       ? ThrottlerModule.forRoot(
-          AuthModule.buildThrottlerModuleOptions(
-            syncAuthOptions ?? ({} as AuthModuleOptions),
-            syncThrottlers,
-          ),
-        )
+        AuthModule.buildThrottlerModuleOptions(
+          syncAuthOptions ?? ({} as AuthModuleOptions),
+          syncThrottlers,
+        ),
+      )
       : ThrottlerModule.forRootAsync({
-          inject: [AUTH_OPTIONS],
-          useFactory: (authOptions: AuthModuleOptions) =>
-            AuthModule.buildThrottlerModuleOptions(
-              authOptions,
-              resolveThrottlers(authOptions.throttler),
-            ),
-        });
+        inject: [AUTH_OPTIONS],
+        useFactory: (authOptions: AuthModuleOptions) =>
+          AuthModule.buildThrottlerModuleOptions(
+            authOptions,
+            resolveThrottlers(authOptions.throttler),
+          ),
+      });
 
     return {
       module: AuthModule,

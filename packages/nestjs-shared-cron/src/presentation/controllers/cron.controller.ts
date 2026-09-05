@@ -54,7 +54,7 @@ export class CronController {
    */
   @Post('trigger')
   @UseApiKey()
-  @RequirePermissions('update:cron')
+  @RequirePermissions('create:cron')
   @ApiOperation({ summary: 'Evaluate schedules and enqueue due jobs (called by cloud scheduler)' })
   @ApiHeader({
     name: 'x-cloudscheduler-scheduletime',
@@ -78,7 +78,7 @@ export class CronController {
   }
 
   @Post('jobs')
-  @RequirePermissions('update:cron')
+  @RequirePermissions('create:cron')
   @ApiOperation({ summary: 'Create or upsert a cron job definition' })
   @ApiAutoResponse(CronJobDto, { status: 201, wrapInSuccessResponse: true })
   async createJob(@Body() dto: CreateCronJobRequestDto): Promise<CronJobDto> {
@@ -107,7 +107,7 @@ export class CronController {
   }
 
   @Delete('jobs/:name')
-  @RequirePermissions('update:cron')
+  @RequirePermissions('delete:cron')
   @ApiOperation({ summary: 'Delete a cron job definition' })
   @ApiKeyParam('name', 'daily-donation-digest', 'Unique cron job name')
   @ApiAutoVoidResponse()
@@ -120,7 +120,7 @@ export class CronController {
    * Optionally supply a payload to override the job's stored inputData.
    */
   @Post('run/:name')
-  @RequirePermissions('update:cron')
+  @RequirePermissions('create:cron')
   @ApiOperation({ summary: 'Manually enqueue a specific job immediately' })
   @ApiKeyParam('name', 'daily-donation-digest', 'Unique cron job name')
   @ApiBody({

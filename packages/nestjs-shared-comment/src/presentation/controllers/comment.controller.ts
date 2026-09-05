@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { AuthUser, CurrentUser, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
+import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import {
   ApiAutoResponse,
   ApiAutoVoidResponse,
@@ -45,6 +45,7 @@ export class CommentController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Add a new comment or reply' })
   @ApiAutoResponse(CommentResponseDto, { status: 201 })
+  @RequirePermissions('create:comments')
   addComment(
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: AuthUser,
@@ -70,6 +71,7 @@ export class CommentController {
   @ApiOperation({ summary: 'Update an existing comment' })
   @ApiUuidParam('id', 'Identifier of the comment')
   @ApiAutoResponse(CommentResponseDto)
+  @RequirePermissions('update:comments')
   updateComment(
     @Param('id') id: string,
     @Body() dto: UpdateCommentDto,
@@ -94,6 +96,7 @@ export class CommentController {
   @ApiOperation({ summary: 'Delete a comment and all its replies' })
   @ApiUuidParam('id', 'Identifier of the comment')
   @ApiAutoVoidResponse({ status: 204 })
+  @RequirePermissions('delete:comments')
   deleteComment(
     @Param('id') id: string,
     @CurrentUser() user: AuthUser,
@@ -112,6 +115,7 @@ export class CommentController {
   @Get()
   @ApiOperation({ summary: 'Get comments for an entity' })
   @ApiAutoResponse(GetCommentsResponseDto)
+  @RequirePermissions('read:comments')
   getComments(
     @Query() query: GetCommentsQueryDto,
     @CurrentUser() user: AuthUser,

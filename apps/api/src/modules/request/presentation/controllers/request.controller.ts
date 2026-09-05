@@ -56,17 +56,17 @@ export class RequestController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   @Get('types')
-  @RequirePermissions('read:requests', 'create:requests')
+  @RequirePermissions('read:requests')
   @ApiAutoResponse(RequestTypeDto, { isArray: true })
   listTypes(): Promise<RequestTypeDto[]> {
     return this.queryBus.execute(new ListRequestTypesQuery());
   }
 
   @Get('types/:type/start-form')
-  @RequirePermissions('create:requests', 'read:requests')
+  @RequirePermissions('create:requests')
   @ApiAutoResponse(RequestStartFormDto)
   getStartForm(@Param('type') type: string): Promise<RequestStartFormDto> {
     return this.queryBus.execute(new GetRequestStartFormQuery(type));

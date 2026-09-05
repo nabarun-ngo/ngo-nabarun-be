@@ -178,7 +178,7 @@ export class FormFieldController {
   }
 
   @Post(':fieldId/disable')
-  @RequirePermissions('disable:custom_forms')
+  @RequirePermissions('update:custom_forms')
   @ApiUuidParam('formId', 'Identifier of the form')
   @ApiUuidParam('fieldId', 'Identifier of the form field')
   @ApiAutoResponse(FormFieldDefinitionResponseDto)

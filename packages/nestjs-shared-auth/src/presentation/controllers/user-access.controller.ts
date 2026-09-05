@@ -62,7 +62,8 @@ export class UserRolesController {
     return requireUserId(caller);
   }
 
-  @Get('roles')
+  // ── User roles ─────────────────────────────────────────────────────────────────────
+  @Get('direct-roles')
   @RequirePermissions('read:user_roles')
   @ApiOperation({ summary: 'List active roles for a user' })
   @ApiIdpSubParam()
@@ -75,7 +76,7 @@ export class UserRolesController {
     return this.queryBus.execute(new ListUserRolesQuery(idpSub, all !== 'true'));
   }
 
-  @Post('roles')
+  @Post('direct-roles')
   @RequirePermissions('create:user_roles')
   @ApiOperation({ summary: 'Grant a role to a user' })
   @ApiIdpSubParam()
@@ -91,7 +92,7 @@ export class UserRolesController {
     );
   }
 
-  @Delete('roles/:roleId')
+  @Delete('direct-roles/:roleId')
   @RequirePermissions('delete:user_roles')
   @ApiOperation({ summary: 'Revoke a role from a user' })
   @ApiIdpSubParam()
@@ -105,6 +106,7 @@ export class UserRolesController {
     return this.commandBus.execute(new RevokeUserRoleCommand(idpSub, roleId, this.auditId(caller)));
   }
 
+  // ── User permissions ─────────────────────────────────────────────────────────────────────
   @Get('direct-permissions')
   @RequirePermissions('read:user_permissions')
   @ApiOperation({ summary: 'List direct permission grants for a user (not role-derived)' })
@@ -158,8 +160,9 @@ export class UserRolesController {
     );
   }
 
-  @Get('groups')
-  @RequirePermissions('read:user_roles')
+  // ── User groups ─────────────────────────────────────────────────────────────────────
+  @Get('direct-groups')
+  @RequirePermissions('read:user_role_groups')
   @ApiOperation({ summary: 'List group memberships for a user' })
   @ApiIdpSubParam()
   @ApiStringQuery('all', 'true', 'Set to "true" to include revoked memberships')
@@ -171,8 +174,8 @@ export class UserRolesController {
     return this.queryBus.execute(new ListUserGroupsQuery(idpSub, all !== 'true'));
   }
 
-  @Post('groups')
-  @RequirePermissions('create:user_roles')
+  @Post('direct-groups')
+  @RequirePermissions('create:user_role_groups')
   @ApiOperation({ summary: 'Add a user to a role group' })
   @ApiIdpSubParam()
   @ApiBody({ type: AddToGroupRequestDto })
@@ -187,8 +190,8 @@ export class UserRolesController {
     );
   }
 
-  @Delete('groups/:membershipId')
-  @RequirePermissions('delete:user_roles')
+  @Delete('direct-groups/:membershipId')
+  @RequirePermissions('delete:user_role_groups')
   @ApiOperation({ summary: 'Remove a user from a role group' })
   @ApiIdpSubParam()
   @ApiUuidParam('membershipId', 'Identifier of the group membership to remove (UUID)')
@@ -203,7 +206,8 @@ export class UserRolesController {
     );
   }
 
-  @Get('permissions')
+  // ── User access ─────────────────────────────────────────────────────────────────────
+  @Get('access')
   @RequirePermissions('read:user_roles')
   @ApiOperation({ summary: 'Resolve full RBAC access for a user' })
   @ApiIdpSubParam()

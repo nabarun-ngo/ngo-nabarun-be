@@ -10,10 +10,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiProperty, ApiPropertyOptional, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { FormStatus } from '../../domain/enums/form-status.enum';
 import { AuthUser, CurrentUser, RequirePermissions, UnifiedAuthGuard, requireUserId } from '@nabarun-ngo/nestjs-shared-auth';
 import { ApiAutoResponse, ApiUuidParam } from '@nabarun-ngo/nestjs-shared-core';
 import { CreateFormCommand } from '../../application/commands/create-form/create-form.command';
@@ -25,20 +23,9 @@ import { GetFormWithFieldsQuery } from '../../application/queries/get-form-with-
 import { FormResponseDto } from '../../application/dtos/response/form-response.dtos';
 import {
   CreateFormDto,
+  ListFormsRequestDto,
   UpdateFormDto,
 } from '../../application/dtos/request/form-request.dtos';
-
-class ListFormsRequestDto {
-  @ApiProperty({ example: 'PROJECT' })
-  @IsString()
-  @IsNotEmpty()
-  entityType: string;
-
-  @ApiPropertyOptional({ enum: FormStatus, example: FormStatus.Published })
-  @IsEnum(FormStatus)
-  @IsOptional()
-  status?: FormStatus;
-}
 
 @ApiTags('Custom Forms')
 @ApiBearerAuth('jwt')
@@ -136,7 +123,7 @@ export class FormController {
   }
 
   @Post(':formId/disable')
-  @RequirePermissions('disable:custom_forms')
+  @RequirePermissions('update:custom_forms')
   @ApiUuidParam('formId', 'Identifier of the form')
   @ApiAutoResponse(FormResponseDto)
   disableForm(

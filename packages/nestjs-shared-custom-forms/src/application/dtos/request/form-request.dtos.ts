@@ -2,10 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayUnique,
   IsArray,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { FormStatus } from '../../../domain/enums/form-status.enum';
 
 export class CreateFormDto {
   @ApiProperty({ example: 'PROJECT' })
@@ -96,3 +98,16 @@ export class DisableFormDto {
   @IsOptional()
   id?: string;
 }
+
+export class ListFormsRequestDto {
+  @ApiProperty({ example: 'PROJECT' })
+  @IsString()
+  @IsNotEmpty()
+  entityType: string;
+
+  @ApiPropertyOptional({ enum: FormStatus, example: FormStatus.Published })
+  @IsEnum(FormStatus)
+  @IsOptional()
+  status?: FormStatus;
+}
+
