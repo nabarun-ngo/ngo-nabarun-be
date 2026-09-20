@@ -1,25 +1,63 @@
 
 
 
+type PermissionOp = 'C' | 'R' | 'U' | 'D';
 
-export const permissions =
-    [
+type PermissionDef = {
+    key: string;
+    type: PermissionOp;
+    description: string;
+};
 
+type PermissionArea =
+    | 'custom-forms'
+    | 'custom-forms-submission'
+    | 'api-keys'
+    | 'auth-definitions'
+    | 'auth-management'
+    | 'job-queue'
+    | 'requests'
+    | 'json-documents'
+    | 'dms'
+    | 'comment'
+    | 'cron'
+    | 'users'
+    | 'donation'
+    | 'donor'
+    | 'accounts'
+    | 'expenses'
+    | 'earnings'
+    | 'reports'
+    | 'correspondence-notifications'
+    | 'correspondence-email'
+    | 'correspondence-subscriptions'
+    | 'help-portal'
+    | 'token-vault'
+    | 'project'
+    | 'beneficiary'
+    | 'goal'
+    | 'milestone'
+    | 'project-team'
+    | 'project-risk'
+    | 'meeting'
+    | 'asset'
+    | 'book-bank'
+    | 'public-site';
 
-
-
-    ];
-
-export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' | 'D', description: string }[]> = {
+export const PermissionMap: Record<PermissionArea, PermissionDef[]> = {
     'custom-forms': [
         { key: 'create:custom_forms', type: 'C', description: 'Create custom forms' },
         { key: 'read:custom_forms', type: 'R', description: 'View custom form definitions' },
         { key: 'update:custom_forms', type: 'U', description: 'Update custom forms and fields' },
+        { key: 'disable:custom_forms', type: 'D', description: 'Disable custom forms and fields' },
         { key: 'delete:custom_forms', type: 'D', description: 'Delete custom forms' },// Future Not in use
     ],
     'custom-forms-submission': [
         { key: 'read:form_submissions', type: 'R', description: 'Read form submission values' },
         { key: 'create:form_submissions', type: 'C', description: 'Save draft/submit form submission values' },
+        { key: 'write:form_submissions', type: 'C', description: 'Write draft form submission values' },
+        { key: 'submit:form_submissions', type: 'C', description: 'Submit form submission values' },
+        { key: 'clear:form_submissions', type: 'D', description: 'Clear form submission values' },
         { key: 'delete:form_submissions', type: 'D', description: 'Clear form submission values' },
     ],
     'api-keys': [
@@ -69,6 +107,10 @@ export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' 
         { key: 'create:requests', type: 'C', description: 'Create and start requests instances' },
         { key: 'read:requests', type: 'R', description: 'View requests timelines' },
         { key: 'update:requests', type: 'U', description: 'Cancel or update requests instances' },
+        { key: 'read:tasks', type: 'R', description: 'View assigned workflow tasks (inbox)' },
+        { key: 'update:task', type: 'U', description: 'Claim, complete, or delegate workflow tasks' },
+        { key: 'admin:workflows', type: 'U', description: 'Administrative workflow operations (force-skip, stuck detector)' },
+        { key: 'manage:workflow_definitions', type: 'U', description: 'Publish and manage workflow definitions' },
     ],
     'json-documents': [
         { key: 'create:json_documents', type: 'C', description: 'Create json_documents' },
@@ -88,6 +130,10 @@ export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' 
         { key: 'create:comments', type: 'C', description: 'Create comments' },
         { key: 'update:comments', type: 'U', description: 'Update comments' },
         { key: 'delete:comments', type: 'D', description: 'Delete comments' },
+        { key: 'read:donation_comments', type: 'R', description: 'Read comments on donation entities' },
+        { key: 'create:donation_comments', type: 'C', description: 'Post comments on donation entities' },
+        { key: 'read:task_comments', type: 'R', description: 'Read comments on task entities' },
+        { key: 'create:task_comments', type: 'C', description: 'Post comments on task entities' },
     ],
     'cron': [
         { key: 'read:cron', type: 'R', description: 'View cron job definitions' },
@@ -104,6 +150,8 @@ export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' 
         { key: 'create:user_connections', type: 'C', description: 'Create user connections' },
         { key: 'read:user_connections', type: 'R', description: 'Read user connections' },
         { key: 'delete:user_connections', type: 'D', description: 'Delete user connections' },
+        { key: 'create:identity_cards', type: 'C', description: 'Create identity cards' },
+        { key: 'read:identity_cards', type: 'R', description: 'Read identity cards' },
     ],
     'donation': [
         // ── donations (consumer-defined) ─────────────────────────────────────────
@@ -119,6 +167,7 @@ export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' 
         { key: 'create:donor_guest', type: 'C', description: 'Create guest donor profiles' },
         { key: 'update:donor_guest', type: 'U', description: 'Update guest donor profiles' },
         { key: 'update:donor_member', type: 'U', description: 'Update member donor schedule and amount' },
+        { key: 'merge:donor_guest', type: 'U', description: 'Merge guest donor profiles' },
     ],
     'accounts': [
         // ── accounts / transactions (consumer-defined) ───────────────────────────
@@ -134,6 +183,8 @@ export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' 
         { key: 'create:expense', type: 'C', description: 'Create expense record' },
         { key: 'read:expenses', type: 'R', description: 'View expense records' },
         { key: 'update:expense', type: 'U', description: 'Update expense records' },
+        { key: 'finalize:expense', type: 'U', description: 'Finalize (approve) expense' },
+        { key: 'settle:expense', type: 'U', description: 'Settle (pay) expense' },
         { key: 'delete:expense', type: 'D', description: 'Delete expense records' },
     ],
     'earnings': [
@@ -147,115 +198,172 @@ export const PermissionMap: Record<string, { key: string, type: 'C' | 'R' | 'U' 
         { key: 'read:reports', type: 'R', description: 'View report definitions and executions' },
         { key: 'create:reports', type: 'C', description: 'Generate reports' },
         { key: 'update:reports', type: 'U', description: 'Update reports' },
+        { key: 'approve:reports', type: 'U', description: 'Approve reports via workflow tasks' },
         { key: 'delete:reports', type: 'D', description: 'Delete report executions' },
     ],
-    '': [
-
-
-        // ── correspondence ──────────────────────────────────────────────────────
-        // { key: 'read:notifications', description: 'Access notification admin endpoints' },
-        // { key: 'update:notifications', description: 'Mark or update own notification state' },
-        // { key: 'send:email', description: 'Send email via the correspondence provider' },
-        // { key: 'read:subscriptions', description: 'List own or resource correspondence subscriptions' },
-        // { key: 'create:subscriptions', description: 'Follow a resource (create correspondence subscription)' },
-        // { key: 'update:subscriptions', description: 'Update subscription channel preferences' },
-        // { key: 'delete:subscriptions', description: 'Unfollow a resource (deactivate subscription)' },
-
-        // // ── cron ────────────────────────────────────────────────────────────────
-        // { key: 'read:cron', description: 'View cron job definitions and status' },
-        // { key: 'update:cron', description: 'Trigger or update cron job definitions' },
-
-        // // ── help portal ───────────────────────────────────────────────────────────
-        // { key: 'read:help_portal', description: 'View in-app help catalog and articles' },
-
-
-
-        // // ── reports ─────────────────────────────────────────────────────────────
-
-        // { key: 'approve:reports', description: 'Approve reports via workflow tasks' },
-
-
-
-        // // ── token-vault ─────────────────────────────────────────────────────────
-        // { key: 'read:oauth_token', description: 'View OAuth token records' },
-        // { key: 'create:oauth_token', description: 'Create or refresh OAuth tokens' },
-        // { key: 'delete:oauth_token', description: 'Revoke OAuth tokens' },
-
-
-
-
-
-        // // ── comment entity-type permissions (consumer-defined) ──────────────────
-        // { key: 'read:donation_comments', description: 'Read comments on donation entities' },
-        // { key: 'create:donation_comments', description: 'Post comments on donation entities' },
-        // { key: 'read:task_comments', description: 'Read comments on task entities' },
-        // { key: 'create:task_comments', description: 'Post comments on task entities' },
-
-
-
-
-
-        // // ── expenses (consumer-defined) ──────────────────────────────────────────
-        // { key: 'create:expense', description: 'Create expense record' },
-        // { key: 'update:expense', description: 'Update expense record' },
-        // { key: 'finalize:expense', description: 'Finalize (approve) expense' },
-        // { key: 'settle:expense', description: 'Settle (pay) expense' },
-        // { key: 'read:expenses', description: 'View expense records' },
-
-        // // ── earnings (consumer-defined) ──────────────────────────────────────────
-        // { key: 'create:earning', description: 'Create earning record' },
-        // { key: 'update:earning', description: 'Update earning record' },
-        // { key: 'read:earnings', description: 'View earning records' },
-
-        // // ── project (consumer-defined) ───────────────────────────────────────────
-        // { key: 'read:projects', description: 'View project records' },
-        // { key: 'create:project', description: 'Create projects' },
-        // { key: 'update:project', description: 'Update projects' },
-        // { key: 'read:activities', description: 'View project activities' },
-        // { key: 'create:activity', description: 'Create project activities' },
-        // { key: 'update:activity', description: 'Update project activities' },
-        // { key: 'read:beneficiaries', description: 'View project beneficiaries' },
-        // { key: 'create:beneficiary', description: 'Create project beneficiaries' },
-        // { key: 'update:beneficiary', description: 'Update project beneficiaries' },
-        // { key: 'read:goals', description: 'View project goals' },
-        // { key: 'create:goal', description: 'Create project goals' },
-        // { key: 'update:goal', description: 'Update project goals' },
-        // { key: 'read:milestones', description: 'View project milestones' },
-        // { key: 'create:milestone', description: 'Create project milestones' },
-        // { key: 'update:milestone', description: 'Update project milestones' },
-        // { key: 'read:project_teams', description: 'View project team members' },
-        // { key: 'create:project_team', description: 'Add project team members' },
-        // { key: 'update:project_team', description: 'Update project team members' },
-        // { key: 'read:risks', description: 'View project risks' },
-        // { key: 'create:risk', description: 'Create project risks' },
-        // { key: 'update:risk', description: 'Update project risks' },
-
-        // // ── requests (consumer-defined) ───────────────────────────────
-
-        // { key: 'read:tasks', description: 'View assigned workflow tasks (inbox)' },
-        // { key: 'update:task', description: 'Claim, complete, or delegate workflow tasks' },
-        // { key: 'admin:workflows', description: 'Administrative workflow operations (force-skip, stuck detector)' },
-        // { key: 'manage:workflow_definitions', description: 'Publish and manage workflow definitions' },
-
-        // // ── meeting (consumer-defined) ───────────────────────────────────────────
-        // { key: 'read:meetings', description: 'View meeting records' },
-        // { key: 'create:meeting', description: 'Schedule meetings and sync with Google Calendar' },
-        // { key: 'update:meeting', description: 'Update or cancel meeting details' },
-        // { key: 'delete:meeting', description: 'Delete meeting records' },
-
-        // // ── asset (consumer-defined) ─────────────────────────────────────────────
-        // { key: 'read:assets', description: 'View physical asset records' },
-        // { key: 'create:asset', description: 'Register physical assets' },
-        // { key: 'update:asset', description: 'Update assets and assign or return custody' },
-        // { key: 'delete:asset', description: 'Soft-delete physical asset records' },
-
-        // // ── book bank (library under assets hub) ─────────────────────────────────
-        // { key: 'read:books', description: 'View book bank records' },
-        // { key: 'create:book', description: 'Register books in the book bank' },
-        // { key: 'update:book', description: 'Update books and apply lend/return/donate operations' },
-        // { key: 'delete:book', description: 'Soft-delete book bank records' },
-
-        // // ── public site ───────────────────────────────────────────────────────────
-        // { key: 'read:public_content', description: 'Read public site content' },
-    ]
+    'correspondence-notifications': [
+        { key: 'read:notifications', type: 'R', description: 'View own notifications and notification admin listings' },
+        { key: 'update:notifications', type: 'U', description: 'Mark or update own notification state' },
+    ],
+    'correspondence-email': [
+        { key: 'send:email', type: 'C', description: 'Send email via the correspondence provider' },
+    ],
+    'correspondence-subscriptions': [
+        { key: 'read:subscriptions', type: 'R', description: 'List own or resource correspondence subscriptions' },
+        { key: 'create:subscriptions', type: 'C', description: 'Follow a resource (create correspondence subscription)' },
+        { key: 'update:subscriptions', type: 'U', description: 'Update subscription channel preferences' },
+        { key: 'delete:subscriptions', type: 'D', description: 'Unfollow a resource (deactivate subscription)' },
+    ],
+    'help-portal': [
+        { key: 'read:help_portal', type: 'R', description: 'View in-app help catalog and articles' },
+    ],
+    'token-vault': [
+        { key: 'read:oauth_token', type: 'R', description: 'View OAuth token records' },
+        { key: 'create:oauth_token', type: 'C', description: 'Create or refresh OAuth tokens' },
+        { key: 'delete:oauth_token', type: 'D', description: 'Revoke OAuth tokens' },
+    ],
+    'project': [
+        { key: 'read:projects', type: 'R', description: 'View project records' },
+        { key: 'create:project', type: 'C', description: 'Create projects' },
+        { key: 'update:project', type: 'U', description: 'Update projects' },
+        { key: 'read:activities', type: 'R', description: 'View project activities' },
+        { key: 'create:activity', type: 'C', description: 'Create project activities' },
+        { key: 'update:activity', type: 'U', description: 'Update project activities' },
+    ],
+    'beneficiary': [
+        { key: 'read:beneficiaries', type: 'R', description: 'View project beneficiaries' },
+        { key: 'create:beneficiary', type: 'C', description: 'Create project beneficiaries' },
+        { key: 'update:beneficiary', type: 'U', description: 'Update project beneficiaries' },
+    ],
+    'goal': [
+        { key: 'read:goals', type: 'R', description: 'View project goals' },
+        { key: 'create:goal', type: 'C', description: 'Create project goals' },
+        { key: 'update:goal', type: 'U', description: 'Update project goals' },
+    ],
+    'milestone': [
+        { key: 'read:milestones', type: 'R', description: 'View project milestones' },
+        { key: 'create:milestone', type: 'C', description: 'Create project milestones' },
+        { key: 'update:milestone', type: 'U', description: 'Update project milestones' },
+    ],
+    'project-team': [
+        { key: 'read:project_teams', type: 'R', description: 'View project team members' },
+        { key: 'create:project_team', type: 'C', description: 'Add project team members' },
+        { key: 'update:project_team', type: 'U', description: 'Update project team members' },
+    ],
+    'project-risk': [
+        { key: 'read:risks', type: 'R', description: 'View project risks' },
+        { key: 'create:risk', type: 'C', description: 'Create project risks' },
+        { key: 'update:risk', type: 'U', description: 'Update project risks' },
+    ],
+    'meeting': [
+        { key: 'read:meetings', type: 'R', description: 'View meeting records' },
+        { key: 'create:meeting', type: 'C', description: 'Schedule meetings and sync with Google Calendar' },
+        { key: 'update:meeting', type: 'U', description: 'Update or cancel meeting details' },
+        { key: 'delete:meeting', type: 'D', description: 'Delete meeting records' },
+    ],
+    'asset': [
+        { key: 'read:assets', type: 'R', description: 'View physical asset records' },
+        { key: 'create:asset', type: 'C', description: 'Register physical assets' },
+        { key: 'update:asset', type: 'U', description: 'Update assets and assign or return custody' },
+        { key: 'delete:asset', type: 'D', description: 'Soft-delete physical asset records' },
+    ],
+    'book-bank': [
+        { key: 'read:books', type: 'R', description: 'View book bank records' },
+        { key: 'create:book', type: 'C', description: 'Register books in the book bank' },
+        { key: 'update:book', type: 'U', description: 'Update books and apply lend/return/donate operations' },
+        { key: 'delete:book', type: 'D', description: 'Soft-delete book bank records' },
+    ],
+    'public-site': [
+        { key: 'read:public_content', type: 'R', description: 'Read public site content' },
+    ],
 };
+
+function applyPermissions(area: PermissionArea, types: PermissionOp[] = ['R']) {
+    return PermissionMap[area].filter(p => types.includes(p.type)).map(p => p.key);
+}
+
+function extendMember(...extras: string[]): Set<string> {
+    return new Set([...memberPermissions, ...extras]);
+}
+
+export const memberPermissions: Set<string> = new Set([
+    ...applyPermissions('custom-forms', []),
+    ...applyPermissions('custom-forms-submission', ['R', 'C', 'D']),
+    ...applyPermissions('api-keys', []),
+    ...applyPermissions('auth-definitions', ['R']),
+    ...applyPermissions('auth-management', ['R']),
+    ...applyPermissions('job-queue', []),
+    ...applyPermissions('requests', ['C', 'R']),
+    ...applyPermissions('json-documents', ['R']),
+    ...applyPermissions('dms', ['R', 'C']),
+    ...applyPermissions('comment', ['R', 'C', 'U', 'D']),
+    ...applyPermissions('cron', []),
+    ...applyPermissions('users', ['R']),
+    ...applyPermissions('donation', ['R', 'U']),
+    ...applyPermissions('donor', ['R']),
+    ...applyPermissions('accounts', ['R']),
+    ...applyPermissions('expenses', ['R']),
+    ...applyPermissions('earnings', ['R']),
+    ...applyPermissions('reports', ['R']),
+    ...applyPermissions('correspondence-notifications', ['R', 'U']),
+    ...applyPermissions('correspondence-email', []),
+    ...applyPermissions('correspondence-subscriptions', ['R', 'C', 'U', 'D']),
+    ...applyPermissions('help-portal', ['R']),
+    ...applyPermissions('token-vault', []),
+    ...applyPermissions('project', ['R']),
+    ...applyPermissions('beneficiary', ['R']),
+    ...applyPermissions('goal', ['R']),
+    ...applyPermissions('milestone', ['R']),
+    ...applyPermissions('project-team', ['R']),
+    ...applyPermissions('project-risk', ['R']),
+    ...applyPermissions('meeting', ['R']),
+    ...applyPermissions('asset', ['R']),
+    ...applyPermissions('book-bank', ['R']),
+    ...applyPermissions('public-site', ['R']),
+]);
+
+const governanceRecordExtras = [
+    ...applyPermissions('auth-definitions', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('auth-management', ['C', 'R', 'D']),
+    ...applyPermissions('dms', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('asset', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('book-bank', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('meeting', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('reports', ['C', 'R', 'U', 'D']),
+];
+
+const financeWriteExtras = [
+    ...applyPermissions('donation', ['C', 'R', 'U']),
+    ...applyPermissions('donor', ['C', 'R', 'U']),
+    ...applyPermissions('accounts', ['C', 'R', 'U']),
+    ...applyPermissions('expenses', ['C', 'R', 'U']),
+    ...applyPermissions('earnings', ['C', 'R', 'U']),
+];
+
+export const secretaryPermissions = extendMember(
+    ...governanceRecordExtras,
+    ...applyPermissions('users', ['C', 'R', 'U', 'D']),
+);
+
+export const assistantSecretaryPermissions = extendMember(
+    ...governanceRecordExtras,
+    ...applyPermissions('users', ['C', 'R', 'U']),
+);
+
+export const treasurerPermissions = extendMember(
+    ...applyPermissions('dms', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('asset', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('book-bank', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('reports', ['C', 'R', 'U', 'D']),
+    ...financeWriteExtras,
+    ...applyPermissions('users', ['R', 'U']),
+);
+
+export const communityManagerPermissions = extendMember(
+    ...applyPermissions('asset', ['C', 'R', 'U', 'D']),
+    ...applyPermissions('book-bank', ['C', 'R', 'U', 'D']),
+);
+ 
+
+
+
