@@ -1,0 +1,45 @@
+{
+  "slug": "getting-started",
+  "title": "Getting started with the app",
+  "categoryKey": "getting-started",
+  "summary": "Sign in, find Home, and open Help when you need guidance.",
+  "updatedAt": "2026-08-15",
+  "relatedSlugs": ["complete-member-profile"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Welcome"
+    },
+    {
+      "type": "paragraph",
+      "text": "This app helps your organisation manage members, donations, meetings, and more. Use this Help portal whenever you need a short walkthrough."
+    },
+    {
+      "type": "steps",
+      "items": [
+        "Sign in with your organisation account",
+        "Open Home from the main navigation",
+        "Use More → Help to return here anytime"
+      ]
+    },
+    {
+      "type": "callout",
+      "tone": "tip",
+      "text": "Search on the Help home page by topic words such as donation or meeting."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What to learn next"
+    },
+    {
+      "type": "bullets",
+      "items": [
+        "Complete a member profile",
+        "Record a donation",
+        "Create a meeting and invite"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "subject": "Donation payment confirmed",
+  "layout": "email",
+  "htmlTemplateData": {
+    "body": {
+      "header": {
+        "heading": "Payment confirmed",
+        "subHeading": "Thank you for your donation"
+      },
+      "content": {
+        "salutation": "Dear donor,",
+        "paragraph1_blue": "Your donation payment has been confirmed.",
+        "details": [
+          {
+            "heading": "Payment details",
+            "fields": [
+              { "name": "Amount", "value": "₹ {{donation.amount}}" },
+              { "name": "Period", "value": "{{donationPeriod}}" },
+              { "name": "Paid on", "value": "{{paidOn}}" },
+              { "name": "Confirmed by", "value": "{{confirmedByName}}" },
+              { "name": "Donation ID", "value": "{{donation.id}}" }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "textTemplate": "Your donation of ₹ {{donation.amount}} for {{donationPeriod}} was confirmed on {{paidOn}} by {{confirmedByName}}. Donation ID: {{donation.id}}."
+}

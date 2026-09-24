@@ -1,0 +1,12 @@
+{
+  "_comment": "Document / DMS entity types: PROFILE* for member media; remaining keys are identity docs for KYC.",
+  "items": [
+    { "key": "PROFILE_DOC",      "value": "Profile Document" },
+    { "key": "PROFILE",          "value": "Profile Picture" },
+    { "key": "PASSPORT",         "value": "Passport" },
+    { "key": "AADHAAR",          "value": "Aadhaar Card" },
+    { "key": "PAN",              "value": "PAN Card" },
+    { "key": "VOTER_ID",         "value": "Voter ID" },
+    { "key": "DRIVING_LICENSE",  "value": "Driving License" }
+  ]
+}

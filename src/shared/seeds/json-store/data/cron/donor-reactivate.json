@@ -1,0 +1,8 @@
+{
+  "name": "donor-reactivate",
+  "expression": "0 1 * * *",
+  "description": "Reactivate paused or waived donors whose status end date has passed",
+  "handler": "ReactivateDonorsJob",
+  "enabled": true,
+  "inputData": {}
+}
