@@ -1,1 +1,0 @@
-export class GetProjectProgressQuery { constructor(public readonly projectId: string) {} }

@@ -1,8 +1,0 @@
-{
-  "_comment": "Account type options — instrument-based types.",
-  "items": [
-    { "key": "BANK", "value": "Bank Account", "description": "ORG,INDIVIDUAL" },
-    { "key": "INVESTMENT", "value": "Investment Account", "description": "ORG,INDIVIDUAL" },
-    { "key": "WALLET", "value": "Wallet", "description": "INDIVIDUAL" }
-  ]
-}

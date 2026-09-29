@@ -1,1 +1,0 @@
-export class GetProjectDashboardQuery { constructor(public readonly projectId: string) {} }

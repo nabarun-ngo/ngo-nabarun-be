@@ -1,6 +1,0 @@
-{
-  "_comment": "Expense status buckets for list chips.",
-  "outstanding": ["DRAFT", "SUBMITTED", "FINALIZED", "SEND_BACK"],
-  "closed": ["SETTLED"],
-  "excluded": []
-}

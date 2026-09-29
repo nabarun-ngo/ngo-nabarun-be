@@ -1,1 +1,0 @@
-export class GetBeneficiaryByIdQuery { constructor(public readonly id: string) {} }

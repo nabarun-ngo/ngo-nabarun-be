@@ -1,9 +1,0 @@
-{
-  "assets": [
-    {
-      "src": "src/infrastructure/templates",
-      "dest": "dist/infrastructure/templates",
-      "ext": [".hbs"]
-    }
-  ]
-}

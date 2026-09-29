@@ -1,4 +1,0 @@
-{
-  "_comment": "Donor status rules for member schedule updates.",
-  "statusesRequiringEndDate": ["PAUSED", "WAIVED"]
-}

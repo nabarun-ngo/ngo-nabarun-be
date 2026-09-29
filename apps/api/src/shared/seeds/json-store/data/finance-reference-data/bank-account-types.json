@@ -1,7 +1,0 @@
-{
-  "_comment": "Bank account subtype options for BANK accounts (bankDetail.bankAccountType).",
-  "items": [
-    { "key": "Savings", "value": "Savings" },
-    { "key": "Current", "value": "Current" }
-  ]
-}

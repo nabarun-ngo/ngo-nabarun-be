@@ -1,7 +1,0 @@
-{
-  "_comment": "Account owner type options.",
-  "items": [
-    { "key": "ORG", "value": "Organization" },
-    { "key": "INDIVIDUAL", "value": "Individual" }
-  ]
-}

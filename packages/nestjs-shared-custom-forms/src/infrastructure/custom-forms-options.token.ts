@@ -1,1 +1,0 @@
-export const CUSTOM_FORMS_OPTIONS = Symbol('CUSTOM_FORMS_OPTIONS');

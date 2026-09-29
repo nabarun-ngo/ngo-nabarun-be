@@ -1,1 +1,0 @@
-export const DATABASE_OPTIONS = Symbol('DATABASE_OPTIONS');
