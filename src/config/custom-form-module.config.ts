@@ -1,0 +1,18 @@
+import { CustomFormsModule } from "@ssdev-toolkit/nestjs-custom-forms";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { Configkey } from "../shared/enums/config-keys";
+
+import { EntityType } from '../shared/enums/entity-type.enum';
+
+export const CUSTOM_FORM_MODULE = CustomFormsModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (config: ConfigService) => ({
+        allowedEntityTypes: [
+            { entityType: EntityType.Donation },
+            { entityType: EntityType.Workflow, displayName: 'Workflow' },
+            { entityType: EntityType.PublicSite, displayName: 'Public Site' },
+        ],
+        encryptionKey: config.get<string>(Configkey.APP_SECRET),
+    }),
+})

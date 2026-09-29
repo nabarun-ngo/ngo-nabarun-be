@@ -1,0 +1,8 @@
+export enum InterestPayingTerm {
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  HALF_YEARLY = 'HALF_YEARLY',
+  YEARLY = 'YEARLY',
+  AT_MATURITY = 'AT_MATURITY',
+  OTHER = 'OTHER',
+}

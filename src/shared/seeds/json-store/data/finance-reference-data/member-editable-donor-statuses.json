@@ -1,0 +1,8 @@
+{
+  "_comment": "Donor statuses available when editing a member donor.",
+  "items": [
+    { "key": "ACTIVE", "value": "Active" },
+    { "key": "PAUSED", "value": "Paused" },
+    { "key": "WAIVED", "value": "Waived" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "_comment": "Interest paying term options for investment accounts.",
+  "items": [
+    { "key": "MONTHLY", "value": "Monthly" },
+    { "key": "QUARTERLY", "value": "Quarterly" },
+    { "key": "HALF_YEARLY", "value": "Half Yearly" },
+    { "key": "YEARLY", "value": "Yearly" },
+    { "key": "AT_MATURITY", "value": "At Maturity" },
+    { "key": "OTHER", "value": "Other" }
+  ]
+}

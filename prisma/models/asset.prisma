@@ -1,0 +1,53 @@
+// Physical assets register — org property, custody, optional project/expense links.
+
+model Asset {
+  id                      String    @id @default(uuid())
+  name                    String    @db.VarChar(255)
+  category                String    @db.VarChar(50)
+  serialNumber            String?   @db.VarChar(100)
+  location                String?   @db.VarChar(255)
+  status                  String    @db.VarChar(20)
+
+  custodianUserId         String?   @db.VarChar(255)
+  projectId               String?   @db.VarChar(255)
+  expenseId               String?   @db.VarChar(255)
+
+  purchaseDate            DateTime? @db.Date
+  purchaseCost            Decimal?  @db.Decimal(15, 2)
+  currency                String?   @db.VarChar(3)
+  currentValue            Decimal?  @db.Decimal(15, 2)
+  depreciationMethodNotes String?   @db.Text
+  maintenanceNotes        String?   @db.Text
+
+  createdById             String?   @db.VarChar(255)
+  updatedById             String?   @db.VarChar(255)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  version                 Int       @default(0)
+  deletedAt               DateTime?
+
+  custodyHistory          AssetCustodyRecord[]
+
+  @@index([status])
+  @@index([category])
+  @@index([custodianUserId])
+  @@index([projectId])
+  @@index([deletedAt])
+  @@map("ops_assets")
+}
+
+model AssetCustodyRecord {
+  id              String    @id @default(uuid())
+  assetId         String    @db.VarChar(255)
+  custodianUserId String    @db.VarChar(255)
+  assignedAt      DateTime  @default(now())
+  assignedById    String?   @db.VarChar(255)
+  returnedAt      DateTime?
+  returnedById    String?   @db.VarChar(255)
+  notes           String?   @db.Text
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId, assignedAt])
+  @@map("ops_asset_custody_records")
+}

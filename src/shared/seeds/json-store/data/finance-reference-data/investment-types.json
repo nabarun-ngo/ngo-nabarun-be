@@ -1,0 +1,11 @@
+{
+  "_comment": "Investment subtype options for INVESTMENT accounts (bankDetail.bankAccountType).",
+  "items": [
+    { "key": "FD", "value": "Fixed Deposit" },
+    { "key": "MF", "value": "Mutual Fund" },
+    { "key": "DEMAT", "value": "Demat" },
+    { "key": "PPF", "value": "PPF" },
+    { "key": "NSC", "value": "NSC" },
+    { "key": "OTHER", "value": "Other" }
+  ]
+}

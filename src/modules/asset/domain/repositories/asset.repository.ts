@@ -1,0 +1,6 @@
+import { IRepository } from '@ssdev-toolkit/nestjs-core';
+import { Asset, AssetFilter } from '../aggregates/asset/asset.aggregate';
+
+export const IAssetRepository = Symbol('IAssetRepository');
+
+export interface IAssetRepository extends IRepository<Asset, string, AssetFilter> {}

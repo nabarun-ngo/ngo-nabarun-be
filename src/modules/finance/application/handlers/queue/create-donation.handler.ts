@@ -1,0 +1,39 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { QueueHandler, IQueueHandler, Job } from '@ssdev-toolkit/nestjs-queue';
+import { BusinessException } from '@ssdev-toolkit/nestjs-core';
+import { DonationType } from '../../../domain/enums/donation-type.enum';
+import { CreateDonationCommand } from '../../commands/create-donation/create-donation.command';
+import { CreateDonationJob } from './create-donation.job';
+
+@Injectable()
+@QueueHandler(CreateDonationJob, { attempts: 3, backoff: { type: 'exponential', delay: 30_000 } })
+export class CreateDonationJobHandler implements IQueueHandler<CreateDonationJob> {
+  private readonly logger = new Logger(CreateDonationJobHandler.name);
+
+  constructor(private readonly commandBus: CommandBus) { }
+
+  async execute(job: Job<CreateDonationJob>): Promise<void> {
+    const { donorId, amount, firstDate, lastDate, initialStatus, suppressNotification } = job.data.payload;
+    try {
+      const donation = await this.commandBus.execute(
+        new CreateDonationCommand({
+          type: DonationType.REGULAR,
+          amount,
+          donorId,
+          startDate: new Date(firstDate),
+          endDate: new Date(lastDate),
+          initialStatus,
+          suppressNotification,
+        }),
+      );
+      job.log?.('Monthly donation ' + donation.id + ' raised for donor ' + donorId);
+    } catch (error) {
+      if (error instanceof BusinessException) {
+        job.log?.('Skipping donor ' + donorId + ': ' + error.message);
+        return;
+      }
+      throw error;
+    }
+  }
+}
