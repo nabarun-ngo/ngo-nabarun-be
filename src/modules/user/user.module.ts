@@ -23,8 +23,6 @@ import { InitiatePasswordChangeHandler } from './application/commands/initiate-p
 import { DeleteUserHandler } from './application/commands/delete-user/delete-user.handler';
 import { GrantUserConnectionHandler } from './application/commands/grant-user-connection/grant-user-connection.handler';
 import { RevokeUserConnectionHandler } from './application/commands/revoke-user-connection/revoke-user-connection.handler';
-import { IssueIdentityCardHandler } from './application/commands/issue-identity-card/issue-identity-card.handler';
-
 import { GetUserByIdHandler } from './application/queries/get-user-by-id/get-user-by-id.handler';
 import { GetMyProfileHandler } from './application/queries/get-my-profile/get-my-profile.handler';
 import { GetMyOverviewMetricsHandler } from './application/queries/get-my-overview-metrics/get-my-overview-metrics.handler';
@@ -32,7 +30,6 @@ import { ListUsersHandler } from './application/queries/list-users/list-users.ha
 import { GetUserReferenceDataHandler } from './application/queries/get-user-reference-data/get-user-reference-data.handler';
 import { GetUserConnectionsHandler } from './application/queries/get-user-connections/get-user-connections.handler';
 import { GetUserByEmailHandler } from './application/queries/get-user-by-email/get-user-by-email.handler';
-import { GetIdentityCardPdfHandler } from './application/queries/get-identity-card-pdf/get-identity-card-pdf.handler';
 import { VerifyIdentityCardHandler } from './application/queries/verify-identity-card/verify-identity-card.handler';
 
 import { OnUserCreatedHandler } from './application/handlers/events/on-user-created/on-user-created.handler';
@@ -46,9 +43,6 @@ import { UserDeletedCorrespondenceResolver } from './application/notifications/u
 
 import { UserController } from './presentation/controllers/user.controller';
 import { PublicIdentityCardController } from './presentation/controllers/public-identity-card.controller';
-import { IdentityCardPdfService } from './application/services/identity-card-pdf.service';
-import { IdentityCardPdfAdapter } from './infrastructure/adapters/identity-card-pdf.adapter';
-import { IIdentityCardPdfPort } from './domain/ports/identity-card-pdf.port';
 
 const UserRequiredPortsGuard = createRequiredPortsGuard('UserModule', [
   {
@@ -66,7 +60,6 @@ const COMMAND_HANDLERS = [
   DeleteUserHandler,
   GrantUserConnectionHandler,
   RevokeUserConnectionHandler,
-  IssueIdentityCardHandler,
 ];
 
 const QUERY_HANDLERS = [
@@ -77,7 +70,6 @@ const QUERY_HANDLERS = [
   GetUserReferenceDataHandler,
   GetUserConnectionsHandler,
   GetUserByEmailHandler,
-  GetIdentityCardPdfHandler,
   VerifyIdentityCardHandler,
 ];
 
@@ -135,11 +127,9 @@ export class UserModule {
 
         { provide: IUserRepository, useClass: UserPrismaRepository },
         { provide: IIdentityProvider, useClass: Auth0IdentityAdapter },
-        { provide: IIdentityCardPdfPort, useClass: IdentityCardPdfAdapter },
 
         UserLookupAdapter,
         UserFacade,
-        IdentityCardPdfService,
         { provide: IUserLookupPort, useClass: UserLookupAdapter },
 
         ...COMMAND_HANDLERS,

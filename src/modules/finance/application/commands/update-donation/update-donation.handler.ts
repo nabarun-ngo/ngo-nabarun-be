@@ -58,7 +58,7 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
         case DonationStatus.PENDING:
           donation.markAsPending();
           break;
-        case DonationStatus.PAID:
+        case DonationStatus.PAID: {
           donation.markAsPaid({
             paidToAccountId: request.paidToAccountId!,
             paymentMethod: request.paymentMethod!,
@@ -66,6 +66,7 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
             confirmedById: request.confirmedById!,
             paidDate: request.paidOn!,
           });
+
           const txnRef = await this.commandBus.execute(
             new CreateTransactionCommand({
               accountId: donation.paidToAccount?.id!,
@@ -80,6 +81,7 @@ export class UpdateDonationHandler implements ICommandHandler<UpdateDonationComm
           );
           donation.linkTransaction(txnRef);
           break;
+        }
       }
     }
 
