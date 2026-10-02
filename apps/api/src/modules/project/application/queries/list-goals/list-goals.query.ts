@@ -1,1 +1,0 @@
-export class ListGoalsQuery { constructor(public readonly projectId: string, public readonly pageIndex?: number, public readonly pageSize?: number) {} }

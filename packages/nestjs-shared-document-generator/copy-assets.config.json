@@ -1,8 +1,0 @@
-{
-  "assets": [
-    {
-      "src": "src/templates",
-      "dest": "dist/templates"
-    }
-  ]
-}

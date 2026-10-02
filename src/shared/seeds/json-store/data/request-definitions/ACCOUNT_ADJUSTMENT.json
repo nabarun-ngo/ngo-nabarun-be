@@ -1,0 +1,19 @@
+{
+  "id": "ACCOUNT_ADJUSTMENT",
+  "version": 1,
+  "name": "Account Adjustment",
+  "description": "Review and approve or reject account adjustment requests",
+  "formKey": "ACCOUNT_ADJUSTMENT:request",
+  "executorInstructions": "Verify the adjustment details against the member account, then approve or reject with a clear decision note.",
+  "needApproval": true,
+  "approvers": {
+    "roles": ["PRESIDENT", "VICE_PRESIDENT", "SECRETARY"],
+    "permissions": [],
+    "groups": []
+  },
+  "executors": {
+    "roles": ["SECRETARY", "ASSISTANT_SECRETARY"],
+    "permissions": [],
+    "groups": []
+  }
+}

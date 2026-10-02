@@ -4,52 +4,38 @@ node_modules/
 # Build output
 dist/
 
-# Turbo cache
-.turbo/
-
-# TypeScript incremental build
-*.tsbuildinfo
-
-# Accidental tsc emit in source trees (use `tsc --noEmit` for type-check)
-packages/*/src/**/*.js
-packages/*/src/**/*.d.ts
-packages/*/src/**/*.js.map
-packages/*/src/**/*.d.ts.map
-
-apps/*/src/**/*.js
-apps/*/src/**/*.d.ts
-apps/*/src/**/*.js.map
-apps/*/src/**/*.d.ts.map
-!apps/*/src/**/*-stubs.d.ts
-
-# Generated / synced code
+# Generated Prisma client (re-generated from schema — never commit)
 generated/
-apps/api/src/persistence/prisma/
-**/database/generated/**
-**/prisma/models/shared/
-
-# Test coverage
-coverage/
 
 # Environment files
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local
+
+# Prisma shared fragments (synced from nestjs-shared postinstall)
+prisma/models/shared/
 
 # Logs
 *.log
 npm-debug.log*
 
-# IDE / OS
-.vscode/
-.idea/
+# OS
 .DS_Store
 Thumbs.db
+
+# IDE
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Tool caches
-.eslintcache
+# TypeScript incremental build
+*.tsbuildinfo
+
+# Local print previews from identity-card-pdf.adapter.spec.ts
+test-output/
+src/shared/persistence/prisma/
+src/shared/persistence/prisma/**

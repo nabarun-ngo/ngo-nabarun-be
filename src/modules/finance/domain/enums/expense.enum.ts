@@ -1,0 +1,15 @@
+export enum ExpenseStatus {
+  DRAFT = 'DRAFT',
+  SUBMITTED = 'SUBMITTED',
+  FINALIZED = 'FINALIZED',
+  SETTLED = 'SETTLED',
+  SEND_BACK = 'SEND_BACK',
+}
+
+export enum ExpenseRefType {
+  OPERATIONAL = 'OPERATIONAL',
+  ADMINISTRATIVE = 'ADMINISTRATIVE',
+  EVENT = 'EVENT',
+  ADHOC = 'ADHOC',
+  OTHER = 'OTHER',
+}
