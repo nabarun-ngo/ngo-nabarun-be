@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: tag-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  tag_release:
+    name: Create tag and GitHub Release
+    uses: nabarun-ngo/deploy-platform/.github/workflows/reusable-ci-tag-release.yml@main
+    with:
+      templates_repository: nabarun-ngo/deploy-platform
+      version_file: package.json
+      stable_branch: main
+      prerelease_branch: develop
+      prerelease_tag: beta
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TEMPLATES_TOKEN: ${{ secrets.DEPLOY_PLATFORM_TOKEN }}

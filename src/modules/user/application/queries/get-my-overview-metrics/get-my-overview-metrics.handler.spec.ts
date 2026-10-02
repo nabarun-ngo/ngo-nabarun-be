@@ -2,23 +2,25 @@ import { GetMyOverviewMetricsHandler } from './get-my-overview-metrics.handler';
 import { GetMyOverviewMetricsQuery } from './get-my-overview-metrics.query';
 import { IUserRepository } from '../../../domain/repositories/user.repository';
 
+const aggregates = {
+  pendingDonations: 1000,
+  walletBalance: 5000,
+  unsettledExpense: 200,
+  pendingTask: 2,
+};
+
 describe('GetMyOverviewMetricsHandler', () => {
   let userRepo: jest.Mocked<Pick<IUserRepository, 'getMyOverviewAggregates'>>;
   let handler: GetMyOverviewMetricsHandler;
 
   beforeEach(() => {
     userRepo = {
-      getMyOverviewAggregates: jest.fn().mockResolvedValue({
-        pendingDonations: 1000,
-        walletBalance: 5000,
-        unsettledExpense: 200,
-        pendingTask: 2,
-      }),
+      getMyOverviewAggregates: jest.fn().mockResolvedValue(aggregates),
     };
     handler = new GetMyOverviewMetricsHandler(userRepo as unknown as IUserRepository);
   });
 
-  it('returns all metrics when user has every permission', async () => {
+  it('returns every aggregate from one repository read', async () => {
     const result = await handler.execute(
       new GetMyOverviewMetricsQuery(
         'user-1',
@@ -28,12 +30,7 @@ describe('GetMyOverviewMetricsHandler', () => {
       ),
     );
 
-    expect(result).toEqual({
-      pendingDonations: 1000,
-      walletBalance: 5000,
-      unsettledExpense: 200,
-      pendingTask: 2,
-    });
+    expect(result).toEqual(aggregates);
     expect(userRepo.getMyOverviewAggregates).toHaveBeenCalledWith(
       'user-1',
       ['MEMBER'],
@@ -42,12 +39,12 @@ describe('GetMyOverviewMetricsHandler', () => {
     );
   });
 
-  it('omits metrics the user is not permitted to see', async () => {
+  it('still returns every aggregate when only one permission is present', async () => {
     const result = await handler.execute(
       new GetMyOverviewMetricsQuery('user-1', ['read:expenses']),
     );
 
-    expect(result).toEqual({ unsettledExpense: 200 });
+    expect(result).toEqual(aggregates);
     expect(userRepo.getMyOverviewAggregates).toHaveBeenCalledWith(
       'user-1',
       [],
@@ -56,21 +53,26 @@ describe('GetMyOverviewMetricsHandler', () => {
     );
   });
 
-  it('returns empty object when user has no relevant permissions', async () => {
+  it('still reads aggregates when the user has no overview permissions', async () => {
     const result = await handler.execute(
       new GetMyOverviewMetricsQuery('user-1', ['read:notifications']),
     );
 
-    expect(result).toEqual({});
-    expect(userRepo.getMyOverviewAggregates).not.toHaveBeenCalled();
+    expect(result).toEqual(aggregates);
+    expect(userRepo.getMyOverviewAggregates).toHaveBeenCalledWith(
+      'user-1',
+      [],
+      [],
+      ['read:notifications'],
+    );
   });
 
-  it('returns pendingTask when user has read:requests', async () => {
+  it('passes roles and role groups through to the repository', async () => {
     const result = await handler.execute(
       new GetMyOverviewMetricsQuery('user-1', ['read:requests'], ['SECRETARY'], ['OPS']),
     );
 
-    expect(result).toEqual({ pendingTask: 2 });
+    expect(result).toEqual(aggregates);
     expect(userRepo.getMyOverviewAggregates).toHaveBeenCalledWith(
       'user-1',
       ['SECRETARY'],
