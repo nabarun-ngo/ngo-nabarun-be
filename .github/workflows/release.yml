@@ -19,7 +19,7 @@ jobs:
     name: Create tag and GitHub Release
     uses: nabarun-ngo/ngo-nabarun-deploy/.github/workflows/reusable-ci-tag-release.yml@main
     with:
-      templates_repository: nabarun-ngo/deploy-platform
+      templates_repository: nabarun-ngo/ngo-nabarun-deploy
       version_file: package.json
       stable_branch: main
       prerelease_branch: develop
