@@ -22,7 +22,7 @@ jobs:
     with:
       node_version: '22'
       build_root: '.'
-      install_command: 'npm ci'
+      install_command: 'npm ci && npm run generate:db'
       build_command: 'npm run build'
       lint_command: 'npm run lint'
       type_check_command: 'npm run type-check'
