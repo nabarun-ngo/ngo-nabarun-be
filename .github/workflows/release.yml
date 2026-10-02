@@ -17,7 +17,7 @@ permissions:
 jobs:
   tag_release:
     name: Create tag and GitHub Release
-    uses: nabarun-ngo/deploy-platform/.github/workflows/reusable-ci-tag-release.yml@main
+    uses: nabarun-ngo/ngo-nabarun-deploy/.github/workflows/reusable-ci-tag-release.yml@main
     with:
       templates_repository: nabarun-ngo/deploy-platform
       version_file: package.json
@@ -26,4 +26,4 @@ jobs:
       prerelease_tag: beta
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TEMPLATES_TOKEN: ${{ secrets.DEPLOY_PLATFORM_TOKEN }}
+      TEMPLATES_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  check:
+    uses: nabarun-ngo/ngo-nabarun-deploy/.github/workflows/reusable-ci-pr-check.yml@main
+    with:
+      node_version: '22'
+      build_root: '.'
+      install_command: 'npm ci'
+      build_command: 'npm run build'
+      lint_command: 'npm run lint'
+      type_check_command: 'npm run type-check'
+      enable_tests: true
+      test_command: 'npm test'
+      upload_coverage: false
