@@ -5,7 +5,7 @@ It demonstrates the full DDD four-layer pattern (Domain → Application → Infr
 
 ---
 
-## Architecture
+## Architecture 
 
 ```
 src/
