@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { BasePrismaService, PrismaRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
 import { BusinessException } from '@ssdev-toolkit/nestjs-core';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   IMilestoneRepository,
   MilestoneFilter,

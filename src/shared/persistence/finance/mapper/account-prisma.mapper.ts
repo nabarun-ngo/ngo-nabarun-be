@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Account } from '../../../../modules/finance/domain/aggregates/account/account.aggregate';
 import { AccountOwnerType } from '../../../../modules/finance/domain/enums/account-owner-type.enum';
 import { AccountStatus } from '../../../../modules/finance/domain/enums/account-status.enum';

@@ -8,7 +8,7 @@ import { SubscriptionChannel } from '@ssdev-toolkit/nestjs-correspondence/domain
 import { ChannelType } from '@ssdev-toolkit/nestjs-correspondence/domain/enums/channel-type.enum';
 import { EmailRole } from '@ssdev-toolkit/nestjs-correspondence/domain/enums/email-role.enum';
 import { IResourceSubscriptionRepository } from '@ssdev-toolkit/nestjs-correspondence/domain/repositories/resource-subscription.repository';
-import type { PrismaClient } from '../../prisma/client';
+import type { PrismaClient } from '#prisma';
 import type {
   CorrespondenceResourceSubscriptionWhereInput,
   CorrespondenceResourceSubscriptionWhereUniqueInput,
@@ -17,7 +17,7 @@ import type {
   CorrespondenceResourceSubscriptionUpdateInput,
   CorrespondenceResourceSubscriptionUncheckedUpdateInput,
   CorrespondenceResourceSubscriptionOrderByWithRelationInput,
-} from '../../prisma/models/CorrespondenceResourceSubscription';
+} from '#prisma/models/CorrespondenceResourceSubscription';
 
 type SubscriptionRow = Awaited<
   ReturnType<PrismaClient['correspondenceResourceSubscription']['findUnique']>

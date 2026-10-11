@@ -24,6 +24,10 @@
       {
         "include": "**/templates/**/*",
         "outDir": "dist"
+      },
+      {
+        "include": "seeds/json-store/data/**/*.json",
+        "outDir": "dist"
       }
     ],
     "deleteOutDir": true,

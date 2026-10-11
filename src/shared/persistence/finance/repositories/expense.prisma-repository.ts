@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   ExpenseWhereInput,
   ExpenseWhereUniqueInput,
   ExpenseUncheckedCreateInput,
   ExpenseUncheckedUpdateInput,
   ExpenseOrderByWithRelationInput,
-} from '../../prisma/models/Expense';
+} from '#prisma/models/Expense';
 import { IExpenseRepository, ExpenseFilter } from '../../../../modules/finance/domain/repositories/expense.repository';
 import { Expense } from '../../../../modules/finance/domain/aggregates/expense/expense.aggregate';
 import { ExpenseStatus } from '../../../../modules/finance/domain/enums/expense.enum';

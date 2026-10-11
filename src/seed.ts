@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "./shared/persistence/prisma/client";
-import { seedAuth } from "./shared/seeds/auth/auth.seeder";
-import { seedJsonStore } from "./shared/seeds/json-store/json-store.seeder";
+import { PrismaClient } from "#prisma";
+import { seedAuth } from "./seeds/auth/auth.seeder";
+import { seedJsonStore } from "./seeds/json-store/json-store.seeder";
 
 const prisma = new PrismaClient({
     adapter: new PrismaPg({
@@ -18,5 +18,8 @@ async function main() {
 }
 
 main()
-    .catch(console.error)
+    .catch((error) => {
+        console.error(error);
+        process.exitCode = 1;
+    })
     .finally(() => prisma.$disconnect());

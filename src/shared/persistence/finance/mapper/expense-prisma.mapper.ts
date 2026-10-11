@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Expense } from '../../../../modules/finance/domain/aggregates/expense/expense.aggregate';
 import { ExpenseStatus, ExpenseRefType } from '../../../../modules/finance/domain/enums/expense.enum';
 import { ExpenseItem } from '../../../../modules/finance/domain/value-objects/expense-item.vo';

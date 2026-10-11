@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient, Prisma } from '../../prisma/client';
+import { PrismaClient, Prisma } from '#prisma';
 import type {
   UserProfileWhereInput,
   UserProfileWhereUniqueInput,
   UserProfileOrderByWithRelationInput,
   UserProfileCreateInput,
   UserProfileUpdateInput,
-} from '../../prisma/models/UserProfile';
+} from '#prisma/models/UserProfile';
 import { User, UserRehydrateProps } from '../../../../modules/user/domain/aggregates/user/user.aggregate';
 import { IUserRepository, UserFilter, UserOverviewAggregates } from '../../../../modules/user/domain/repositories/user.repository';
 import { PhoneNumber } from '../../../../modules/user/domain/value-objects/phone-number.vo';

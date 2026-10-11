@@ -5,7 +5,7 @@ import {
 } from '@ssdev-toolkit/nestjs-persistence';
 import { UserNotification, UserNotificationFilter } from '@ssdev-toolkit/nestjs-correspondence/domain/aggregates/user-notification.aggregate';
 import { IUserNotificationRepository } from '@ssdev-toolkit/nestjs-correspondence/domain/repositories/user-notification.repository';
-import type { PrismaClient } from '../../prisma/client';
+import type { PrismaClient } from '#prisma';
 import type {
   CorrespondenceUserNotificationModel,
   CorrespondenceUserNotificationWhereInput,
@@ -15,7 +15,7 @@ import type {
   CorrespondenceUserNotificationUpdateInput,
   CorrespondenceUserNotificationUncheckedUpdateInput,
   CorrespondenceUserNotificationOrderByWithRelationInput,
-} from '../../prisma/models/CorrespondenceUserNotification';
+} from '#prisma/models/CorrespondenceUserNotification';
 
 @Injectable()
 export class UserNotificationPrismaRepository

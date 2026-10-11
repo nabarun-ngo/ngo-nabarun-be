@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import type {
   MeetingWhereInput,
   MeetingWhereUniqueInput,
   MeetingUncheckedCreateInput,
   MeetingUncheckedUpdateInput,
   MeetingOrderByWithRelationInput,
-} from '../../prisma/models/Meeting';
+} from '#prisma/models/Meeting';
 import { Meeting, MeetingFilter } from '../../../../modules/meeting/domain/aggregates/meeting/meeting.aggregate';
 import { IMeetingRepository } from '../../../../modules/meeting/domain/repositories/meeting.repository';
 import { MeetingPersistence, MeetingPrismaMapper } from '../mapper/meeting-prisma.mapper';

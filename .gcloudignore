@@ -1,0 +1,7 @@
+.gcloudignore
+node_modules/
+*.map
+dist/seed.js
+dist/seeds/
+prisma/
+prisma.config.ts

@@ -3,12 +3,12 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   FormSubmissionWhereInput,
   FormSubmissionWhereUniqueInput,
   FormSubmissionOrderByWithRelationInput,
-} from '../../prisma/models/FormSubmission';
+} from '#prisma/models/FormSubmission';
 import {
   IFormSubmissionRepository,
   IFormRepository,

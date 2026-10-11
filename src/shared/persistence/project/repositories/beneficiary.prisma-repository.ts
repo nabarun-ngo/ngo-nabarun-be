@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   BeneficiaryWhereInput,
   BeneficiaryWhereUniqueInput,
   BeneficiaryUncheckedCreateInput,
   BeneficiaryUncheckedUpdateInput,
   BeneficiaryOrderByWithRelationInput,
-} from '../../prisma/models/Beneficiary';
+} from '#prisma/models/Beneficiary';
 import { IBeneficiaryRepository } from '../../../../modules/project/domain/repositories/beneficiary.repository';
 import { Beneficiary, BeneficiaryFilter } from '../../../../modules/project/domain/aggregates/beneficiary/beneficiary.aggregate';
 import { BeneficiaryPrismaMapper } from '../mapper/beneficiary-prisma.mapper';

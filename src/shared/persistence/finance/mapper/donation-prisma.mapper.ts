@@ -4,7 +4,7 @@ import { DonationType } from '../../../../modules/finance/domain/enums/donation-
 import { DonationStatus } from '../../../../modules/finance/domain/enums/donation-status.enum';
 import { PaymentMethod } from '../../../../modules/finance/domain/enums/payment-method.enum';
 import { UPIPaymentType } from '../../../../modules/finance/domain/enums/upi-payment-type.enum';
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { MapperUtils } from './mapper-utils';
 import { FullDonation } from '../repositories/donation.prisma-repository';
 import { AccountPrismaMapper } from './account-prisma.mapper';

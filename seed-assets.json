@@ -1,9 +1,0 @@
-{
-  "assets": [
-    {
-      "src": "src/shared/seeds/json-store/data",
-      "dest": "dist/shared/seeds/json-store/data",
-      "match": "\\.json$"
-    }
-  ]
-}

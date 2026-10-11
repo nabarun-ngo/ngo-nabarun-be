@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { RequestEvent, RequestPersonRef, RequestRecord } from '../../../../modules/request/domain/models/request.model';
 
 const personSelect = { id: true, firstName: true, lastName: true } as const;

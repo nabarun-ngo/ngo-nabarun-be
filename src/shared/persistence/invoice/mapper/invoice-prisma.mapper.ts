@@ -2,8 +2,8 @@ import { MapperUtils } from '../../finance/mapper/mapper-utils';
 import { Invoice } from '../../../../modules/invoice/domain/aggregates/invoice/invoice.aggregate';
 import { InvoiceEntityType } from '../../../../modules/invoice/domain/enums/invoice-entity-type.enum';
 import { InvoiceStatus } from '../../../../modules/invoice/domain/enums/invoice-status.enum';
-import { Prisma } from '../../prisma/client';
-import type { Invoice as InvoiceRow } from '../../prisma/client';
+import { Prisma } from '#prisma';
+import type { Invoice as InvoiceRow } from '#prisma';
 
 export class InvoicePrismaMapper {
   static toInvoiceDomain(row: InvoiceRow | null): Invoice | null {

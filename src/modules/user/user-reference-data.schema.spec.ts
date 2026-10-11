@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { UserReferenceDataPayloadSchema } from './user-reference-data.schema';
 
-const userReferenceDataSeedDir = join(__dirname, '../../shared/seeds/json-store/data/user-reference-data');
+const userReferenceDataSeedDir = join(__dirname, '../../seeds/json-store/data/user-reference-data');
 
 describe('UserReferenceDataPayloadSchema', () => {
   it('accepts payloads with _comment metadata', () => {

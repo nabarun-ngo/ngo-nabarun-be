@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ["dist/**", "coverage/**", "node_modules/**"],
+    ignores: ["dist/**", "coverage/**", "node_modules/**", "src/generated/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -33,6 +33,12 @@ export default [
       "no-unused-private-class-members": "off",
       "no-useless-assignment": "off",
       "preserve-caught-error": "off",
+      "no-restricted-imports": ["error", {
+        patterns: [{
+          group: ["**/generated/prisma", "**/generated/prisma/**"],
+          message: "Import the Prisma client via '#prisma'.",
+        }],
+      }],
     },
   },
 ];

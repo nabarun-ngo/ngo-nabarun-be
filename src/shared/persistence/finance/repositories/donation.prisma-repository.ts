@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
 import { BaseFilter, Page, SortOrder } from '@ssdev-toolkit/nestjs-core';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   DonationWhereInput,
   DonationWhereUniqueInput,
   DonationUncheckedCreateInput,
   DonationUncheckedUpdateInput,
   DonationOrderByWithRelationInput,
-} from '../../prisma/models/Donation';
+} from '#prisma/models/Donation';
 import { IDonationRepository, DonationFilter } from '../../../../modules/finance/domain/repositories/donation.repository';
 import { Donation } from '../../../../modules/finance/domain/aggregates/donation/donation.aggregate';
 import { DonationStatus } from '../../../../modules/finance/domain/enums/donation-status.enum';

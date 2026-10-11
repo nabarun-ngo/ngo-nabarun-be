@@ -3,7 +3,7 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   AuthUserPermissionWhereInput,
   AuthUserPermissionWhereUniqueInput,
@@ -12,7 +12,7 @@ import {
   AuthUserPermissionUpdateInput,
   AuthUserPermissionUncheckedUpdateInput,
   AuthUserPermissionOrderByWithRelationInput,
-} from '../../prisma/models/AuthUserPermission';
+} from '#prisma/models/AuthUserPermission';
 import {
   UserPermission,
   UserPermissionFilter,

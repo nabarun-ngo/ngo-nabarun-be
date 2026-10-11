@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '@ssdev-toolkit/nestjs-persistence';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../shared/persistence/prisma/client';
+import { PrismaClient } from '#prisma';
 import { Configkey } from '../shared/enums/config-keys';
 import { PersistenceModule } from '../shared/persistence/persistence.module';
 

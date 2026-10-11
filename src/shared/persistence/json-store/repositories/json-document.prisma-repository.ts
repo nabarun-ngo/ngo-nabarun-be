@@ -4,12 +4,12 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient, Prisma } from '../../prisma/client';
+import { PrismaClient, Prisma } from '#prisma';
 import {
   JsonStoreDocumentWhereInput,
   JsonStoreDocumentWhereUniqueInput,
   JsonStoreDocumentOrderByWithRelationInput,
-} from '../../prisma/models/JsonStoreDocument';
+} from '#prisma/models/JsonStoreDocument';
 import { IJsonDocumentRepository, JsonDocumentFilter } from '@ssdev-toolkit/nestjs-json-store';
 import { JsonDocument } from '@ssdev-toolkit/nestjs-json-store/domain/aggregates/json-document.aggregate';
 

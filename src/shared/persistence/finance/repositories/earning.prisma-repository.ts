@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   EarningWhereInput,
   EarningWhereUniqueInput,
   EarningUncheckedCreateInput,
   EarningUncheckedUpdateInput,
   EarningOrderByWithRelationInput,
-} from '../../prisma/models/Earning';
+} from '#prisma/models/Earning';
 import { IEarningRepository, EarningFilter } from '../../../../modules/finance/domain/repositories/earning.repository';
 import { Earning } from '../../../../modules/finance/domain/aggregates/earning/earning.aggregate';
 import { EarningPrismaMapper } from '../mapper/earning-prisma.mapper';

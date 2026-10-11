@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Transaction } from '../../../../modules/finance/domain/entities/transaction.entity';
 import { TransactionRefType, TransactionStatus, TransactionType } from '../../../../modules/finance/domain/enums/transaction.enum';
 import { MapperUtils } from './mapper-utils';

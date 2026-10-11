@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import type {
   ProjectWhereInput,
   ProjectWhereUniqueInput,
   ProjectUncheckedCreateInput,
   ProjectUncheckedUpdateInput,
   ProjectOrderByWithRelationInput,
-} from '../../prisma/models/Project';
+} from '#prisma/models/Project';
 import { Project, ProjectFilter } from '../../../../modules/project/domain/aggregates/project/project.aggregate';
 import { IProjectRepository } from '../../../../modules/project/domain/repositories/project.repository';
 import { ProjectPersistence, ProjectPrismaMapper } from '../mapper/project-prisma.mapper';

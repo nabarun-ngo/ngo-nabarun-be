@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   DonorWhereInput,
   DonorWhereUniqueInput,
   DonorUncheckedCreateInput,
   DonorUncheckedUpdateInput,
   DonorOrderByWithRelationInput,
-} from '../../prisma/models/Donor';
+} from '#prisma/models/Donor';
 import { Donor } from '../../../../modules/finance/domain/aggregates/donor/donor.aggregate';
 import { DonorStatus } from '../../../../modules/finance/domain/enums/donor-status.enum';
 import { DonorType } from '../../../../modules/finance/domain/enums/donor-type.enum';

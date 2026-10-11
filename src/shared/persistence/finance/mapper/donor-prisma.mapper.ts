@@ -1,7 +1,7 @@
 import { Donor } from '../../../../modules/finance/domain/aggregates/donor/donor.aggregate';
 import { DonorStatus } from '../../../../modules/finance/domain/enums/donor-status.enum';
 import { DonorType } from '../../../../modules/finance/domain/enums/donor-type.enum';
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { MapperUtils } from './mapper-utils';
 
 type DonorRow = {

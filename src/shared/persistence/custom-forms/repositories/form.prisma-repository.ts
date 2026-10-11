@@ -4,14 +4,14 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient, Prisma } from '../../prisma/client';
+import { PrismaClient, Prisma } from '#prisma';
 import {
   FormWhereInput,
   FormWhereUniqueInput,
   FormOrderByWithRelationInput,
   FormCreateInput,
   FormUpdateInput,
-} from '../../prisma/models/Form';
+} from '#prisma/models/Form';
 import { IFormRepository } from '@ssdev-toolkit/nestjs-custom-forms';
 import { Form } from '@ssdev-toolkit/nestjs-custom-forms/domain/aggregates/form/form.aggregate';
 import { FormFieldDefinition } from '@ssdev-toolkit/nestjs-custom-forms/domain/entities/form-field-definition/form-field-definition.entity';

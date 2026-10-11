@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   GoalWhereInput,
   GoalWhereUniqueInput,
   GoalUncheckedCreateInput,
   GoalUncheckedUpdateInput,
   GoalOrderByWithRelationInput,
-} from '../../prisma/models/Goal';
+} from '#prisma/models/Goal';
 import { IGoalRepository } from '../../../../modules/project/domain/repositories/goal.repository';
 import { Goal, GoalFilter } from '../../../../modules/project/domain/aggregates/goal/goal.aggregate';
 import { GoalPrismaMapper } from '../mapper/goal-prisma.mapper';

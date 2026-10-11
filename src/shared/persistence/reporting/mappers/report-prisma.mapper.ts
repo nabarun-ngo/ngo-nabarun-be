@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Report } from '../../../../modules/reporting/domain/aggregates/report/report.aggregate';
 import { ReportStatus } from '../../../../modules/reporting/domain/enums/report-status.enum';
 

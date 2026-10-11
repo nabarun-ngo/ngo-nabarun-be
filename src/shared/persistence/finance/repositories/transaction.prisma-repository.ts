@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
 import { BaseFilter, Page } from '@ssdev-toolkit/nestjs-core';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import { ITransactionRepository, TransactionFilter } from '../../../../modules/finance/domain/repositories/transaction.repository';
 import { Transaction } from '../../../../modules/finance/domain/entities/transaction.entity';
 import { TransactionPrismaMapper } from '../mapper/transaction-prisma.mapper';

@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Earning } from '../../../../modules/finance/domain/aggregates/earning/earning.aggregate';
 import { EarningCategory, EarningStatus } from '../../../../modules/finance/domain/enums/earning.enum';
 import { MapperUtils } from './mapper-utils';
