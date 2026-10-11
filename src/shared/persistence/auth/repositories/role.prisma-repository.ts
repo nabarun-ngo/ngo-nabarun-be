@@ -3,7 +3,7 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   AuthRoleWhereInput,
   AuthRoleWhereUniqueInput,
@@ -12,7 +12,7 @@ import {
   AuthRoleUpdateInput,
   AuthRoleUncheckedUpdateInput,
   AuthRoleOrderByWithRelationInput,
-} from '../../prisma/models/AuthRole';
+} from '#prisma/models/AuthRole';
 import { Role, RoleFilter } from '@ssdev-toolkit/nestjs-auth/domain/aggregates/role/role.aggregate';
 import { IRoleRepository } from '@ssdev-toolkit/nestjs-auth/domain/repositories/role.repository';
 

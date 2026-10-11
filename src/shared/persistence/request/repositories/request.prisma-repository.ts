@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Page } from '@ssdev-toolkit/nestjs-core';
 import { BasePrismaService, PrismaRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import { RequestStatus } from '../../../../modules/request/domain/enums/request-status.enum';
 import {
   AppendRequestEventInput,

@@ -37,5 +37,4 @@ Thumbs.db
 
 # Local print previews from identity-card-pdf.adapter.spec.ts
 test-output/
-src/shared/persistence/prisma/
-src/shared/persistence/prisma/**
+src/generated/

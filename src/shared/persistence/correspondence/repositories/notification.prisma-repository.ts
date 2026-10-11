@@ -6,7 +6,7 @@ import {
 import { Notification, NotificationFilter, NotificationType, NotificationPriority } from '@ssdev-toolkit/nestjs-correspondence/domain/aggregates/notification.aggregate';
 import { UserNotification } from '@ssdev-toolkit/nestjs-correspondence/domain/aggregates/user-notification.aggregate';
 import { INotificationRepository } from '@ssdev-toolkit/nestjs-correspondence/domain/repositories/notification.repository';
-import type { PrismaClient } from '../../prisma/client';
+import type { PrismaClient } from '#prisma';
 import type {
   CorrespondenceNotificationModel,
   CorrespondenceNotificationWhereInput,
@@ -16,7 +16,7 @@ import type {
   CorrespondenceNotificationUpdateInput,
   CorrespondenceNotificationUncheckedUpdateInput,
   CorrespondenceNotificationOrderByWithRelationInput,
-} from '../../prisma/models/CorrespondenceNotification';
+} from '#prisma/models/CorrespondenceNotification';
 
 @Injectable()
 export class NotificationPrismaRepository

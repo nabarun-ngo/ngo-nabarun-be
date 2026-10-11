@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import type {
   BookWhereInput,
   BookWhereUniqueInput,
   BookUncheckedCreateInput,
   BookUncheckedUpdateInput,
   BookOrderByWithRelationInput,
-} from '../../prisma/models/Book';
+} from '#prisma/models/Book';
 import { Book, BookFilter } from '../../../../modules/book-bank/domain/aggregates/book/book.aggregate';
 import { IBookRepository } from '../../../../modules/book-bank/domain/repositories/book.repository';
 import { BookPrismaMapper, BookRow } from '../mapper/book-prisma.mapper';

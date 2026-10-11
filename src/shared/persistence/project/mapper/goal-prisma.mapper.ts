@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Goal } from '../../../../modules/project/domain/aggregates/goal/goal.aggregate';
 import { GoalPriority, GoalStatus } from '../../../../modules/project/domain/enums/goal.enum';
 import { MapperUtils } from '../../finance/mapper/mapper-utils';

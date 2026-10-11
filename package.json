@@ -6,13 +6,23 @@
   "engines": {
     "node": ">=22"
   },
+  "imports": {
+    "#prisma": {
+      "types": "./src/generated/prisma/client.ts",
+      "default": "./dist/generated/prisma/client.js"
+    },
+    "#prisma/*": {
+      "types": "./src/generated/prisma/*.ts",
+      "default": "./dist/generated/prisma/*.js"
+    }
+  },
   "scripts": {
     "generate:db": "npx prisma generate",
     "start:redis": "powershell -ExecutionPolicy Bypass -File \"./scripts/Start-Redis.ps1\"",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:deploy": "npx prisma migrate deploy",
     "migrate:deploy:ci": "npm install && prisma migrate deploy",
-    "clean": "rimraf dist && rimraf src/shared/persistence/prisma",
+    "clean": "rimraf dist && rimraf src/generated",
     "build": "npm run clean && npm run generate:db && nest build",
     "build:watch": "npm run clean && npm run generate:db && nest build --watch",
     "generate:swagger": "node dist/swagger-gen.js",
@@ -22,7 +32,8 @@
     "dev:debug": "nest start --debug --watch",
     "mock:spec": "node scripts/build-mock-spec.mjs",
     "mock": "npm run mock:spec && prism mock swagger.mock.json --port 8080",
-    "seed": "node scripts/copy-assets.mjs --config=seed-assets.json && node dist/seed",
+    "seed": "node dist/seed",
+    "etl:legacy": "node scripts/legacy-etl.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -147,6 +158,10 @@
           }
         }
       ]
+    },
+    "moduleNameMapper": {
+      "^#prisma$": "<rootDir>/src/generated/prisma/client.ts",
+      "^#prisma/(.*)$": "<rootDir>/src/generated/prisma/$1.ts"
     },
     "testEnvironment": "node",
     "setupFiles": [

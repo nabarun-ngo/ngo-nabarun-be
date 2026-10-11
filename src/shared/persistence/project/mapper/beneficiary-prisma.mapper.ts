@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Beneficiary } from '../../../../modules/project/domain/aggregates/beneficiary/beneficiary.aggregate';
 import { BeneficiaryGender, BeneficiaryStatus, BeneficiaryType } from '../../../../modules/project/domain/enums/beneficiary.enum';
 import { MapperUtils } from '../../finance/mapper/mapper-utils';

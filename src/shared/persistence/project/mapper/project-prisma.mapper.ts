@@ -1,4 +1,4 @@
-import { Prisma } from '../../prisma/client';
+import { Prisma } from '#prisma';
 import { Project } from '../../../../modules/project/domain/aggregates/project/project.aggregate';
 import { ProjectCategory, ProjectPhase, ProjectStatus } from '../../../../modules/project/domain/enums/project.enum';
 import { MapperUtils } from '../../finance/mapper/mapper-utils';

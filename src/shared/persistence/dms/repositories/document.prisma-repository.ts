@@ -3,12 +3,12 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   DocumentReferenceWhereInput,
   DocumentReferenceWhereUniqueInput,
   DocumentReferenceOrderByWithRelationInput,
-} from '../../prisma/models/DocumentReference';
+} from '#prisma/models/DocumentReference';
 import { DocumentFilter, IDocumentRepository } from '@ssdev-toolkit/nestjs-dms';
 import { Document } from '@ssdev-toolkit/nestjs-dms/domain/aggregates/document.aggregate';
 import { DocumentMapping } from '@ssdev-toolkit/nestjs-dms/domain/entities/document-mapping.entity';

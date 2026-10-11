@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../persistence/prisma/client';
+import { PrismaClient } from '#prisma';
 import { JsonStoreSeedData } from './json-store-seed.types';
 
 /** Ensures `Record<string, unknown>` satisfies Prisma's `InputJsonValue` constraint. */

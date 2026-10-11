@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import type {
   ActivityWhereInput,
   ActivityWhereUniqueInput,
   ActivityUncheckedCreateInput,
   ActivityUncheckedUpdateInput,
   ActivityOrderByWithRelationInput,
-} from '../../prisma/models/Activity';
+} from '#prisma/models/Activity';
 import { Activity, ActivityFilter } from '../../../../modules/project/domain/aggregates/activity/activity.aggregate';
 import { IActivityRepository } from '../../../../modules/project/domain/repositories/activity.repository';
 import { ActivityPersistence, ActivityPrismaMapper } from '../mapper/activity-prisma.mapper';

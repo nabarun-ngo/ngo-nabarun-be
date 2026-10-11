@@ -4,7 +4,7 @@
 // Models are defined in prisma/models/*.prisma (multi-file schema, Prisma 7).
 // All *.prisma files under prisma/ are merged at generate time.
 //
-// Generated client output: ../src/persistence/prisma  (gitignored)
+// Generated client output: ../src/generated/prisma (gitignored)
 // ─────────────────────────────────────────────────────────────────────────────
 
 datasource db {
@@ -13,6 +13,6 @@ datasource db {
 
 generator client {
   provider     = "prisma-client"
-  output       = "../src/shared/persistence/prisma"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }

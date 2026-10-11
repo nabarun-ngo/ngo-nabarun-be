@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
 import { BaseFilter, Page } from '@ssdev-toolkit/nestjs-core';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   AccountWhereInput,
   AccountWhereUniqueInput,
   AccountUncheckedCreateInput,
   AccountUncheckedUpdateInput,
   AccountOrderByWithRelationInput,
-} from '../../prisma/models/Account';
+} from '#prisma/models/Account';
 import { Account } from '../../../../modules/finance/domain/aggregates/account/account.aggregate';
 import { AccountFilter, IAccountRepository } from '../../../../modules/finance/domain/repositories/account.repository';
 import { AccountPrismaMapper } from '../mapper/account-prisma.mapper';

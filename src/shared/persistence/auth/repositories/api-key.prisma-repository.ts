@@ -3,7 +3,7 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   AuthApiKeyWhereInput,
   AuthApiKeyWhereUniqueInput,
@@ -12,7 +12,7 @@ import {
   AuthApiKeyUpdateInput,
   AuthApiKeyUncheckedUpdateInput,
   AuthApiKeyOrderByWithRelationInput,
-} from '../../prisma/models/AuthApiKey';
+} from '#prisma/models/AuthApiKey';
 import { ApiKey, ApiKeyFilter } from '@ssdev-toolkit/nestjs-auth/domain/aggregates/api-key/api-key.aggregate';
 import { IApiKeyRepository } from '@ssdev-toolkit/nestjs-auth/domain/repositories/api-key.repository';
 

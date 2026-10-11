@@ -2,8 +2,8 @@ import { join } from 'path';
 import { loadJsonStoreSeedFromDir } from './json-store-seed.loader';
 import { seedJsonStoreData } from './json-store-seed.runner';
 import { validateJsonStoreSeedData } from './validate-json-store-seed-data';
-import { PrismaClient } from '../../persistence/prisma/client';
-import { ZodJsonDocumentPayloadValidatorAdapter } from '../../integrations/json-store/json-document-payload-validator.adapter';
+import { PrismaClient } from '#prisma';
+import { ZodJsonDocumentPayloadValidatorAdapter } from '../../shared/integrations/json-store/json-document-payload-validator.adapter';
 
 export { seedJsonStoreData } from './json-store-seed.runner';
 

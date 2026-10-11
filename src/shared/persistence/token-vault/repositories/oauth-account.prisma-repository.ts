@@ -3,7 +3,7 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
-import type { PrismaClient } from '../../prisma/client';
+import type { PrismaClient } from '#prisma';
 import type {
   TokenVaultOAuthAccountWhereInput,
   TokenVaultOAuthAccountWhereUniqueInput,
@@ -12,7 +12,7 @@ import type {
   TokenVaultOAuthAccountUpdateInput,
   TokenVaultOAuthAccountUncheckedUpdateInput,
   TokenVaultOAuthAccountOrderByWithRelationInput,
-} from '../../prisma/models/TokenVaultOAuthAccount';
+} from '#prisma/models/TokenVaultOAuthAccount';
 import {
   OAuthAccount,
   OAuthAccountFilter,

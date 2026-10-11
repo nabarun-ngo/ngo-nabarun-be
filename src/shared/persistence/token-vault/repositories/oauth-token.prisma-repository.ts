@@ -4,7 +4,7 @@ import {
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence';
 import { isEncryptedText } from '@ssdev-toolkit/nestjs-core';
-import type { PrismaClient } from '../../prisma/client';
+import type { PrismaClient } from '#prisma';
 import type {
   TokenVaultOAuthTokenWhereInput,
   TokenVaultOAuthTokenWhereUniqueInput,
@@ -13,7 +13,7 @@ import type {
   TokenVaultOAuthTokenUpdateInput,
   TokenVaultOAuthTokenUncheckedUpdateInput,
   TokenVaultOAuthTokenOrderByWithRelationInput,
-} from '../../prisma/models/TokenVaultOAuthToken';
+} from '#prisma/models/TokenVaultOAuthToken';
 import {
   EncryptedToken,
   InvalidEncryptedTokenError,

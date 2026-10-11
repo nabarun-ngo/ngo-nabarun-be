@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   InvoiceWhereInput,
   InvoiceWhereUniqueInput,
   InvoiceUncheckedCreateInput,
   InvoiceUncheckedUpdateInput,
   InvoiceOrderByWithRelationInput,
-} from '../../prisma/models/Invoice';
+} from '#prisma/models/Invoice';
 import { IInvoiceRepository, InvoiceFilter } from '../../../../modules/invoice/domain/repositories/invoice.repository';
 import { Invoice } from '../../../../modules/invoice/domain/aggregates/invoice/invoice.aggregate';
 import { InvoiceEntityType } from '../../../../modules/invoice/domain/enums/invoice-entity-type.enum';

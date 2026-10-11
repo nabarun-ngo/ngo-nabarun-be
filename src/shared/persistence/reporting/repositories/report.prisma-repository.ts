@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BasePrismaService, PrismaCrudRepositoryBase } from '@ssdev-toolkit/nestjs-persistence';
-import { Prisma, PrismaClient } from '../../prisma/client';
+import { Prisma, PrismaClient } from '#prisma';
 import type {
   ReportWhereInput,
   ReportWhereUniqueInput,
   ReportCreateInput,
   ReportUpdateInput,
   ReportOrderByWithRelationInput,
-} from '../../prisma/models/Report';
+} from '#prisma/models/Report';
 import { Report, ReportFilter } from '../../../../modules/reporting/domain/aggregates/report/report.aggregate';
 import { IReportRepository } from '../../../../modules/reporting/domain/repositories/report.repository';
 import { ReportPrismaMapper } from '../mappers/report-prisma.mapper';

@@ -3,12 +3,12 @@ import {
   BasePrismaService,
   PrismaCrudRepositoryBase,
 } from '@ssdev-toolkit/nestjs-persistence'
-import { PrismaClient } from '../../prisma/client';
+import { PrismaClient } from '#prisma';
 import {
   CommentWhereInput,
   CommentWhereUniqueInput,
   CommentOrderByWithRelationInput,
-} from '../../prisma/models/Comment';
+} from '#prisma/models/Comment';
 import {
   Comment,
   CommentFilter,
